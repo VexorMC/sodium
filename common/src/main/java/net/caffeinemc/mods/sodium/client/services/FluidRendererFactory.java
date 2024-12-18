@@ -4,8 +4,7 @@ import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
 import net.caffeinemc.mods.sodium.client.model.quad.blender.BlendedColorProvider;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.FluidRenderer;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
+import net.minecraft.block.BlockState;
 
 public interface FluidRendererFactory {
     FluidRendererFactory INSTANCE = Services.load(FluidRendererFactory.class);
@@ -22,7 +21,7 @@ public interface FluidRendererFactory {
      */
     FluidRenderer createPlatformFluidRenderer(ColorProviderRegistry colorRegistry, LightPipelineProvider lightPipelineProvider);
 
-    BlendedColorProvider<FluidState> getWaterColorProvider();
+    BlendedColorProvider<BlockState> getWaterColorProvider();
 
     BlendedColorProvider<BlockState> getWaterBlockColorProvider();
 }

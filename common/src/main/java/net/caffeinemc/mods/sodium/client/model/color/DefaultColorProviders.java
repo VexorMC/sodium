@@ -1,17 +1,17 @@
 package net.caffeinemc.mods.sodium.client.model.color;
 
+import dev.lunasa.compat.mojang.minecraft.IBlockColor;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.blender.BlendedColorProvider;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.minecraft.client.color.block.BlockColor;
-import net.minecraft.client.renderer.BiomeColors;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.color.world.BiomeColors;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.BlockState;
 
 import java.util.Arrays;
 
 public class DefaultColorProviders {
-    public static ColorProvider<BlockState> adapt(BlockColor color) {
+    public static ColorProvider<BlockState> adapt(IBlockColor color) {
         return new VanillaAdapter(color);
     }
 
@@ -24,7 +24,7 @@ public class DefaultColorProviders {
 
         @Override
         protected int getColor(LevelSlice slice, T state, BlockPos pos) {
-            return 0xFF000000 | BiomeColors.getAverageGrassColor(slice, pos);
+            return 0xFF000000 | BiomeColors.getGrassColor(slice, pos);
         }
     }
 
@@ -37,20 +37,20 @@ public class DefaultColorProviders {
 
         @Override
         protected int getColor(LevelSlice slice, T state, BlockPos pos) {
-            return 0xFF000000 | BiomeColors.getAverageFoliageColor(slice, pos);
+            return 0xFF000000 | BiomeColors.getFoliageColor(slice, pos);
         }
     }
 
     private static class VanillaAdapter implements ColorProvider<BlockState> {
-        private final BlockColor color;
+        private final IBlockColor color;
 
-        private VanillaAdapter(BlockColor color) {
+        private VanillaAdapter(IBlockColor color) {
             this.color = color;
         }
 
         @Override
-        public void getColors(LevelSlice slice, BlockPos pos, BlockPos.MutableBlockPos scratchPos, BlockState state, ModelQuadView quad, int[] output) {
-            Arrays.fill(output, 0xFF000000 | this.color.getColor(state, slice, pos, quad.getTintIndex()));
+        public void getColors(LevelSlice slice, BlockPos pos, BlockPos.Mutable scratchPos, BlockState state, ModelQuadView quad, int[] output) {
+            Arrays.fill(output, 0xFF000000 | this.color.colorMultiplier(state, slice, pos, quad.getTintIndex()));
         }
     }
 }

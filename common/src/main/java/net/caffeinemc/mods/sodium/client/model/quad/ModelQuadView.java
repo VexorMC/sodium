@@ -2,7 +2,7 @@ package net.caffeinemc.mods.sodium.client.model.quad;
 
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import net.caffeinemc.mods.sodium.api.util.NormI8;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
 
 /**
@@ -67,7 +67,7 @@ public interface ModelQuadView {
     /**
      * @return The sprite texture used by this quad, or null if none is attached
      */
-    TextureAtlasSprite getSprite();
+    Sprite getSprite();
     
     /**
      * @return The face used by this quad for lighting effects

@@ -8,7 +8,7 @@ import net.caffeinemc.mods.sodium.api.vertex.format.common.EntityVertex;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.RenderShape;

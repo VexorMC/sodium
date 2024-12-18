@@ -15,25 +15,10 @@ val configurationPreLaunch = configurations.create("preLaunchDeps") {
 
 sourceSets {
     val main = getByName("main")
-    val api = create("api")
-    val workarounds = create("workarounds")
-
-    api.apply {
-        java {
-            compileClasspath += main.compileClasspath
-        }
-    }
-
-    workarounds.apply {
-        java {
-            compileClasspath += configurationPreLaunch
-        }
-    }
 
     main.apply {
         java {
-            compileClasspath += api.output
-            compileClasspath += workarounds.output
+            srcDirs("src/api/java")
         }
     }
 
@@ -57,8 +42,6 @@ dependencies {
 
     // We need to be careful during pre-launch that we don't touch any Minecraft classes, since other mods
     // will not yet have an opportunity to apply transformations.
-    configurationPreLaunch("org.lwjgl:lwjgl:3.3.3")
-    configurationPreLaunch("org.lwjgl:lwjgl-opengl:3.3.3")
     configurationPreLaunch("net.java.dev.jna:jna:5.14.0")
     configurationPreLaunch("net.java.dev.jna:jna-platform:5.14.0")
     configurationPreLaunch("org.slf4j:slf4j-api:2.0.9")
@@ -109,8 +92,6 @@ fun exportSourceSet(name: String, sourceSet: SourceSet) {
 }
 
 exportSourceSet("commonMain", sourceSets["main"])
-exportSourceSet("commonApi", sourceSets["api"])
-exportSourceSet("commonEarlyLaunch", sourceSets["workarounds"])
 exportSourceSet("commonDesktop", sourceSets["desktop"])
 
 tasks.jar { enabled = false }

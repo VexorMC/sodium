@@ -31,7 +31,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.RenderShape;
@@ -80,8 +80,8 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
         int maxZ = minZ + 16;
 
         // Initialise with minX/minY/minZ so initial getBlockState crash context is correct
-        BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(minX, minY, minZ);
-        BlockPos.MutableBlockPos modelOffset = new BlockPos.MutableBlockPos();
+        BlockPos.Mutable blockPos = new BlockPos.Mutable(minX, minY, minZ);
+        BlockPos.Mutable modelOffset = new BlockPos.Mutable();
 
         TranslucentGeometryCollector collector;
         if (SodiumClientMod.options().performance.getSortBehavior() != SortBehavior.OFF) {

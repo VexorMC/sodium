@@ -2,7 +2,7 @@ package net.caffeinemc.mods.sodium.mixin.core.gui;
 
 import net.minecraft.client.multiplayer.LevelLoadStatusManager;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;

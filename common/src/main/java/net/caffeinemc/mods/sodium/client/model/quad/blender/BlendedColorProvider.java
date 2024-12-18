@@ -1,21 +1,21 @@
 package net.caffeinemc.mods.sodium.client.model.quad.blender;
 
+import dev.lunasa.compat.mojang.math.Mth;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
+import net.minecraft.util.math.BlockPos;
 
 public abstract class BlendedColorProvider<T> implements ColorProvider<T> {
     @Override
-    public void getColors(LevelSlice slice, BlockPos pos, BlockPos.MutableBlockPos scratchPos, T state, ModelQuadView quad, int[] output) {
+    public void getColors(LevelSlice slice, BlockPos pos, BlockPos.Mutable scratchPos, T state, ModelQuadView quad, int[] output) {
         for (int vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
             output[vertexIndex] = this.getVertexColor(slice, pos, scratchPos, quad, state, vertexIndex);
         }
     }
 
-    private int getVertexColor(LevelSlice slice, BlockPos pos, BlockPos.MutableBlockPos scratchPos, ModelQuadView quad, T state, int vertexIndex) {
+    private int getVertexColor(LevelSlice slice, BlockPos pos, BlockPos.Mutable scratchPos, ModelQuadView quad, T state, int vertexIndex) {
         // The vertex position
         // We add a half-texel offset since we are sampling points within a color texture
         final float x = quad.getX(vertexIndex) - 0.5f;
@@ -40,10 +40,10 @@ public abstract class BlendedColorProvider<T> implements ColorProvider<T> {
 
         // Retrieve the color values for each neighboring value
         // This creates a 2x2 matrix which is then sampled during interpolation
-        final int m00 = this.getColor(slice, state, scratchPos.set(blockX + 0, blockY, blockZ + 0));
-        final int m01 = this.getColor(slice, state, scratchPos.set(blockX + 0, blockY, blockZ + 1));
-        final int m10 = this.getColor(slice, state, scratchPos.set(blockX + 1, blockY, blockZ + 0));
-        final int m11 = this.getColor(slice, state, scratchPos.set(blockX + 1, blockY, blockZ + 1));
+        final int m00 = this.getColor(slice, state, scratchPos.setPosition(blockX + 0, blockY, blockZ + 0));
+        final int m01 = this.getColor(slice, state, scratchPos.setPosition(blockX + 0, blockY, blockZ + 1));
+        final int m10 = this.getColor(slice, state, scratchPos.setPosition(blockX + 1, blockY, blockZ + 0));
+        final int m11 = this.getColor(slice, state, scratchPos.setPosition(blockX + 1, blockY, blockZ + 1));
 
         // Perform interpolation across the X-axis, and then Y-axis
         // y0 = (m00 * (1.0 - x)) + (m10 * x)

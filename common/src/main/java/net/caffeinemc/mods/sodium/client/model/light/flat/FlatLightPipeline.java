@@ -1,18 +1,14 @@
 package net.caffeinemc.mods.sodium.client.model.light.flat;
 
+import dev.lunasa.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipeline;
 import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
 import net.caffeinemc.mods.sodium.client.model.light.data.QuadLightData;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import net.caffeinemc.mods.sodium.client.services.PlatformBlockAccess;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
 
 import java.util.Arrays;
 
@@ -58,7 +54,7 @@ public class FlatLightPipeline implements LightPipeline {
 
     /**
      * When vanilla computes an offset lightmap with flat lighting, it passes the original BlockState but the
-     * offset BlockPos to {@link LevelRenderer#getLightColor(BlockAndTintGetter, BlockState, BlockPos)}.
+     * offset BlockPos to {@link }.
      * This does not make much sense but fixes certain issues, primarily dark quads on light-emitting blocks
      * behind tinted glass. {@link LightDataAccess} cannot efficiently store lightmaps computed with
      * inconsistent values so this method exists to mirror vanilla behavior as closely as possible.

@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.data.fingerprint;
 
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import org.apache.commons.codec.binary.Hex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,14 +16,14 @@ public record FingerprintMeasure(@NotNull String uuid, @NotNull String path) {
     private static final int SALT_LENGTH = 64;
 
     public static @Nullable FingerprintMeasure create() {
-        var uuid = Minecraft.getInstance().getUser().getProfileId();
+        var uuid = MinecraftClient.getInstance().getSession().getUuid();
         var path = PlatformRuntimeInformation.getInstance().getGameDirectory();
 
         if (uuid == null || path == null) {
             return null;
         }
 
-        return new FingerprintMeasure(uuid.toString(), path.toAbsolutePath().toString());
+        return new FingerprintMeasure(uuid, path.toAbsolutePath().toString());
     }
 
     public HashedFingerprint hashed() {
@@ -48,7 +48,7 @@ public record FingerprintMeasure(@NotNull String uuid, @NotNull String path) {
 
         try {
             md = MessageDigest.getInstance("SHA-512");
-            md.update(Hex.decodeHex(salt));
+            md.update(Hex.decodeHex(salt.toCharArray()));
             md.update(message.getBytes(StandardCharsets.UTF_8));
         } catch (Throwable t) {
             throw new RuntimeException("Failed to hash value", t);

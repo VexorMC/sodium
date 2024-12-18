@@ -4,7 +4,7 @@ import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.RandomSource;

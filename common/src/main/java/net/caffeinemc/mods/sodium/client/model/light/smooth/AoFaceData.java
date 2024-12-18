@@ -1,8 +1,8 @@
 package net.caffeinemc.mods.sodium.client.model.light.smooth;
 
+import dev.lunasa.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 import static net.caffeinemc.mods.sodium.client.model.light.data.ArrayLightDataCache.*;
@@ -26,9 +26,9 @@ class AoFaceData {
         final int adjZ;
 
         if (offset) {
-            adjX = x + direction.getStepX();
-            adjY = y + direction.getStepY();
-            adjZ = z + direction.getStepZ();
+            adjX = x + direction.getOffsetX();
+            adjY = y + direction.getOffsetY();
+            adjZ = z + direction.getOffsetZ();
         } else {
             adjX = x;
             adjY = y;

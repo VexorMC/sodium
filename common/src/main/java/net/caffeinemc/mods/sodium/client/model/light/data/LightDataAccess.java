@@ -1,13 +1,12 @@
 package net.caffeinemc.mods.sodium.client.model.light.data;
 
+import dev.lunasa.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.services.PlatformBlockAccess;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.core.BlockPos;
+import net.caffeinemc.mods.sodium.client.world.LevelSlice;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * The light data cache is used to make accessing the light data and occlusion properties of blocks cheaper. The data
@@ -29,19 +28,19 @@ import net.minecraft.world.level.block.state.BlockState;
  * You can use the various static pack/unpack methods to extract these values in a usable format.
  */
 public abstract class LightDataAccess {
-    private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-    protected BlockAndTintGetter level;
+    private final BlockPos.Mutable pos = new BlockPos.Mutable();
+    protected LevelSlice level;
 
     public int get(int x, int y, int z, Direction d1, Direction d2) {
-        return this.get(x + d1.getStepX() + d2.getStepX(),
-                y + d1.getStepY() + d2.getStepY(),
-                z + d1.getStepZ() + d2.getStepZ());
+        return this.get(x + d1.getOffsetX() + d2.getOffsetX(),
+                y + d1.getOffsetY() + d2.getOffsetY(),
+                z + d1.getOffsetZ() + d2.getOffsetZ());
     }
 
     public int get(int x, int y, int z, Direction dir) {
-        return this.get(x + dir.getStepX(),
-                y + dir.getStepY(),
-                z + dir.getStepZ());
+        return this.get(x + dir.getOffsetX(),
+                y + dir.getOffsetY(),
+                z + dir.getOffsetZ());
     }
 
     public int get(BlockPos pos, Direction dir) {
@@ -59,17 +58,28 @@ public abstract class LightDataAccess {
     public abstract int get(int x, int y, int z);
 
     protected int compute(int x, int y, int z) {
-        BlockPos pos = this.pos.set(x, y, z);
-        BlockAndTintGetter level = this.level;
+        BlockPos pos = this.pos.setPosition(x, y, z);
+        LevelSlice level = this.level;
 
         BlockState state = level.getBlockState(pos);
+        Block block = state.getBlock();
 
-        boolean em = state.emissiveRendering(level, pos);
-        boolean op = state.isViewBlocking(level, pos) && state.getLightBlock() != 0;
-        boolean fo = state.isSolidRender();
-        boolean fc = state.isCollisionShapeFullBlock(level, pos);
+        float ao;
+        boolean em;
 
-        int lu = PlatformBlockAccess.getInstance().getLightEmission(state, level, pos);
+        if (block.getLightLevel() == 0) {
+            ao = block.getAmbientOcclusionLightLevel();
+            em = false;/*state.hasEmissiveLighting(world, pos);*/
+        } else {
+            ao = 1.0f;
+            em = true;
+        }
+
+        boolean op = !block.hasTransparency() || block.getOpacity() == 0;
+        boolean fo = block.hasTransparency();
+        boolean fc = block.renderAsNormalBlock();
+
+        int lu = block.getLightLevel();
 
         // OPTIMIZE: Do not calculate light data if the block is full and opaque and does not emit light.
         int bl;
@@ -78,25 +88,21 @@ public abstract class LightDataAccess {
             bl = 0;
             sl = 0;
         } else {
-            if (em) {
-                bl = level.getBrightness(LightLayer.BLOCK, pos);
-                sl = level.getBrightness(LightLayer.SKY, pos);
-            } else {
-                int light = LevelRenderer.getLightColor(level, state, pos);
-                bl = LightTexture.block(light);
-                sl = LightTexture.sky(light);
-            }
-        }
+            int encodedLight = level.getLight(pos, 0);
 
-        // FIX: Do not apply AO from blocks that emit light
-        float ao;
-        if (lu == 0) {
-            ao = state.getShadeBrightness(level, pos);
-        } else {
-            ao = 1.0f;
+            bl = getBlockLight(encodedLight);
+            sl = getSkyLight(encodedLight);
         }
 
         return packFC(fc) | packFO(fo) | packOP(op) | packEM(em) | packAO(ao) | packLU(lu) | packSL(sl) | packBL(bl);
+    }
+
+    public static int getSkyLight(int encodedLight) {
+        return encodedLight >> 20;
+    }
+
+    public static int getBlockLight(int encodedLight) {
+        return (encodedLight >> 4) & 0xFFF;
     }
 
     public static int packBL(int blockLight) {
@@ -167,10 +173,6 @@ public abstract class LightDataAccess {
 
     /**
      * Computes the combined lightmap using block light, sky light, and luminance values.
-     *
-     * <p>This method's logic is equivalent to
-     * {@link LevelRenderer#getLightColor(BlockAndTintGetter, BlockPos)}, but without the
-     * emissive check.
      */
     public static int getLightmap(int word) {
         return LightTexture.pack(Math.max(unpackBL(word), unpackLU(word)), unpackSL(word));
@@ -179,9 +181,6 @@ public abstract class LightDataAccess {
     /**
      * Like {@link #getLightmap(int)}, but checks {@link #unpackEM(int)} first and returns
      * the {@link LightTexture#FULL_BRIGHT fullbright lightmap} if emissive.
-     *
-     * <p>This method's logic is equivalent to
-     * {@link LevelRenderer#getLightColor(BlockAndTintGetter, BlockPos)}.
      */
     public static int getEmissiveLightmap(int word) {
         if (unpackEM(word)) {
@@ -191,7 +190,7 @@ public abstract class LightDataAccess {
         }
     }
 
-    public BlockAndTintGetter getLevel() {
+    public LevelSlice getLevel() {
         return this.level;
     }
 }

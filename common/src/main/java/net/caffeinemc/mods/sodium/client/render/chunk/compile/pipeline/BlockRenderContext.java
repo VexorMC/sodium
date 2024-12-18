@@ -3,7 +3,7 @@ package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -12,7 +12,7 @@ public class BlockRenderContext {
     private final LevelSlice slice;
     public final TranslucentGeometryCollector collector;
 
-    private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+    private final BlockPos.Mutable pos = new BlockPos.Mutable();
 
     private final Vector3f origin = new Vector3f();
 

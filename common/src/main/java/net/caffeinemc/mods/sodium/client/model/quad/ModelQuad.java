@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.model.quad;
 
 import net.caffeinemc.mods.sodium.client.util.ModelQuadUtil;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
 
 /**
@@ -12,7 +12,7 @@ public class ModelQuad implements ModelQuadViewMutable {
     private final int[] data = new int[ModelQuadUtil.VERTEX_SIZE * 4];
     private int flags;
 
-    private TextureAtlasSprite sprite;
+    private Sprite sprite;
     private Direction direction;
 
     private int tintIdx;
@@ -69,7 +69,7 @@ public class ModelQuad implements ModelQuadViewMutable {
     }
 
     @Override
-    public void setSprite(TextureAtlasSprite sprite) {
+    public void setSprite(Sprite sprite) {
         this.sprite = sprite;
     }
 
@@ -139,7 +139,7 @@ public class ModelQuad implements ModelQuadViewMutable {
     }
 
     @Override
-    public TextureAtlasSprite getSprite() {
+    public Sprite getSprite() {
         return this.sprite;
     }
 

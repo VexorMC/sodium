@@ -36,7 +36,7 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.SingleThreadedRandomSource;
 import net.minecraft.world.phys.Vec3;
@@ -51,7 +51,7 @@ public class BlockRenderer extends AbstractBlockRenderContext {
     private ChunkBuildBuffers buffers;
 
     private final Vector3f posOffset = new Vector3f();
-    private final BlockPos.MutableBlockPos scratchPos = new BlockPos.MutableBlockPos();
+    private final BlockPos.Mutable scratchPos = new BlockPos.Mutable();
     @Nullable
     private ColorProvider<BlockState> colorProvider;
     private TranslucentGeometryCollector collector;

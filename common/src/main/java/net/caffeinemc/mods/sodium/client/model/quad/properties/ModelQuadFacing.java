@@ -1,9 +1,9 @@
 package net.caffeinemc.mods.sodium.client.model.quad.properties;
 
+import dev.lunasa.compat.mojang.math.Mth;
 import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
 import net.caffeinemc.mods.sodium.api.util.NormI8;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.Mth;
 import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -109,8 +109,8 @@ public enum ModelQuadFacing {
         }
 
         for (Direction face : DirectionUtil.ALL_DIRECTIONS) {
-            var step = face.step();
-            if (Mth.equal(Math.fma(x, step.x(), Math.fma(y, step.y(), z * step.z())), 1.0f)) {
+            var step = face.getVector();
+            if (Mth.equal(Math.fma(x, step.getX(), Math.fma(y, step.getY(), z * step.getZ())), 1.0f)) {
                 return ModelQuadFacing.fromDirection(face);
             }
         }

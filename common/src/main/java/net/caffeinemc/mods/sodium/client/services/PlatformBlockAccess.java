@@ -2,11 +2,15 @@ package net.caffeinemc.mods.sodium.client.services;
 
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.render.frapi.render.AmbientOcclusionMode;
+import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.fabricmc.fabric.api.util.TriState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
@@ -65,7 +69,7 @@ public interface PlatformBlockAccess {
      * @param shade If directional lighting should be added.
      * @return the block shade
      */
-    float getNormalVectorShade(ModelQuadView quad, BlockAndTintGetter level, boolean shade);
+    float getNormalVectorShade(ModelQuadView quad, LevelSlice level, boolean shade);
 
     /**
      * If the block contains forced ambient occlusion.
@@ -77,7 +81,7 @@ public interface PlatformBlockAccess {
      * @param pos The current position
      * @return If ambient occlusion is forced, or {@code DEFAULT}
      */
-    AmbientOcclusionMode usesAmbientOcclusion(BakedModel model, BlockState state, SodiumModelData data, RenderType renderType, BlockAndTintGetter level, BlockPos pos);
+    AmbientOcclusionMode usesAmbientOcclusion(BakedModel model, BlockState state, SodiumModelData data, RenderLayer renderType, LevelSlice level, BlockPos pos);
 
     /**
      * @param blockEntity The block entity to check.

@@ -22,7 +22,7 @@ import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -42,7 +42,7 @@ public class DefaultFluidRenderer {
     public static final float EPSILON = 0.001f;
     private static final float ALIGNED_EQUALS_EPSILON = 0.011f;
 
-    private final BlockPos.MutableBlockPos scratchPos = new BlockPos.MutableBlockPos();
+    private final BlockPos.Mutable scratchPos = new BlockPos.Mutable();
     private final MutableFloat scratchHeight = new MutableFloat(0);
     private final MutableInt scratchSamples = new MutableInt();
 
@@ -120,7 +120,7 @@ public class DefaultFluidRenderer {
             southEastHeight = 1.0f;
             northEastHeight = 1.0f;
         } else {
-            var scratchPos = new BlockPos.MutableBlockPos();
+            var scratchPos = new BlockPos.Mutable();
             float heightNorth = this.fluidHeight(level, fluid, scratchPos.setWithOffset(blockPos, Direction.NORTH), Direction.NORTH);
             float heightSouth = this.fluidHeight(level, fluid, scratchPos.setWithOffset(blockPos, Direction.SOUTH), Direction.SOUTH);
             float heightEast = this.fluidHeight(level, fluid, scratchPos.setWithOffset(blockPos, Direction.EAST), Direction.EAST);

@@ -5,7 +5,7 @@ import net.caffeinemc.mods.sodium.client.render.frapi.render.ItemRenderContext;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;

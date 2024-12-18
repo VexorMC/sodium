@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.viewport;
 
 import net.caffeinemc.mods.sodium.client.render.viewport.frustum.Frustum;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.core.SectionPos;
 import org.joml.Vector3d;
 

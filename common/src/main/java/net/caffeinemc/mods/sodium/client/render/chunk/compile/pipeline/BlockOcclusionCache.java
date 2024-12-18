@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenCustomHashMap;
 import net.caffeinemc.mods.sodium.client.services.PlatformBlockAccess;
 import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,7 +23,7 @@ public class BlockOcclusionCache {
 
     private final Object2IntLinkedOpenCustomHashMap<ShapeComparison> comparisonLookupTable;
     private final ShapeComparison cachedComparisonObject = new ShapeComparison();
-    private final BlockPos.MutableBlockPos cachedPositionObject = new BlockPos.MutableBlockPos();
+    private final BlockPos.Mutable cachedPositionObject = new BlockPos.Mutable();
 
     public BlockOcclusionCache() {
         this.comparisonLookupTable = new Object2IntLinkedOpenCustomHashMap<>(CACHE_SIZE, 0.5F, new ShapeComparison.ShapeComparisonStrategy());
@@ -38,7 +38,7 @@ public class BlockOcclusionCache {
      * @return True if the block side facing {@param dir} is not occluded, otherwise false
      */
     public boolean shouldDrawSide(BlockState selfBlockState, BlockGetter view, BlockPos selfPos, Direction facing) {
-        BlockPos.MutableBlockPos neighborPos = this.cachedPositionObject;
+        BlockPos.Mutable neighborPos = this.cachedPositionObject;
         neighborPos.setWithOffset(selfPos, facing);
 
         // The block state of the neighbor
@@ -122,7 +122,7 @@ public class BlockOcclusionCache {
         }
 
         // perform occlusion against the neighboring block
-        BlockPos.MutableBlockPos otherPos = this.cachedPositionObject;
+        BlockPos.Mutable otherPos = this.cachedPositionObject;
         otherPos.set(selfPos.getX() + facing.getStepX(), selfPos.getY() + facing.getStepY(), selfPos.getZ() + facing.getStepZ());
         BlockState otherState = view.getBlockState(otherPos);
 

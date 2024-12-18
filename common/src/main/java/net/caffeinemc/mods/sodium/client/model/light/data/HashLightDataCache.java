@@ -1,8 +1,8 @@
 package net.caffeinemc.mods.sodium.client.model.light.data;
 
 import it.unimi.dsi.fastutil.longs.Long2IntLinkedOpenHashMap;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.caffeinemc.mods.sodium.client.world.LevelSlice;
+import net.minecraft.util.math.BlockPos;
 
 /**
  * A light data cache which uses a hash table to store previously accessed values.
@@ -10,13 +10,13 @@ import net.minecraft.world.level.BlockAndTintGetter;
 public class HashLightDataCache extends LightDataAccess {
     private final Long2IntLinkedOpenHashMap map = new Long2IntLinkedOpenHashMap(1024, 0.50f);
 
-    public HashLightDataCache(BlockAndTintGetter level) {
+    public HashLightDataCache(LevelSlice level) {
         this.level = level;
     }
 
     @Override
     public int get(int x, int y, int z) {
-        long key = BlockPos.asLong(x, y, z);
+        long key = new BlockPos(x, y, z).asLong();
         int word = this.map.getAndMoveToFirst(key);
 
         if (word == 0) {
