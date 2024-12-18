@@ -8,7 +8,6 @@ import net.caffeinemc.mods.sodium.client.gl.sync.GlFence;
 import net.caffeinemc.mods.sodium.client.gl.tessellation.*;
 import net.caffeinemc.mods.sodium.client.gl.util.EnumBitField;
 import org.lwjgl.opengl.*;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import java.nio.ByteBuffer;
 
 public class GLRenderDevice implements RenderDevice {
@@ -34,8 +33,6 @@ public class GLRenderDevice implements RenderDevice {
             return;
         }
 
-        BufferUploader.reset();
-
         this.stateTracker.clear();
         this.isActive = true;
     }
@@ -51,8 +48,8 @@ public class GLRenderDevice implements RenderDevice {
     }
 
     @Override
-    public GLCapabilities getCapabilities() {
-        return GL.getCapabilities();
+    public ContextCapabilities getCapabilities() {
+        return GLContext.getCapabilities();
     }
 
     @Override
@@ -76,7 +73,7 @@ public class GLRenderDevice implements RenderDevice {
         @Override
         public void bindVertexArray(GlVertexArray array) {
             if (this.stateTracker.makeVertexArrayActive(array)) {
-                GL30C.glBindVertexArray(array.handle());
+                GL30.glBindVertexArray(array.handle());
             }
         }
 
@@ -84,7 +81,7 @@ public class GLRenderDevice implements RenderDevice {
         public void uploadData(GlMutableBuffer glBuffer, ByteBuffer byteBuffer, GlBufferUsage usage) {
             this.bindBuffer(GlBufferTarget.ARRAY_BUFFER, glBuffer);
 
-            GL20C.glBufferData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), byteBuffer, usage.getId());
+            GL15.glBufferData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), byteBuffer, usage.getId());
             glBuffer.setSize(byteBuffer.remaining());
         }
 
@@ -93,20 +90,20 @@ public class GLRenderDevice implements RenderDevice {
             this.bindBuffer(GlBufferTarget.COPY_READ_BUFFER, src);
             this.bindBuffer(GlBufferTarget.COPY_WRITE_BUFFER, dst);
 
-            GL31C.glCopyBufferSubData(GL31C.GL_COPY_READ_BUFFER, GL31C.GL_COPY_WRITE_BUFFER, readOffset, writeOffset, bytes);
+            GL31.glCopyBufferSubData(GL31.GL_COPY_READ_BUFFER, GL31.GL_COPY_WRITE_BUFFER, readOffset, writeOffset, bytes);
         }
 
         @Override
         public void bindBuffer(GlBufferTarget target, GlBuffer buffer) {
             if (this.stateTracker.makeBufferActive(target, buffer)) {
-                GL20C.glBindBuffer(target.getTargetParameter(), buffer.handle());
+                GL15.glBindBuffer(target.getTargetParameter(), buffer.handle());
             }
         }
 
         @Override
         public void unbindVertexArray() {
             if (this.stateTracker.makeVertexArrayActive(null)) {
-                GL30C.glBindVertexArray(GlVertexArray.NULL_ARRAY_ID);
+                GL30.glBindVertexArray(GlVertexArray.NULL_ARRAY_ID);
             }
         }
 
@@ -114,7 +111,7 @@ public class GLRenderDevice implements RenderDevice {
         public void allocateStorage(GlMutableBuffer buffer, long bufferSize, GlBufferUsage usage) {
             this.bindBuffer(GlBufferTarget.ARRAY_BUFFER, buffer);
 
-            GL20C.glBufferData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), bufferSize, usage.getId());
+            GL15.glBufferData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), bufferSize, usage.getId());
             buffer.setSize(bufferSize);
         }
 
@@ -129,7 +126,7 @@ public class GLRenderDevice implements RenderDevice {
             int handle = buffer.handle();
             buffer.invalidateHandle();
 
-            GL20C.glDeleteBuffers(handle);
+            GL15.glDeleteBuffers(handle);
         }
 
         @Override
@@ -139,7 +136,7 @@ public class GLRenderDevice implements RenderDevice {
             int handle = vertexArray.handle();
             vertexArray.invalidateHandle();
 
-            GL30C.glDeleteVertexArrays(handle);
+            GL30.glDeleteVertexArrays(handle);
         }
 
         @Override
@@ -189,7 +186,7 @@ public class GLRenderDevice implements RenderDevice {
 
             this.bindBuffer(GlBufferTarget.ARRAY_BUFFER, buffer);
 
-            ByteBuffer buf = GL32C.glMapBufferRange(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, length, flags.getBitField());
+            ByteBuffer buf = GL30.glMapBufferRange(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, length, flags.getBitField(), null);
 
             if (buf == null) {
                 throw new RuntimeException("Failed to map buffer");
@@ -209,7 +206,7 @@ public class GLRenderDevice implements RenderDevice {
             GlBuffer buffer = map.getBufferObject();
 
             this.bindBuffer(GlBufferTarget.ARRAY_BUFFER, buffer);
-            GL32C.glUnmapBuffer(GlBufferTarget.ARRAY_BUFFER.getTargetParameter());
+            GL15.glUnmapBuffer(GlBufferTarget.ARRAY_BUFFER.getTargetParameter());
 
             buffer.setActiveMapping(null);
             map.dispose();
@@ -222,12 +219,12 @@ public class GLRenderDevice implements RenderDevice {
             GlBuffer buffer = map.getBufferObject();
 
             this.bindBuffer(GlBufferTarget.COPY_READ_BUFFER, buffer);
-            GL32C.glFlushMappedBufferRange(GlBufferTarget.COPY_READ_BUFFER.getTargetParameter(), offset, length);
+            GL30.glFlushMappedBufferRange(GlBufferTarget.COPY_READ_BUFFER.getTargetParameter(), offset, length);
         }
 
         @Override
         public GlFence createFence() {
-            return new GlFence(GL32C.glFenceSync(GL32C.GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+            return new GlFence(GL32.glFenceSync(GL32.GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
         }
 
         private void checkMapDisposed(GlBufferMapping map) {
@@ -270,12 +267,19 @@ public class GLRenderDevice implements RenderDevice {
         public void multiDrawElementsBaseVertex(MultiDrawBatch batch, GlIndexType indexType) {
             GlPrimitiveType primitiveType = GLRenderDevice.this.activeTessellation.getPrimitiveType();
 
-            GL32C.nglMultiDrawElementsBaseVertex(primitiveType.getId(),
-                    batch.pElementCount,
-                    indexType.getFormatId(),
-                    batch.pElementPointer,
-                    batch.size(),
-                    batch.pBaseVertex);
+            for (int i = 0; i < batch.capacity(); i++) {
+                long elementPointer = batch.elementPointers.get(i);
+                int elementCount = batch.elementCounts.get(i);
+                int baseVertex = batch.baseVertices.get(i);
+
+                GL32.glDrawElementsBaseVertex(
+                        primitiveType.getId(),
+                        elementCount,      // Number of elements
+                        indexType.getFormatId(),
+                        elementPointer,    // Offset in the index buffer
+                        baseVertex         // Base vertex
+                );
+            }
         }
 
         @Override

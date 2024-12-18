@@ -1,13 +1,13 @@
 package net.caffeinemc.mods.sodium.client.gl.tessellation;
 
-import org.lwjgl.opengl.GL20C;
-import org.lwjgl.opengl.GL40C;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL40;
 
 public enum GlPrimitiveType {
-    POINTS(GL20C.GL_POINTS),
-    LINES(GL20C.GL_LINES),
-    TRIANGLES(GL20C.GL_TRIANGLES),
-    PATCHES(GL40C.GL_PATCHES);
+    POINTS(GL11.GL_POINTS),
+    LINES(GL11.GL_LINES),
+    TRIANGLES(GL11.GL_TRIANGLES),
+    PATCHES(GL40.GL_PATCHES);
 
     private final int id;
 

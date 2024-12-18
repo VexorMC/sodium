@@ -1,7 +1,8 @@
 package net.caffeinemc.mods.sodium.client.gl.shader.uniform;
 
 import net.caffeinemc.mods.sodium.client.gl.buffer.GlBuffer;
-import org.lwjgl.opengl.GL32C;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
 
 public class GlUniformBlock {
     private final int binding;
@@ -11,6 +12,6 @@ public class GlUniformBlock {
     }
 
     public void bindBuffer(GlBuffer buffer) {
-        GL32C.glBindBufferBase(GL32C.GL_UNIFORM_BUFFER, this.binding, buffer.handle());
+        GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, this.binding, buffer.handle());
     }
 }

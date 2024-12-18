@@ -1,5 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gl.shader;
 
+import net.minecraft.util.Identifier;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -7,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.minecraft.resources.ResourceLocation;
 
 public class ShaderParser {
     public static String parseShader(String src, ShaderConstants constants) {
@@ -48,7 +49,7 @@ public class ShaderParser {
         String namespace = matcher.group("namespace");
         String path = matcher.group("path");
 
-        ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path);
+        Identifier name = new Identifier(namespace, path);
         String source = ShaderLoader.getShaderSource(name);
 
         return ShaderParser.parseShader(source);

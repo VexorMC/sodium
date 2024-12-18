@@ -1,31 +1,31 @@
 package net.caffeinemc.mods.sodium.client.gl.device;
 
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.system.Pointer;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.Pointer;
+import org.lwjgl.BufferUtils;
+
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 
 /**
  * Provides a fixed-size queue for building a draw-command list usable with
- * {@link org.lwjgl.opengl.GL33C#glMultiDrawElementsBaseVertex(int, IntBuffer, int, PointerBuffer, IntBuffer)}.
+ * {@link org.lwjgl.opengl.GL32#glDrawElementsBaseVertex)}.
  */
 public final class MultiDrawBatch {
-    public final long pElementPointer;
-    public final long pElementCount;
-    public final long pBaseVertex;
+    public final LongBuffer elementPointers;
+    public final IntBuffer elementCounts;
+    public final IntBuffer baseVertices;
 
     private final int capacity;
 
-    public int size;
+    private int size;
 
     public MultiDrawBatch(int capacity) {
-        this.pElementPointer = MemoryUtil.nmemAlignedAlloc(32, (long) capacity * Pointer.POINTER_SIZE);
-        MemoryUtil.memSet(this.pElementPointer, 0x0, (long) capacity * Pointer.POINTER_SIZE);
-
-        this.pElementCount = MemoryUtil.nmemAlignedAlloc(32, (long) capacity * Integer.BYTES);
-        this.pBaseVertex = MemoryUtil.nmemAlignedAlloc(32, (long) capacity * Integer.BYTES);
-
+        this.elementPointers = BufferUtils.createLongBuffer(capacity);
+        this.elementCounts = BufferUtils.createIntBuffer(capacity);
+        this.baseVertices = BufferUtils.createIntBuffer(capacity);
         this.capacity = capacity;
+        this.size = 0;
     }
 
     public int size() {
@@ -41,9 +41,6 @@ public final class MultiDrawBatch {
     }
 
     public void delete() {
-        MemoryUtil.nmemAlignedFree(this.pElementPointer);
-        MemoryUtil.nmemAlignedFree(this.pElementCount);
-        MemoryUtil.nmemAlignedFree(this.pBaseVertex);
     }
 
     public boolean isEmpty() {
@@ -52,11 +49,9 @@ public final class MultiDrawBatch {
 
     public int getIndexBufferSize() {
         int elements = 0;
-
-        for (var index = 0; index < this.size; index++) {
-            elements = Math.max(elements, MemoryUtil.memGetInt(this.pElementCount + ((long) index * Integer.BYTES)));
+        for (int i = 0; i < this.size; i++) {
+            elements = Math.max(elements, this.elementCounts.get(i));
         }
-
         return elements;
     }
 }

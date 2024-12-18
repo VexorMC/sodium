@@ -1,8 +1,8 @@
 package net.caffeinemc.mods.sodium.client.gl.shader.uniform;
 
+import dev.lunasa.compat.lwjgl3.MemoryStack;
 import org.joml.Matrix4fc;
-import org.lwjgl.opengl.GL30C;
-import org.lwjgl.system.MemoryStack;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 
@@ -17,7 +17,7 @@ public class GlUniformMatrix4f extends GlUniform<Matrix4fc>  {
             FloatBuffer buf = stack.callocFloat(16);
             value.get(buf);
 
-            GL30C.glUniformMatrix4fv(this.index, false, buf);
+            GL20.glUniformMatrix4(this.index, false, buf);
         }
     }
 }

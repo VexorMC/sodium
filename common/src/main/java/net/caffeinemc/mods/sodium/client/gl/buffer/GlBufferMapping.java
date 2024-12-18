@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gl.buffer;
 
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 
 import java.nio.ByteBuffer;
 

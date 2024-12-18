@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gl.device;
 
 import net.caffeinemc.mods.sodium.client.gl.functions.DeviceFunctions;
-import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengl.ContextCapabilities;
 
 public interface RenderDevice {
     RenderDevice INSTANCE = new GLRenderDevice();
@@ -19,7 +19,7 @@ public interface RenderDevice {
     void makeActive();
     void makeInactive();
 
-    GLCapabilities getCapabilities();
+    ContextCapabilities getCapabilities();
 
     DeviceFunctions getDeviceFunctions();
 }
