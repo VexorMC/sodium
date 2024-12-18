@@ -1,12 +1,12 @@
 package net.caffeinemc.mods.sodium.client.platform.windows.api.d3dkmt;
 
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.system.MemoryStack;
+import dev.lunasa.compat.lwjgl3.MemoryStack;
 import org.lwjgl.system.Struct;
 
 import java.nio.ByteBuffer;
 
-import static org.lwjgl.system.MemoryUtil.*;
+import static dev.lunasa.compat.lwjgl3.MemoryUtil.*;
 
 // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/d3dkmthk/ns-d3dkmthk-_d3dkmt_adapterregistryinfo
 // typedef struct _D3DKMT_ADAPTERREGISTRYINFO {

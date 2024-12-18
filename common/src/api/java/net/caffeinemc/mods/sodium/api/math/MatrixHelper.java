@@ -1,8 +1,9 @@
 package net.caffeinemc.mods.sodium.api.math;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
 import net.caffeinemc.mods.sodium.api.util.NormI8;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
+
 import org.joml.Math;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;

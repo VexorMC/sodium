@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
+import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 
 @Mixin(ModelPart.class)
 public class ModelPartMixin {

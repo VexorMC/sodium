@@ -2,8 +2,8 @@ package net.caffeinemc.mods.sodium.client.platform.windows.api.msgbox;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryStack;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 import org.lwjgl.system.Pointer;
 import org.lwjgl.system.Struct;
 

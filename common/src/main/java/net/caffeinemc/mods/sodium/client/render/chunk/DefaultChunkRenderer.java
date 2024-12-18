@@ -24,7 +24,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexT
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.caffeinemc.mods.sodium.client.util.BitwiseMath;
 import net.caffeinemc.mods.sodium.client.util.UInt32;
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 
 import java.util.Iterator;
 

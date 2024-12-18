@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.mixin.features.render.gui.outlines;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
+import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.client.render.vertex.VertexConsumerUtils;
 import net.caffeinemc.mods.sodium.api.vertex.format.common.LineVertex;
 import net.caffeinemc.mods.sodium.client.render.vertex.buffer.BufferBuilderExtension;
@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.ShapeRenderer;
 import org.joml.Math;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.lwjgl.system.MemoryStack;
+import dev.lunasa.compat.lwjgl3.MemoryStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

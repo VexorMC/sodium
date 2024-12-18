@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.services;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LevelRenderer;

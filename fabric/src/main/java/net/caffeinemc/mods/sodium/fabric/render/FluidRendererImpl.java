@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.fabric.render;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;

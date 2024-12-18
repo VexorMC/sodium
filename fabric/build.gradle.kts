@@ -33,30 +33,11 @@ sourceSets.apply {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:${BuildConfig.MINECRAFT_VERSION}")
-    mappings(loom.layered {
-        officialMojangMappings()
-
-        if (BuildConfig.PARCHMENT_VERSION != null) {
-            parchment("org.parchmentmc.data:parchment-${BuildConfig.MINECRAFT_VERSION}:${BuildConfig.PARCHMENT_VERSION}@zip")
-        }
-    })
+    minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
+    mappings("net.legacyfabric:yarn:1.8.9+build.551:v2")
 
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
-
-    fun addEmbeddedFabricModule(name: String) {
-        val module = fabricApi.module(name, BuildConfig.FABRIC_API_VERSION)
-        modImplementation(module)
-        include(module)
-    }
-
-    // Fabric API modules
-    addEmbeddedFabricModule("fabric-api-base")
-    addEmbeddedFabricModule("fabric-block-view-api-v2")
-    addEmbeddedFabricModule("fabric-renderer-api-v1")
-    addEmbeddedFabricModule("fabric-rendering-data-attachment-v1")
-    addEmbeddedFabricModule("fabric-rendering-fluids-v1")
-    addEmbeddedFabricModule("fabric-resource-loader-v0")
+    modImplementation("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
 }
 
 loom {

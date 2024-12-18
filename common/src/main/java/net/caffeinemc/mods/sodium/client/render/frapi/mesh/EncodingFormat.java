@@ -17,15 +17,15 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.mesh;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.VertexFormat;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import net.caffeinemc.mods.sodium.client.render.frapi.SodiumRenderer;
 import net.caffeinemc.mods.sodium.client.render.frapi.material.RenderMaterialImpl;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.Mth;
 
 /**
@@ -57,7 +57,7 @@ public abstract class EncodingFormat {
     public static final int TOTAL_STRIDE;
 
     static {
-        final VertexFormat format = DefaultVertexFormat.BLOCK;
+        final VertexFormat format = VertexFormats.BLOCK;
         VERTEX_X = HEADER_STRIDE + 0;
         VERTEX_Y = HEADER_STRIDE + 1;
         VERTEX_Z = HEADER_STRIDE + 2;

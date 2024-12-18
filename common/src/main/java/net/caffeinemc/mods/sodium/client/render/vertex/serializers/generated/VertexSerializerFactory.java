@@ -1,9 +1,9 @@
 package net.caffeinemc.mods.sodium.client.render.vertex.serializers.generated;
 
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormatElement;
 import net.caffeinemc.mods.sodium.api.vertex.serializer.VertexSerializer;
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 import org.objectweb.asm.*;
 
 import java.lang.invoke.MethodHandles;

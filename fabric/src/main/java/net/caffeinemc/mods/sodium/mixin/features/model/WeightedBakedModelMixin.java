@@ -4,7 +4,7 @@ import net.caffeinemc.mods.sodium.client.util.WeightedRandomListExtension;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.WeightedBakedModel;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.random.WeightedEntry;

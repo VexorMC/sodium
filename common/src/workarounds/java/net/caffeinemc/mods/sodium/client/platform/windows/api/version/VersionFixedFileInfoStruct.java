@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.platform.windows.api.version;
 
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 import org.lwjgl.system.Struct;
 
 import java.nio.ByteBuffer;

@@ -42,13 +42,10 @@ sourceSets {
 
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
-    mappings(loom.layered {
-        officialMojangMappings()
+    mappings("net.legacyfabric:yarn:1.8.9+build.551:v2")
 
-        if (BuildConfig.PARCHMENT_VERSION != null) {
-            parchment("org.parchmentmc.data:parchment-${BuildConfig.MINECRAFT_VERSION}:${BuildConfig.PARCHMENT_VERSION}@zip")
-        }
-    })
+    api("org.joml:joml:1.10.8")
+    api("it.unimi.dsi:fastutil:8.5.15")
 
     compileOnly("io.github.llamalad7:mixinextras-common:0.3.5")
     annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.5")
@@ -56,14 +53,7 @@ dependencies {
     compileOnly("net.fabricmc:sponge-mixin:0.13.2+mixin.0.8.5")
     compileOnly("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
 
-    fun addDependentFabricModule(name: String) {
-        modCompileOnly(fabricApi.module(name, BuildConfig.FABRIC_API_VERSION))
-    }
-
-    addDependentFabricModule("fabric-api-base")
-    addDependentFabricModule("fabric-block-view-api-v2")
-    addDependentFabricModule("fabric-renderer-api-v1")
-    addDependentFabricModule("fabric-rendering-data-attachment-v1")
+    modCompileOnly("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
 
     // We need to be careful during pre-launch that we don't touch any Minecraft classes, since other mods
     // will not yet have an opportunity to apply transformations.

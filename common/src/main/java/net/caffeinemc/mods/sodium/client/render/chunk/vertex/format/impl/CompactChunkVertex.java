@@ -6,7 +6,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderBindingP
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.minecraft.util.Mth;
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 
 public class CompactChunkVertex implements ChunkVertexType {
     public static final int STRIDE = 20;

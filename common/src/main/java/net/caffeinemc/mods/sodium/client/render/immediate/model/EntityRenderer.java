@@ -1,15 +1,15 @@
 package net.caffeinemc.mods.sodium.client.render.immediate.model;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
 import net.caffeinemc.mods.sodium.api.math.MatrixHelper;
 import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
 import net.caffeinemc.mods.sodium.api.vertex.format.common.EntityVertex;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.system.MemoryStack;
+import dev.lunasa.compat.lwjgl3.MemoryStack;
 
 import static net.caffeinemc.mods.sodium.client.render.immediate.model.ModelCuboid.*;
 

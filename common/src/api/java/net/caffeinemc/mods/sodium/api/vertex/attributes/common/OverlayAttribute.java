@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.api.vertex.attributes.common;
 
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 
 public class OverlayAttribute {
     public static void set(long ptr, int overlay) {

@@ -1,10 +1,10 @@
 package net.caffeinemc.mods.sodium.api.vertex.buffer;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.api.memory.MemoryIntrinsics;
+import net.minecraft.client.render.VertexFormat;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.system.MemoryStack;
+import dev.lunasa.compat.lwjgl3.MemoryStack;
 
 public interface VertexBufferWriter {
     /**
@@ -15,8 +15,11 @@ public interface VertexBufferWriter {
      * @throws IllegalArgumentException If the vertex consumer does not implement the necessary interface
      */
     static VertexBufferWriter of(VertexConsumer consumer) {
-        if (consumer instanceof VertexBufferWriter writer && writer.canUseIntrinsics()) {
-            return writer;
+        if (consumer instanceof VertexBufferWriter) {
+            VertexBufferWriter writer = (VertexBufferWriter) consumer;
+            if (writer.canUseIntrinsics()) {
+                return writer;
+            }
         }
 
         throw createUnsupportedVertexConsumerThrowable(consumer);
@@ -31,19 +34,22 @@ public interface VertexBufferWriter {
      */
     @Nullable
     static VertexBufferWriter tryOf(VertexConsumer consumer) {
-        if (consumer instanceof VertexBufferWriter writer && writer.canUseIntrinsics()) {
-            return writer;
+        if (consumer instanceof VertexBufferWriter) {
+            VertexBufferWriter writer = (VertexBufferWriter) consumer;
+            if (writer.canUseIntrinsics()) {
+                return writer;
+            }
         }
 
         return null;
     }
 
-    private static RuntimeException createUnsupportedVertexConsumerThrowable(VertexConsumer consumer) {
-        var clazz = consumer.getClass();
-        var name = clazz.getName();
+    static RuntimeException createUnsupportedVertexConsumerThrowable(VertexConsumer consumer) {
+        Class clazz = consumer.getClass();
+        String name = clazz.getName();
 
-        return new IllegalArgumentException(("The class %s does not implement interface VertexBufferWriter, " +
-                "which is required for compatibility with Sodium (see: https://github.com/CaffeineMC/sodium/issues/1620)").formatted(name));
+        return new IllegalArgumentException(String.format("The class %s does not implement interface VertexBufferWriter, " +
+                "which is required for compatibility with Sodium (see: https://github.com/CaffeineMC/sodium/issues/1620)", name));
     }
 
     /**
@@ -88,8 +94,8 @@ public interface VertexBufferWriter {
                          MemoryStack stack, long ptr, int count,
                          VertexFormat format)
     {
-        var length = count * format.getVertexSize();
-        var copy = stack.nmalloc(length);
+        int length = count * format.getVertexSize();
+        long copy = stack.nmalloc(length);
 
         MemoryIntrinsics.copyMemory(ptr, copy, length);
 

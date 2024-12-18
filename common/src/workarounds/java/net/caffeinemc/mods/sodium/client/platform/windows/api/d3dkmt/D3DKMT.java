@@ -7,7 +7,7 @@ import net.caffeinemc.mods.sodium.client.platform.windows.api.Gdi32;
 import net.caffeinemc.mods.sodium.client.platform.windows.api.version.Version;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.system.MemoryStack;
+import dev.lunasa.compat.lwjgl3.MemoryStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +18,8 @@ import java.util.List;
 
 import static net.caffeinemc.mods.sodium.client.platform.windows.api.Gdi32.*;
 import static net.caffeinemc.mods.sodium.client.platform.windows.api.d3dkmt.D3DKMTQueryAdapterInfoType.WDDM12.*;
-import static org.lwjgl.system.MemoryUtil.memAddress;
-import static org.lwjgl.system.MemoryUtil.memByteBuffer;
+import static dev.lunasa.compat.lwjgl3.MemoryUtil.memAddress;
+import static dev.lunasa.compat.lwjgl3.MemoryUtil.memByteBuffer;
 
 public class D3DKMT {
     private static final Logger LOGGER = LoggerFactory.getLogger("Sodium-D3DKMT");

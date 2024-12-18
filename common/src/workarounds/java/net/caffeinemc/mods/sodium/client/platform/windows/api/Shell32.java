@@ -3,14 +3,14 @@ package net.caffeinemc.mods.sodium.client.platform.windows.api;
 import net.caffeinemc.mods.sodium.client.platform.NativeWindowHandle;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.JNI;
-import org.lwjgl.system.MemoryStack;
+import dev.lunasa.compat.lwjgl3.MemoryStack;
 import org.lwjgl.system.SharedLibrary;
 
 import java.util.Objects;
 
 import static org.lwjgl.system.APIUtil.apiCreateLibrary;
 import static org.lwjgl.system.APIUtil.apiGetFunctionAddressOptional;
-import static org.lwjgl.system.MemoryUtil.NULL;
+import static dev.lunasa.compat.lwjgl3.MemoryUtil.NULL;
 
 public class Shell32 {
     private static final SharedLibrary LIBRARY = apiCreateLibrary("shell32");

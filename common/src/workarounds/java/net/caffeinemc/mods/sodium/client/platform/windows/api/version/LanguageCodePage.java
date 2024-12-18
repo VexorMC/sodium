@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.platform.windows.api.version;
 
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 
 public record LanguageCodePage(int languageId, int codePage) {
     static final int STRIDE = Integer.BYTES;

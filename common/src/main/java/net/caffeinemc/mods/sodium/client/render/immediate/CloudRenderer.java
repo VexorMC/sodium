@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL32C;
-import org.lwjgl.system.MemoryStack;
+import dev.lunasa.compat.lwjgl3.MemoryStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public class CloudRenderer {
 
     private static final ShaderProgram CLOUDS_SHADER = new ShaderProgram(
             ResourceLocation.fromNamespaceAndPath("sodium", "clouds"),
-            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormats.POSITION_COLOR,
             ShaderDefines.builder()
                     .build()
     );
@@ -209,7 +209,7 @@ public class CloudRenderer {
                                                           CloudTextureData textureData)
     {
         BufferBuilder bufferBuilder = Tesselator.getInstance()
-                .begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+                .begin(VertexFormat.Mode.QUADS, VertexFormats.POSITION_COLOR);
 
         var writer = VertexBufferWriter.of(bufferBuilder);
 

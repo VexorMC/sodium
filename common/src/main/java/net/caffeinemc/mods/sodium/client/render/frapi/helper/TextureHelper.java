@@ -18,7 +18,7 @@ package net.caffeinemc.mods.sodium.client.render.frapi.helper;
 
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 
 /**
  * Handles most texture-baking use cases for model loaders and model libraries

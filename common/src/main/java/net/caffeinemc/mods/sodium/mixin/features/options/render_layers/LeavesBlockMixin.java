@@ -2,7 +2,7 @@ package net.caffeinemc.mods.sodium.mixin.features.options.render_layers;
 
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;

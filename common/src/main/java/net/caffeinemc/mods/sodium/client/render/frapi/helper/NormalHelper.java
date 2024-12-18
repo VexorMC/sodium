@@ -17,7 +17,7 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.helper;
 
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.core.Vec3i;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;

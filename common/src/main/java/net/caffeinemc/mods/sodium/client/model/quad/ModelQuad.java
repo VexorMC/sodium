@@ -2,7 +2,7 @@ package net.caffeinemc.mods.sodium.client.model.quad;
 
 import net.caffeinemc.mods.sodium.client.util.ModelQuadUtil;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 
 /**
  * A simple implementation of the {@link ModelQuadViewMutable} interface which can provide an on-heap scratch area

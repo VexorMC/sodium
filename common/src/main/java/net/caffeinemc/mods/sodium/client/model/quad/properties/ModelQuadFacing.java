@@ -2,7 +2,7 @@ package net.caffeinemc.mods.sodium.client.model.quad.properties;
 
 import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
 import net.caffeinemc.mods.sodium.api.util.NormI8;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.Mth;
 import org.joml.Math;
 import org.joml.Vector3f;

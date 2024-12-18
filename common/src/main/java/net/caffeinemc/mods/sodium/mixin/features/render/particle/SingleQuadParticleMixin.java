@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.mixin.features.render.particle;
 
 import net.caffeinemc.mods.sodium.api.vertex.format.common.ParticleVertex;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.caffeinemc.mods.sodium.client.render.vertex.VertexConsumerUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -9,7 +9,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.SingleQuadParticle;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.lwjgl.system.MemoryStack;
+import dev.lunasa.compat.lwjgl3.MemoryStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;

@@ -4,7 +4,7 @@ import net.caffeinemc.mods.sodium.client.util.NativeImageHelper;
 import net.caffeinemc.mods.sodium.mixin.features.textures.SpriteContentsInvoker;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.minecraft.client.renderer.texture.SpriteContents;
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

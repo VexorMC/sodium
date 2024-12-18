@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.occlusion;
 
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 
 public class GraphDirection {
     public static final int DOWN    = 0;

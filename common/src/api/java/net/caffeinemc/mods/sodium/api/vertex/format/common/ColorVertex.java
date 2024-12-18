@@ -1,14 +1,14 @@
 package net.caffeinemc.mods.sodium.api.vertex.format.common;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.VertexFormat;
 import net.caffeinemc.mods.sodium.api.math.MatrixHelper;
 import net.caffeinemc.mods.sodium.api.vertex.attributes.common.ColorAttribute;
 import net.caffeinemc.mods.sodium.api.vertex.attributes.common.PositionAttribute;
 import org.joml.Matrix4f;
 
 public final class ColorVertex {
-    public static final VertexFormat FORMAT = DefaultVertexFormat.POSITION_COLOR;
+    public static final VertexFormat FORMAT = VertexFormats.POSITION_COLOR;
 
     public static final int STRIDE = 16;
 

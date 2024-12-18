@@ -15,7 +15,7 @@ import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.minecraft.Util;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.WGL;
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

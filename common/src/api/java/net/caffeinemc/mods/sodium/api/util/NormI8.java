@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.api.util;
 
-import net.minecraft.util.Mth;
+import net.minecraft.util.math.MathHelper;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -53,7 +53,7 @@ public class NormI8 {
      */
     private static int encode(float comp) {
         // TODO: is the clamp necessary here? our inputs should always be normalized vector components
-        return ((int) (Mth.clamp(comp, -1.0F, 1.0F) * COMPONENT_RANGE) & 255);
+        return ((int) (MathHelper.clamp(comp, -1.0F, 1.0F) * COMPONENT_RANGE) & 255);
     }
 
     /**

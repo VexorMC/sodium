@@ -6,11 +6,11 @@ plugins {
 group = "net.caffeinemc"
 version = BuildConfig.createVersionString(project)
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.release.set(21)
+    options.release.set(17)
 }
 
 tasks.withType<GenerateModuleMetadata>().configureEach {
@@ -18,6 +18,8 @@ tasks.withType<GenerateModuleMetadata>().configureEach {
 }
 
 repositories {
+    maven("https://maven.legacyfabric.net/")
+
     exclusiveContent {
         forRepository {
             maven {

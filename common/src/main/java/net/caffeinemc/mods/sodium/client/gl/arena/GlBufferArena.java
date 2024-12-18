@@ -66,7 +66,7 @@ public class GlBufferArena {
         if (usedSegments.isEmpty()) {
             this.head.setNext(null);
         } else {
-            this.head.setNext(usedSegments.getFirst());
+            this.head.setNext(usedSegments.stream().findFirst().get());
             this.head.getNext()
                     .setPrev(this.head);
         }

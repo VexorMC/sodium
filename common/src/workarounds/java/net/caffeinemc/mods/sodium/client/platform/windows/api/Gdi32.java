@@ -5,7 +5,7 @@ import org.lwjgl.system.SharedLibrary;
 
 import static org.lwjgl.system.APIUtil.apiCreateLibrary;
 import static org.lwjgl.system.APIUtil.apiGetFunctionAddressOptional;
-import static org.lwjgl.system.MemoryUtil.NULL;
+import static dev.lunasa.compat.lwjgl3.MemoryUtil.NULL;
 
 public class Gdi32 {
     private static final SharedLibrary LIBRARY = apiCreateLibrary("gdi32");

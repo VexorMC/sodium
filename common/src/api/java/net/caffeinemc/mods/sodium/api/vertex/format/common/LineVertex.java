@@ -1,13 +1,13 @@
 package net.caffeinemc.mods.sodium.api.vertex.format.common;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.VertexFormat;
 import net.caffeinemc.mods.sodium.api.vertex.attributes.common.ColorAttribute;
 import net.caffeinemc.mods.sodium.api.vertex.attributes.common.NormalAttribute;
 import net.caffeinemc.mods.sodium.api.vertex.attributes.common.PositionAttribute;
 
 public final class LineVertex  {
-    public static final VertexFormat FORMAT = DefaultVertexFormat.POSITION_COLOR_NORMAL;
+    public static final VertexFormat FORMAT = VertexFormats.POSITION_TEXTURE_COLOR_NORMAL;
 
     public static final int STRIDE = 20;
 

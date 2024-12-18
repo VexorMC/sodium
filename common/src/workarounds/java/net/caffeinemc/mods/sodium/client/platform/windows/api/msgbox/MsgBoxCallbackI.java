@@ -6,7 +6,7 @@ import org.lwjgl.system.NativeType;
 import org.lwjgl.system.libffi.FFICIF;
 
 import static org.lwjgl.system.APIUtil.apiCreateCIF;
-import static org.lwjgl.system.MemoryUtil.memGetAddress;
+import static dev.lunasa.compat.lwjgl3.MemoryUtil.memGetAddress;
 import static org.lwjgl.system.libffi.LibFFI.*;
 
 @FunctionalInterface

@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.api.vertex.serializer;
 
-import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.render.VertexFormat;
 import net.caffeinemc.mods.sodium.api.internal.DependencyInjection;
 
 public interface VertexSerializerRegistry {

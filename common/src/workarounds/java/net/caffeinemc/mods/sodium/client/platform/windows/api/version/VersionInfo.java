@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.platform.windows.api.version;
 
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 
 import java.io.Closeable;
 import java.nio.ByteBuffer;

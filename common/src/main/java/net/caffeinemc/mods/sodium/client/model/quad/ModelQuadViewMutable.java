@@ -2,7 +2,7 @@ package net.caffeinemc.mods.sodium.client.model.quad;
 
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 
 /**
  * Provides a mutable view to a model quad.

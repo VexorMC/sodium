@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.vertex;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
 
 public class VertexConsumerUtils {

@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.platform.windows;
 
 import net.caffeinemc.mods.sodium.client.platform.windows.api.Kernel32;
-import org.lwjgl.system.MemoryUtil;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.Objects;

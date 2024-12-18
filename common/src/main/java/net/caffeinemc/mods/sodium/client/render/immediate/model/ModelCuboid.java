@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.immediate.model;
 
 import java.util.Set;
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 
 public class ModelCuboid {

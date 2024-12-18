@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.model.light.smooth;
 
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.Mth;
 
 /**
