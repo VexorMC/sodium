@@ -1,7 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import dev.lunasa.compat.mojang.minecraft.gui.event.GuiEventListener;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.data.fingerprint.HashedFingerprint;
 import net.caffeinemc.mods.sodium.client.console.Console;
@@ -18,7 +17,6 @@ import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
@@ -28,7 +26,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -48,7 +45,7 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
 
     private final List<ControlElement<?>> controls = new ArrayList<>();
 
-    private final Screen prevScreen;
+    public final Screen prevScreen;
 
     private OptionPage currentPage;
 
@@ -60,7 +57,7 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
 
     private @Nullable ScreenPrompt prompt;
 
-    private SodiumOptionsGUI(Screen prevScreen) {
+    SodiumOptionsGUI(Screen prevScreen) {
         this.prevScreen = prevScreen;
 
         this.pages.add(SodiumGameOptionPages.general());
@@ -173,7 +170,7 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
         this.hideDonateButton = new FlatButtonWidget(new Dim2i(this.width - 26, 6, 20, 20), new LiteralText("x"), this::hideDonationButton);
 
         if (SodiumClientMod.options().notifications.hasClearedDonationButton) {
-            this.setDonationButtonVisibility(false);
+            this.setDonationButtonVisibility();
         }
 
         this.addRenderableWidget(this.undoButton);
@@ -183,9 +180,9 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
         this.addRenderableWidget(this.hideDonateButton);
     }
 
-    private void setDonationButtonVisibility(boolean value) {
-        this.donateButton.setVisible(value);
-        this.hideDonateButton.setVisible(value);
+    private void setDonationButtonVisibility() {
+        this.donateButton.setVisible(false);
+        this.hideDonateButton.setVisible(false);
     }
 
     private void hideDonationButton() {
@@ -198,7 +195,7 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
             throw new RuntimeException("Failed to save configuration", e);
         }
 
-        this.setDonationButtonVisibility(false);
+        this.setDonationButtonVisibility();
     }
 
     private void rebuildGUIPages() {
@@ -387,9 +384,6 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
 
         if (flags.contains(OptionFlag.REQUIRES_ASSET_RELOAD)) {
             client.reloadResources();
-        }
-
-        if (flags.contains(OptionFlag.REQUIRES_VIDEOMODE_RELOAD)) {
         }
 
         if (flags.contains(OptionFlag.REQUIRES_GAME_RESTART)) {

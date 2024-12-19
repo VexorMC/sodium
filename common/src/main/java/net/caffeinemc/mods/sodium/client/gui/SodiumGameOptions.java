@@ -47,7 +47,6 @@ public class SodiumGameOptions {
         public boolean useEntityCulling = true;
         public boolean useFogOcclusion = true;
         public boolean useBlockFaceCulling = true;
-        public boolean useNoErrorGLContext = true;
 
         @SerializedName("sorting_enabled_v2") // reset the older option in configs before we started hiding it
         public boolean sortingEnabled = true;
@@ -65,8 +64,12 @@ public class SodiumGameOptions {
     }
 
     public static class QualitySettings {
+        public GraphicsQuality cloudQuality = GraphicsQuality.DEFAULT;
         public GraphicsQuality weatherQuality = GraphicsQuality.DEFAULT;
         public GraphicsQuality leavesQuality = GraphicsQuality.DEFAULT;
+        public LightingQuality smoothLighting = LightingQuality.HIGH;
+
+        public int biomeBlendRadius = 4;
 
         public boolean enableVignette = true;
     }
@@ -74,6 +77,23 @@ public class SodiumGameOptions {
     public static class NotificationSettings {
         public boolean hasClearedDonationButton = false;
         public boolean hasSeenDonationPrompt = false;
+    }
+
+    public enum LightingQuality implements TextProvider {
+        OFF(new TranslatableText("options.ao.off")),
+        LOW(new TranslatableText("options.ao.min")),
+        HIGH(new TranslatableText("options.ao.max"));
+
+        private final Text name;
+
+        LightingQuality(Text name) {
+            this.name = name;
+        }
+
+        @Override
+        public Text getLocalizedName() {
+            return this.name;
+        }
     }
 
     public enum GraphicsQuality implements TextProvider {
@@ -92,8 +112,8 @@ public class SodiumGameOptions {
             return this.name;
         }
 
-        public boolean isFancy(GraphicsStatus graphicsStatus) {
-            return (this == FANCY) || (this == DEFAULT && (graphicsStatus == GraphicsStatus.FANCY || graphicsStatus == GraphicsStatus.FABULOUS));
+        public boolean isFancy() {
+            return (this == FANCY) || (this == DEFAULT);
         }
     }
 
