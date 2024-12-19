@@ -828,19 +828,6 @@ public final class MemoryUtil {
     }
 
     /**
-     * Creates a {@link ByteBuffer} instance as a view of the specified {@link Struct}.
-     *
-     * <p>The returned {@code ByteBuffer} instance will be set to the native {@link ByteOrder}.</p>
-     *
-     * @param value the struct value
-     *
-     * @return the {@code ByteBuffer} view
-     */
-    public static <T extends t<T>> ByteBuffer memByteBuffer(T value) {
-        return wrapBufferByte(value.address, value.sizeof());
-    }
-
-    /**
      * Creates a {@link ByteBuffer} instance as a view of the specified {@link ShortBuffer} between its current position and limit.
      *
      * <p>This operation is the inverse of {@link ByteBuffer#asShortBuffer()}. The returned {@code ByteBuffer} instance will be set to the native
