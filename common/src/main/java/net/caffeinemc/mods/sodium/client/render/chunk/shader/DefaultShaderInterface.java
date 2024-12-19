@@ -6,7 +6,7 @@ import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformInt;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformMatrix4f;
 import net.caffeinemc.mods.sodium.client.util.TextureUtil;
 import org.joml.Matrix4fc;
-import org.lwjgl.opengl.GL32C;
+import org.lwjgl.opengl.*;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -51,8 +51,8 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
 
     @Deprecated(forRemoval = true) // should be handled properly in GFX instead.
     private void bindTexture(ChunkShaderTextureSlot slot, int textureId) {
-        GlStateManager._activeTexture(GL32C.GL_TEXTURE0 + slot.ordinal());
-        GlStateManager._bindTexture(textureId);
+        GlStateManager.activeTexture(GL13.GL_TEXTURE0 + slot.ordinal());
+        GlStateManager.bindTexture(textureId);
 
         var uniform = this.uniformTextures.get(slot);
         uniform.setInt(slot.ordinal());

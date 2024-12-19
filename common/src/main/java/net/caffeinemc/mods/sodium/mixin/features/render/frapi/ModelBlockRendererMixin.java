@@ -21,6 +21,7 @@ import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.client.render.frapi.render.NonTerrainBlockRenderContext;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.render.block.BlockModelRenderer;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.math.BlockPos;
@@ -38,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Entrypoint of the FRAPI pipeline for non-terrain block rendering, for the baked models that require it.
  */
-@Mixin(ModelBlockRenderer.class)
+@Mixin(BlockModelRenderer.class)
 public abstract class ModelBlockRendererMixin {
     @Shadow
     @Final

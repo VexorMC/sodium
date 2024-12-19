@@ -37,7 +37,7 @@ public class TextureHelper {
     public static void bakeSprite(MutableQuadView quad, Sprite sprite, int bakeFlags) {
         if (quad.nominalFace() != null && (MutableQuadView.BAKE_LOCK_UV & bakeFlags) != 0) {
             // Assigns normalized UV coordinates based on vertex positions
-            applyModifier(quad, UVLOCKERS[quad.nominalFace().get3DDataValue()]);
+            applyModifier(quad, UVLOCKERS[quad.nominalFace().getId()]);
         } else if ((MutableQuadView.BAKE_NORMALIZED & bakeFlags) == 0) { // flag is NOT set, UVs are assumed to not be normalized yet as is the default, normalize through dividing by 16
             // Scales from 0-16 to 0-1
             applyModifier(quad, (q, i) -> q.uv(i, q.u(i) * NORMALIZER, q.v(i) * NORMALIZER));
@@ -69,10 +69,10 @@ public class TextureHelper {
      * so we'd have to denormalize before we called, only to have the sprite renormalize immediately.
      */
     private static void interpolate(MutableQuadView q, Sprite sprite) {
-        final float uMin = sprite.getU0();
-        final float uSpan = sprite.getU1() - uMin;
-        final float vMin = sprite.getV0();
-        final float vSpan = sprite.getV1() - vMin;
+        final float uMin = sprite.getMinU();
+        final float uSpan = sprite.getMaxU() - uMin;
+        final float vMin = sprite.getMinV();
+        final float vSpan = sprite.getMaxV() - vMin;
 
         for (int i = 0; i < 4; i++) {
             q.uv(i, uMin + q.u(i) * uSpan, vMin + q.v(i) * vSpan);
@@ -100,11 +100,11 @@ public class TextureHelper {
     private static final VertexModifier[] UVLOCKERS = new VertexModifier[6];
 
     static {
-        UVLOCKERS[Direction.EAST.get3DDataValue()] = (q, i) -> q.uv(i, 1 - q.z(i), 1 - q.y(i));
-        UVLOCKERS[Direction.WEST.get3DDataValue()] = (q, i) -> q.uv(i, q.z(i), 1 - q.y(i));
-        UVLOCKERS[Direction.NORTH.get3DDataValue()] = (q, i) -> q.uv(i, 1 - q.x(i), 1 - q.y(i));
-        UVLOCKERS[Direction.SOUTH.get3DDataValue()] = (q, i) -> q.uv(i, q.x(i), 1 - q.y(i));
-        UVLOCKERS[Direction.DOWN.get3DDataValue()] = (q, i) -> q.uv(i, q.x(i), 1 - q.z(i));
-        UVLOCKERS[Direction.UP.get3DDataValue()] = (q, i) -> q.uv(i, q.x(i), q.z(i));
+        UVLOCKERS[Direction.EAST.getId()] = (q, i) -> q.uv(i, 1 - q.z(i), 1 - q.y(i));
+        UVLOCKERS[Direction.WEST.getId()] = (q, i) -> q.uv(i, q.z(i), 1 - q.y(i));
+        UVLOCKERS[Direction.NORTH.getId()] = (q, i) -> q.uv(i, 1 - q.x(i), 1 - q.y(i));
+        UVLOCKERS[Direction.SOUTH.getId()] = (q, i) -> q.uv(i, q.x(i), 1 - q.y(i));
+        UVLOCKERS[Direction.DOWN.getId()] = (q, i) -> q.uv(i, q.x(i), 1 - q.z(i));
+        UVLOCKERS[Direction.UP.getId()] = (q, i) -> q.uv(i, q.x(i), q.z(i));
     }
 }

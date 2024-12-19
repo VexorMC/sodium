@@ -34,8 +34,7 @@ public interface VertexBufferWriter {
      */
     @Nullable
     static VertexBufferWriter tryOf(VertexConsumer consumer) {
-        if (consumer instanceof VertexBufferWriter) {
-            VertexBufferWriter writer = (VertexBufferWriter) consumer;
+        if (consumer instanceof VertexBufferWriter writer) {
             if (writer.canUseIntrinsics()) {
                 return writer;
             }

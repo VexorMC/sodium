@@ -16,10 +16,10 @@
 
 package net.caffeinemc.mods.sodium.client.render.frapi.helper;
 
+import dev.lunasa.compat.mojang.math.Mth;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.Mth;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -44,7 +44,7 @@ public abstract class GeometryHelper {
 
     /**
      * Identifies the face to which the quad is most closely aligned.
-     * This mimics the value that {@link BakedQuad#getDirection()} returns, and is
+     * This mimics the value that {@link BakedQuad#getFace()} returns, and is
      * used in the vanilla renderer for all diffuse lighting.
      *
      * <p>Derived from the quad face normal and expects convex quads with all points co-planar.

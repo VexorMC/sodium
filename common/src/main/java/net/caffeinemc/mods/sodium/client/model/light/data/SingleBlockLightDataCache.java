@@ -2,6 +2,7 @@ package net.caffeinemc.mods.sodium.client.model.light.data;
 
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockView;
 
 import java.util.Arrays;
 
@@ -23,7 +24,7 @@ public class SingleBlockLightDataCache extends LightDataAccess {
         this.light = new int[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
     }
 
-    public void reset(BlockPos origin, LevelSlice blockView) {
+    public void reset(BlockPos origin, BlockView blockView) {
         this.xOffset = origin.getX() - NEIGHBOR_BLOCK_RADIUS;
         this.yOffset = origin.getY() - NEIGHBOR_BLOCK_RADIUS;
         this.zOffset = origin.getZ() - NEIGHBOR_BLOCK_RADIUS;

@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 
 /**
  * The light data cache is used to make accessing the light data and occlusion properties of blocks cheaper. The data
@@ -29,7 +30,7 @@ import net.minecraft.util.math.Direction;
  */
 public abstract class LightDataAccess {
     private final BlockPos.Mutable pos = new BlockPos.Mutable();
-    protected LevelSlice level;
+    protected BlockView level;
 
     public int get(int x, int y, int z, Direction d1, Direction d2) {
         return this.get(x + d1.getOffsetX() + d2.getOffsetX(),
@@ -59,7 +60,7 @@ public abstract class LightDataAccess {
 
     protected int compute(int x, int y, int z) {
         BlockPos pos = this.pos.setPosition(x, y, z);
-        LevelSlice level = this.level;
+        BlockView level = this.level;
 
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
@@ -190,7 +191,7 @@ public abstract class LightDataAccess {
         }
     }
 
-    public LevelSlice getLevel() {
+    public BlockView getLevel() {
         return this.level;
     }
 }

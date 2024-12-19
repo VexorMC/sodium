@@ -18,7 +18,7 @@ package net.caffeinemc.mods.sodium.client.render.frapi.helper;
 
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
 import net.minecraft.util.math.Direction;
-import net.minecraft.core.Vec3i;
+import net.minecraft.util.math.Vec3i;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -42,7 +42,7 @@ public abstract class NormalHelper {
         final Direction nominalFace = q.nominalFace();
 
         if (nominalFace != null && GeometryHelper.isQuadParallelToFace(nominalFace, q)) {
-            Vec3i vec = nominalFace.getUnitVec3i();
+            Vec3i vec = nominalFace.getVector();
             saveTo.set(vec.getX(), vec.getY(), vec.getZ());
             return;
         }

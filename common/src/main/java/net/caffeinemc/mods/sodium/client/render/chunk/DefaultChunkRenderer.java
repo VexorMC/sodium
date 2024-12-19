@@ -162,9 +162,9 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
      */
     @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
     private static void addNonIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
-        final var pElementPointer = batch.pElementPointer;
-        final var pBaseVertex = batch.pBaseVertex;
-        final var pElementCount = batch.pElementCount;
+        final var pElementPointer = MemoryUtil.memAddress(batch.elementPointers);
+        final var pBaseVertex = MemoryUtil.memAddress(batch.baseVertices);
+        final var pElementCount = MemoryUtil.memAddress(batch.elementCounts);
 
         int size = batch.size;
 
@@ -186,9 +186,9 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
      */
     @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
     private static void addIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
-        final var pElementPointer = batch.pElementPointer;
-        final var pBaseVertex = batch.pBaseVertex;
-        final var pElementCount = batch.pElementCount;
+        final var pElementPointer = MemoryUtil.memAddress(batch.elementPointers);
+        final var pBaseVertex = MemoryUtil.memAddress(batch.baseVertices);
+        final var pElementCount = MemoryUtil.memAddress(batch.elementCounts);
 
         int size = batch.size;
 

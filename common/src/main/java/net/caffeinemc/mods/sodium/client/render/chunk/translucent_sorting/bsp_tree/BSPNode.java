@@ -7,7 +7,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TQuad;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.TopoGraphSorting;
 import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
 import net.caffeinemc.mods.sodium.api.util.NormI8;
-import net.minecraft.core.SectionPos;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 
 /**
  * A node in the BSP tree. The BSP tree is made up of nodes that split quads

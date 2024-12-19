@@ -12,8 +12,8 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.*
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.GeometryPlanes;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.SortTriggering;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
-import net.minecraft.core.SectionPos;
-import net.minecraft.util.Mth;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import net.minecraft.util.math.MathHelper;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -428,7 +428,7 @@ public class TranslucentGeometryCollector {
         // use the given set of quad count limits to determine if a static topo sort
         // should be attempted
 
-        var attemptLimitIndex = Mth.clamp(normalCount, 2, STATIC_TOPO_SORT_ATTEMPT_LIMITS.length - 1);
+        var attemptLimitIndex = MathHelper.clamp(normalCount, 2, STATIC_TOPO_SORT_ATTEMPT_LIMITS.length - 1);
         if (this.quads.length <= STATIC_TOPO_SORT_ATTEMPT_LIMITS[attemptLimitIndex]) {
             return SortType.STATIC_TOPO;
         }

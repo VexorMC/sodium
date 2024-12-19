@@ -39,7 +39,7 @@ public class MutableMeshImpl extends MeshImpl implements MutableMesh {
         // should also have valid geometry for better performance.
         computeGeometry();
         limit += EncodingFormat.TOTAL_STRIDE;
-        ensureCapacity(EncodingFormat.TOTAL_STRIDE);
+        ensureCapacity();
         baseIndex = limit;
     }
 };
@@ -48,14 +48,14 @@ public class MutableMeshImpl extends MeshImpl implements MutableMesh {
         data = new int[8 * EncodingFormat.TOTAL_STRIDE];
         limit = 0;
 
-        ensureCapacity(EncodingFormat.TOTAL_STRIDE);
+        ensureCapacity();
         emitter.data = data;
         emitter.baseIndex = limit;
         emitter.clear();
     }
 
-    private void ensureCapacity(int stride) {
-        if (stride > data.length - limit) {
+    private void ensureCapacity() {
+        if (EncodingFormat.TOTAL_STRIDE > data.length - limit) {
             final int[] bigger = new int[data.length * 2];
             System.arraycopy(data, 0, bigger, 0, limit);
             data = bigger;

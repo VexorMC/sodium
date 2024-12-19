@@ -102,7 +102,7 @@ public class BlockColors implements BlockColorsExtension  {
         return INSTANCE;
     }
 
-    public int getColor(BlockState p_189991_1_, World p_189991_2_, BlockPos p_189991_3_) {
+    public int getColor(BlockState p_189991_1_) {
         IBlockColor iblockcolor = this.mapBlockColors.fromId(Block.getIdByBlock(p_189991_1_.getBlock()));
 
         if (iblockcolor != null) {

@@ -17,7 +17,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.SectionPos;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.level.BlockAndTintGetter;

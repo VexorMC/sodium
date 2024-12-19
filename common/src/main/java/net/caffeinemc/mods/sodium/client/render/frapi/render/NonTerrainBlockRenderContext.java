@@ -18,6 +18,8 @@ package net.caffeinemc.mods.sodium.client.render.frapi.render;
 
 import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
 import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
+import dev.lunasa.compat.mojang.minecraft.BlockColors;
+import dev.lunasa.compat.mojang.minecraft.random.RandomSource;
 import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.light.LightMode;
@@ -27,17 +29,15 @@ import net.caffeinemc.mods.sodium.client.render.frapi.mesh.MutableQuadViewImpl;
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteFinderCache;
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteUtil;
 import net.caffeinemc.mods.sodium.client.services.SodiumModelData;
+import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.material.ShadeMode;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
-import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.resources.model.BakedModel;
+import net.legacyfabric.fabric.api.util.TriState;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.BlockView;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -56,7 +56,7 @@ public class NonTerrainBlockRenderContext extends AbstractBlockRenderContext {
         this.lighters = new LightPipelineProvider(this.lightDataCache);
     }
 
-    public void renderModel(BlockAndTintGetter blockView, BakedModel model, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer, boolean cull, RandomSource random, long seed, int overlay) {
+    public void renderModel(BlockView blockView, BakedModel model, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer, boolean cull, RandomSource random, long seed, int overlay) {
         this.level = blockView;
         this.state = state;
         this.pos = pos;
@@ -69,7 +69,7 @@ public class NonTerrainBlockRenderContext extends AbstractBlockRenderContext {
         this.trustedNormals = poseStack.last().trustedNormals;
         this.matNormal = poseStack.last().normal();
         this.overlay = overlay;
-        this.type = ItemBlockRenderTypes.getChunkRenderType(state);
+        this.type = state.getBlock().getRenderLayerType();
         this.modelData = SodiumModelData.EMPTY;
 
         this.lightDataCache.reset(pos, blockView);
@@ -106,7 +106,7 @@ public class NonTerrainBlockRenderContext extends AbstractBlockRenderContext {
 
     private void tintQuad(MutableQuadViewImpl quad) {
         if (quad.tintIndex() != -1) {
-            final int blockColor = 0xFF000000 | this.colorMap.getColor(this.state, this.level, this.pos, quad.tintIndex());
+            final int blockColor = 0xFF000000 | this.colorMap.getColor(this.state);
 
             for (int i = 0; i < 4; i++) {
                 quad.color(i, ColorMixer.mulComponentWise(blockColor, quad.color(i)));

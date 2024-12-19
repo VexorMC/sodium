@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data;
 
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
-import net.minecraft.core.SectionPos;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 
 public abstract class MixedDirectionData extends PresentTranslucentData {
     private final int[] vertexCounts = new int[ModelQuadFacing.COUNT];

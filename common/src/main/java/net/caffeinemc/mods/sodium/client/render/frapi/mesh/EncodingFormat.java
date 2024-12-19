@@ -17,16 +17,15 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.mesh;
 
 import com.google.common.base.Preconditions;
+import dev.lunasa.compat.mojang.math.Mth;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.VertexFormat;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
-import net.caffeinemc.mods.sodium.client.render.frapi.SodiumRenderer;
 import net.caffeinemc.mods.sodium.client.render.frapi.material.RenderMaterialImpl;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.Mth;
 
 /**
  * Holds all the array offsets and bit-wise encoders/decoders for

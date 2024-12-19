@@ -11,10 +11,10 @@ public class SpriteUtil {
             return;
         }
 
-        ((SpriteContentsExtension) sprite.contents()).sodium$setActive(true);
+        ((SpriteContentsExtension) sprite).sodium$setActive(true);
     }
 
     public static boolean hasAnimation(Sprite sprite) {
-        return ((SpriteContentsExtension) sprite.contents()).sodium$hasAnimation();
+        return ((SpriteContentsExtension) sprite).sodium$hasAnimation();
     }
 }

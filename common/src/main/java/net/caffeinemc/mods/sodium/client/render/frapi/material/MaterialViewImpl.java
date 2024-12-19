@@ -98,11 +98,6 @@ public class MaterialViewImpl implements MaterialView {
     }
 
     @Override
-    public GlintMode glintMode() {
-        return GLINT_MODES[(bits & GLINT_MODE_MASK) >>> GLINT_MODE_BIT_OFFSET];
-    }
-
-    @Override
     public ShadeMode shadeMode() {
         return SHADE_MODES[(bits & SHADE_MODE_MASK) >>> SHADE_MODE_BIT_OFFSET];
     }

@@ -9,7 +9,10 @@ import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.SodiumAuxiliaryLightManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.SectionPos;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
@@ -49,7 +52,7 @@ public class ClonedChunkSection {
 
     private long lastUsedTimestamp = Long.MAX_VALUE;
 
-    public ClonedChunkSection(Level level, LevelChunk chunk, @Nullable LevelChunkSection section, SectionPos pos) {
+    public ClonedChunkSection(World level, Chunk chunk, @Nullable ChunkSection section, SectionPos pos) {
         this.pos = pos;
 
         PalettedContainerRO<BlockState> blockData = null;

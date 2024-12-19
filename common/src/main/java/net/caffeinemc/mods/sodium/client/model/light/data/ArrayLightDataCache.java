@@ -2,6 +2,8 @@ package net.caffeinemc.mods.sodium.client.model.light.data;
 
 import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
+import net.minecraft.world.BlockView;
+
 import java.util.Arrays;
 
 /**
@@ -17,7 +19,7 @@ public class ArrayLightDataCache extends LightDataAccess {
 
     private int xOffset, yOffset, zOffset;
 
-    public ArrayLightDataCache(LevelSlice level) {
+    public ArrayLightDataCache(BlockView level) {
         this.level = level;
         this.light = new int[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
     }

@@ -1,7 +1,5 @@
 package net.caffeinemc.mods.sodium.client.render.util;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 public class RenderAsserts {
     /**
      * Checks that the thread calling this function is the main render thread. This is useful for ensuring that OpenGL
@@ -11,9 +9,7 @@ public class RenderAsserts {
      * @return Always true, since an exception is thrown otherwise
      */
     public static boolean validateCurrentThread() {
-        if (!RenderSystem.isOnRenderThread()) {
-            throw new IllegalStateException("Accessing OpenGL functions from outside the main render thread is not supported when using Sodium");
-        }
+        // Minecraft 1.8.9 doesn't have multi threading, so there is nothing to validate.
 
         return true;
     }

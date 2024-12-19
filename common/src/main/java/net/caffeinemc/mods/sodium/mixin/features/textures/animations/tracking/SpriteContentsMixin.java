@@ -10,11 +10,6 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(SpriteContents.class)
 public abstract class SpriteContentsMixin implements SpriteContentsExtension {
-    @Shadow
-    @Final
-    @Nullable
-    private SpriteContents.AnimatedTexture animatedTexture;
-
     @Unique
     private boolean active;
 

@@ -7,7 +7,7 @@ import org.joml.Vector3fc;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TQuad;
-import net.minecraft.core.SectionPos;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 
 /**
  * GeometryPlanes stores the NormalPlanes for different normals, both aligned

@@ -9,7 +9,7 @@ import net.caffeinemc.mods.sodium.client.util.interval_tree.Interval.Bounded;
 import it.unimi.dsi.fastutil.floats.FloatOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.AlignableNormal;
-import net.minecraft.core.SectionPos;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 
 /**
  * NormalPlanes represents planes by a normal and a list of distances. Initially they're

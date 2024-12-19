@@ -3,7 +3,7 @@ package net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortType;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TQuad;
-import net.minecraft.core.SectionPos;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 
 import java.nio.IntBuffer;
 import java.util.function.IntConsumer;

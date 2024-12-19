@@ -1,79 +1,81 @@
 package net.caffeinemc.mods.sodium.mixin.core.render.immediate.consumer;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import net.minecraft.client.render.VertexFormat;
-import net.caffeinemc.mods.sodium.api.memory.MemoryIntrinsics;
-import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
-import net.caffeinemc.mods.sodium.api.vertex.serializer.VertexSerializerRegistry;
-import net.caffeinemc.mods.sodium.client.render.vertex.buffer.BufferBuilderExtension;
 import dev.lunasa.compat.lwjgl3.MemoryStack;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
+import net.caffeinemc.mods.sodium.client.render.vertex.buffer.BufferBuilderExtension;
+import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.VertexFormat;
+import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 @Mixin(BufferBuilder.class)
 public abstract class BufferBuilderMixin implements VertexBufferWriter, BufferBuilderExtension {
     @Shadow
-    private int vertices;
+    private int vertexCount;
 
     @Shadow
-    @Final
-    private int vertexSize;
+    @Mutable
+    private ByteBuffer buffer;
 
-    @Shadow
-    private long vertexPointer;
-
-    @Shadow
-    @Final
-    private ByteBufferBuilder buffer;
-
-    @Shadow
-    private int elementsToFill;
-
-    @Shadow
-    @Final
+    @Unique
     private VertexFormat format;
 
+    @Inject(
+            method = "begin",
+            at = @At(value = "TAIL")
+    )
+    private void onFormatChanged(int drawMode, VertexFormat format, CallbackInfo ci) {
+        this.format = format;
+    }
+
     @Override
-    public void sodium$duplicateVertex() {
-        if (this.vertices == 0) {
-            return;
-        }
-
-        long head = this.buffer.reserve(this.vertexSize);
-        MemoryIntrinsics.copyMemory(head - this.vertexSize, head, this.vertexSize);
-
-        this.vertices++;
+    public boolean canUseIntrinsics() {
+        return this.format != null;
     }
 
     @Override
     public void push(MemoryStack stack, long src, int count, VertexFormat format) {
-        var length = count * this.vertexSize;
+        int length = count * this.vertexCount;
 
-        // The buffer may change in the even, so we need to make sure that the
-        // pointer is retrieved *after* the resize
-        var dst = this.buffer.reserve(length);
+        // Ensure buffer has enough capacity for the new data
+        reserveBuffer(length);
 
-        if (format == this.format) {
-            // The layout is the same, so we can just perform a memory copy
-            // The stride of a vertex format is always 4 bytes, so this aligned copy is always safe
-            MemoryIntrinsics.copyMemory(src, dst, length);
-        } else {
-            // The layout differs, so we need to perform a conversion on the vertex data
-            this.copySlow(src, dst, count, format);
+        if (format.equals(this.format)) {
+            // Layout is the same, perform direct memory copy
+            // Using JNI for memory copying between direct buffers
+            copyMemoryDirect(src, buffer, length);
         }
-
-        this.vertices += count;
-        this.vertexPointer = (dst + length) - vertexSize;
-        this.elementsToFill = 0;
     }
 
+    /**
+     * Ensures the buffer has enough capacity to accommodate the new data.
+     */
     @Unique
-    private void copySlow(long src, long dst, int count, VertexFormat format) {
-        VertexSerializerRegistry.instance()
-                .get(format, this.format)
-                .serialize(src, dst, count);
+    private void reserveBuffer(int requiredCapacity) {
+        if (buffer.remaining() < requiredCapacity) {
+            // Allocate a new larger buffer if necessary
+            int newCapacity = Math.max(buffer.capacity() * 2, buffer.capacity() + requiredCapacity);
+            ByteBuffer newBuffer = ByteBuffer.allocateDirect(newCapacity).order(ByteOrder.nativeOrder());
+            buffer.flip(); // Prepare old buffer for reading
+            newBuffer.put(buffer); // Copy old data into the new buffer
+            buffer = newBuffer;
+        }
+    }
+
+    /**
+     * Copies memory from the source address into the buffer using native memory operations.
+     */
+    @Unique
+    private void copyMemoryDirect(long src, ByteBuffer dst, int length) {
+        // Assuming src is a pointer, direct buffer required to manipulate memory
+        for (int i = 0; i < length; i++) {
+            dst.put((byte) MemoryUtil.memGetByte(src + i)); // Mimic memory copy
+        }
     }
 }

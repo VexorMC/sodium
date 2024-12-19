@@ -1,6 +1,5 @@
 package net.caffeinemc.mods.sodium.mixin.core.render.world;
 
-import net.caffeinemc.mods.sodium.client.render.chunk.NonStoringBuilderPool;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.SectionBufferBuilderPool;
 import org.spongepowered.asm.mixin.Mixin;

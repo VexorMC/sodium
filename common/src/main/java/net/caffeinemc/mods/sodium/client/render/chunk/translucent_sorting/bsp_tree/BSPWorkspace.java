@@ -2,7 +2,7 @@ package net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.bsp_t
 
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TQuad;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.GeometryPlanes;
-import net.minecraft.core.SectionPos;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 
 /**
  * The BSP workspace holds the state during the BSP building process. (see also

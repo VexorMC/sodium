@@ -18,7 +18,7 @@ public final class MultiDrawBatch {
 
     private final int capacity;
 
-    private int size;
+    public int size;
 
     public MultiDrawBatch(int capacity) {
         this.elementPointers = BufferUtils.createLongBuffer(capacity);

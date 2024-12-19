@@ -4,11 +4,11 @@ import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class VertexConsumerTracker {
-    private static final Logger LOGGER = LoggerFactory.getLogger("Sodium-VertexConsumerTracker");
+    private static final Logger LOGGER = LogManager.getLogger("Sodium-VertexConsumerTracker");
     private static final ReferenceSet<Class<? extends VertexConsumer>> BAD_CONSUMERS = ReferenceSets.synchronize(new ReferenceOpenHashSet<>());
 
     public static void logBadConsumer(VertexConsumer consumer) {

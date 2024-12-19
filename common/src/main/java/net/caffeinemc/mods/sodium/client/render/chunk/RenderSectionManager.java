@@ -1,6 +1,5 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
@@ -41,19 +40,18 @@ import net.caffeinemc.mods.sodium.client.render.texture.SpriteUtil;
 import net.caffeinemc.mods.sodium.client.render.util.RenderAsserts;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
+import net.caffeinemc.mods.sodium.client.util.CameraUtils;
 import net.caffeinemc.mods.sodium.client.util.MathUtil;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.caffeinemc.mods.sodium.client.world.cloned.ClonedChunkSectionCache;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.core.SectionPos;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.LevelChunkSection;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkSection;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -74,7 +72,7 @@ public class RenderSectionManager {
 
     private final ChunkRenderer chunkRenderer;
 
-    private final ClientLevel level;
+    private final ClientWorld level;
 
     private final ReferenceSet<RenderSection> sectionsWithGlobalEntities = new ReferenceOpenHashSet<>();
 
@@ -99,7 +97,7 @@ public class RenderSectionManager {
     private @Nullable BlockPos cameraBlockPos;
     private @Nullable Vector3dc cameraPosition;
 
-    public RenderSectionManager(ClientLevel level, int renderDistance, CommandList commandList) {
+    public RenderSectionManager(ClientWorld level, int renderDistance, CommandList commandList) {
         this.chunkRenderer = new DefaultChunkRenderer(RenderDevice.INSTANCE, ChunkMeshFormats.COMPACT);
 
         this.level = level;
@@ -123,24 +121,24 @@ public class RenderSectionManager {
         }
     }
 
-    public void updateCameraState(Vector3dc cameraPosition, Camera camera) {
-        this.cameraBlockPos = camera.getBlockPosition();
+    public void updateCameraState(Vector3dc cameraPosition) {
+        this.cameraBlockPos = CameraUtils.getBlockPosition();
         this.cameraPosition = cameraPosition;
     }
 
-    public void update(Camera camera, Viewport viewport, boolean spectator) {
+    public void update(Viewport viewport, boolean spectator) {
         this.lastUpdatedFrame += 1;
 
-        this.createTerrainRenderList(camera, viewport, this.lastUpdatedFrame, spectator);
+        this.createTerrainRenderList(viewport, this.lastUpdatedFrame, spectator);
 
         this.needsGraphUpdate = false;
     }
 
-    private void createTerrainRenderList(Camera camera, Viewport viewport, int frame, boolean spectator) {
+    private void createTerrainRenderList(Viewport viewport, int frame, boolean spectator) {
         this.resetRenderLists();
 
         final var searchDistance = this.getSearchDistance();
-        final var useOcclusionCulling = this.shouldUseOcclusionCulling(camera, spectator);
+        final var useOcclusionCulling = this.shouldUseOcclusionCulling(spectator);
 
         var visitor = new VisibleChunkCollector(frame);
 
@@ -162,16 +160,16 @@ public class RenderSectionManager {
         return distance;
     }
 
-    private boolean shouldUseOcclusionCulling(Camera camera, boolean spectator) {
+    private boolean shouldUseOcclusionCulling(boolean spectator) {
         final boolean useOcclusionCulling;
-        BlockPos origin = camera.getBlockPosition();
+        BlockPos origin = CameraUtils.getBlockPosition();
 
         if (spectator && this.level.getBlockState(origin)
-                .isSolidRender())
+                .getBlock().hasTransparency())
         {
             useOcclusionCulling = false;
         } else {
-            useOcclusionCulling = Minecraft.getInstance().smartCull;
+            useOcclusionCulling = MinecraftClient.getInstance().chunkCullingEnabled;
         }
         return useOcclusionCulling;
     }
@@ -198,10 +196,10 @@ public class RenderSectionManager {
 
         this.sectionByPosition.put(key, renderSection);
 
-        ChunkAccess chunk = this.level.getChunk(x, z);
-        LevelChunkSection section = chunk.getSections()[this.level.getSectionIndexFromSectionY(y)];
+        Chunk chunk = this.level.getChunk(x, z);
+        ChunkSection section = chunk.getBlockStorage()[y];
 
-        if (section.hasOnlyAir()) {
+        if (section.isEmpty()) {
             this.updateSectionInfo(renderSection, BuiltSectionInfo.EMPTY);
         } else {
             renderSection.setPendingUpdate(ChunkUpdateType.INITIAL_BUILD);

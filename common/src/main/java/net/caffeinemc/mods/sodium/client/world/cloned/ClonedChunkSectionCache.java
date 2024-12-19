@@ -1,26 +1,26 @@
 package net.caffeinemc.mods.sodium.client.world.cloned;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
-import net.minecraft.core.SectionPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 
 public class ClonedChunkSectionCache {
     private static final int MAX_CACHE_SIZE = 512; /* number of entries */
     private static final long MAX_CACHE_DURATION = TimeUnit.SECONDS.toNanos(5); /* number of nanoseconds */
 
-    private final Level level;
+    private final World level;
 
     private final Long2ReferenceLinkedOpenHashMap<ClonedChunkSection> positionToEntry = new Long2ReferenceLinkedOpenHashMap<>();
 
     private long time; // updated once per frame to be the elapsed time since application start
 
-    public ClonedChunkSectionCache(Level level) {
+    public ClonedChunkSectionCache(World level) {
         this.level = level;
         this.time = getMonotonicTimeSource();
     }
@@ -53,16 +53,16 @@ public class ClonedChunkSectionCache {
 
     @NotNull
     private ClonedChunkSection clone(int x, int y, int z) {
-        LevelChunk chunk = this.level.getChunk(x, z);
+        Chunk chunk = this.level.getChunk(x, z);
 
         if (chunk == null) {
             throw new RuntimeException("Chunk is not loaded at: " + SectionPos.asLong(x, y, z));
         }
 
-        @Nullable LevelChunkSection section = null;
+        @Nullable ChunkSection section = null;
 
-        if (!this.level.isOutsideBuildHeight(SectionPos.sectionToBlockCoord(y))) {
-            section = chunk.getSections()[this.level.getSectionIndexFromSectionY(y)];
+        if (SectionPos.sectionToBlockCoord(y) < 256) {
+            section = chunk.getBlockStorage()[y];
         }
 
         return new ClonedChunkSection(this.level, chunk, section, SectionPos.of(x, y, z));

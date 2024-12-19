@@ -17,7 +17,7 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.material;
 
 import net.fabricmc.fabric.api.renderer.v1.material.*;
-import net.fabricmc.fabric.api.util.TriState;
+import net.legacyfabric.fabric.api.util.TriState;
 
 import java.util.Objects;
 
@@ -64,14 +64,6 @@ public class MaterialFinderImpl extends MaterialViewImpl implements MaterialFind
         Objects.requireNonNull(mode, "ambient occlusion TriState may not be null");
 
         bits = (bits & ~AO_MASK) | (mode.ordinal() << AO_BIT_OFFSET);
-        return this;
-    }
-
-    @Override
-    public MaterialFinder glintMode(GlintMode mode) {
-        Objects.requireNonNull(mode, "GlintMode may not be null");
-
-        bits = (bits & ~GLINT_MODE_MASK) | (mode.ordinal() << GLINT_MODE_BIT_OFFSET);
         return this;
     }
 

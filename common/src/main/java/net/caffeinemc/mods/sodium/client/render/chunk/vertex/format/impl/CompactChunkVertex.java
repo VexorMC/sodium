@@ -5,8 +5,8 @@ import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexFormat;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderBindingPoints;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
-import net.minecraft.util.Mth;
 import dev.lunasa.compat.lwjgl3.MemoryUtil;
+import net.minecraft.util.math.MathHelper;
 
 public class CompactChunkVertex implements ChunkVertexType {
     public static final int STRIDE = 20;
@@ -107,8 +107,8 @@ public class CompactChunkVertex implements ChunkVertexType {
     }
 
     private static int encodeLight(int light) {
-        int sky = Mth.clamp((light >>> 16) & 0xFF, 8, 248);
-        int block = Mth.clamp((light >>>  0) & 0xFF, 8, 248);
+        int sky = MathHelper.clamp((light >>> 16) & 0xFF, 8, 248);
+        int block = MathHelper.clamp((light >>>  0) & 0xFF, 8, 248);
 
         return (block << 0) | (sky << 8);
     }

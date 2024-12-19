@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.shader;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import dev.lunasa.compat.mojang.minecraft.render.FogHelper;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformFloat;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformFloat4v;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformInt;
@@ -45,11 +45,11 @@ public abstract class ChunkShaderFogComponent {
 
         @Override
         public void setup() {
-            this.uFogColor.set(RenderSystem.getShaderFog().red(), RenderSystem.getShaderFog().green(), RenderSystem.getShaderFog().blue(), RenderSystem.getShaderFog().alpha());
-            this.uFogShape.set(RenderSystem.getShaderFog().shape().getIndex());
+            this.uFogColor.set(FogHelper.getFogColor());
+            this.uFogShape.set(0);
 
-            this.uFogStart.setFloat(RenderSystem.getShaderFog().start());
-            this.uFogEnd.setFloat(RenderSystem.getShaderFog().end());
+            this.uFogStart.setFloat(FogHelper.getFogStart());
+            this.uFogEnd.setFloat(FogHelper.getFogEnd());
         }
     }
 
