@@ -1,13 +1,9 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import net.caffeinemc.mods.sodium.client.gui.options.Option;
 import net.caffeinemc.mods.sodium.client.gui.widgets.AbstractWidget;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.navigation.FocusNavigationEvent;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,8 +22,8 @@ public class ControlElement<T> extends AbstractWidget {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        String name = this.option.getName().getString();
+    public void render(int mouseX, int mouseY, float delta) {
+        String name = this.option.getName().asFormattedString();
 
         // add the star suffix before truncation to prevent it from overlapping with the label text
         if (this.option.isAvailable() && this.option.hasChanged()) {
@@ -52,18 +48,18 @@ public class ControlElement<T> extends AbstractWidget {
 
         this.hovered = this.dim.containsCursor(mouseX, mouseY);
 
-        this.drawRect(graphics, this.dim.x(), this.dim.y(), this.dim.getLimitX(), this.dim.getLimitY(), this.hovered ? 0xE0000000 : 0x90000000);
-        this.drawString(graphics, label, this.dim.x() + 6, this.dim.getCenterY() - 4, 0xFFFFFFFF);
+        this.drawRect(this.dim.x(), this.dim.y(), this.dim.getLimitX(), this.dim.getLimitY(), this.hovered ? 0xE0000000 : 0x90000000);
+        this.drawString(label, this.dim.x() + 6, this.dim.getCenterY() - 4, 0xFFFFFFFF);
 
         if (this.isFocused()) {
-            this.drawBorder(graphics, this.dim.x(), this.dim.y(), this.dim.getLimitX(), this.dim.getLimitY(), -1);
+            this.drawBorder(this.dim.x(), this.dim.y(), this.dim.getLimitX(), this.dim.getLimitY(), -1);
         }
     }
 
     private @NotNull String truncateLabelToFit(String name) {
         var suffix = "...";
-        var suffixWidth = this.font.width(suffix);
-        var nameFontWidth = this.font.width(name);
+        var suffixWidth = this.font.getStringWidth(suffix);
+        var nameFontWidth = this.font.getStringWidth(name);
         var targetWidth = this.dim.width() - this.getContentWidth() - 20;
         if (nameFontWidth > targetWidth) {
             targetWidth -= suffixWidth;
@@ -74,7 +70,7 @@ public class ControlElement<T> extends AbstractWidget {
             while (maxLabelChars - minLabelChars > 1) {
                 var mid = (maxLabelChars + minLabelChars) / 2;
                 var midName = name.substring(0, mid);
-                var midWidth = this.font.width(midName);
+                var midWidth = this.font.getStringWidth(midName);
                 if (midWidth > targetWidth) {
                     maxLabelChars = mid;
                 } else {
@@ -93,18 +89,6 @@ public class ControlElement<T> extends AbstractWidget {
 
     public Dim2i getDimensions() {
         return this.dim;
-    }
-
-    @Override
-    public @Nullable ComponentPath nextFocusPath(FocusNavigationEvent event) {
-        if (!this.option.isAvailable())
-            return null;
-        return super.nextFocusPath(event);
-    }
-
-    @Override
-    public ScreenRectangle getRectangle() {
-        return new ScreenRectangle(this.dim.x(), this.dim.y(), this.dim.width(), this.dim.height());
     }
 
     @Override

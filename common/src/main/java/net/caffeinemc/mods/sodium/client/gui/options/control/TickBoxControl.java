@@ -1,10 +1,9 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
+import dev.lunasa.compat.mojang.minecraft.gui.draw.Rect2i;
+import dev.lunasa.compat.mojang.minecraft.gui.input.CommonInputs;
 import net.caffeinemc.mods.sodium.client.gui.options.Option;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.navigation.CommonInputs;
-import net.minecraft.client.renderer.Rect2i;
 
 public class TickBoxControl implements Control<Boolean> {
     private final Option<Boolean> option;
@@ -38,8 +37,8 @@ public class TickBoxControl implements Control<Boolean> {
         }
 
         @Override
-        public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-            super.render(graphics, mouseX, mouseY, delta);
+        public void render(int mouseX, int mouseY, float delta) {
+            super.render(mouseX, mouseY, delta);
 
             final int x = this.button.getX();
             final int y = this.button.getY();
@@ -58,10 +57,10 @@ public class TickBoxControl implements Control<Boolean> {
             }
 
             if (ticked) {
-                this.drawRect(graphics, x + 2, y + 2, w - 2, h - 2, color);
+                this.drawRect(x + 2, y + 2, w - 2, h - 2, color);
             }
 
-            this.drawBorder(graphics, x, y, w, h, color);
+            this.drawBorder(x, y, w, h, color);
         }
 
         @Override

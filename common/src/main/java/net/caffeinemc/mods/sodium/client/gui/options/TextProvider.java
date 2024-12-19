@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gui.options;
 
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
 
 public interface TextProvider {
-    Component getLocalizedName();
+    Text getLocalizedName();
 }

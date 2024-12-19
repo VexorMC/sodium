@@ -1,23 +1,26 @@
 package net.caffeinemc.mods.sodium.client.gui.options;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 
 public enum OptionImpact implements TextProvider {
-    LOW(ChatFormatting.GREEN, "sodium.option_impact.low"),
-    MEDIUM(ChatFormatting.YELLOW, "sodium.option_impact.medium"),
-    HIGH(ChatFormatting.GOLD, "sodium.option_impact.high"),
-    VARIES(ChatFormatting.WHITE, "sodium.option_impact.varies");
+    LOW(Formatting.GREEN, "sodium.option_impact.low"),
+    MEDIUM(Formatting.YELLOW, "sodium.option_impact.medium"),
+    HIGH(Formatting.GOLD, "sodium.option_impact.high"),
+    VARIES(Formatting.WHITE, "sodium.option_impact.varies");
 
-    private final Component text;
+    private final Text text;
 
-    OptionImpact(ChatFormatting formatting, String text) {
-        this.text = Component.translatable(text)
-                .withStyle(formatting);
+    OptionImpact(Formatting formatting, String text) {
+        this.text = new TranslatableText(text)
+                .setStyle(new Style()
+                        .setFormatting(formatting));
     }
 
     @Override
-    public Component getLocalizedName() {
+    public Text getLocalizedName() {
         return this.text;
     }
 }

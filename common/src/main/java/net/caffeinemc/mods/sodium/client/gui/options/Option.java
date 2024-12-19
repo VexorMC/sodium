@@ -2,13 +2,14 @@ package net.caffeinemc.mods.sodium.client.gui.options;
 
 import net.caffeinemc.mods.sodium.client.gui.options.control.Control;
 import net.caffeinemc.mods.sodium.client.gui.options.storage.OptionStorage;
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
+
 import java.util.Collection;
 
 public interface Option<T> {
-    Component getName();
+    Text getName();
 
-    Component getTooltip();
+    Text getTooltip();
 
     OptionImpact getImpact();
 

@@ -1,14 +1,13 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
-import com.mojang.blaze3d.platform.InputConstants;
+import dev.lunasa.compat.mojang.minecraft.gui.draw.Rect2i;
 import net.caffeinemc.mods.sodium.client.gui.options.Option;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.network.chat.Style;
-import net.minecraft.util.Mth;
+import net.minecraft.text.Style;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.Validate;
+import org.lwjgl.input.Keyboard;
 
 public class SliderControl implements Control<Integer> {
     private final Option<Integer> option;
@@ -76,7 +75,7 @@ public class SliderControl implements Control<Integer> {
         }
 
         @Override
-        public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        public void render(int mouseX, int mouseY, float delta) {
             int sliderX = this.sliderBounds.getX();
             int sliderY = this.sliderBounds.getY();
             int sliderWidth = this.sliderBounds.getWidth();
@@ -86,12 +85,12 @@ public class SliderControl implements Control<Integer> {
                     .copy();
 
             if (!this.option.isAvailable()) {
-                label.setStyle(Style.EMPTY
-                        .withColor(ChatFormatting.GRAY)
-                        .withItalic(true));
+                label.setStyle(new Style()
+                        .setFormatting(Formatting.GRAY)
+                        .setItalic(true));
             }
 
-            int labelWidth = this.font.width(label);
+            int labelWidth = this.font.getStringWidth(label.asFormattedString());
 
             boolean drawSlider = this.option.isAvailable() && (this.hovered || this.isFocused());
             if (drawSlider) {
@@ -101,22 +100,22 @@ public class SliderControl implements Control<Integer> {
             }
 
             // render the label first and then the slider to prevent the highlight rect from darkening the slider
-            super.render(graphics, mouseX, mouseY, delta);
+            super.render(mouseX, mouseY, delta);
 
             if (drawSlider) {
                 this.thumbPosition = this.getThumbPositionForValue(this.option.getValue());
 
-                double thumbOffset = Mth.clamp((double) (this.getIntValue() - this.min) / this.range * sliderWidth, 0, sliderWidth);
+                double thumbOffset = MathHelper.clamp((double) (this.getIntValue() - this.min) / this.range * sliderWidth, 0, sliderWidth);
 
                 int thumbX = (int) (sliderX + thumbOffset - THUMB_WIDTH);
                 int trackY = (int) (sliderY + (sliderHeight / 2f) - ((double) TRACK_HEIGHT / 2));
 
-                this.drawRect(graphics, thumbX, sliderY, thumbX + (THUMB_WIDTH * 2), sliderY + sliderHeight, 0xFFFFFFFF);
-                this.drawRect(graphics, sliderX, trackY, sliderX + sliderWidth, trackY + TRACK_HEIGHT, 0xFFFFFFFF);
+                this.drawRect(thumbX, sliderY, thumbX + (THUMB_WIDTH * 2), sliderY + sliderHeight, 0xFFFFFFFF);
+                this.drawRect(sliderX, trackY, sliderX + sliderWidth, trackY + TRACK_HEIGHT, 0xFFFFFFFF);
 
-                this.drawString(graphics, label, sliderX - labelWidth - 6, sliderY + (sliderHeight / 2) - 4, 0xFFFFFFFF);
+                this.drawString(label, sliderX - labelWidth - 6, sliderY + (sliderHeight / 2) - 4, 0xFFFFFFFF);
             } else {
-                this.drawString(graphics, label, sliderX + sliderWidth - labelWidth, sliderY + (sliderHeight / 2) - 4, 0xFFFFFFFF);
+                this.drawString(label, sliderX + sliderWidth - labelWidth, sliderY + (sliderHeight / 2) - 4, 0xFFFFFFFF);
             }
         }
 
@@ -158,7 +157,7 @@ public class SliderControl implements Control<Integer> {
         }
 
         public void setValue(double d) {
-            this.thumbPosition = Mth.clamp(d, 0.0D, 1.0D);
+            this.thumbPosition = MathHelper.clamp(d, 0.0D, 1.0D);
 
             int value = this.getIntValue();
 
@@ -171,11 +170,11 @@ public class SliderControl implements Control<Integer> {
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
             if (!isFocused()) return false;
 
-            if (keyCode == InputConstants.KEY_LEFT) {
-                this.option.setValue(Mth.clamp(this.option.getValue() - this.interval, this.min, this.max));
+            if (keyCode == Keyboard.KEY_LEFT) {
+                this.option.setValue(MathHelper.clamp(this.option.getValue() - this.interval, this.min, this.max));
                 return true;
-            } else if (keyCode == InputConstants.KEY_RIGHT) {
-                this.option.setValue(Mth.clamp(this.option.getValue() + this.interval, this.min, this.max));
+            } else if (keyCode == Keyboard.KEY_RIGHT) {
+                this.option.setValue(MathHelper.clamp(this.option.getValue() + this.interval, this.min, this.max));
                 return true;
             }
 
@@ -183,10 +182,10 @@ public class SliderControl implements Control<Integer> {
         }
 
         @Override
-        public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-            if (this.option.isAvailable() && button == 0) {
+        public boolean mouseDragged(double d, double d2, int n) {
+            if (this.option.isAvailable() && n == 0) {
                 if (this.sliderHeld) {
-                    this.setValueFromMouse(mouseX);
+                    this.setValueFromMouse(d);
                 }
 
                 return true;

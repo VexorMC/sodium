@@ -3,11 +3,11 @@ package net.caffeinemc.mods.sodium.client.gui.screen;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.console.Console;
 import net.caffeinemc.mods.sodium.client.console.message.MessageLevel;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -28,8 +28,8 @@ public class ConfigCorruptedScreen extends Screen {
         More information about the error can be found in the log file.
         """;
 
-    private static final List<Component> TEXT_BODY = Arrays.stream(TEXT_BODY_RAW.split("\n"))
-            .map(Component::literal)
+    private static final List<Text> TEXT_BODY = Arrays.stream(TEXT_BODY_RAW.split("\n"))
+            .map(LiteralText::new)
             .collect(Collectors.toList());
 
     private static final int BUTTON_WIDTH = 140;
@@ -41,43 +41,58 @@ public class ConfigCorruptedScreen extends Screen {
     private final Function<Screen, Screen> nextScreen;
 
     public ConfigCorruptedScreen(@Nullable Screen prevScreen, @Nullable Function<Screen, Screen> nextScreen) {
-        super(Component.literal("Sodium failed to load the configuration file"));
 
         this.prevScreen = prevScreen;
         this.nextScreen = nextScreen;
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         int buttonY = this.height - SCREEN_PADDING - BUTTON_HEIGHT;
 
-        this.addRenderableWidget(Button.builder(Component.literal("Continue"), (btn) -> {
-            Console.instance().logMessage(MessageLevel.INFO, "sodium.console.config_file_was_reset", true, 3.0);
-
-            SodiumClientMod.restoreDefaultOptions();
-            Minecraft.getInstance().setScreen(this.nextScreen.apply(this.prevScreen));
-        }).bounds(this.width - SCREEN_PADDING - BUTTON_WIDTH, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build());
-
-        this.addRenderableWidget(Button.builder(Component.literal("Go back"), (btn) -> {
-            Minecraft.getInstance().setScreen(this.prevScreen);
-        }).bounds(SCREEN_PADDING, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build());
+        this.buttons.add(new ButtonWidget(
+                69,
+                this.width - SCREEN_PADDING - BUTTON_WIDTH, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT,
+                "Continue"
+        ));
+        this.buttons.add(new ButtonWidget(
+                420,
+                SCREEN_PADDING, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT,
+                "Go back"
+        ));
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        super.render(graphics, mouseX, mouseY, delta);
+    public void render(int mouseX, int mouseY, float delta) {
+        super.render(mouseX, mouseY, delta);
 
-        graphics.drawString(this.font, Component.literal("Sodium Renderer"), 32, 32, 0xffffff);
-        graphics.drawString(this.font, Component.literal("Could not load the configuration file"), 32, 48, 0xff0000);
+        this.textRenderer.draw("Sodium Renderer", 32, 32, 0xffffff);
+        this.textRenderer.draw("Could not load the configuration file", 32, 48, 0xff0000);
 
         for (int i = 0; i < TEXT_BODY.size(); i++) {
-            if (TEXT_BODY.get(i).getString().isEmpty()) {
+            if (TEXT_BODY.get(i).asUnformattedString().isEmpty()) {
                 continue;
             }
 
-            graphics.drawString(this.font, TEXT_BODY.get(i), 32, 68 + (i * 12), 0xffffff);
+            this.textRenderer.draw(TEXT_BODY.get(i).asFormattedString(), 32, 68 + (i * 12), 0xffffff);
+        }
+    }
+
+    @Override
+    protected void buttonClicked(ButtonWidget button) {
+        super.buttonClicked(button);
+
+        switch (button.id) {
+            case 69 -> MinecraftClient.getInstance().setScreen(this.prevScreen);
+            case 420 -> {
+                Console.instance().logMessage(MessageLevel.INFO, "sodium.console.config_file_was_reset", true, 3.0);
+
+                SodiumClientMod.restoreDefaultOptions();
+                assert this.nextScreen != null;
+                MinecraftClient.getInstance().setScreen(this.nextScreen.apply(this.prevScreen));
+            }
         }
     }
 }

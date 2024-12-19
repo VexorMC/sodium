@@ -1,24 +1,24 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
+import dev.lunasa.compat.mojang.minecraft.gui.input.CommonInputs;
 import net.caffeinemc.mods.sodium.client.gui.options.Option;
 import net.caffeinemc.mods.sodium.client.gui.options.TextProvider;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.navigation.CommonInputs;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
 
 public class CyclingControl<T extends Enum<T>> implements Control<T> {
     private final Option<T> option;
     private final T[] allowedValues;
-    private final Component[] names;
+    private final Text[] names;
 
     public CyclingControl(Option<T> option, Class<T> enumType) {
         this(option, enumType, enumType.getEnumConstants());
     }
 
-    public CyclingControl(Option<T> option, Class<T> enumType, Component[] names) {
+    public CyclingControl(Option<T> option, Class<T> enumType, Text[] names) {
         T[] universe = enumType.getEnumConstants();
 
         Validate.isTrue(universe.length == names.length, "Mismatch between universe length and names array length");
@@ -34,16 +34,16 @@ public class CyclingControl<T extends Enum<T>> implements Control<T> {
 
         this.option = option;
         this.allowedValues = allowedValues;
-        this.names = new Component[universe.length];
+        this.names = new Text[universe.length];
 
         for (int i = 0; i < this.names.length; i++) {
-            Component name;
+            Text name;
             T value = universe[i];
 
             if (value instanceof TextProvider) {
                 name = ((TextProvider) value).getLocalizedName();
             } else {
-                name = Component.literal(value.name());
+                name = new LiteralText(value.name());
             }
 
             this.names[i] = name;
@@ -67,10 +67,10 @@ public class CyclingControl<T extends Enum<T>> implements Control<T> {
 
     private static class CyclingControlElement<T extends Enum<T>> extends ControlElement<T> {
         private final T[] allowedValues;
-        private final Component[] names;
+        private final Text[] names;
         private int currentIndex;
 
-        public CyclingControlElement(Option<T> option, Dim2i dim, T[] allowedValues, Component[] names) {
+        public CyclingControlElement(Option<T> option, Dim2i dim, T[] allowedValues, Text[] names) {
             super(option, dim);
 
             this.allowedValues = allowedValues;
@@ -86,14 +86,14 @@ public class CyclingControl<T extends Enum<T>> implements Control<T> {
         }
 
         @Override
-        public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-            super.render(graphics, mouseX, mouseY, delta);
+        public void render(int mouseX, int mouseY, float delta) {
+            super.render(mouseX, mouseY, delta);
 
             Enum<T> value = this.option.getValue();
-            Component name = this.names[value.ordinal()];
+            Text name = this.names[value.ordinal()];
 
             int strWidth = this.getStringWidth(name);
-            this.drawString(graphics, name, this.dim.getLimitX() - strWidth - 6, this.dim.getCenterY() - 4, 0xFFFFFFFF);
+            this.drawString(name, this.dim.getLimitX() - strWidth - 6, this.dim.getCenterY() - 4, 0xFFFFFFFF);
         }
 
         @Override

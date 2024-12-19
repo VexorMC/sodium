@@ -4,7 +4,7 @@ import net.caffeinemc.mods.sodium.client.gui.options.binding.GenericBinding;
 import net.caffeinemc.mods.sodium.client.gui.options.binding.OptionBinding;
 import net.caffeinemc.mods.sodium.client.gui.options.control.Control;
 import net.caffeinemc.mods.sodium.client.gui.options.storage.OptionStorage;
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Collection;
@@ -22,8 +22,8 @@ public class OptionImpl<S, T> implements Option<T> {
 
     private final EnumSet<OptionFlag> flags;
 
-    private final Component name;
-    private final Function<T, Component> tooltip;
+    private final Text name;
+    private final Function<T, Text> tooltip;
 
     private final OptionImpact impact;
 
@@ -33,8 +33,8 @@ public class OptionImpl<S, T> implements Option<T> {
     private final BooleanSupplier enabled;
 
     private OptionImpl(OptionStorage<S> storage,
-                       Component name,
-                       Function<T, Component> tooltip,
+                       Text name,
+                       Function<T, Text> tooltip,
                        OptionBinding<S, T> binding,
                        Function<OptionImpl<S, T>, Control<T>> control,
                        EnumSet<OptionFlag> flags,
@@ -53,12 +53,12 @@ public class OptionImpl<S, T> implements Option<T> {
     }
 
     @Override
-    public Component getName() {
+    public Text getName() {
         return this.name;
     }
 
     @Override
-    public Component getTooltip() {
+    public Text getTooltip() {
         return this.tooltip.apply(this.modifiedValue);
     }
 
@@ -120,8 +120,8 @@ public class OptionImpl<S, T> implements Option<T> {
 
     public static class Builder<S, T> {
         private final OptionStorage<S> storage;
-        private Component name;
-        private Function<T, Component> tooltip;
+        private Text name;
+        private Function<T, Text> tooltip;
         private OptionBinding<S, T> binding;
         private Function<OptionImpl<S, T>, Control<T>> control;
         private OptionImpact impact;
@@ -132,7 +132,7 @@ public class OptionImpl<S, T> implements Option<T> {
             this.storage = storage;
         }
 
-        public Builder<S, T> setName(Component name) {
+        public Builder<S, T> setName(Text name) {
             Validate.notNull(name, "Argument must not be null");
 
             this.name = name;
@@ -140,7 +140,7 @@ public class OptionImpl<S, T> implements Option<T> {
             return this;
         }
 
-        public Builder<S, T> setTooltip(Component tooltip) {
+        public Builder<S, T> setTooltip(Text tooltip) {
             Validate.notNull(tooltip, "Argument must not be null");
 
             this.tooltip = t -> tooltip;
@@ -148,7 +148,7 @@ public class OptionImpl<S, T> implements Option<T> {
             return this;
         }
 
-        public Builder<S, T> setTooltip(Function<T, Component> tooltip) {
+        public Builder<S, T> setTooltip(Function<T, Text> tooltip) {
             Validate.notNull(tooltip, "Argument must not be null");
 
             this.tooltip = tooltip;

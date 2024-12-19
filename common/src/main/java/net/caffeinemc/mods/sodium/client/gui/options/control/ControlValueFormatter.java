@@ -1,67 +1,65 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
-import com.mojang.blaze3d.platform.Monitor;
-import net.caffeinemc.mods.sodium.client.compatibility.environment.OsUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
+
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Util;
 
 public interface ControlValueFormatter {
     static ControlValueFormatter guiScale() {
-        return (v) -> (v == 0) ? Component.translatable("options.guiScale.auto") : Component.literal(v + "x");
+        return (v) -> (v == 0) ? new TranslatableText("options.guiScale.auto") : new LiteralText(v + "x");
     }
 
     static ControlValueFormatter resolution() {
         return (v) -> {
-            Monitor monitor = Minecraft.getInstance().getWindow().findBestMonitor();
-
-            if (OsUtils.getOs() != OsUtils.OperatingSystem.WIN || monitor == null) {
-                return Component.translatable("options.fullscreen.unavailable");
+            if (Util.getOperatingSystem() != Util.OperatingSystem.WINDOWS) {
+                return new TranslatableText("options.fullscreen.unavailable");
             } else if (0 == v) {
-                return Component.translatable("options.fullscreen.current");
-            } else {
-                return Component.literal(monitor.getMode(v - 1).toString().replace(" (24bit)",""));
+                return new TranslatableText("options.fullscreen.current");
             }
+            return null;
         };
     }
     static ControlValueFormatter fpsLimit() {
-        return (v) -> (v == 260) ? Component.translatable("options.framerateLimit.max") : Component.translatable("options.framerate", v);
+        return (v) -> (v == 260) ? new TranslatableText("options.framerateLimit.max") : new TranslatableText("options.framerate", v);
     }
 
     static ControlValueFormatter brightness() {
         return (v) -> {
             if (v == 0) {
-                return Component.translatable("options.gamma.min");
+                return new TranslatableText("options.gamma.min");
             } else if (v == 100) {
-                return Component.translatable("options.gamma.max");
+                return new TranslatableText("options.gamma.max");
             } else {
-                return Component.literal(v + "%");
+                return new LiteralText(v + "%");
             }
         };
     }
 
     static ControlValueFormatter biomeBlend() {
-        return (v) -> (v == 0) ? Component.translatable("gui.none") : Component.translatable("sodium.options.biome_blend.value", v);
+        return (v) -> (v == 0) ? new TranslatableText("gui.none") : new TranslatableText("sodium.options.biome_blend.value", v);
     }
 
-    Component format(int value);
+    Text format(int value);
 
     static ControlValueFormatter translateVariable(String key) {
-        return (v) -> Component.translatable(key, v);
+        return (v) -> new TranslatableText(key, v);
     }
 
     static ControlValueFormatter percentage() {
-        return (v) -> Component.literal(v + "%");
+        return (v) -> new LiteralText(v + "%");
     }
 
     static ControlValueFormatter multiplier() {
-        return (v) -> Component.literal(v + "x");
+        return (v) -> new LiteralText(v + "x");
     }
 
     static ControlValueFormatter quantityOrDisabled(String name, String disableText) {
-        return (v) -> Component.literal(v == 0 ? disableText : v + " " + name);
+        return (v) -> new LiteralText(v == 0 ? disableText : v + " " + name);
     }
 
     static ControlValueFormatter number() {
-        return (v) -> Component.literal(String.valueOf(v));
+        return (v) -> new LiteralText(String.valueOf(v));
     }
 }
