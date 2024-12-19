@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.executor;
 
-import net.minecraft.ReportedException;
+import net.minecraft.util.crash.CrashException;
 
 public class ChunkJobResult<OUTPUT> {
     private final OUTPUT output;
@@ -20,7 +20,7 @@ public class ChunkJobResult<OUTPUT> {
     }
 
     public OUTPUT unwrap() {
-        if (this.throwable instanceof ReportedException exception) {
+        if (this.throwable instanceof CrashException exception) {
             // Propagate ReportedExceptions directly to provide extra information
             throw exception;
         } else if (this.throwable != null) {

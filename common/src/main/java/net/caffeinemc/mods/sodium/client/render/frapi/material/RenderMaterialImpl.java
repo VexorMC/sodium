@@ -17,7 +17,7 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.material;
 
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
-import net.fabricmc.fabric.api.util.TriState;
+import net.legacyfabric.fabric.api.util.TriState;
 
 public class RenderMaterialImpl extends MaterialViewImpl implements RenderMaterial {
     public static final int VALUE_COUNT = 1 << TOTAL_BIT_LENGTH;

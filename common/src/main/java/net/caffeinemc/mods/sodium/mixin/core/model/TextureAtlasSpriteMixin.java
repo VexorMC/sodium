@@ -1,11 +1,11 @@
 package net.caffeinemc.mods.sodium.mixin.core.model;
 
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
-@Mixin(TextureAtlasSprite.class)
-public class TextureAtlasSpriteMixin {
+@Mixin(Sprite.class)
+public class SpriteMixin {
     @Overwrite
     public float uvShrinkRatio() {
         // Vanilla tries to apply a bias to texture coordinates to avoid texture bleeding (see FaceBakery#bakeQuad).

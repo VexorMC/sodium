@@ -7,7 +7,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.VisibilityEncodi
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.TranslucentData;
 import net.caffeinemc.mods.sodium.client.util.task.CancellationToken;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -47,7 +47,7 @@ public class RenderSection {
     private int flags = RenderSectionFlags.NONE;
     private BlockEntity @Nullable[] globalBlockEntities;
     private BlockEntity @Nullable[] culledBlockEntities;
-    private TextureAtlasSprite @Nullable[] animatedSprites;
+    private Sprite @Nullable[] animatedSprites;
     @Nullable
     private TranslucentData translucentData;
 
@@ -320,7 +320,7 @@ public class RenderSection {
     /**
      * Returns the collection of animated sprites contained by this rendered chunk section.
      */
-    public TextureAtlasSprite @Nullable[] getAnimatedSprites() {
+    public Sprite @Nullable[] getAnimatedSprites() {
         return this.animatedSprites;
     }
 

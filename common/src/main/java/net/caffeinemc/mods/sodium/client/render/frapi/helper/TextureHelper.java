@@ -17,12 +17,12 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.helper;
 
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
 
 /**
  * Handles most texture-baking use cases for model loaders and model libraries
- * via {@link #bakeSprite(MutableQuadView, TextureAtlasSprite, int)}. Also used by the API
+ * via {@link #bakeSprite(MutableQuadView, Sprite, int)}. Also used by the API
  * itself to implement automatic block-breaking models for enhanced models.
  */
 public class TextureHelper {
@@ -34,7 +34,7 @@ public class TextureHelper {
      * Bakes textures in the provided vertex data, handling UV locking,
      * rotation, interpolation, etc. Textures must not be already baked.
      */
-    public static void bakeSprite(MutableQuadView quad, TextureAtlasSprite sprite, int bakeFlags) {
+    public static void bakeSprite(MutableQuadView quad, Sprite sprite, int bakeFlags) {
         if (quad.nominalFace() != null && (MutableQuadView.BAKE_LOCK_UV & bakeFlags) != 0) {
             // Assigns normalized UV coordinates based on vertex positions
             applyModifier(quad, UVLOCKERS[quad.nominalFace().get3DDataValue()]);
@@ -68,7 +68,7 @@ public class TextureHelper {
      * Faster than sprite method. Sprite computes span and normalizes inputs each call,
      * so we'd have to denormalize before we called, only to have the sprite renormalize immediately.
      */
-    private static void interpolate(MutableQuadView q, TextureAtlasSprite sprite) {
+    private static void interpolate(MutableQuadView q, Sprite sprite) {
         final float uMin = sprite.getU0();
         final float uSpan = sprite.getU1() - uMin;
         final float vMin = sprite.getV0();

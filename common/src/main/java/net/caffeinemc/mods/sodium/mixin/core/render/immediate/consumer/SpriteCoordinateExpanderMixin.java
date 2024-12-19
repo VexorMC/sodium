@@ -5,7 +5,7 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormatElement;
 import net.caffeinemc.mods.sodium.api.vertex.attributes.common.TextureAttribute;
 import net.minecraft.client.renderer.SpriteCoordinateExpander;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
 import dev.lunasa.compat.lwjgl3.MemoryStack;
 import org.spongepowered.asm.mixin.Final;
@@ -32,7 +32,7 @@ public class SpriteCoordinateExpanderMixin implements VertexBufferWriter {
     private float maxU, maxV;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void onInit(VertexConsumer delegate, TextureAtlasSprite sprite, CallbackInfo ci) {
+    private void onInit(VertexConsumer delegate, Sprite sprite, CallbackInfo ci) {
         this.minU = sprite.getU0();
         this.minV = sprite.getV0();
 

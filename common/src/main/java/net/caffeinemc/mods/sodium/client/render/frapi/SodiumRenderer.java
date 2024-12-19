@@ -23,7 +23,7 @@ import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.material.MaterialFinder;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableMesh;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 
@@ -39,7 +39,7 @@ public class SodiumRenderer implements Renderer {
         INSTANCE.registerMaterial(RenderMaterial.STANDARD_ID, STANDARD_MATERIAL);
     }
 
-    private final HashMap<ResourceLocation, RenderMaterial> materialMap = new HashMap<>();
+    private final HashMap<Identifier, RenderMaterial> materialMap = new HashMap<>();
 
     private SodiumRenderer() { }
 
@@ -54,12 +54,12 @@ public class SodiumRenderer implements Renderer {
     }
 
     @Override
-    public RenderMaterial materialById(ResourceLocation id) {
+    public RenderMaterial materialById(Identifier id) {
         return materialMap.get(id);
     }
 
     @Override
-    public boolean registerMaterial(ResourceLocation id, RenderMaterial material) {
+    public boolean registerMaterial(Identifier id, RenderMaterial material) {
         if (materialMap.containsKey(id)) return false;
 
         // cast to prevent acceptance of impostor implementations

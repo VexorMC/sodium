@@ -9,7 +9,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteFinderCache;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import org.jetbrains.annotations.NotNull;
 
 public class ChunkVertexConsumer implements VertexConsumer {
@@ -142,7 +142,7 @@ public class ChunkVertexConsumer implements VertexConsumer {
                 v += vertex.v;
             }
 
-            TextureAtlasSprite sprite = SpriteFinderCache.forBlockAtlas().find(u * 0.25f, v * 0.25f);
+            Sprite sprite = SpriteFinderCache.forBlockAtlas().find(u * 0.25f, v * 0.25f);
 
             if (sprite != null) {
                 this.modelBuilder.addSprite(sprite);

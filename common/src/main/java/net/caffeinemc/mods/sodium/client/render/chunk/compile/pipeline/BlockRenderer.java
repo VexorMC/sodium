@@ -1,9 +1,9 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 
+import dev.lunasa.compat.mojang.minecraft.random.SingleThreadedRandomSource;
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
-import net.caffeinemc.mods.sodium.client.compatibility.workarounds.Workarounds;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightMode;
@@ -31,15 +31,14 @@ import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.material.ShadeMode;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
-import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
+import net.legacyfabric.fabric.api.util.TriState;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.SingleThreadedRandomSource;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -81,26 +80,42 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         this.state = state;
         this.pos = pos;
 
-        this.randomSeed = state.getSeed(pos);
+        this.randomSeed = 42L;
 
         this.posOffset.set(origin.getX(), origin.getY(), origin.getZ());
-        if (state.hasOffsetFunction()) {
-            Vec3 modelOffset = state.getOffset(pos);
-            this.posOffset.add((float) modelOffset.x, (float) modelOffset.y, (float) modelOffset.z);
+
+        Block.OffsetType offsetType = state.getBlock().getOffsetType();
+
+        if (offsetType != Block.OffsetType.NONE) {
+            int x = origin.getX();
+            int z = origin.getZ();
+            // Taken from MathHelper.hashCode()
+            long i = (x * 3129871L) ^ z * 116129781L;
+            i = i * i * 42317861L + i * 11L;
+
+            double fx = (((i >> 16 & 15L) / 15.0F) - 0.5f) * 0.5f;
+            double fz = (((i >> 24 & 15L) / 15.0F) - 0.5f) * 0.5f;
+            double fy = 0;
+
+            if (offsetType == Block.OffsetType.XYZ) {
+                fy += (((i >> 20 & 15L) / 15.0F) - 1.0f) * 0.2f;
+            }
+
+            posOffset.add((float)fx, (float)fy, (float)fz);
         }
 
         this.colorProvider = this.colorProviderRegistry.getColorProvider(state.getBlock());
 
-        type = ItemBlockRenderTypes.getChunkRenderType(state);
+        type = state.getBlock().getRenderLayerType();
 
         this.prepareCulling(true);
         this.prepareAoInfo(model.useAmbientOcclusion());
 
         modelData = PlatformModelAccess.getInstance().getModelData(slice, model, state, pos, slice.getPlatformModelData(pos));
 
-        Iterable<RenderType> renderTypes = PlatformModelAccess.getInstance().getModelRenderTypes(level, model, state, pos, random, modelData);
+        Iterable<RenderLayer> renderTypes = PlatformModelAccess.getInstance().getModelRenderTypes(level, model, state, pos, random, modelData);
 
-        for (RenderType type : renderTypes) {
+        for (RenderLayer type : renderTypes) {
             this.type = type;
             ((FabricBakedModel) model).emitBlockQuads(getEmitter(), this.level, state, pos, this.randomSupplier, this::isFaceCulled);
         }
@@ -210,12 +225,12 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         builder.addSprite(atlasSprite);
     }
 
-    private boolean validateQuadUVs(TextureAtlasSprite atlasSprite) {
+    private boolean validateQuadUVs(Sprite atlasSprite) {
         // sanity check that the quad's UVs are within the sprite's bounds
-        var spriteUMin = atlasSprite.getU0();
-        var spriteUMax = atlasSprite.getU1();
-        var spriteVMin = atlasSprite.getV0();
-        var spriteVMax = atlasSprite.getV1();
+        var spriteUMin = atlasSprite.getMinU();
+        var spriteUMax = atlasSprite.getMaxU();
+        var spriteVMin = atlasSprite.getMinV();
+        var spriteVMax = atlasSprite.getMaxV();
 
         for (int i = 0; i < 4; i++) {
             var u = this.vertices[i].u;
@@ -228,11 +243,11 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         return true;
     }
 
-    private @Nullable TerrainRenderPass attemptPassDowngrade(TextureAtlasSprite sprite, TerrainRenderPass pass) {
-        if (Workarounds.isWorkaroundEnabled(Workarounds.Reference.INTEL_DEPTH_BUFFER_COMPARISON_UNRELIABLE)) {
-            return null;
-        }
+    private @Nullable TerrainRenderPass attemptPassDowngrade(Sprite sprite, TerrainRenderPass pass) {
+        // TODO: Make this a setting
+        return null;
 
+        /*
         boolean attemptDowngrade = true;
         boolean hasNonOpaqueVertex = false;
 
@@ -254,17 +269,6 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         }
 
         return null;
-    }
-
-    private static TerrainRenderPass getDowngradedPass(TextureAtlasSprite sprite, TerrainRenderPass pass) {
-        if (sprite.contents() instanceof SpriteContentsExtension contents) {
-            if (pass == DefaultTerrainRenderPasses.TRANSLUCENT && !contents.sodium$hasTranslucentPixels()) {
-                pass = DefaultTerrainRenderPasses.CUTOUT;
-            }
-            if (pass == DefaultTerrainRenderPasses.CUTOUT && !contents.sodium$hasTransparentPixels()) {
-                pass = DefaultTerrainRenderPasses.SOLID;
-            }
-        }
-        return pass;
+         */
     }
 }

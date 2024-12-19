@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
-import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.SpriteContentsExtension;
 import net.caffeinemc.mods.sodium.client.util.NativeImageHelper;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import dev.lunasa.compat.lwjgl3.MemoryUtil;

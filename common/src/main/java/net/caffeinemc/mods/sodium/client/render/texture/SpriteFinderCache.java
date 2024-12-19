@@ -1,8 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.texture;
 
 import net.fabricmc.fabric.api.renderer.v1.model.SpriteFinder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.MinecraftClient;
 
 /**
  * Caches {@link SpriteFinder}s for maximum efficiency. They must be refreshed after each resource reload.
@@ -14,7 +13,7 @@ public class SpriteFinderCache {
 
     public static SpriteFinder forBlockAtlas() {
         if (blockAtlasSpriteFinder == null) {
-            blockAtlasSpriteFinder = SpriteFinder.get(Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS));
+            blockAtlasSpriteFinder = SpriteFinder.get(MinecraftClient.getInstance().getSpriteAtlasTexture());
         }
 
         return blockAtlasSpriteFinder;

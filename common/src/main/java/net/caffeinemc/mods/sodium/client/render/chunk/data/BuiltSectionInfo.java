@@ -6,7 +6,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.VisibilityEncodi
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteUtil;
 import net.minecraft.client.renderer.chunk.VisibilitySet;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
@@ -27,16 +27,16 @@ public class BuiltSectionInfo {
 
     public final BlockEntity @Nullable[] globalBlockEntities;
     public final BlockEntity @Nullable[] culledBlockEntities;
-    public final TextureAtlasSprite @Nullable[] animatedSprites;
+    public final Sprite @Nullable[] animatedSprites;
 
     private BuiltSectionInfo(@NotNull Collection<TerrainRenderPass> blockRenderPasses,
                              @NotNull Collection<BlockEntity> globalBlockEntities,
                              @NotNull Collection<BlockEntity> culledBlockEntities,
-                             @NotNull Collection<TextureAtlasSprite> animatedSprites,
+                             @NotNull Collection<Sprite> animatedSprites,
                              @NotNull VisibilitySet occlusionData) {
         this.globalBlockEntities = toArray(globalBlockEntities, BlockEntity[]::new);
         this.culledBlockEntities = toArray(culledBlockEntities, BlockEntity[]::new);
-        this.animatedSprites = toArray(animatedSprites, TextureAtlasSprite[]::new);
+        this.animatedSprites = toArray(animatedSprites, Sprite[]::new);
 
         int flags = 0;
 
@@ -61,7 +61,7 @@ public class BuiltSectionInfo {
         private final List<TerrainRenderPass> blockRenderPasses = new ArrayList<>();
         private final List<BlockEntity> globalBlockEntities = new ArrayList<>();
         private final List<BlockEntity> culledBlockEntities = new ArrayList<>();
-        private final Set<TextureAtlasSprite> animatedSprites = new ObjectOpenHashSet<>();
+        private final Set<Sprite> animatedSprites = new ObjectOpenHashSet<>();
 
         private VisibilitySet occlusionData;
 
@@ -78,7 +78,7 @@ public class BuiltSectionInfo {
          * before rendering as necessary.
          * @param sprite The sprite
          */
-        public void addSprite(TextureAtlasSprite sprite) {
+        public void addSprite(Sprite sprite) {
             if (SpriteUtil.hasAnimation(sprite)) {
                 this.animatedSprites.add(sprite);
             }

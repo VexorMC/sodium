@@ -26,7 +26,7 @@ import net.caffeinemc.mods.sodium.client.render.frapi.helper.GeometryHelper;
 import net.caffeinemc.mods.sodium.client.render.frapi.helper.NormalHelper;
 import net.caffeinemc.mods.sodium.client.render.frapi.material.RenderMaterialImpl;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -333,7 +333,7 @@ public class QuadViewImpl implements QuadView, ModelQuadView {
     }
 
     @Override
-    public TextureAtlasSprite getSprite() {
+    public Sprite getSprite() {
         throw new UnsupportedOperationException("Not available for QuadViewImpl.");
     }
 

@@ -6,6 +6,7 @@ import net.caffeinemc.mods.sodium.client.gui.SodiumGameOptions;
 import net.caffeinemc.mods.sodium.client.console.Console;
 import net.caffeinemc.mods.sodium.client.console.message.MessageLevel;
 import net.minecraft.network.chat.Component;
+import org.apache.logging.log4j.Logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

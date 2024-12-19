@@ -6,7 +6,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(TextureSheetParticle.class)
 public abstract class TextureSheetParticleMixin extends SingleQuadParticle {
     @Shadow
-    protected TextureAtlasSprite sprite;
+    protected Sprite sprite;
 
     @Unique
     private boolean shouldTickSprite;
@@ -26,8 +26,8 @@ public abstract class TextureSheetParticleMixin extends SingleQuadParticle {
         super(level, x, y, z);
     }
 
-    @Inject(method = "setSprite(Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V", at = @At("RETURN"))
-    private void afterSetSprite(TextureAtlasSprite sprite, CallbackInfo ci) {
+    @Inject(method = "setSprite(Lnet/minecraft/client/renderer/texture/Sprite;)V", at = @At("RETURN"))
+    private void afterSetSprite(Sprite sprite, CallbackInfo ci) {
         this.shouldTickSprite = sprite != null && SpriteUtil.hasAnimation(sprite);
     }
 

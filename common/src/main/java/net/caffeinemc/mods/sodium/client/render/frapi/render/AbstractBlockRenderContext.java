@@ -1,5 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.render;
 
+import dev.lunasa.compat.mojang.minecraft.random.RandomSource;
+import dev.lunasa.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.model.light.LightMode;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipeline;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
@@ -18,18 +20,15 @@ import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.material.ShadeMode;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
-import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
+import net.legacyfabric.fabric.api.util.TriState;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.BlockView;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -86,7 +85,7 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
     /**
      * The world which the block is being rendered in.
      */
-    protected BlockAndTintGetter level;
+    protected BlockView level;
     /**
      * The level slice used for rendering
      */
@@ -103,7 +102,7 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
     /**
      * The current render type being rendered.
      */
-    protected RenderType type;
+    protected RenderLayer type;
 
     /**
      * The current model's model data.
@@ -143,7 +142,7 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
             return false;
         }
 
-        final int mask = 1 << face.get3DDataValue();
+        final int mask = 1 << face.getId();
 
         if ((this.cullCompletionFlags & mask) == 0) {
             this.cullCompletionFlags |= mask;
@@ -183,7 +182,7 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
     }
 
     protected void prepareAoInfo(boolean modelAo) {
-        this.useAmbientOcclusion = Minecraft.useAmbientOcclusion();
+        this.useAmbientOcclusion = MinecraftClient.isAmbientOcclusionEnabled();
         // Ignore the incorrect IDEA warning here.
         this.defaultLightMode = this.useAmbientOcclusion && modelAo && PlatformBlockAccess.getInstance().getLightEmission(state, level, pos) == 0 ? LightMode.SMOOTH : LightMode.FLAT;
     }
@@ -227,9 +226,8 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
             final List<BakedQuad> quads = PlatformModelAccess.getInstance().getQuads(level, pos, model, state, cullFace, random, type, modelData);
             final int count = quads.size();
 
-            for (int j = 0; j < count; j++) {
-                final BakedQuad q = quads.get(j);
-                editorQuad.fromVanilla(q, (type == RenderType.tripwire() || type == RenderType.translucent()) ? TRANSLUCENT_MATERIAL : STANDARD_MATERIALS[ao.ordinal()], cullFace);
+            for (final BakedQuad q : quads) {
+                editorQuad.fromVanilla(q, (type == RenderLayer.TRANSLUCENT) ? TRANSLUCENT_MATERIAL : STANDARD_MATERIALS[ao.ordinal()], cullFace);
                 // Call processQuad instead of emit for efficiency
                 // (avoid unnecessarily clearing data, trying to apply transforms, and performing cull check again)
 
@@ -244,7 +242,7 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
         return modelData;
     }
 
-    public RenderType getRenderType() {
+    public RenderLayer getRenderType() {
         return type;
     }
 }

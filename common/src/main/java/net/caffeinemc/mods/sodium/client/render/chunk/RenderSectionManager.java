@@ -48,7 +48,7 @@ import net.caffeinemc.mods.sodium.client.world.cloned.ClonedChunkSectionCache;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
@@ -275,7 +275,7 @@ public class RenderSectionManager {
                     continue;
                 }
 
-                for (TextureAtlasSprite sprite : sprites) {
+                for (Sprite sprite : sprites) {
                     SpriteUtil.markSpriteActive(sprite);
                 }
             }

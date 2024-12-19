@@ -1,5 +1,7 @@
 accessWidener v1 named
 
+accessible field net/minecraft/client/texture/SpriteAtlasTexture sprites Ljava/util/Map;
+
 accessible class net/minecraft/client/model/geom/ModelPart$Vertex
 accessible class net/minecraft/client/model/geom/ModelPart$Polygon
 accessible class net/minecraft/client/renderer/texture/SpriteContents$InterpolationData

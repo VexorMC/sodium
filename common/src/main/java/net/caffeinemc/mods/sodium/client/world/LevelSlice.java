@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachedBlockView;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.core.Holder;
@@ -151,7 +152,7 @@ public final class LevelSlice implements BlockView {
     }
 
     @SuppressWarnings("unchecked")
-    public LevelSlice(ClientLevel level) {
+    public LevelSlice(ClientWorld level) {
         this.level = level;
 
         this.blockArrays = new BlockState[SECTION_ARRAY_SIZE][SECTION_BLOCK_COUNT];

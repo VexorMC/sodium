@@ -1,17 +1,16 @@
 package net.caffeinemc.mods.sodium.client.services;
 
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.lunasa.compat.mojang.minecraft.random.RandomSource;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.core.SectionPos;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public interface PlatformModelAccess {
      * @param modelData The platform specific model data.
      * @return A list of render types used by this model.
      */
-    Iterable<RenderType> getModelRenderTypes(BlockAndTintGetter level, BakedModel model, BlockState state, BlockPos pos, RandomSource random, SodiumModelData modelData);
+    Iterable<RenderLayer> getModelRenderTypes(BlockView level, BakedModel model, BlockState state, BlockPos pos, RandomSource random, SodiumModelData modelData);
 
     /**
      * Returns a list of quads used by this model.
@@ -47,7 +46,7 @@ public interface PlatformModelAccess {
      * @param modelData The platform specific model data.
      * @return The list of quads used by the model.
      */
-    List<BakedQuad> getQuads(BlockAndTintGetter level, BlockPos pos, BakedModel model, BlockState state, Direction face, RandomSource random, RenderType renderType, SodiumModelData modelData);
+    List<BakedQuad> getQuads(BlockView level, BlockPos pos, BakedModel model, BlockState state, Direction face, RandomSource random, RenderLayer renderType, SodiumModelData modelData);
 
     /**
      * Gets the container holding model data for this chunk. <b>This operation is not thread safe.</b>
@@ -55,7 +54,7 @@ public interface PlatformModelAccess {
      * @param sectionPos The current chunk position.
      * @return The model data container for this section
      */
-    SodiumModelDataContainer getModelDataContainer(Level level, SectionPos sectionPos);
+    SodiumModelDataContainer getModelDataContainer(World level, SectionPos sectionPos);
 
     /**
      * Gets the true model data from the block data in the container.

@@ -1,14 +1,15 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 
+import dev.lunasa.compat.mojang.minecraft.BlockColors;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
 import net.caffeinemc.mods.sodium.client.model.light.data.ArrayLightDataCache;
 import net.caffeinemc.mods.sodium.client.services.FluidRendererFactory;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.block.BlockModelShaper;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.block.BlockModelShapes;
+import net.minecraft.client.world.ClientWorld;
 
 public class BlockRenderCache {
     private final ArrayLightDataCache lightDataCache;
@@ -16,24 +17,24 @@ public class BlockRenderCache {
     private final BlockRenderer blockRenderer;
     private final FluidRenderer fluidRenderer;
 
-    private final BlockModelShaper blockModels;
+    private final BlockModelShapes blockModels;
     private final LevelSlice levelSlice;
 
-    public BlockRenderCache(Minecraft minecraft, ClientLevel level) {
+    public BlockRenderCache(MinecraftClient minecraft, ClientWorld level) {
         this.levelSlice = new LevelSlice(level);
         this.lightDataCache = new ArrayLightDataCache(this.levelSlice);
 
         LightPipelineProvider lightPipelineProvider = new LightPipelineProvider(this.lightDataCache);
 
-        var colorRegistry = new ColorProviderRegistry(minecraft.getBlockColors());
+        var colorRegistry = new ColorProviderRegistry(BlockColors.INSTANCE);
 
         this.blockRenderer = new BlockRenderer(colorRegistry, lightPipelineProvider);
         this.fluidRenderer = FluidRendererFactory.getInstance().createPlatformFluidRenderer(colorRegistry, lightPipelineProvider);
 
-        this.blockModels = minecraft.getModelManager().getBlockModelShaper();
+        this.blockModels = minecraft.getBlockRenderManager().getModels();
     }
 
-    public BlockModelShaper getBlockModels() {
+    public BlockModelShapes getBlockModels() {
         return this.blockModels;
     }
 

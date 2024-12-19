@@ -28,10 +28,9 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadTransform;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
 import net.fabricmc.fabric.api.renderer.v1.model.SpriteFinder;
-import net.minecraft.client.renderer.LightTexture;
-import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.legacyfabric.fabric.api.util.TriState;
+import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,7 +48,7 @@ import static net.caffeinemc.mods.sodium.client.render.frapi.mesh.EncodingFormat
  */
 public abstract class MutableQuadViewImpl extends QuadViewImpl implements QuadEmitter {
     @Nullable
-    private TextureAtlasSprite cachedSprite;
+    private Sprite cachedSprite;
 
     protected static final QuadTransform NO_TRANSFORM = q -> true;
 
@@ -88,16 +87,16 @@ public abstract class MutableQuadViewImpl extends QuadViewImpl implements QuadEm
     }
 
     @Nullable
-    public TextureAtlasSprite cachedSprite() {
+    public Sprite cachedSprite() {
         return cachedSprite;
     }
 
-    public void cachedSprite(@Nullable TextureAtlasSprite sprite) {
+    public void cachedSprite(@Nullable Sprite sprite) {
         cachedSprite = sprite;
     }
 
-    public TextureAtlasSprite sprite(SpriteFinder finder) {
-        TextureAtlasSprite sprite = cachedSprite;
+    public Sprite sprite(SpriteFinder finder) {
+        Sprite sprite = cachedSprite;
 
         if (sprite == null) {
             cachedSprite = sprite = finder.find(this);
@@ -145,7 +144,7 @@ public abstract class MutableQuadViewImpl extends QuadViewImpl implements QuadEm
     }
 
     @Override
-    public MutableQuadViewImpl spriteBake(TextureAtlasSprite sprite, int bakeFlags) {
+    public MutableQuadViewImpl spriteBake(Sprite sprite, int bakeFlags) {
         TextureHelper.bakeSprite(this, sprite, bakeFlags);
         cachedSprite(sprite);
         return this;
@@ -190,7 +189,7 @@ public abstract class MutableQuadViewImpl extends QuadViewImpl implements QuadEm
         if (transformStack.isEmpty()) {
             activeTransform = NO_TRANSFORM;
         } else if (transformStack.size() == 1) {
-            activeTransform = transformStack.getFirst();
+            activeTransform = transformStack.stream().findFirst().get();
         }
     }
 
@@ -292,10 +291,10 @@ public abstract class MutableQuadViewImpl extends QuadViewImpl implements QuadEm
 
     @Override
     public final MutableQuadViewImpl fromVanilla(BakedQuad quad, RenderMaterial material, @Nullable Direction cullFace) {
-        fromVanillaInternal(quad.getVertices(), 0);
+        fromVanillaInternal(quad.getVertexData(), 0);
         data[baseIndex + HEADER_BITS] = EncodingFormat.cullFace(0, cullFace);
-        nominalFace(quad.getDirection());
-        tintIndex(quad.getTintIndex());
+        nominalFace(quad.getFace());
+        tintIndex(quad.getColorIndex());
 
         // TODO: Is this the same as hasShade?
         if (!((BakedQuadView) quad).hasShade()) {
@@ -318,15 +317,6 @@ public abstract class MutableQuadViewImpl extends QuadViewImpl implements QuadEm
         data[baseIndex + HEADER_BITS] = EncodingFormat.geometryFlags(headerBits, bakedView.getFlags());
         isGeometryInvalid = false;
 
-        int lightEmission = quad.getLightEmission();
-
-        if (lightEmission > 0) {
-            for (int i = 0; i < 4; i++) {
-                lightmap(i, LightTexture.lightCoordsWithEmission(lightmap(i), lightEmission));
-            }
-        }
-
-        cachedSprite(quad.getSprite());
         return this;
     }
 
