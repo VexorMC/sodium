@@ -1,7 +1,5 @@
 package net.caffeinemc.mods.sodium.mixin.core.world.chunk;
 
-import net.caffeinemc.mods.sodium.client.world.BitStorageExtension;
-import net.caffeinemc.mods.sodium.client.world.PalettedContainerROExtension;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
 import org.spongepowered.asm.mixin.Final;

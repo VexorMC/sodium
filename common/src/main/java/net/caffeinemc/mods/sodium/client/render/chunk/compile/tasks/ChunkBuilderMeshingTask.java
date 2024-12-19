@@ -146,7 +146,7 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
         }
         profiler.swap("mesh appenders");
 
-        PlatformLevelRenderHooks.INSTANCE.runChunkMeshAppenders(renderContext.getRenderers(), type -> buffers.get(DefaultMaterials.forRenderLayer(type)).asFallbackVertexConsumer(DefaultMaterials.forRenderLayer(type), collector),
+        PlatformLevelRenderHooks.INSTANCE.runChunkMeshAppenders(renderContext.renderers(), type -> buffers.get(DefaultMaterials.forRenderLayer(type)).asFallbackVertexConsumer(DefaultMaterials.forRenderLayer(type), collector),
                 slice);
 
         blockRenderer.release();
@@ -218,7 +218,7 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
 
         crashReportSection.add("Chunk section", this.render);
         if (this.renderContext != null) {
-            crashReportSection.add("Render context volume", this.renderContext.getVolume());
+            crashReportSection.add("Render context volume", this.renderContext.volume());
         }
 
         return new CrashException(report);

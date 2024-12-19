@@ -47,7 +47,7 @@ public class BlockRenderCache {
     }
 
     public void init(ChunkRenderContext context) {
-        this.lightDataCache.reset(context.getOrigin());
+        this.lightDataCache.reset(context.origin());
         this.levelSlice.copyData(context);
     }
 

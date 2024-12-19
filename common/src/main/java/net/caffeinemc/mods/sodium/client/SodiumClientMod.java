@@ -1,20 +1,18 @@
 package net.caffeinemc.mods.sodium.client;
 
+import net.caffeinemc.mods.sodium.client.console.Console;
+import net.caffeinemc.mods.sodium.client.console.message.MessageLevel;
 import net.caffeinemc.mods.sodium.client.data.fingerprint.FingerprintMeasure;
 import net.caffeinemc.mods.sodium.client.data.fingerprint.HashedFingerprint;
 import net.caffeinemc.mods.sodium.client.gui.SodiumGameOptions;
-import net.caffeinemc.mods.sodium.client.console.Console;
-import net.caffeinemc.mods.sodium.client.console.message.MessageLevel;
-import net.minecraft.network.chat.Component;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class SodiumClientMod {
     private static SodiumGameOptions CONFIG;
-    private static final Logger LOGGER = LoggerFactory.getLogger("Sodium");
+    private static final Logger LOGGER = LogManager.getLogger("Sodium");
 
     private static String MOD_VERSION;
 

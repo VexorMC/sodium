@@ -25,9 +25,9 @@ public class LevelBiomeSlice {
     private int blockX, blockY, blockZ;
 
     public void update(ClientWorld level, ChunkRenderContext context) {
-        this.blockX = context.getOrigin().minBlockX() - 16;
-        this.blockY = context.getOrigin().minBlockY() - 16;
-        this.blockZ = context.getOrigin().minBlockZ() - 16;
+        this.blockX = context.origin().minBlockX() - 16;
+        this.blockY = context.origin().minBlockY() - 16;
+        this.blockZ = context.origin().minBlockZ() - 16;
 
         this.biomeZoomSeed = BiomeSeedProvider.getBiomeZoomSeed(level);
 
@@ -48,7 +48,7 @@ public class LevelBiomeSlice {
     }
 
     private void copySectionBiomeData(ChunkRenderContext context, int sectionX, int sectionY, int sectionZ, Biome defaultBiome) {
-        var section = context.getSections()[LevelSlice.getLocalSectionIndex(sectionX, sectionY, sectionZ)];
+        var section = context.sections()[LevelSlice.getLocalSectionIndex(sectionX, sectionY, sectionZ)];
         var biomeData = section.getBiomeData();
 
         for (int relCellX = 0; relCellX < 4; relCellX++) {

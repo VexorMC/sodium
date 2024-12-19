@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.world;
 
+import dev.lunasa.compat.mojang.math.Mth;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import net.caffeinemc.mods.sodium.client.services.*;
 import net.caffeinemc.mods.sodium.client.world.biome.LevelColorCache;
@@ -7,33 +8,23 @@ import net.caffeinemc.mods.sodium.client.world.biome.LevelBiomeSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.caffeinemc.mods.sodium.client.world.cloned.ClonedChunkSection;
 import net.caffeinemc.mods.sodium.client.world.cloned.ClonedChunkSectionCache;
-import net.fabricmc.fabric.api.blockview.v2.FabricBlockView;
-import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachedBlockView;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
-import net.minecraft.core.Holder;
 import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
-import net.minecraft.util.Mth;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.ColorResolver;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.DataLayer;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.lighting.LevelLightEngine;
-import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.LightType;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkNibbleArray;
+import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.level.LevelGeneratorType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +43,7 @@ import java.util.Objects;
  * <p>Object pooling should be used to avoid huge allocations as this class contains many large arrays.</p>
  */
 public final class LevelSlice implements BlockView {
-    private static final LightLayer[] LIGHT_TYPES = LightLayer.values();
+    private static final LightType[] LIGHT_TYPES = LightType.values();
 
     // The number of blocks in a section.
     private static final int SECTION_BLOCK_COUNT = 16 * 16 * 16;
@@ -73,10 +64,10 @@ public final class LevelSlice implements BlockView {
     private static final int LOCAL_XYZ_BITS = 4;
 
     // The default block state used for out-of-bounds access
-    private static final BlockState EMPTY_BLOCK_STATE = Blocks.AIR.defaultBlockState();
+    private static final BlockState EMPTY_BLOCK_STATE = Blocks.AIR.getDefaultState();
 
     // The level this slice has copied data from
-    private final ClientLevel level;
+    private final ClientWorld level;
 
     // The accessor used for fetching biome data from the slice
     private final LevelBiomeSlice biomeSlice;
@@ -92,35 +83,29 @@ public final class LevelSlice implements BlockView {
     private final SodiumAuxiliaryLightManager[] auxLightManager;
 
     // (Local Section -> Light Arrays) table.
-    private final @Nullable DataLayer[][] lightArrays;
+    private final @Nullable ChunkNibbleArray[][] lightArrays;
 
     // (Local Section -> Block Entity) table.
     private final @Nullable Int2ReferenceMap<BlockEntity>[] blockEntityArrays;
-
-    // (Local Section -> Block Entity Render Data) table.
-    private final @Nullable Int2ReferenceMap<Object>[] blockEntityRenderDataArrays;
-
-    // (Local Section -> Model Data) table.
-    private final SodiumModelDataContainer[] modelMapArrays;
 
     // The starting point from which this slice captures blocks
     private int originBlockX, originBlockY, originBlockZ;
 
     // The volume that this WorldSlice contains
-    private BoundingBox volume;
+    private Box volume;
 
-    public static ChunkRenderContext prepare(Level level, SectionPos pos, ClonedChunkSectionCache cache) {
-        LevelChunk chunk = level.getChunk(pos.getX(), pos.getZ());
-        LevelChunkSection section = chunk.getSections()[level.getSectionIndexFromSectionY(pos.getY())];
+    public static ChunkRenderContext prepare(World level, SectionPos pos, ClonedChunkSectionCache cache) {
+        Chunk chunk = level.getChunk(pos.getX(), pos.getZ());
+        ChunkSection section = chunk.getBlockStorage()[pos.getY()];
 
         // If the chunk section is absent or empty, simply terminate now. There will never be anything in this chunk
         // section to render, so we need to signal that a chunk render task shouldn't be created. This saves a considerable
         // amount of time in queueing instant build tasks and greatly accelerates how quickly the level can be loaded.
-        if (section == null || section.hasOnlyAir()) {
+        if (section == null || section.isEmpty()) {
             return null;
         }
 
-        BoundingBox box = new BoundingBox(pos.minBlockX() - NEIGHBOR_BLOCK_RADIUS,
+        Box box = new Box(pos.minBlockX() - NEIGHBOR_BLOCK_RADIUS,
                 pos.minBlockY() - NEIGHBOR_BLOCK_RADIUS,
                 pos.minBlockZ() - NEIGHBOR_BLOCK_RADIUS,
                 pos.maxBlockX() + NEIGHBOR_BLOCK_RADIUS,
@@ -157,15 +142,16 @@ public final class LevelSlice implements BlockView {
         this.level = level;
 
         this.blockArrays = new BlockState[SECTION_ARRAY_SIZE][SECTION_BLOCK_COUNT];
-        this.lightArrays = new DataLayer[SECTION_ARRAY_SIZE][LIGHT_TYPES.length];
+        this.lightArrays = new ChunkNibbleArray[SECTION_ARRAY_SIZE][LIGHT_TYPES.length];
 
         this.blockEntityArrays = new Int2ReferenceMap[SECTION_ARRAY_SIZE];
-        this.blockEntityRenderDataArrays = new Int2ReferenceMap[SECTION_ARRAY_SIZE];
         this.auxLightManager = new SodiumAuxiliaryLightManager[SECTION_ARRAY_SIZE];
-        this.modelMapArrays = new SodiumModelDataContainer[SECTION_ARRAY_SIZE];
+
+        // TODO: Make this a setting
+        var biomeBlendRadius = 4;
 
         this.biomeSlice = new LevelBiomeSlice();
-        this.biomeColors = new LevelColorCache(this.biomeSlice, Minecraft.getInstance().options.biomeBlendRadius().get());
+        this.biomeColors = new LevelColorCache(this.biomeSlice, biomeBlendRadius);
 
         for (BlockState[] blockArray : this.blockArrays) {
             Arrays.fill(blockArray, EMPTY_BLOCK_STATE);
@@ -173,11 +159,11 @@ public final class LevelSlice implements BlockView {
     }
 
     public void copyData(ChunkRenderContext context) {
-        this.originBlockX = SectionPos.sectionToBlockCoord(context.getOrigin().getX() - NEIGHBOR_CHUNK_RADIUS);
-        this.originBlockY = SectionPos.sectionToBlockCoord(context.getOrigin().getY() - NEIGHBOR_CHUNK_RADIUS);
-        this.originBlockZ = SectionPos.sectionToBlockCoord(context.getOrigin().getZ() - NEIGHBOR_CHUNK_RADIUS);
+        this.originBlockX = SectionPos.sectionToBlockCoord(context.origin().getX() - NEIGHBOR_CHUNK_RADIUS);
+        this.originBlockY = SectionPos.sectionToBlockCoord(context.origin().getY() - NEIGHBOR_CHUNK_RADIUS);
+        this.originBlockZ = SectionPos.sectionToBlockCoord(context.origin().getZ() - NEIGHBOR_CHUNK_RADIUS);
 
-        this.volume = context.getVolume();
+        this.volume = context.volume();
 
         for (int x = 0; x < SECTION_ARRAY_LENGTH; x++) {
             for (int y = 0; y < SECTION_ARRAY_LENGTH; y++) {
@@ -192,19 +178,17 @@ public final class LevelSlice implements BlockView {
     }
 
     private void copySectionData(ChunkRenderContext context, int sectionIndex) {
-        var section = context.getSections()[sectionIndex];
+        var section = context.sections()[sectionIndex];
 
         Objects.requireNonNull(section, "Chunk section must be non-null");
 
         this.unpackBlockData(this.blockArrays[sectionIndex], context, section);
 
-        this.lightArrays[sectionIndex][LightLayer.BLOCK.ordinal()] = section.getLightArray(LightLayer.BLOCK);
-        this.lightArrays[sectionIndex][LightLayer.SKY.ordinal()] = section.getLightArray(LightLayer.SKY);
+        this.lightArrays[sectionIndex][LightType.BLOCK.ordinal()] = section.getLightArray(LightType.BLOCK);
+        this.lightArrays[sectionIndex][LightType.SKY.ordinal()] = section.getLightArray(LightType.SKY);
 
         this.blockEntityArrays[sectionIndex] = section.getBlockEntityMap();
         this.auxLightManager[sectionIndex] = section.getAuxLightManager();
-        this.blockEntityRenderDataArrays[sectionIndex] = section.getBlockEntityRenderDataMap();
-        this.modelMapArrays[sectionIndex] = section.getModelMap();
     }
 
     private void unpackBlockData(BlockState[] blockArray, ChunkRenderContext context, ClonedChunkSection section) {
@@ -213,28 +197,34 @@ public final class LevelSlice implements BlockView {
             return;
         }
 
-        var container = PalettedContainerROExtension.of(section.getBlockData());
-
+        BlockState[] container = section.getBlockData();
         SectionPos sectionPos = section.getPosition();
 
-        if (sectionPos.equals(context.getOrigin())) {
-            container.sodium$unpack(blockArray);
+        if (sectionPos.equals(context.origin())) {
+            System.arraycopy(container, 0, blockArray, 0, container.length);
         } else {
-            var bounds = context.getVolume();
+            var bounds = context.volume();
 
-            int minBlockX = Math.max(bounds.minX(), sectionPos.minBlockX());
-            int maxBlockX = Math.min(bounds.maxX(), sectionPos.maxBlockX());
+            int minBlockX = (int) Math.max(bounds.minX, sectionPos.minBlockX());
+            int maxBlockX = (int) Math.min(bounds.maxX, sectionPos.maxBlockX());
 
-            int minBlockY = Math.max(bounds.minY(), sectionPos.minBlockY());
-            int maxBlockY = Math.min(bounds.maxY(), sectionPos.maxBlockY());
+            int minBlockY = (int) Math.max(bounds.minY, sectionPos.minBlockY());
+            int maxBlockY = (int) Math.min(bounds.maxY, sectionPos.maxBlockY());
 
-            int minBlockZ = Math.max(bounds.minZ(), sectionPos.minBlockZ());
-            int maxBlockZ = Math.min(bounds.maxZ(), sectionPos.maxBlockZ());
+            int minBlockZ = (int) Math.max(bounds.minZ, sectionPos.minBlockZ());
+            int maxBlockZ = (int) Math.min(bounds.maxZ, sectionPos.maxBlockZ());
 
-            container.sodium$unpack(blockArray, minBlockX & 15, minBlockY & 15, minBlockZ & 15,
-                    maxBlockX & 15, maxBlockY & 15, maxBlockZ & 15);
+            for (int x = minBlockX; x <= maxBlockX; x++) {
+                for (int y = minBlockY; y <= maxBlockY; y++) {
+                    for (int z = minBlockZ; z <= maxBlockZ; z++) {
+                        int index = ((y & 15) << 8) | ((z & 15) << 4) | (x & 15);
+                        blockArray[index] = container[index];
+                    }
+                }
+            }
         }
     }
+
 
     public void reset() {
         // erase any pointers to resources we no longer need
@@ -245,7 +235,6 @@ public final class LevelSlice implements BlockView {
 
             this.blockEntityArrays[sectionIndex] = null;
             this.auxLightManager[sectionIndex] = null;
-            this.blockEntityRenderDataArrays[sectionIndex] = null;
         }
     }
 
@@ -254,8 +243,34 @@ public final class LevelSlice implements BlockView {
         return this.getBlockState(pos.getX(), pos.getY(), pos.getZ());
     }
 
+    @Override
+    public boolean isAir(BlockPos pos) {
+        return getBlockState(pos).getBlock() == Blocks.AIR;
+    }
+
+    @Override
+    public Biome getBiome(BlockPos pos) {
+        return this.biomeSlice.getBiome(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public int getStrongRedstonePower(BlockPos pos, Direction direction) {
+        BlockState blockState = this.getBlockState(pos);
+        return blockState.getBlock().getStrongRedstonePower(this, pos, blockState, direction);
+    }
+
+    @Override
+    public LevelGeneratorType getGeneratorType() {
+        return this.level.getGeneratorType();
+    }
+
     public BlockState getBlockState(int blockX, int blockY, int blockZ) {
-        if (!this.volume.isInside(blockX, blockY, blockZ)) {
+        if (!this.volume.contains(new Vec3d(blockX, blockY, blockZ))) {
             return EMPTY_BLOCK_STATE;
         }
 
@@ -268,45 +283,8 @@ public final class LevelSlice implements BlockView {
     }
 
     @Override
-    public @NotNull FluidState getFluidState(BlockPos pos) {
-        return this.getBlockState(pos)
-                .getFluidState();
-    }
-
-    @Override
-    public float getShade(Direction direction, boolean shaded) {
-        return this.level.getShade(direction, shaded);
-    }
-
-    @Override
-    public @NotNull LevelLightEngine getLightEngine() {
-        // Not thread-safe to access lighting data from off-thread, even if Minecraft allows it.
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getBrightness(LightLayer type, BlockPos pos) {
-        if (!this.volume.isInside(pos.getX(), pos.getY(), pos.getZ())) {
-            return 0;
-        }
-
-        int relBlockX = pos.getX() - this.originBlockX;
-        int relBlockY = pos.getY() - this.originBlockY;
-        int relBlockZ = pos.getZ() - this.originBlockZ;
-
-        var lightArray = this.lightArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)][type.ordinal()];
-
-        if (lightArray == null) {
-            // If the array is null, it means the dimension for the current level does not support that light type
-            return 0;
-        }
-
-        return lightArray.get(relBlockX & 15, relBlockY & 15, relBlockZ & 15);
-    }
-
-    @Override
-    public int getRawBrightness(BlockPos pos, int ambientDarkness) {
-        if (!this.volume.isInside(pos.getX(), pos.getY(), pos.getZ())) {
+    public int getLight(BlockPos pos, int ambientDarkness) {
+        if (!this.volume.contains(new Vec3d(pos.getX(), pos.getY(), pos.getZ()))) {
             return 0;
         }
 
@@ -316,8 +294,8 @@ public final class LevelSlice implements BlockView {
 
         var lightArrays = this.lightArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
 
-        var skyLightArray = lightArrays[LightLayer.SKY.ordinal()];
-        var blockLightArray = lightArrays[LightLayer.BLOCK.ordinal()];
+        var skyLightArray = lightArrays[LightType.SKY.ordinal()];
+        var blockLightArray = lightArrays[LightType.BLOCK.ordinal()];
 
         int localBlockX = relBlockX & 15;
         int localBlockY = relBlockY & 15;
@@ -335,7 +313,7 @@ public final class LevelSlice implements BlockView {
     }
 
     public BlockEntity getBlockEntity(int blockX, int blockY, int blockZ) {
-        if (!this.volume.isInside(blockX, blockY, blockZ)) {
+        if (!this.volume.contains(new Vec3d(blockX, blockY, blockZ))) {
             return null;
         }
 
@@ -352,92 +330,11 @@ public final class LevelSlice implements BlockView {
         return blockEntities.get(getLocalBlockIndex(relBlockX & 15, relBlockY & 15, relBlockZ & 15));
     }
 
-    @Override
-    public int getBlockTint(BlockPos pos, ColorResolver resolver) {
-        return this.biomeColors.getColor(resolver, pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    @Override
-    public int getHeight() {
-        return this.level.getHeight();
-    }
-
-    @Override
-    public int getMinY() {
-        return this.level.getMinY();
-    }
-
-    @Override
-    public @Nullable Object getBlockEntityRenderData(BlockPos pos) {
-        if (!this.volume.isInside(pos.getX(), pos.getY(), pos.getZ())) {
-            return null;
-        }
-
-        int relBlockX = pos.getX() - this.originBlockX;
-        int relBlockY = pos.getY() - this.originBlockY;
-        int relBlockZ = pos.getZ() - this.originBlockZ;
-
-        var blockEntityRenderDataMap = this.blockEntityRenderDataArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
-
-        if (blockEntityRenderDataMap == null) {
-            return null;
-        }
-
-        return blockEntityRenderDataMap.get(getLocalBlockIndex(relBlockX & 15, relBlockY & 15, relBlockZ & 15));
-    }
-
-    public SodiumModelData getPlatformModelData(BlockPos pos) {
-        if (!this.volume.isInside(pos.getX(), pos.getY(), pos.getZ())) {
-            return SodiumModelData.EMPTY;
-        }
-
-        int relBlockX = pos.getX() - this.originBlockX;
-        int relBlockY = pos.getY() - this.originBlockY;
-        int relBlockZ = pos.getZ() - this.originBlockZ;
-
-        var modelMap = this.modelMapArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
-
-        if (modelMap.isEmpty()) {
-            return SodiumModelData.EMPTY;
-        }
-
-        return modelMap.getModelData(pos);
-    }
-
-    @Override
-    public boolean hasBiomes() {
-        return true;
-    }
-
-    @Override
-    public Holder<Biome> getBiomeFabric(BlockPos pos) {
-        return this.biomeSlice.getBiome(pos.getX(), pos.getY(), pos.getZ());
-    }
-
     public static int getLocalBlockIndex(int blockX, int blockY, int blockZ) {
         return (blockY << LOCAL_XYZ_BITS << LOCAL_XYZ_BITS) | (blockZ << LOCAL_XYZ_BITS) | blockX;
     }
 
     public static int getLocalSectionIndex(int sectionX, int sectionY, int sectionZ) {
         return (sectionY * SECTION_ARRAY_LENGTH * SECTION_ARRAY_LENGTH) + (sectionZ * SECTION_ARRAY_LENGTH) + sectionX;
-    }
-
-    @Override
-    public @Nullable Object getBlockEntityRenderAttachment(BlockPos pos) {
-        if (!this.volume.isInside(pos.getX(), pos.getY(), pos.getZ())) {
-            return null;
-        }
-
-        int relBlockX = pos.getX() - this.originBlockX;
-        int relBlockY = pos.getY() - this.originBlockY;
-        int relBlockZ = pos.getZ() - this.originBlockZ;
-
-        var blockEntityRenderDataMap = this.blockEntityRenderDataArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
-
-        if (blockEntityRenderDataMap == null) {
-            return null;
-        }
-
-        return blockEntityRenderDataMap.get(getLocalBlockIndex(relBlockX & 15, relBlockY & 15, relBlockZ & 15));
     }
 }
