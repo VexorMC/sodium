@@ -3,6 +3,7 @@ package net.caffeinemc.mods.sodium.client.services;
 import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.client.Camera;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -46,5 +47,5 @@ public interface PlatformLevelRenderHooks {
      * @param typeToConsumer A consumer that converts render types to vertex consumers
      * @param slice The current level slice
      */
-    void runChunkMeshAppenders(List<?> renderers, Function<RenderType, VertexConsumer> typeToConsumer, LevelSlice slice);
+    void runChunkMeshAppenders(List<?> renderers, Function<RenderLayer, VertexConsumer> typeToConsumer, LevelSlice slice);
 }
