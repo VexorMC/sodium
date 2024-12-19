@@ -1,6 +1,5 @@
 package net.caffeinemc.mods.sodium.mixin.features.textures.animations.upload;
 
-import net.caffeinemc.mods.sodium.client.util.NativeImageHelper;
 import net.caffeinemc.mods.sodium.mixin.features.textures.SpriteContentsInvoker;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.minecraft.client.renderer.texture.SpriteContents;

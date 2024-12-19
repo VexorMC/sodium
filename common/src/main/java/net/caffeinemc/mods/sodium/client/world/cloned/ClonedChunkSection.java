@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.core.Holder;
 import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.level.Level;
@@ -47,7 +48,7 @@ public class ClonedChunkSection {
 
     private final @Nullable PalettedContainerRO<BlockState> blockData;
 
-    private final @Nullable PalettedContainerRO<Holder<Biome>> biomeData;
+    private final @Nullable Biome[] biomeData;
     private final SodiumModelDataContainer modelMap;
 
     private long lastUsedTimestamp = Long.MAX_VALUE;
@@ -216,7 +217,7 @@ public class ClonedChunkSection {
         return this.blockData;
     }
 
-    public @Nullable PalettedContainerRO<Holder<Biome>> getBiomeData() {
+    public @Nullable Biome[] getBiomeData() {
         return this.biomeData;
     }
 

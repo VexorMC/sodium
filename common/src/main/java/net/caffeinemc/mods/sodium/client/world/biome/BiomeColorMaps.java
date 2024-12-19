@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.world.biome;
 
-import net.minecraft.world.level.FoliageColor;
-import net.minecraft.world.level.GrassColor;
+import net.minecraft.client.color.world.FoliageColors;
+import net.minecraft.client.color.world.GrassColors;
 
 public class BiomeColorMaps {
     private static final int WIDTH = 256;
@@ -10,19 +10,19 @@ public class BiomeColorMaps {
     private static final int INVALID_INDEX = -1;
 
     public static int getGrassColor(int index) {
-        if (index == INVALID_INDEX || index >= GrassColor.pixels.length) {
-            return GrassColor.getDefaultColor();
+        if (index == INVALID_INDEX || index >= GrassColors.colorMap.length) {
+            return GrassColors.getColor(0, 0);
         }
 
-        return GrassColor.pixels[index];
+        return GrassColors.colorMap[index];
     }
 
     public static int getFoliageColor(int index) {
-        if (index == INVALID_INDEX || index >= FoliageColor.pixels.length) {
-            return FoliageColor.FOLIAGE_DEFAULT;
+        if (index == INVALID_INDEX || index >= FoliageColors.colorMap.length) {
+            return FoliageColors.getDefaultColor();
         }
 
-        return FoliageColor.pixels[index];
+        return FoliageColors.colorMap[index];
     }
 
     public static int getIndex(double temperature, double humidity) {

@@ -24,7 +24,7 @@ public class ModelQuadUtil {
             NORMAL_INDEX = 7;
 
     // Size of vertex format in 4-byte integers
-    public static final int VERTEX_SIZE = 8;
+    public static final int VERTEX_SIZE = 7;
 
     /**
      * @param vertexIndex The index of the vertex to access

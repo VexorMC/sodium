@@ -1,24 +1,22 @@
 package net.caffeinemc.mods.sodium.client.world.biome;
 
+import dev.lunasa.compat.mojang.math.Mth;
+import dev.lunasa.compat.mojang.minecraft.math.QuartPos;
+import dev.lunasa.compat.mojang.minecraft.random.LinearCongruentialGenerator;
 import net.caffeinemc.mods.sodium.client.world.BiomeSeedProvider;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.Holder;
-import net.minecraft.core.QuartPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.util.LinearCongruentialGenerator;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+
 
 public class LevelBiomeSlice {
     private static final int SIZE = 3 * 4; // 3 chunks * 4 biomes per chunk
 
     // Arrays are in ZYX order
     @SuppressWarnings("unchecked")
-    private final Holder<Biome>[] biomes = new Holder[SIZE * SIZE * SIZE];
+    private final Biome[] biomes = new Biome[SIZE * SIZE * SIZE];
     private final boolean[] uniform = new boolean[SIZE * SIZE * SIZE];
     private final BiasMap bias = new BiasMap();
 
@@ -26,7 +24,7 @@ public class LevelBiomeSlice {
 
     private int blockX, blockY, blockZ;
 
-    public void update(ClientLevel level, ChunkRenderContext context) {
+    public void update(ClientWorld level, ChunkRenderContext context) {
         this.blockX = context.getOrigin().minBlockX() - 16;
         this.blockY = context.getOrigin().minBlockY() - 16;
         this.blockZ = context.getOrigin().minBlockZ() - 16;
@@ -39,21 +37,17 @@ public class LevelBiomeSlice {
         this.calculateUniform();
     }
 
-    private void copyBiomeData(Level level, ChunkRenderContext context) {
-        var defaultValue = level.registryAccess()
-                .lookupOrThrow(Registries.BIOME)
-                .getOrThrow(Biomes.PLAINS);
-
+    private void copyBiomeData(World level, ChunkRenderContext context) {
         for (int sectionX = 0; sectionX < 3; sectionX++) {
             for (int sectionY = 0; sectionY < 3; sectionY++) {
                 for (int sectionZ = 0; sectionZ < 3; sectionZ++) {
-                    this.copySectionBiomeData(context, sectionX, sectionY, sectionZ, defaultValue);
+                    this.copySectionBiomeData(context, sectionX, sectionY, sectionZ, Biome.PLAINS);
                 }
             }
         }
     }
 
-    private void copySectionBiomeData(ChunkRenderContext context, int sectionX, int sectionY, int sectionZ, Holder<Biome> defaultBiome) {
+    private void copySectionBiomeData(ChunkRenderContext context, int sectionX, int sectionY, int sectionZ, Biome defaultBiome) {
         var section = context.getSections()[LevelSlice.getLocalSectionIndex(sectionX, sectionY, sectionZ)];
         var biomeData = section.getBiomeData();
 
@@ -69,7 +63,7 @@ public class LevelBiomeSlice {
                     if (biomeData == null) {
                         this.biomes[idx] = defaultBiome;
                     } else {
-                        this.biomes[idx] = biomeData.get(relCellX, relCellY, relCellZ);
+                        this.biomes[idx] = biomeData[idx];
                     }
                 }
             }
@@ -126,7 +120,7 @@ public class LevelBiomeSlice {
     }
 
     private boolean hasUniformNeighbors(int cellX, int cellY, int cellZ) {
-        Biome biome = this.biomes[dataArrayIndex(cellX, cellY, cellZ)].value();
+        Biome biome = this.biomes[dataArrayIndex(cellX, cellY, cellZ)];
 
         int cellMinX = cellX - 1, cellMaxX = cellX + 1;
         int cellMinY = cellY - 1, cellMaxY = cellY + 1;
@@ -135,7 +129,7 @@ public class LevelBiomeSlice {
         for (int adjCellX = cellMinX; adjCellX <= cellMaxX; adjCellX++) {
             for (int adjCellY = cellMinY; adjCellY <= cellMaxY; adjCellY++) {
                 for (int adjCellZ = cellMinZ; adjCellZ <= cellMaxZ; adjCellZ++) {
-                    if (this.biomes[dataArrayIndex(adjCellX, adjCellY, adjCellZ)].value() != biome) {
+                    if (this.biomes[dataArrayIndex(adjCellX, adjCellY, adjCellZ)] != biome) {
                         return false;
                     }
                 }
@@ -145,7 +139,7 @@ public class LevelBiomeSlice {
         return true;
     }
 
-    public Holder<Biome> getBiome(int blockX, int blockY, int blockZ) {
+    public Biome getBiome(int blockX, int blockY, int blockZ) {
         int relBlockX = blockX - this.blockX;
         int relBlockY = blockY - this.blockY;
         int relBlockZ = blockZ - this.blockZ;
@@ -162,7 +156,7 @@ public class LevelBiomeSlice {
         return this.getBiomeUsingVoronoi(relBlockX, relBlockY, relBlockZ);
     }
 
-    private Holder<Biome> getBiomeUsingVoronoi(int blockX, int blockY, int blockZ) {
+    private Biome getBiomeUsingVoronoi(int blockX, int blockY, int blockZ) {
         int x = blockX - 2;
         int y = blockY - 2;
         int z = blockZ - 2;

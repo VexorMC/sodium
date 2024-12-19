@@ -7,3 +7,5 @@ accessible field net/minecraft/client/render/GameRenderer fogRed F
 accessible field net/minecraft/client/render/GameRenderer fogGreen F
 accessible field net/minecraft/client/render/GameRenderer fogBlue F
 accessible field net/minecraft/client/render/Camera PROJECTION_MATRIX Ljava/nio/FloatBuffer;
+accessible field net/minecraft/client/color/world/FoliageColors colorMap [I
+accessible field net/minecraft/client/color/world/GrassColors colorMap [I

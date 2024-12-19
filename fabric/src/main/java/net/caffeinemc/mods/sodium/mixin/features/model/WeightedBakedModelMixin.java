@@ -1,6 +1,5 @@
 package net.caffeinemc.mods.sodium.mixin.features.model;
 
-import net.caffeinemc.mods.sodium.client.util.WeightedRandomListExtension;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.WeightedBakedModel;

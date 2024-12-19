@@ -1,12 +1,11 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.shader;
 
+import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformFloat3v;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformInt;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformMatrix4f;
-import net.caffeinemc.mods.sodium.client.util.TextureUtil;
 import org.joml.Matrix4fc;
-import org.lwjgl.opengl.*;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -38,8 +37,8 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
 
     @Override // the shader interface should not modify pipeline state
     public void setupState() {
-        this.bindTexture(ChunkShaderTextureSlot.BLOCK, TextureUtil.getBlockTextureId());
-        this.bindTexture(ChunkShaderTextureSlot.LIGHT, TextureUtil.getLightTextureId());
+        this.bindTexture(ChunkShaderTextureSlot.BLOCK, GLX.textureUnit);
+        this.bindTexture(ChunkShaderTextureSlot.LIGHT, GLX.lightmapTextureUnit);
 
         this.fogShader.setup();
     }
@@ -51,11 +50,10 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
 
     @Deprecated(forRemoval = true) // should be handled properly in GFX instead.
     private void bindTexture(ChunkShaderTextureSlot slot, int textureId) {
-        GlStateManager.activeTexture(GL13.GL_TEXTURE0 + slot.ordinal());
-        GlStateManager.bindTexture(textureId);
+        GlStateManager.activeTexture(textureId);
 
         var uniform = this.uniformTextures.get(slot);
-        uniform.setInt(slot.ordinal());
+        uniform.setInt(textureId);
     }
 
     @Override

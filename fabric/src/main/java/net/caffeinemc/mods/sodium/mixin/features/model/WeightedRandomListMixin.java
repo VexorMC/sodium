@@ -1,7 +1,6 @@
 package net.caffeinemc.mods.sodium.mixin.features.model;
 
 import com.google.common.collect.ImmutableList;
-import net.caffeinemc.mods.sodium.client.util.WeightedRandomListExtension;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandomList;
