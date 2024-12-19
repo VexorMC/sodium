@@ -10,6 +10,9 @@ import net.caffeinemc.mods.sodium.client.util.FileUtil;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -78,14 +81,14 @@ public class SodiumGameOptions {
         FANCY("options.clouds.fancy"),
         FAST("options.clouds.fast");
 
-        private final Component name;
+        private final Text name;
 
         GraphicsQuality(String name) {
-            this.name = Component.translatable(name);
+            this.name = new TranslatableText(name);
         }
 
         @Override
-        public Component getLocalizedName() {
+        public Text getLocalizedName() {
             return this.name;
         }
 

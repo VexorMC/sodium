@@ -1,5 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gui;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import dev.lunasa.compat.mojang.minecraft.gui.event.GuiEventListener;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.data.fingerprint.HashedFingerprint;
 import net.caffeinemc.mods.sodium.client.console.Console;
@@ -11,12 +13,27 @@ import net.caffeinemc.mods.sodium.client.gui.options.storage.OptionStorage;
 import net.caffeinemc.mods.sodium.client.gui.prompt.ScreenPrompt;
 import net.caffeinemc.mods.sodium.client.gui.prompt.ScreenPromptable;
 import net.caffeinemc.mods.sodium.client.gui.screen.ConfigCorruptedScreen;
+import net.caffeinemc.mods.sodium.client.gui.screen.RenderableScreen;
 import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -26,7 +43,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 // TODO: Rename in Sodium 0.6
-public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
+public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptable {
     private final List<OptionPage> pages = new ArrayList<>();
 
     private final List<ControlElement<?>> controls = new ArrayList<>();
@@ -44,8 +61,6 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
     private @Nullable ScreenPrompt prompt;
 
     private SodiumOptionsGUI(Screen prevScreen) {
-        super(Component.literal("Sodium Renderer Settings"));
-
         this.prevScreen = prevScreen;
 
         this.pages.add(SodiumGameOptionPages.general());
@@ -95,8 +110,8 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
     }
 
     private void openDonationPrompt(SodiumGameOptions options) {
-        var prompt = new ScreenPrompt(this, DONATION_PROMPT_MESSAGE, 320, 190,
-                new ScreenPrompt.Action(Component.literal("Buy us a coffee"), this::openDonationPage));
+        var prompt = new ScreenPrompt(this, DONATION_PROMPT_MESSAGE.stream().map(Text::asFormattedString).toList(), 320, 190,
+                new ScreenPrompt.Action(new LiteralText("Buy us a coffee"), this::openDonationPage));
         prompt.setFocused(true);
 
         options.notifications.hasSeenDonationPrompt = true;
@@ -124,7 +139,7 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         this.rebuildGUI();
@@ -151,11 +166,11 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
         this.rebuildGUIPages();
         this.rebuildGUIOptions();
 
-        this.undoButton = new FlatButtonWidget(new Dim2i(this.width - 211, this.height - 30, 65, 20), Component.translatable("sodium.options.buttons.undo"), this::undoChanges);
-        this.applyButton = new FlatButtonWidget(new Dim2i(this.width - 142, this.height - 30, 65, 20), Component.translatable("sodium.options.buttons.apply"), this::applyChanges);
-        this.closeButton = new FlatButtonWidget(new Dim2i(this.width - 73, this.height - 30, 65, 20), Component.translatable("gui.done"), this::onClose);
-        this.donateButton = new FlatButtonWidget(new Dim2i(this.width - 128, 6, 100, 20), Component.translatable("sodium.options.buttons.donate"), this::openDonationPage);
-        this.hideDonateButton = new FlatButtonWidget(new Dim2i(this.width - 26, 6, 20, 20), Component.literal("x"), this::hideDonationButton);
+        this.undoButton = new FlatButtonWidget(new Dim2i(this.width - 211, this.height - 30, 65, 20), new TranslatableText("sodium.options.buttons.undo"), this::undoChanges);
+        this.applyButton = new FlatButtonWidget(new Dim2i(this.width - 142, this.height - 30, 65, 20), new TranslatableText("sodium.options.buttons.apply"), this::applyChanges);
+        this.closeButton = new FlatButtonWidget(new Dim2i(this.width - 73, this.height - 30, 65, 20), new TranslatableText("gui.done"), this::removed);
+        this.donateButton = new FlatButtonWidget(new Dim2i(this.width - 128, 6, 100, 20), new TranslatableText("sodium.options.buttons.donate"), this::openDonationPage);
+        this.hideDonateButton = new FlatButtonWidget(new Dim2i(this.width - 26, 6, 20, 20), new LiteralText("x"), this::hideDonationButton);
 
         if (SodiumClientMod.options().notifications.hasClearedDonationButton) {
             this.setDonationButtonVisibility(false);
@@ -191,7 +206,7 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
         int y = 6;
 
         for (OptionPage page : this.pages) {
-            int width = 12 + this.font.width(page.getName());
+            int width = 12 + this.textRenderer.getStringWidth(page.getName().asFormattedString());
 
             FlatButtonWidget button = new FlatButtonWidget(new Dim2i(x, y, width, 18), page.getName(), () -> this.setPage(page));
             button.setSelected(this.currentPage == page);
@@ -226,17 +241,17 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void render(int mouseX, int mouseY, float delta) {
         this.updateControls();
 
-        super.render(graphics, this.prompt != null ? -1 : mouseX, this.prompt != null ? -1 : mouseY, delta);
+        super.render(this.prompt != null ? -1 : mouseX, this.prompt != null ? -1 : mouseY, delta);
 
         if (this.hoveredElement != null) {
-            this.renderOptionTooltip(graphics, this.hoveredElement);
+            this.renderOptionTooltip(this.hoveredElement);
         }
 
         if (this.prompt != null) {
-            this.prompt.render(graphics, mouseX, mouseY, delta);
+            this.prompt.render(mouseX, mouseY, delta);
         }
     }
 
@@ -277,7 +292,7 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
         return this.controls.stream();
     }
 
-    private void renderOptionTooltip(GuiGraphics graphics, ControlElement<?> element) {
+    private void renderOptionTooltip(ControlElement<?> element) {
         Dim2i dim = element.getDimensions();
 
         int textPadding = 3;
@@ -290,14 +305,14 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
 
         Option<?> option = element.getOption();
         var splitWidth = boxWidth - (textPadding * 2);
-        List<FormattedCharSequence> tooltip = new ArrayList<>(this.font.split(option.getTooltip(),splitWidth));
+        List<String> tooltip = new ArrayList<>(this.textRenderer.wrapLines(option.getTooltip().asFormattedString(),splitWidth));
 
         OptionImpact impact = option.getImpact();
 
         if (impact != null) {
-            var impactText = Component.translatable("sodium.options.performance_impact_string",
+            var impactText = new TranslatableText("sodium.options.performance_impact_string",
                     impact.getLocalizedName());
-            tooltip.addAll(this.font.split(impactText.withStyle(ChatFormatting.GRAY), splitWidth));
+            tooltip.addAll(this.textRenderer.wrapLines(impactText.setStyle(new Style().setFormatting(Formatting.GRAY)).asFormattedString(), splitWidth));
         }
 
         int boxHeight = (tooltip.size() * 12) + boxPadding;
@@ -309,12 +324,41 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
             boxY -= boxYLimit - boxYCutoff;
         }
 
-        graphics.fillGradient(boxX, boxY, boxX + boxWidth, boxY + boxHeight, 0xE0000000, 0xE0000000);
+        fillGradient(boxX, boxY, boxX + boxWidth, boxY + boxHeight, 0xE0000000, 0xE0000000);
 
         for (int i = 0; i < tooltip.size(); i++) {
-            graphics.drawString(this.font, tooltip.get(i), boxX + textPadding, boxY + textPadding + (i * 12), 0xFFFFFFFF);
+            this.textRenderer.draw(tooltip.get(i), boxX + textPadding, boxY + textPadding + (i * 12), 0xFFFFFFFF);
         }
     }
+
+    protected void fillGradient(int x1, int y1, int x2, int y2, int color1, int color2) {
+        float f = (float)(color1 >> 24 & 255) / 255.0F;
+        float g = (float)(color1 >> 16 & 255) / 255.0F;
+        float h = (float)(color1 >> 8 & 255) / 255.0F;
+        float i = (float)(color1 & 255) / 255.0F;
+        float j = (float)(color2 >> 24 & 255) / 255.0F;
+        float k = (float)(color2 >> 16 & 255) / 255.0F;
+        float l = (float)(color2 >> 8 & 255) / 255.0F;
+        float m = (float)(color2 & 255) / 255.0F;
+        GlStateManager.disableTexture();
+        GlStateManager.enableBlend();
+        GlStateManager.disableAlphaTest();
+        GlStateManager.blendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.shadeModel(7425);
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        bufferBuilder.begin(7, VertexFormats.POSITION_COLOR);
+        bufferBuilder.vertex((double)x2, (double)y1, (double)this.zOffset).color(g, h, i, f).next();
+        bufferBuilder.vertex((double)x1, (double)y1, (double)this.zOffset).color(g, h, i, f).next();
+        bufferBuilder.vertex((double)x1, (double)y2, (double)this.zOffset).color(k, l, m, j).next();
+        bufferBuilder.vertex((double)x2, (double)y2, (double)this.zOffset).color(k, l, m, j).next();
+        tessellator.draw();
+        GlStateManager.shadeModel(7424);
+        GlStateManager.disableBlend();
+        GlStateManager.enableAlphaTest();
+        GlStateManager.enableTexture();
+    }
+
 
     private void applyChanges() {
         final HashSet<OptionStorage<?>> dirtyStorages = new HashSet<>();
@@ -331,23 +375,21 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
             dirtyStorages.add(option.getStorage());
         }));
 
-        Minecraft client = Minecraft.getInstance();
+        MinecraftClient client = MinecraftClient.getInstance();
 
-        if (client.level != null) {
+        if (client.world != null) {
             if (flags.contains(OptionFlag.REQUIRES_RENDERER_RELOAD)) {
-                client.levelRenderer.allChanged();
+                client.worldRenderer.reload();
             } else if (flags.contains(OptionFlag.REQUIRES_RENDERER_UPDATE)) {
-                client.levelRenderer.needsUpdate();
+                client.worldRenderer.scheduleTerrainUpdate();
             }
         }
 
         if (flags.contains(OptionFlag.REQUIRES_ASSET_RELOAD)) {
-            client.updateMaxMipLevel(client.options.mipmapLevels().get());
-            client.delayTextureReload();
+            client.reloadResources();
         }
 
         if (flags.contains(OptionFlag.REQUIRES_VIDEOMODE_RELOAD)) {
-            client.getWindow().changeFullscreenVideoMode();
         }
 
         if (flags.contains(OptionFlag.REQUIRES_GAME_RESTART)) {
@@ -366,54 +408,34 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
     }
 
     private void openDonationPage() {
-        Util.getPlatform()
-                .openUri("https://caffeinemc.net/donate");
+        try {
+            Desktop.getDesktop().browse(URI.create("https://caffeinemc.net/donate"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Override
+    protected void keyPressed(char id, int code) {
+        if (this.prompt != null && this.prompt.keyPressed(code, 0, 0)) {
+        } else {
+            super.keyPressed(id, code);
+        }
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.prompt != null && this.prompt.keyPressed(keyCode, scanCode, modifiers)) {
-            return true;
-        }
-
-        if (this.prompt == null && keyCode == GLFW.GLFW_KEY_P && (modifiers & GLFW.GLFW_MOD_SHIFT) != 0) {
-            Minecraft.getInstance().setScreen(new VideoSettingsScreen(this.prevScreen, Minecraft.getInstance(), Minecraft.getInstance().options));
-
-            return true;
-        }
-
-        return super.keyPressed(keyCode, scanCode, modifiers);
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    protected void mouseClicked(int mouseX, int mouseY, int button) {
         if (this.prompt != null) {
-            return this.prompt.mouseClicked(mouseX, mouseY, button);
+            this.prompt.mouseClicked(mouseX, mouseY, button);
+        } else {
+            super.mouseClicked(mouseX, mouseY, button);
         }
-
-        boolean clicked = super.mouseClicked(mouseX, mouseY, button);
-
-        if (!clicked) {
-            this.setFocused(null);
-            return true;
-        }
-
-        return clicked;
     }
 
     @Override
-    public boolean shouldCloseOnEsc() {
-        return !this.hasPendingChanges;
-    }
-
-    @Override
-    public void onClose() {
-        this.minecraft.setScreen(this.prevScreen);
-    }
-
-    @Override
-    public List<? extends GuiEventListener> children() {
-        return this.prompt == null ? super.children() : this.prompt.getWidgets();
+    public void removed() {
+        this.client.setScreen(this.prevScreen);
     }
 
     @Override
@@ -432,15 +454,21 @@ public class SodiumOptionsGUI extends Screen implements ScreenPromptable {
         return new Dim2i(0, 0, this.width, this.height);
     }
 
-    private static final List<FormattedText> DONATION_PROMPT_MESSAGE;
+    private static final List<Text> DONATION_PROMPT_MESSAGE;
 
     static {
         DONATION_PROMPT_MESSAGE = List.of(
-                FormattedText.composite(Component.literal("Hello!")),
-                FormattedText.composite(Component.literal("It seems that you've been enjoying "), Component.literal("Sodium").withColor(0x27eb92), Component.literal(", the powerful and open rendering optimization mod for Minecraft.")),
-                FormattedText.composite(Component.literal("Mods like these are complex. They require "), Component.literal("thousands of hours").withColor(0xff6e00), Component.literal(" of development, debugging, and tuning to create the experience that players have come to expect.")),
-                FormattedText.composite(Component.literal("If you'd like to show your token of appreciation, and support the development of our mod in the process, then consider "), Component.literal("buying us a coffee").withColor(0xed49ce), Component.literal(".")),
-                FormattedText.composite(Component.literal("And thanks again for using our mod! We hope it helps you (and your computer.)"))
+                new LiteralText("Hello!"),
+                new LiteralText("It seems that you've been enjoying "),
+                new LiteralText("Sodium"),
+                new LiteralText(", the powerful and open rendering optimization mod for Minecraft."),
+                new LiteralText("Mods like these are complex. They require "),
+                new LiteralText("thousands of hours"), 
+                new LiteralText(" of development, debugging, and tuning to create the experience that players have come to expect."),
+                new LiteralText("If you'd like to show your token of appreciation, and support the development of our mod in the process, then consider "),
+                new LiteralText("buying us a coffee"),
+                new LiteralText("."),
+                new LiteralText("And thanks again for using our mod! We hope it helps you (and your computer.)")
         );
     }
 }

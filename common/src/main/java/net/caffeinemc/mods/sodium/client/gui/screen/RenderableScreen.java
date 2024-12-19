@@ -58,6 +58,14 @@ public class RenderableScreen extends Screen {
         }
     }
 
+    public void clearWidgets() {
+        this.renderables.clear();
+    }
+
+    public void addRenderableWidget(Renderable renderable) {
+        this.renderables.add(renderable);
+    }
+
     protected List<GuiEventListener> getEventListeners() {
         return renderables.stream().filter(it -> it instanceof GuiEventListener).map(GuiEventListener.class::cast).collect(Collectors.toList());
     }
