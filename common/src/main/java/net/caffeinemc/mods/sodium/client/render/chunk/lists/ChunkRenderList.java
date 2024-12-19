@@ -1,5 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.lists;
 
+import dev.lunasa.compat.mojang.math.Mth;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 import net.caffeinemc.mods.sodium.client.render.chunk.LocalSectionIndex;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionFlags;
@@ -7,8 +9,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.caffeinemc.mods.sodium.client.util.iterator.ByteArrayIterator;
 import net.caffeinemc.mods.sodium.client.util.iterator.ByteIterator;
 import net.caffeinemc.mods.sodium.client.util.iterator.ReversibleByteArrayIterator;
-import net.minecraft.core.SectionPos;
-import net.minecraft.util.Mth;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 public class ChunkRenderList {
@@ -44,9 +45,9 @@ public class ChunkRenderList {
     private static final int SORTING_HISTOGRAM_SIZE = RenderRegion.REGION_WIDTH + RenderRegion.REGION_HEIGHT + RenderRegion.REGION_LENGTH - 2;
 
     public void sortSections(SectionPos cameraPos, int[] sortItems) {
-        var cameraX = Mth.clamp(cameraPos.getX() - this.region.getChunkX(), 0, RenderRegion.REGION_WIDTH - 1);
-        var cameraY = Mth.clamp(cameraPos.getY() - this.region.getChunkY(), 0, RenderRegion.REGION_HEIGHT - 1);
-        var cameraZ = Mth.clamp(cameraPos.getZ() - this.region.getChunkZ(), 0, RenderRegion.REGION_LENGTH - 1);
+        var cameraX = MathHelper.clamp(cameraPos.getX() - this.region.getChunkX(), 0, RenderRegion.REGION_WIDTH - 1);
+        var cameraY = MathHelper.clamp(cameraPos.getY() - this.region.getChunkY(), 0, RenderRegion.REGION_HEIGHT - 1);
+        var cameraZ = MathHelper.clamp(cameraPos.getZ() - this.region.getChunkZ(), 0, RenderRegion.REGION_LENGTH - 1);
 
         int[] histogram = new int[SORTING_HISTOGRAM_SIZE];
 

@@ -18,8 +18,8 @@ import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 
-import net.minecraft.util.profiling.Profiler;
-import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.profiler.Profiler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -104,7 +104,7 @@ public class RenderRegionManager {
             }
         }
 
-        ProfilerFiller profiler = Profiler.get();
+        Profiler profiler = MinecraftClient.getInstance().profiler;
 
         // If we have nothing to upload, abort!
         if (uploads.isEmpty() && indexUploads.isEmpty()) {
@@ -134,7 +134,7 @@ public class RenderRegionManager {
             }
         }
 
-        profiler.popPush("upload_indices");
+        profiler.swap("upload_indices");
 
         if (!indexUploads.isEmpty()) {
             var arena = resources.getIndexArena();

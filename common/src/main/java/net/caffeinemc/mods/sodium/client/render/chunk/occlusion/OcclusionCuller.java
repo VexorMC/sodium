@@ -1,5 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.occlusion;
 
+import dev.lunasa.compat.mojang.math.Mth;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
@@ -7,18 +9,16 @@ import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.caffeinemc.mods.sodium.client.util.collections.DoubleBufferedQueue;
 import net.caffeinemc.mods.sodium.client.util.collections.ReadQueue;
 import net.caffeinemc.mods.sodium.client.util.collections.WriteQueue;
-import net.minecraft.core.SectionPos;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 public class OcclusionCuller {
     private final Long2ReferenceMap<RenderSection> sections;
-    private final Level level;
+    private final World level;
 
     private final DoubleBufferedQueue<RenderSection> queue = new DoubleBufferedQueue<>();
 
-    public OcclusionCuller(Long2ReferenceMap<RenderSection> sections, Level level) {
+    public OcclusionCuller(Long2ReferenceMap<RenderSection> sections, World level) {
         this.sections = sections;
         this.level = level;
     }
@@ -267,14 +267,12 @@ public class OcclusionCuller {
     {
         var origin = viewport.getChunkCoord();
 
-        if (origin.getY() < this.level.getMinSectionY()) {
+        if (origin.getY() < 0) {
             // below the level
-            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame,
-                    this.level.getMinSectionY(), GraphDirection.DOWN);
-        } else if (origin.getY() > this.level.getMaxSectionY()) {
+            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame, 0, GraphDirection.DOWN);
+        } else if (origin.getY() > 16) {
             // above the level
-            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame,
-                    this.level.getMaxSectionY(), GraphDirection.UP);
+            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame, 16, GraphDirection.UP);
         } else {
             this.initWithinWorld(visitor, queue, viewport, useOcclusionCulling, frame);
         }

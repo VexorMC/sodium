@@ -5,10 +5,10 @@ import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionFlags;
 import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.VisibilityEncoding;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteUtil;
-import net.minecraft.client.renderer.chunk.VisibilitySet;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.render.chunk.ChunkOcclusionData;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +33,7 @@ public class BuiltSectionInfo {
                              @NotNull Collection<BlockEntity> globalBlockEntities,
                              @NotNull Collection<BlockEntity> culledBlockEntities,
                              @NotNull Collection<Sprite> animatedSprites,
-                             @NotNull VisibilitySet occlusionData) {
+                             @NotNull ChunkOcclusionData occlusionData) {
         this.globalBlockEntities = toArray(globalBlockEntities, BlockEntity[]::new);
         this.culledBlockEntities = toArray(culledBlockEntities, BlockEntity[]::new);
         this.animatedSprites = toArray(animatedSprites, Sprite[]::new);
@@ -63,13 +63,13 @@ public class BuiltSectionInfo {
         private final List<BlockEntity> culledBlockEntities = new ArrayList<>();
         private final Set<Sprite> animatedSprites = new ObjectOpenHashSet<>();
 
-        private VisibilitySet occlusionData;
+        private ChunkOcclusionData occlusionData;
 
         public void addRenderPass(TerrainRenderPass pass) {
             this.blockRenderPasses.add(pass);
         }
 
-        public void setOcclusionData(VisibilitySet data) {
+        public void setOcclusionData(ChunkOcclusionData data) {
             this.occlusionData = data;
         }
 
@@ -99,8 +99,8 @@ public class BuiltSectionInfo {
     }
 
     private static BuiltSectionInfo createEmptyData() {
-        VisibilitySet occlusionData = new VisibilitySet();
-        occlusionData.add(EnumSet.allOf(Direction.class));
+        ChunkOcclusionData occlusionData = new ChunkOcclusionData();
+        occlusionData.addOpenEdgeFaces(EnumSet.allOf(Direction.class));
 
         BuiltSectionInfo.Builder meshInfo = new BuiltSectionInfo.Builder();
         meshInfo.setOcclusionData(occlusionData);

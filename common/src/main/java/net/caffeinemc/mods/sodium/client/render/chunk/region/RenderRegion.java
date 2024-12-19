@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.region;
 
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.gl.arena.GlBufferArena;
 import net.caffeinemc.mods.sodium.client.gl.arena.staging.StagingBuffer;
@@ -13,8 +14,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRend
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkMeshFormats;
 import net.caffeinemc.mods.sodium.client.util.MathUtil;
-import net.minecraft.core.SectionPos;
-import org.apache.commons.lang3.Validate;
+ import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
 import java.util.Map;

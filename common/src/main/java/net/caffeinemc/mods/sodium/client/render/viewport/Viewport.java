@@ -1,8 +1,9 @@
 package net.caffeinemc.mods.sodium.client.render.viewport;
 
+import dev.lunasa.compat.mojang.math.Mth;
+import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 import net.caffeinemc.mods.sodium.client.render.viewport.frustum.Frustum;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.core.SectionPos;
 import org.joml.Vector3d;
 
 public final class Viewport {
@@ -22,7 +23,11 @@ public final class Viewport {
                 SectionPos.posToSectionCoord(position.z)
         );
 
-        this.blockCoords = BlockPos.containing(position.x, position.y, position.z);
+        this.blockCoords = new BlockPos(
+                Mth.floor(position.x),
+                Mth.floor(position.y),
+                Mth.floor(position.z)
+        );
     }
 
     public boolean isBoxVisible(int intOriginX, int intOriginY, int intOriginZ, float floatSizeX, float floatSizeY, float floatSizeZ) {
