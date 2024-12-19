@@ -44,7 +44,7 @@ public interface PlatformRuntimeInformation {
     boolean isModInLoadingList(String modId);
 
     /**
-     * @return Whether {@link VertexConsumer#putBulkData(PoseStack.Pose, BakedQuad, float[], float, float, float, float, int[], int, boolean)} should multiply the vertex alpha component.
+     * @return Whether {@link VertexConsumer#putBulkData(PoseStack.Pose, net.minecraft.client.render.model.BakedQuad, float[], float, float, float, float, int[], int, boolean)} should multiply the vertex alpha component.
      */
     boolean usesAlphaMultiplication();
 }

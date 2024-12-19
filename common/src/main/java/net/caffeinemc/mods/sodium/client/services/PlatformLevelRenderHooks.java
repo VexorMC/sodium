@@ -2,13 +2,12 @@ package net.caffeinemc.mods.sodium.client.services;
 
 import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.minecraft.client.Camera;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import org.joml.Matrix4f;
 
 import java.util.List;
@@ -31,7 +30,7 @@ public interface PlatformLevelRenderHooks {
      * @param mainCamera The current camera
      * @param cullingFrustum The current frustum
      */
-    void runChunkLayerEvents(RenderType renderLayer, LevelRenderer levelRenderer, Matrix4f modelMatrix, Matrix4f projectionMatrix, int ticks, Camera mainCamera, Frustum cullingFrustum);
+    void runChunkLayerEvents(RenderLayer renderLayer, WorldRenderer levelRenderer, Matrix4f modelMatrix, Matrix4f projectionMatrix, int ticks, Camera mainCamera, Frustum cullingFrustum);
 
     /**
      * Returns any NeoForge chunk renderers to run. <b>This is not thread safe.</b>
@@ -39,7 +38,7 @@ public interface PlatformLevelRenderHooks {
      * @param origin The origin of the current chunk
      * @return Any NeoForge chunk renderers to run
      */
-    List<?> retrieveChunkMeshAppenders(Level level, BlockPos origin);
+    List<?> retrieveChunkMeshAppenders(World level, BlockPos origin);
 
     /**
      * Runs any NeoForge chunk renderers.

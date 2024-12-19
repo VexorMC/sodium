@@ -2,8 +2,8 @@ package net.caffeinemc.mods.sodium.client.services;
 
 import net.caffeinemc.mods.sodium.client.world.SodiumAuxiliaryLightManager;
 import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.Nullable;
 
 public interface PlatformLevelAccess {
@@ -27,5 +27,5 @@ public interface PlatformLevelAccess {
      * @param pos The section within that chunk being drawn.
      * @return The current light manager, or null
      */
-    @Nullable SodiumAuxiliaryLightManager getLightManager(LevelChunk chunk, SectionPos pos);
+    @Nullable SodiumAuxiliaryLightManager getLightManager(Chunk chunk, SectionPos pos);
 }

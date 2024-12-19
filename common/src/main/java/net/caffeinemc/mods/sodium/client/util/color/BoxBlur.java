@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.util.color;
 
 import net.caffeinemc.mods.sodium.api.util.ColorARGB;
-import net.minecraft.util.Mth;
+import net.minecraft.util.math.MathHelper;
 
 public class BoxBlur {
     public static void blur(int[] src, int[] tmp, int width, int height, int radius) {
@@ -73,7 +73,7 @@ public class BoxBlur {
      * @author 2No2Name
      */
     private static int getAveragingMultiplier(int size) {
-        return Mth.ceil((1L << 24) / (double) size);
+        return MathHelper.ceil((1L << 24) / (double) size);
     }
 
     /**
