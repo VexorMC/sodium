@@ -122,8 +122,6 @@ public class BlockRenderer extends AbstractBlockRenderContext {
 
         type = null;
         modelData = SodiumModelData.EMPTY;
-
-        System.out.printf("Rendered block at %s, %s, %s", pos.getX(), pos.getY(), pos.getZ());
     }
 
     /**

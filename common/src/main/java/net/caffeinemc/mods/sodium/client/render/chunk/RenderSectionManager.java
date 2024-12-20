@@ -726,7 +726,6 @@ public class RenderSectionManager {
 
     public void onChunkAdded(int x, int z) {
         for (int y = 0; y < 16; y++) {
-            System.out.printf("Added section %s %s %s %n", x, y, z);
             this.onSectionAdded(x, y, z);
         }
     }

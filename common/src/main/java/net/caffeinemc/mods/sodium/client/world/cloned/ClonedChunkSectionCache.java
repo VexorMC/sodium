@@ -62,7 +62,6 @@ public class ClonedChunkSectionCache {
         @Nullable ChunkSection section = null;
 
         if (SectionPos.sectionToBlockCoord(y) < 256) {
-            System.out.println(y);
             section = chunk.getBlockStorage()[y + 1];
         }
 
