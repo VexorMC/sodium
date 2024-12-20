@@ -314,6 +314,13 @@ public class SodiumGameOptionPages {
                 .build());
 
         groups.add(OptionGroup.createBuilder()
+                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
+                        .setName(new TranslatableText("sodium.options.cpu_render_ahead.name"))
+                        .setTooltip(new TranslatableText("sodium.options.cpu_render_ahead.tooltip"))
+                        .setControl(TickBoxControl::new)
+                        .setBinding((opts, value) -> opts.advanced.cpuRenderAhead = value, opts -> opts.advanced.cpuRenderAhead)
+                        .build()
+                )
                 .add(OptionImpl.createBuilder(int.class, sodiumOpts)
                         .setName(new TranslatableText("sodium.options.cpu_render_ahead_limit.name"))
                         .setTooltip(new TranslatableText("sodium.options.cpu_render_ahead_limit.tooltip"))

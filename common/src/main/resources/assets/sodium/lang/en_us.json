@@ -41,6 +41,8 @@
   "sodium.options.use_entity_culling.tooltip": "If enabled, entities which are within the camera viewport, but not inside of a visible chunk, will be skipped during rendering. This optimization uses the visibility data which already exists for chunk rendering and does not add overhead.",
   "sodium.options.animate_only_visible_textures.name": "Animate Only Visible Textures",
   "sodium.options.animate_only_visible_textures.tooltip": "If enabled, only the animated textures which are determined to be visible in the current image will be updated. This can provide a significant performance improvement on some hardware, especially with heavier resource packs. If you experience issues with some textures not being animated, try disabling this option.",
+  "sodium.options.cpu_render_ahead.name": "CPU Render-Ahead",
+  "sodium.options.cpu_render_ahead.tooltip": "If enabled, the game rendering is ensured to be synced with the game logic.",
   "sodium.options.cpu_render_ahead_limit.name": "CPU Render-Ahead Limit",
   "sodium.options.cpu_render_ahead_limit.tooltip": "For debugging only. Specifies the maximum number of frames which can be in-flight to the GPU. Changing this value is not recommended, as very low or high values may create frame rate instability.",
   "sodium.options.cpu_render_ahead_limit.value": "%s frame(s)",
