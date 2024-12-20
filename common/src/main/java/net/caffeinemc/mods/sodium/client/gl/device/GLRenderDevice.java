@@ -45,6 +45,10 @@ public class GLRenderDevice implements RenderDevice {
 
         this.stateTracker.clear();
         this.isActive = false;
+
+        GL30.glBindVertexArray(0);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     @Override

@@ -111,7 +111,7 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         this.prepareCulling(true);
         this.prepareAoInfo(model.useAmbientOcclusion());
 
-        modelData = PlatformModelAccess.getInstance().getModelData(slice, model, state, pos, slice.getPlatformModelData(pos));
+        modelData = null;
 
         Iterable<RenderLayer> renderTypes = PlatformModelAccess.getInstance().getModelRenderTypes(level, model, state, pos, random, modelData);
 
@@ -122,6 +122,8 @@ public class BlockRenderer extends AbstractBlockRenderContext {
 
         type = null;
         modelData = SodiumModelData.EMPTY;
+
+        System.out.printf("Rendered block at %s, %s, %s", pos.getX(), pos.getY(), pos.getZ());
     }
 
     /**

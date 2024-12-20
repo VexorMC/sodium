@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.client.data.fingerprint;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.caffeinemc.mods.sodium.client.util.FileUtil;
@@ -43,8 +44,17 @@ public record HashedFingerprint(
         HashedFingerprint data;
 
         try {
-            data = new Gson()
-                    .fromJson(Files.readString(path), HashedFingerprint.class);
+            JsonObject j = new Gson()
+                    .fromJson(Files.readString(path), JsonObject.class);
+
+            data = new HashedFingerprint(
+                    j.get("v").getAsInt(),
+                    j.get("s").getAsString(),
+                    j.get("u").getAsString(),
+                    j.get("p").getAsString(),
+                    j.get("t").getAsInt()
+            );
+
         } catch (IOException e) {
             throw new RuntimeException("Failed to load data file", e);
         }

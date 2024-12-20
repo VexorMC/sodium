@@ -1,22 +1,17 @@
 package net.caffeinemc.mods.sodium.mixin.core;
 
-import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
-import net.legacyfabric.fabric.mixin.networking.client.MinecraftClientMixin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.profiler.Profiler;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GLSync;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.lwjgl.util.glu.GLU;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import java.util.concurrent.CompletableFuture;
 
 @Mixin(MinecraftClient.class)
 public class MinecraftMixin {
@@ -69,5 +64,13 @@ public class MinecraftMixin {
         }
 
         this.fences.enqueue(fence);
+    }
+
+    /**
+     * @reason Eff GL Errors!
+     * @author Lunasa
+     */
+    @Overwrite
+    private void setGlErrorMessage(String message) {
     }
 }

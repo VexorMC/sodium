@@ -33,7 +33,9 @@ public class FabricModelAccess implements PlatformModelAccess {
     public List<BakedQuad> getQuads(BlockView level, BlockPos pos, BakedModel model, BlockState state, Direction face, RandomSource random, RenderLayer renderType, SodiumModelData modelData) {
         List<BakedQuad> quads = new ArrayList<>(model.getQuads());
 
-        quads.addAll(model.getByDirection(face));
+        if (face != null) {
+            quads.addAll(model.getByDirection(face));
+        }
 
         return quads;
     }

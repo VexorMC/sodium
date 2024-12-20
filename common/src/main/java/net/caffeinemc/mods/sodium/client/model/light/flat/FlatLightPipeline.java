@@ -7,6 +7,7 @@ import net.caffeinemc.mods.sodium.client.model.light.data.QuadLightData;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import net.caffeinemc.mods.sodium.client.services.PlatformBlockAccess;
+import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
@@ -28,6 +29,7 @@ public class FlatLightPipeline implements LightPipeline {
         this.lightCache = lightCache;
     }
 
+    // TODO: Actually impl light
     @Override
     public void calculate(ModelQuadView quad, BlockPos pos, QuadLightData out, Direction cullFace, Direction lightFace, boolean shade, boolean enhanced) {
         int lightmap;
@@ -35,7 +37,7 @@ public class FlatLightPipeline implements LightPipeline {
         // To match vanilla behavior, use the cull face if it exists/is available
         if (cullFace != null) {
             lightmap = getOffsetLightmap(pos, cullFace);
-            Arrays.fill(out.br, this.lightCache.getLevel().getShade(lightFace, shade));
+            Arrays.fill(out.br, this.lightCache.getLevel().getLight(pos, 0));
         } else {
             int flags = quad.getFlags();
             // If the face is aligned, use the light data above it
@@ -45,7 +47,7 @@ public class FlatLightPipeline implements LightPipeline {
                 Arrays.fill(out.br, this.lightCache.getLevel().getLight(pos, 0));
             } else {
                 lightmap = getEmissiveLightmap(this.lightCache.get(pos));
-                Arrays.fill(out.br, enhanced ? PlatformBlockAccess.getInstance().getNormalVectorShade(quad, this.lightCache.getLevel(), shade) : this.lightCache.getLevel().getShade(lightFace, shade));
+                Arrays.fill(out.br, enhanced ? PlatformBlockAccess.getInstance().getNormalVectorShade(quad, (LevelSlice)this.lightCache.getLevel(), shade) : this.lightCache.getLevel().getLight(pos, 0));
             }
         }
 

@@ -1,5 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
+import dev.lunasa.compat.mojang.math.Mth;
+import dev.lunasa.compat.mojang.minecraft.render.FogHelper;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
@@ -199,7 +201,7 @@ public class RenderSectionManager {
         Chunk chunk = this.level.getChunk(x, z);
         ChunkSection section = chunk.getBlockStorage()[y];
 
-        if (section.isEmpty()) {
+        if (section == null || section.isEmpty()) {
             this.updateSectionInfo(renderSection, BuiltSectionInfo.EMPTY);
         } else {
             renderSection.setPendingUpdate(ChunkUpdateType.INITIAL_BUILD);
@@ -626,8 +628,8 @@ public class RenderSectionManager {
     }
 
     private float getEffectiveRenderDistance() {
-        var alpha = RenderSystem.getShaderFog().alpha();
-        var distance = RenderSystem.getShaderFog().end();
+        var alpha = 1f;
+        var distance = FogHelper.getFogEnd();
 
         var renderDistance = this.getRenderDistance();
 
@@ -723,13 +725,14 @@ public class RenderSectionManager {
     }
 
     public void onChunkAdded(int x, int z) {
-        for (int y = this.level.getMinSectionY(); y <= this.level.getMaxSectionY(); y++) {
+        for (int y = 0; y < 16; y++) {
+            System.out.printf("Added section %s %s %s %n", x, y, z);
             this.onSectionAdded(x, y, z);
         }
     }
 
     public void onChunkRemoved(int x, int z) {
-        for (int y = this.level.getMinSectionY(); y <= this.level.getMaxSectionY(); y++) {
+        for (int y = 0; y < 16; y++) {
             this.onSectionRemoved(x, y, z);
         }
     }

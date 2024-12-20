@@ -70,8 +70,19 @@ public abstract class EncodingFormat {
         QUAD_STRIDE_BYTES = QUAD_STRIDE * 4;
         TOTAL_STRIDE = HEADER_STRIDE + QUAD_STRIDE;
 
-        Preconditions.checkState(VERTEX_STRIDE == QuadView.VANILLA_VERTEX_STRIDE, "Sodium FRAPI vertex stride (%s) mismatched with rendering API (%s)", VERTEX_STRIDE, QuadView.VANILLA_VERTEX_STRIDE);
-        Preconditions.checkState(QUAD_STRIDE == QuadView.VANILLA_QUAD_STRIDE, "Sodium FRAPI quad stride (%s) mismatched with rendering API (%s)", QUAD_STRIDE, QuadView.VANILLA_QUAD_STRIDE);
+        if (VERTEX_STRIDE != QuadView.VANILLA_VERTEX_STRIDE) {
+            throw new IllegalStateException(String.format(
+                    "Sodium FRAPI vertex stride (%s) mismatched with rendering API (%s)",
+                    VERTEX_STRIDE, QuadView.VANILLA_VERTEX_STRIDE
+            ));
+        }
+
+        if (QUAD_STRIDE != QuadView.VANILLA_QUAD_STRIDE) {
+            throw new IllegalStateException(String.format(
+                    "Sodium FRAPI quad stride (%s) mismatched with rendering API (%s)",
+                    QUAD_STRIDE, QuadView.VANILLA_QUAD_STRIDE
+            ));
+        }
     }
 
     /** used for quick clearing of quad buffers. */
@@ -101,7 +112,12 @@ public abstract class EncodingFormat {
     private static final int MATERIAL_INVERSE_MASK = ~(MATERIAL_MASK << MATERIAL_SHIFT);
 
     static {
-        Preconditions.checkArgument(MATERIAL_SHIFT + MATERIAL_BIT_COUNT <= 32, "Sodium FRAPI header encoding bit count (%s) exceeds integer bit length)", TOTAL_STRIDE);
+        if (MATERIAL_SHIFT + MATERIAL_BIT_COUNT > 32) {
+            throw new IllegalArgumentException(String.format(
+                    "Sodium FRAPI header encoding bit count (%s) exceeds integer bit length",
+                    TOTAL_STRIDE
+            ));
+        }
     }
 
     static Direction cullFace(int bits) {

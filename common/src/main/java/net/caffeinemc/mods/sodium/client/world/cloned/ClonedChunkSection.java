@@ -115,10 +115,16 @@ public class ClonedChunkSection {
      */
     @NotNull
     private static ChunkNibbleArray copyLightArray(ChunkSection section, LightType type) {
-        var array = switch (type) {
-            case SKY -> section.getSkyLight();
-            case BLOCK -> section.getBlockLight();
-        };
+        ChunkNibbleArray array;
+
+        if (section != null) {
+            array = switch (type) {
+                case SKY -> section.getSkyLight();
+                case BLOCK -> section.getBlockLight();
+            };
+        } else {
+            array = null;
+        }
 
         if (array == null) {
             array = switch (type) {

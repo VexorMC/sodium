@@ -18,8 +18,8 @@ public class VertexFormatMixin implements VertexFormatExtensions {
     @Unique
     private int sodium$globalId;
 
-    @Inject(method = "<init>*", at = @At("RETURN"))
-    private void afterInit(List<VertexFormatElement> elements, List<String> names, IntList offsets, int vertexSize, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/client/render/VertexFormat;)V", at = @At("RETURN"))
+    private void afterInit(VertexFormat vertexFormat, CallbackInfo ci) {
         this.sodium$globalId = VertexFormatRegistry.instance()
                 .allocateGlobalId((VertexFormat) (Object) this);
     }

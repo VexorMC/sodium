@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RenderableScreen extends Screen {
-    private final List<Renderable> renderables = new ArrayList<>();
+    private final List<Renderable> widgets = new ArrayList<>();
 
     @Override
     public void render(int mouseX, int mouseY, float tickDelta) {
-        super.render(mouseX, mouseY, tickDelta);
+        this.renderBackground();
 
-        renderables.forEach(renderable -> renderable.render(mouseX, mouseY, tickDelta));
+        widgets.forEach(renderable -> renderable.render(mouseX, mouseY, tickDelta));
     }
 
     @Override
@@ -59,14 +59,14 @@ public class RenderableScreen extends Screen {
     }
 
     public void clearWidgets() {
-        this.renderables.clear();
+        this.widgets.clear();
     }
 
     public void addRenderableWidget(Renderable renderable) {
-        this.renderables.add(renderable);
+        this.widgets.add(renderable);
     }
 
     protected List<GuiEventListener> getEventListeners() {
-        return renderables.stream().filter(it -> it instanceof GuiEventListener).map(GuiEventListener.class::cast).collect(Collectors.toList());
+        return widgets.stream().filter(it -> it instanceof GuiEventListener).map(GuiEventListener.class::cast).collect(Collectors.toList());
     }
 }

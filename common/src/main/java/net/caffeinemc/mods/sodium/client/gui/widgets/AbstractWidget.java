@@ -5,7 +5,9 @@ import dev.lunasa.compat.mojang.minecraft.gui.event.GuiEventListener;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public abstract class AbstractWidget implements Renderable, GuiEventListener {
     protected final TextRenderer font;
@@ -33,8 +35,7 @@ public abstract class AbstractWidget implements Renderable, GuiEventListener {
     }
 
     protected void playClickSound() {
-        MinecraftClient.getInstance().getSoundManager()
-                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.0F));
+        MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(new Identifier("gui.button.press"), 1.0F));
     }
 
     protected int getStringWidth(Text text) {

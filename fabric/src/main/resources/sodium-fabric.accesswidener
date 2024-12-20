@@ -1,4 +1,15 @@
 accessWidener v1 named
 
+accessible field net/minecraft/client/texture/SpriteAtlasTexture sprites Ljava/util/Map;
+accessible class com/mojang/blaze3d/platform/GlStateManager$FogState
+accessible field com/mojang/blaze3d/platform/GlStateManager FOG Lcom/mojang/blaze3d/platform/GlStateManager$FogState;
+accessible field net/minecraft/client/render/GameRenderer fogRed F
+accessible field net/minecraft/client/render/GameRenderer fogGreen F
+accessible field net/minecraft/client/render/GameRenderer fogBlue F
+accessible field net/minecraft/client/render/Camera PROJECTION_MATRIX Ljava/nio/FloatBuffer;
+accessible field net/minecraft/client/color/world/FoliageColors colorMap [I
+accessible field net/minecraft/client/color/world/GrassColors colorMap [I
+accessible class net/minecraft/client/color/world/BiomeColors$ColorProvider
+
 accessible field net/minecraft/client/render/block/BlockRenderManager fluidRenderer Lnet/minecraft/client/render/block/FluidRenderer;
 accessible field net/minecraft/client/render/model/TexturedBakedQuad sprite Lnet/minecraft/client/texture/Sprite;

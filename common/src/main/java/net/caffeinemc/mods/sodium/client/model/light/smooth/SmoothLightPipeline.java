@@ -330,14 +330,14 @@ public class SmoothLightPipeline implements LightPipeline {
         }
     }
 
+    // TODO: Actually impl light
     /**
      * Returns the "ambient" brightness a block face receives in the world.
      * @param face The block face
      * @param shade Whether the block face is receiving directional light
      */
     private float getAmbientBrightness(Direction face, boolean shade) {
-        return this.lightCache.getLevel()
-                .getShade(face, shade);
+        return 1f;
     }
 
     /**

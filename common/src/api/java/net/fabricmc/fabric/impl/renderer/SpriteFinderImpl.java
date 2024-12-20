@@ -140,10 +140,10 @@ public class SpriteFinderImpl implements SpriteFinder {
     }
 
     public static SpriteFinderImpl get(SpriteAtlasTexture atlas) {
-        return ((SpriteFinderAccess) atlas).fabric_spriteFinder();
+        return ((SpriteFinderAccess) atlas).fabric$spriteFinder();
     }
 
     public interface SpriteFinderAccess {
-        SpriteFinderImpl fabric_spriteFinder();
+        SpriteFinderImpl fabric$spriteFinder();
     }
 }

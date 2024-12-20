@@ -16,18 +16,8 @@ import org.spongepowered.asm.mixin.Shadow;
 @SuppressWarnings({ "SameParameterValue" })
 @Mixin(BufferBuilder.class)
 public abstract class BufferBuilderMixin implements VertexConsumer {
-    @Shadow
-    @Final
-    private boolean fastFormat;
-
     @Override
     public void putBulkData(PoseStack.Pose matrices, BakedQuad bakedQuad, float r, float g, float b, float a, int light, int overlay) {
-        if (!this.fastFormat) {
-            VertexConsumer.super.putBulkData(matrices, bakedQuad, r, g, b, a, light, overlay);
-
-            return;
-        }
-
         if (bakedQuad.getVertexData().length < 32) {
             return; // we do not accept quads with less than 4 properly sized vertices
         }
@@ -44,12 +34,6 @@ public abstract class BufferBuilderMixin implements VertexConsumer {
 
     @Override
     public void putBulkData(PoseStack.Pose matrices, BakedQuad bakedQuad, float[] brightnessTable, float r, float g, float b, float a, int[] light, int overlay, boolean colorize) {
-        if (!this.fastFormat) {
-            VertexConsumer.super.putBulkData(matrices, bakedQuad, brightnessTable, r, g, b, a, light, overlay, colorize);
-
-            return;
-        }
-
         if (bakedQuad.getVertexData().length < 32) {
             return; // we do not accept quads with less than 4 properly sized vertices
         }

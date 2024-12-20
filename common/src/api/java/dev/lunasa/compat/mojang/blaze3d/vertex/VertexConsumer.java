@@ -3,6 +3,7 @@ package dev.lunasa.compat.mojang.blaze3d.vertex;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+import dev.lunasa.compat.mojang.minecraft.FastColor;
 import net.caffeinemc.mods.sodium.api.math.MatrixHelper;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.model.BakedQuad;
