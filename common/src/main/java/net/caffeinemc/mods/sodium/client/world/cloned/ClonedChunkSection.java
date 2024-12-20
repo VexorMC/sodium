@@ -36,7 +36,7 @@ public class ClonedChunkSection {
     private final @Nullable ChunkNibbleArray[] lightDataArrays;
     private final @Nullable SodiumAuxiliaryLightManager auxLightManager;
 
-    private final @Nullable BlockState[] blockData;
+    private final @Nullable char[] blockData;
     private final @Nullable Biome[] biomeData;
 
     private final SodiumModelDataContainer modelMap;
@@ -46,7 +46,7 @@ public class ClonedChunkSection {
     public ClonedChunkSection(World level, Chunk chunk, @Nullable ChunkSection section, SectionPos pos) {
         this.pos = pos;
 
-        BlockState[] blockData = null;
+        char[] blockData = null;
         Biome[] biomeData = null;
 
         Int2ReferenceMap<BlockEntity> blockEntityMap = null;
@@ -56,13 +56,7 @@ public class ClonedChunkSection {
 
         if (section != null) {
             if (!section.isEmpty()) {
-                blockData = new BlockState[4096];
-
-                char[] sectionBlockStates = section.getBlockStates();
-
-                for (int i = 0; i < sectionBlockStates.length; i++) {
-                    blockData[i] = Block.BLOCK_STATES.fromId(sectionBlockStates[i]);
-                }
+                blockData = section.getBlockStates();
 
                 blockEntityMap = copyBlockEntities(chunk, pos);
 
@@ -196,7 +190,15 @@ public class ClonedChunkSection {
     }
 
     public @Nullable BlockState[] getBlockData() {
-        return this.blockData;
+        if (this.blockData == null) return null;
+
+        BlockState[] blockData = new BlockState[4096];
+
+        for (int i = 0; i < this.blockData.length; i++) {
+            blockData[i] = Block.BLOCK_STATES.fromId(this.blockData[i]);
+        }
+
+        return blockData;
     }
 
     public @Nullable Biome[] getBiomeData() {

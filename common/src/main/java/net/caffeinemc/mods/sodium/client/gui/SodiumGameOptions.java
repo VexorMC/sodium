@@ -46,6 +46,8 @@ public class SodiumGameOptions {
         public boolean useFogOcclusion = true;
         public boolean useBlockFaceCulling = true;
 
+        public boolean smartCull = false;
+
         @SerializedName("sorting_enabled_v2") // reset the older option in configs before we started hiding it
         public boolean sortingEnabled = true;
 

@@ -82,7 +82,7 @@ public class RenderRegionManager {
 
                     if (mesh != null) {
                         uploads.add(new PendingSectionMeshUpload(result.render, mesh, pass,
-                        new PendingUpload(mesh.getVertexData())));
+                                new PendingUpload(mesh.getVertexData())));
                     }
                 }
             }

@@ -14,13 +14,11 @@ import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
-import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortType;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.PresentTranslucentData;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.TranslucentData;
-import net.caffeinemc.mods.sodium.client.services.PlatformLevelRenderHooks;
 import net.caffeinemc.mods.sodium.client.util.BlockRenderType;
 import net.caffeinemc.mods.sodium.client.util.task.CancellationToken;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
@@ -45,7 +43,7 @@ import java.util.Map;
 /**
  * Rebuilds all the meshes of a chunk for each given render pass with non-occluded blocks. The result is then uploaded
  * to graphics memory on the main thread.
- *
+ * <p>
  * This task takes a slice of the level from the thread it is created on. Since these slices require rather large
  * array allocations, they are pooled to ensure that the garbage collector doesn't become overloaded.
  */
@@ -110,13 +108,13 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                         blockPos.setPosition(x, y, z);
                         modelOffset.setPosition(x & 15, y & 15, z & 15);
 
-                        if (BlockRenderType.isModel(blockState.getBlock().getBlockType()) && WorldUtil.toFluidBlock(blockState.getBlock()) == null) {
+                        if (BlockRenderType.isModel(blockState.getBlock().getBlockType())) {
                             BakedModel model = cache.getBlockModels()
                                     .getBakedModel(blockState);
                             blockRenderer.renderModel(model, blockState, blockPos, modelOffset);
                         }
 
-                        if (WorldUtil.toFluidBlock(blockState.getBlock()) != null) {
+                        if (WorldUtil.getFluid(blockState) != null) {
                             cache.getFluidRenderer().render(slice, blockState, blockState, blockPos, modelOffset, collector, buffers);
                         }
 
@@ -147,8 +145,6 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
         }
         profiler.swap("mesh appenders");
 
-        PlatformLevelRenderHooks.INSTANCE.runChunkMeshAppenders(renderContext.renderers(), type -> buffers.get(DefaultMaterials.forRenderLayer(type)).asFallbackVertexConsumer(DefaultMaterials.forRenderLayer(type), collector),
-                slice);
 
         blockRenderer.release();
 
@@ -210,12 +206,6 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
 
     private CrashException fillCrashInfo(CrashReport report, LevelSlice slice, BlockPos pos) {
         CrashReportSection crashReportSection = report.addElement("Block being rendered", 1);
-
-        BlockState state = null;
-        try {
-            state = slice.getBlockState(pos);
-        } catch (Exception ignored) {}
-        CrashReportSection.addBlockData(pos);
 
         crashReportSection.add("Chunk section", this.render);
         if (this.renderContext != null) {

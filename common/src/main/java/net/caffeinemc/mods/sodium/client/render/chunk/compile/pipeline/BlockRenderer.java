@@ -11,7 +11,6 @@ import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadOrientation;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
-import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
@@ -20,7 +19,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexE
 import net.caffeinemc.mods.sodium.client.render.frapi.mesh.MutableQuadViewImpl;
 import net.caffeinemc.mods.sodium.client.render.frapi.render.AbstractBlockRenderContext;
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteFinderCache;
-import net.caffeinemc.mods.sodium.client.services.PlatformModelAccess;
 import net.caffeinemc.mods.sodium.client.services.SodiumModelData;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
@@ -30,9 +28,7 @@ import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.legacyfabric.fabric.api.util.TriState;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -96,7 +92,7 @@ public class BlockRenderer extends AbstractBlockRenderContext {
                 fy += (((i >> 20 & 15L) / 15.0F) - 1.0f) * 0.2f;
             }
 
-            posOffset.add((float)fx, (float)fy, (float)fz);
+            posOffset.add((float) fx, (float) fy, (float) fz);
         }
 
         this.colorProvider = this.colorProviderRegistry.getColorProvider(state.getBlock());
@@ -108,12 +104,8 @@ public class BlockRenderer extends AbstractBlockRenderContext {
 
         modelData = null;
 
-        Iterable<RenderLayer> renderTypes = PlatformModelAccess.getInstance().getModelRenderTypes(level, model, state, pos, random, null);
-
-        for (RenderLayer type : renderTypes) {
-            this.type = type;
-            ((FabricBakedModel) model).emitBlockQuads(getEmitter(), this.level, state, pos, this.randomSupplier, this::isFaceCulled);
-        }
+        this.type = state.getBlock().getRenderLayerType();
+        ((FabricBakedModel) model).emitBlockQuads(getEmitter(), this.level, state, pos, this.randomSupplier, this::isFaceCulled);
 
         type = null;
         modelData = SodiumModelData.EMPTY;
@@ -214,27 +206,5 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         vertexBuffer.push(vertices, materialBits);
 
         builder.addSprite(atlasSprite);
-    }
-
-    private boolean validateQuadUVs(Sprite atlasSprite) {
-        // sanity check that the quad's UVs are within the sprite's bounds
-        var spriteUMin = atlasSprite.getMinU();
-        var spriteUMax = atlasSprite.getMaxU();
-        var spriteVMin = atlasSprite.getMinV();
-        var spriteVMax = atlasSprite.getMaxV();
-
-        for (int i = 0; i < 4; i++) {
-            var u = this.vertices[i].u;
-            var v = this.vertices[i].v;
-            if (u < spriteUMin || u > spriteUMax || v < spriteVMin || v > spriteVMax) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private @Nullable TerrainRenderPass attemptPassDowngrade(Sprite sprite, TerrainRenderPass pass) {
-        return null;
     }
 }

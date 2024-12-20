@@ -170,7 +170,7 @@ public class RenderSectionManager {
         {
             useOcclusionCulling = false;
         } else {
-            useOcclusionCulling = MinecraftClient.getInstance().chunkCullingEnabled;
+            useOcclusionCulling = SodiumClientMod.options().performance.smartCull;
         }
         return useOcclusionCulling;
     }

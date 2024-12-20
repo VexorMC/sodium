@@ -1,14 +1,15 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.occlusion;
 
-import dev.vexor.radium.compat.mojang.math.Mth;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
+import net.caffeinemc.mods.sodium.client.util.Sections;
 import net.caffeinemc.mods.sodium.client.util.collections.DoubleBufferedQueue;
 import net.caffeinemc.mods.sodium.client.util.collections.ReadQueue;
 import net.caffeinemc.mods.sodium.client.util.collections.WriteQueue;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
@@ -220,7 +221,7 @@ public class OcclusionCuller {
 
     // this bigger chunk section size is only used for frustum-testing nearby sections with large models
     private static final float CHUNK_SECTION_SIZE_NEARBY = CHUNK_SECTION_RADIUS + 2.0f /* bigger model extent */ + 0.125f /* epsilon */;
-    
+
     public static boolean isWithinNearbySectionFrustum(Viewport viewport, RenderSection section) {
         return viewport.isBoxVisible(section.getCenterX(), section.getCenterY(), section.getCenterZ(),
                 CHUNK_SECTION_SIZE_NEARBY, CHUNK_SECTION_SIZE_NEARBY, CHUNK_SECTION_SIZE_NEARBY);
@@ -267,12 +268,14 @@ public class OcclusionCuller {
     {
         var origin = viewport.getChunkCoord();
 
-        if (origin.getY() < 0) {
+        if (origin.getY() < Sections.min(level)) {
             // below the level
-            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame, 0, GraphDirection.DOWN);
-        } else if (origin.getY() > 16) {
+            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame,
+                    Sections.min(level), GraphDirection.DOWN);
+        } else if (origin.getY() > Sections.max(level)) {
             // above the level
-            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame, 16, GraphDirection.UP);
+            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame,
+                    Sections.max(level), GraphDirection.UP);
         } else {
             this.initWithinWorld(visitor, queue, viewport, useOcclusionCulling, frame);
         }
@@ -316,7 +319,7 @@ public class OcclusionCuller {
                                         int direction)
     {
         var origin = viewport.getChunkCoord();
-        var radius = Mth.floor(searchDistance / 16.0f);
+        var radius = MathHelper.floor(searchDistance / 16.0f);
 
         // Layer 0
         this.tryVisitNode(queue, origin.getX(), height, origin.getZ(), direction, frame, viewport);
