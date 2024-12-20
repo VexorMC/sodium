@@ -98,9 +98,9 @@ public class SodiumGameOptions {
     }
 
     public enum GraphicsQuality implements TextProvider {
-        DEFAULT("options.gamma.default"),
-        FANCY("options.clouds.fancy"),
-        FAST("options.clouds.fast");
+        DEFAULT("generator.default"),
+        FANCY("options.graphics.fancy"),
+        FAST("options.graphics.fast");
 
         private final Text name;
 

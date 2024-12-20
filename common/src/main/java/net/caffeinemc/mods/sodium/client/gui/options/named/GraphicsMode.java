@@ -1,6 +1,10 @@
 package net.caffeinemc.mods.sodium.client.gui.options.named;
 
-public enum GraphicsMode implements NamedState {
+import net.caffeinemc.mods.sodium.client.gui.options.TextProvider;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+
+public enum GraphicsMode implements TextProvider {
     FANCY("options.graphics.fancy"),
     FAST("options.graphics.fast");
 
@@ -11,8 +15,8 @@ public enum GraphicsMode implements NamedState {
     }
 
     @Override
-    public String getKey() {
-        return this.name;
+    public Text getLocalizedName() {
+        return new TranslatableText(name);
     }
 
     public boolean isFancy() {

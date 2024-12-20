@@ -22,7 +22,7 @@ public interface ControlValueFormatter {
         };
     }
     static ControlValueFormatter fpsLimit() {
-        return (v) -> (v == 260) ? new TranslatableText("options.framerateLimit.max") : new TranslatableText("options.framerate", v);
+        return (v) -> (v == 260) ? new TranslatableText("options.framerateLimit.max") : new LiteralText(v + " FPS");
     }
 
     static ControlValueFormatter brightness() {
@@ -42,6 +42,21 @@ public interface ControlValueFormatter {
     }
 
     Text format(int value);
+
+    static ControlValueFormatter chunks() {
+        return (v) -> {
+            if (v < 4) {
+                new TranslatableText("options.renderDistance.tiny").asFormattedString();
+            } else if (v < 8) {
+                new TranslatableText("options.renderDistance.short").asFormattedString();
+            } else if (v < 16) {
+                new TranslatableText("options.renderDistance.normal").asFormattedString();
+            } else if (v <= 24) {
+                new TranslatableText("options.renderDistance.far").asFormattedString();
+            }
+            return new LiteralText(v + " chunks");
+        };
+    }
 
     static ControlValueFormatter translateVariable(String key) {
         return (v) -> new TranslatableText(key, v);

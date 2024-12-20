@@ -1,6 +1,10 @@
 package net.caffeinemc.mods.sodium.client.gui.options.named;
 
-public enum ParticleMode implements NamedState {
+import net.caffeinemc.mods.sodium.client.gui.options.TextProvider;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+
+public enum ParticleMode implements TextProvider {
     ALL("options.particles.all"),
     DECREASED("options.particles.decreased"),
     MINIMAL("options.particles.minimal");
@@ -14,8 +18,8 @@ public enum ParticleMode implements NamedState {
     }
 
     @Override
-    public String getKey() {
-        return this.name;
+    public Text getLocalizedName() {
+        return new TranslatableText(name);
     }
 
     public static ParticleMode fromOrdinal(int ordinal) {
