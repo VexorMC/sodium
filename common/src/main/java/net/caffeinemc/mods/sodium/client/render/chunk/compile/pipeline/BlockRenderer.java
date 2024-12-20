@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 
 import dev.vexor.radium.compat.mojang.minecraft.random.SingleThreadedRandomSource;
+import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
@@ -183,14 +184,21 @@ public class BlockRenderer extends AbstractBlockRenderContext {
             out.y = quad.y(srcIndex) + offset.y;
             out.z = quad.z(srcIndex) + offset.z;
 
-            // FRAPI uses ARGB color format; convert to ABGR.
-            out.color = ColorARGB.toABGR(quad.color(srcIndex));
+            int color;
+
+            if (state.getBlock().isTranslucent()) {
+                color = ColorABGR.mulRGB(quad.color(srcIndex), 1.0f);
+            } else {
+                color = ColorABGR.mulRGB(quad.color(srcIndex), brightnesses[srcIndex]);
+            }
+
+            out.color = color;
             out.ao = brightnesses[srcIndex];
 
             out.u = quad.u(srcIndex);
             out.v = quad.v(srcIndex);
 
-            out.light = 15;
+            out.light = quad.lightmap(srcIndex);
         }
 
         var atlasSprite = quad.sprite(SpriteFinderCache.forBlockAtlas());
