@@ -19,7 +19,7 @@ import net.minecraft.world.BlockView;
 public class FabricBlockAccess implements PlatformBlockAccess {
     @Override
     public int getLightEmission(BlockState state, BlockView level, BlockPos pos) {
-        return 0;
+        return level.getLight(pos, 0);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class FabricBlockAccess implements PlatformBlockAccess {
 
     @Override
     public float getNormalVectorShade(ModelQuadView quad, LevelSlice level, boolean shade) {
-        return 0;
+        return level.getBrightness(quad.getLightFace(), shade);
     }
 
     @Override

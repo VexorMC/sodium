@@ -72,7 +72,7 @@ public class NonTerrainBlockRenderContext extends AbstractBlockRenderContext {
         this.type = state.getBlock().getRenderLayerType();
         this.modelData = SodiumModelData.EMPTY;
 
-        this.lightDataCache.reset(pos, blockView);
+        this.lightDataCache.reset(pos, (LevelSlice) blockView);
         this.prepareCulling(cull);
         this.prepareAoInfo(model.useAmbientOcclusion());
 

@@ -591,8 +591,6 @@ public class RenderSectionManager {
     }
 
     public void scheduleRebuild(int x, int y, int z, boolean important) {
-        RenderAsserts.validateCurrentThread();
-
         this.sectionCache.invalidate(x, y, z);
 
         RenderSection section = this.sectionByPosition.get(SectionPos.asLong(x, y, z));

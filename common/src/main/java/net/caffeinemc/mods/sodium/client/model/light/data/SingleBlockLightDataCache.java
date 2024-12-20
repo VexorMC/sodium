@@ -24,7 +24,7 @@ public class SingleBlockLightDataCache extends LightDataAccess {
         this.light = new int[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
     }
 
-    public void reset(BlockPos origin, BlockView blockView) {
+    public void reset(BlockPos origin, LevelSlice blockView) {
         this.xOffset = origin.getX() - NEIGHBOR_BLOCK_RADIUS;
         this.yOffset = origin.getY() - NEIGHBOR_BLOCK_RADIUS;
         this.zOffset = origin.getZ() - NEIGHBOR_BLOCK_RADIUS;

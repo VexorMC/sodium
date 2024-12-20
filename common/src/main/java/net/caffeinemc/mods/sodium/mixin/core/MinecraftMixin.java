@@ -30,7 +30,7 @@ public class MinecraftMixin {
         this.profiler.push("wait_for_gpu");
 
         while (this.fences.size() > SodiumClientMod.options().advanced.cpuRenderAheadLimit) {
-            var fence = this.fences.dequeue();
+            // var fence = this.fences.dequeue();
             // We do a ClientWaitSync here instead of a WaitSync to not allow the CPU to get too far ahead of the GPU.
             // This is also needed to make sure that our persistently-mapped staging buffers function correctly, rather
             // than being overwritten by data meant for future frames before the current one has finished rendering on
@@ -48,8 +48,8 @@ public class MinecraftMixin {
             // Because we are also waiting on the client for the FenceSync to finish, the flush is effectively treated
             // like a Finish command, where we know that once ClientWaitSync returns, it's likely that everything
             // before it has been completed by the GPU.
-            GL32.glClientWaitSync(fence, GL32.GL_SYNC_FLUSH_COMMANDS_BIT, Long.MAX_VALUE);
-            GL32.glDeleteSync(fence);
+            //  GL32.glClientWaitSync(fence, GL32.GL_SYNC_FLUSH_COMMANDS_BIT, Long.MAX_VALUE);
+            //  GL32.glDeleteSync(fence);
         }
 
         profiler.pop();
@@ -57,13 +57,13 @@ public class MinecraftMixin {
 
     @Inject(method = "tick", at = @At("RETURN"))
     private void postRender(CallbackInfo ci) {
-        var fence = GL32.glFenceSync(GL32.GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        // var fence = GL32.glFenceSync(GL32.GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 
-        if (!fence.isValid()) {
-            throw new RuntimeException("Failed to create fence object");
-        }
+        // if (!fence.isValid()) {
+        //    throw new RuntimeException("Failed to create fence object");
+        // }
 
-        this.fences.enqueue(fence);
+        // this.fences.enqueue(fence);
     }
 
     /**

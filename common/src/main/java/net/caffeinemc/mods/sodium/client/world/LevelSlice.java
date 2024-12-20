@@ -337,4 +337,16 @@ public final class LevelSlice implements BlockView {
     public static int getLocalSectionIndex(int sectionX, int sectionY, int sectionZ) {
         return (sectionY * SECTION_ARRAY_LENGTH * SECTION_ARRAY_LENGTH) + (sectionZ * SECTION_ARRAY_LENGTH) + sectionX;
     }
+
+    public float getBrightness(Direction direction, boolean shaded) {
+        if (!shaded) {
+            return this.level.dimension.hasNoSkylight() ? 0.9f : 1.0f;
+        }
+        return switch (direction) {
+            case DOWN -> .5f;
+            case UP -> 1f;
+            case NORTH, SOUTH -> .8f;
+            default -> .6f;
+        };
+    }
 }

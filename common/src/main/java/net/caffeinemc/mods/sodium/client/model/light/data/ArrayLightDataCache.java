@@ -19,7 +19,7 @@ public class ArrayLightDataCache extends LightDataAccess {
 
     private int xOffset, yOffset, zOffset;
 
-    public ArrayLightDataCache(BlockView level) {
+    public ArrayLightDataCache(LevelSlice level) {
         this.level = level;
         this.light = new int[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
     }

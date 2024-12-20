@@ -30,7 +30,7 @@ import net.minecraft.world.BlockView;
  */
 public abstract class LightDataAccess {
     private final BlockPos.Mutable pos = new BlockPos.Mutable();
-    protected BlockView level;
+    protected LevelSlice level;
 
     public int get(int x, int y, int z, Direction d1, Direction d2) {
         return this.get(x + d1.getOffsetX() + d2.getOffsetX(),
@@ -191,7 +191,7 @@ public abstract class LightDataAccess {
         }
     }
 
-    public BlockView getLevel() {
+    public LevelSlice getLevel() {
         return this.level;
     }
 }
