@@ -11,6 +11,13 @@
         "email" : "jellysquid@pm.me",
         "homepage" : "https://jellysquid.me"
       }
+    },
+    {
+      "name" : "Lunasa (lunasa0x01)",
+      "contact" : {
+        "email" : "me@lunasa.dev",
+        "homepage" : "https://lunasa.dev"
+      }
     }
   ],
   "contributors" : [
@@ -54,7 +61,6 @@
     ]
   },
   "custom" : {
-    "fabric-renderer-api-v1:contains_renderer" : true,
     "modmenu" : {
       "links" : {
         "modmenu.donate" : "https://caffeinemc.net/donate",
@@ -71,13 +77,8 @@
     "sodium-fabric.mixins.json"
   ],
   "depends" : {
-    "minecraft": ["1.21.4"],
-    "fabricloader" : ">=0.16.0",
-    "fabric-block-view-api-v2" : "*",
-    "fabric-renderer-api-v1" : "*",
-    "fabric-rendering-data-attachment-v1" : "*",
-    "fabric-rendering-fluids-v1" : ">=2.0.0",
-    "fabric-resource-loader-v0" : "*"
+    "minecraft": ["1.8.9"],
+    "fabricloader" : ">=0.16.0"
   },
   "breaks" : {
     "embeddium": "*",

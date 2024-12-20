@@ -1,7 +1,6 @@
 package net.caffeinemc.mods.sodium.mixin.features.options.weather;
 
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
-import net.caffeinemc.mods.sodium.client.gui.SodiumGameOptions;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.render.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;

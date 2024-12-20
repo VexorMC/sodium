@@ -42,7 +42,7 @@ public class FlatLightPipeline implements LightPipeline {
             // To match vanilla behavior, also treat the face as aligned if it is parallel and the block state is a full cube
             if ((flags & ModelQuadFlags.IS_ALIGNED) != 0 || ((flags & ModelQuadFlags.IS_PARALLEL) != 0 && unpackFC(this.lightCache.get(pos)))) {
                 lightmap = getOffsetLightmap(pos, lightFace);
-                Arrays.fill(out.br, this.lightCache.getLevel().getShade(lightFace, shade));
+                Arrays.fill(out.br, this.lightCache.getLevel().getLight(pos, 0));
             } else {
                 lightmap = getEmissiveLightmap(this.lightCache.get(pos));
                 Arrays.fill(out.br, enhanced ? PlatformBlockAccess.getInstance().getNormalVectorShade(quad, this.lightCache.getLevel(), shade) : this.lightCache.getLevel().getShade(lightFace, shade));

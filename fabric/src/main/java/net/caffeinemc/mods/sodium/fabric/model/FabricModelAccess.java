@@ -1,22 +1,23 @@
 package net.caffeinemc.mods.sodium.fabric.model;
 
+import dev.lunasa.compat.mojang.minecraft.random.RandomSource;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import net.caffeinemc.mods.sodium.client.services.PlatformModelAccess;
 import net.caffeinemc.mods.sodium.client.services.SodiumModelData;
 import net.caffeinemc.mods.sodium.client.services.SodiumModelDataContainer;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,27 +25,31 @@ public class FabricModelAccess implements PlatformModelAccess {
     private static final SodiumModelDataContainer EMPTY_CONTAINER = new SodiumModelDataContainer(Long2ObjectMaps.emptyMap());
 
     @Override
-    public Iterable<RenderType> getModelRenderTypes(BlockAndTintGetter level, BakedModel model, BlockState state, BlockPos pos, RandomSource random, SodiumModelData modelData) {
-        return Collections.singleton(ItemBlockRenderTypes.getChunkRenderType(state));
+    public Iterable<RenderLayer> getModelRenderTypes(BlockView level, BakedModel model, BlockState state, BlockPos pos, RandomSource random, SodiumModelData modelData) {
+        return List.of(state.getBlock().getRenderLayerType());
     }
 
     @Override
-    public List<BakedQuad> getQuads(BlockAndTintGetter level, BlockPos pos, BakedModel model, BlockState state, Direction face, RandomSource random, RenderType renderType, SodiumModelData modelData) {
-        return model.getQuads(state, face, random);
+    public List<BakedQuad> getQuads(BlockView level, BlockPos pos, BakedModel model, BlockState state, Direction face, RandomSource random, RenderLayer renderType, SodiumModelData modelData) {
+        List<BakedQuad> quads = new ArrayList<>(model.getQuads());
+
+        quads.addAll(model.getByDirection(face));
+
+        return quads;
     }
 
     @Override
-    public SodiumModelDataContainer getModelDataContainer(Level level, SectionPos sectionPos) {
+    public SodiumModelDataContainer getModelDataContainer(World level, SectionPos sectionPos) {
         return EMPTY_CONTAINER;
     }
 
     @Override
     public SodiumModelData getModelData(LevelSlice slice, BakedModel model, BlockState state, BlockPos pos, SodiumModelData originalData) {
-        return null;
+        return SodiumModelData.EMPTY;
     }
 
     @Override
     public SodiumModelData getEmptyModelData() {
-        return null;
+        return SodiumModelData.EMPTY;
     }
 }

@@ -4,11 +4,8 @@ import net.caffeinemc.mods.sodium.client.services.PlatformLevelAccess;
 import net.caffeinemc.mods.sodium.client.world.SodiumAuxiliaryLightManager;
 import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-
-import java.util.List;
-import java.util.function.Function;
 
 public class FabricLevelAccess implements PlatformLevelAccess {
     @Override
@@ -17,7 +14,7 @@ public class FabricLevelAccess implements PlatformLevelAccess {
     }
 
     @Override
-    public @Nullable SodiumAuxiliaryLightManager getLightManager(LevelChunk chunk, SectionPos pos) {
+    public @Nullable SodiumAuxiliaryLightManager getLightManager(Chunk chunk, SectionPos pos) {
         return null;
     }
 }

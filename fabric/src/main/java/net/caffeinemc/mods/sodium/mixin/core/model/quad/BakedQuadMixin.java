@@ -4,8 +4,8 @@ import net.caffeinemc.mods.sodium.client.model.quad.BakedQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import net.caffeinemc.mods.sodium.client.util.ModelQuadUtil;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.TexturedBakedQuad;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Final;
@@ -20,27 +20,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class BakedQuadMixin implements BakedQuadView {
     @Shadow
     @Final
-    protected int[] vertices;
-
-    @Shadow
-    @Final
-    protected Sprite sprite;
-
-    @Shadow
-    @Final
-    protected int tintIndex;
-
-    @Shadow
-    @Final
     protected Direction direction; // This is really the light face, but we can't rename it.
 
     @Shadow
     @Final
-    private boolean shade;
-
+    protected int[] vertexData;
     @Shadow
-    public abstract int getLightEmission();
-
+    @Final
+    protected int colorIndex;
     @Unique
     private int flags;
 
@@ -51,56 +38,59 @@ public abstract class BakedQuadMixin implements BakedQuadView {
     private ModelQuadFacing normalFace = null;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(int[] is, int i, Direction face, Sprite Sprite, boolean bl, int j, CallbackInfo ci) {
+    private void init(int[] is, int i, Direction direction, CallbackInfo ci) {
         this.normal = this.calculateNormal();
         this.normalFace = ModelQuadFacing.fromPackedNormal(this.normal);
 
-        this.flags = ModelQuadFlags.getQuadFlags(this, face);
+        this.flags = ModelQuadFlags.getQuadFlags(this, direction);
     }
 
     @Override
     public float getX(int idx) {
-        return Float.intBitsToFloat(this.vertices[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.POSITION_INDEX]);
+        return Float.intBitsToFloat(this.vertexData[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.POSITION_INDEX]);
     }
 
     @Override
     public float getY(int idx) {
-        return Float.intBitsToFloat(this.vertices[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.POSITION_INDEX + 1]);
+        return Float.intBitsToFloat(this.vertexData[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.POSITION_INDEX + 1]);
     }
 
     @Override
     public float getZ(int idx) {
-        return Float.intBitsToFloat(this.vertices[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.POSITION_INDEX + 2]);
+        return Float.intBitsToFloat(this.vertexData[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.POSITION_INDEX + 2]);
     }
 
     @Override
     public int getColor(int idx) {
-        return this.vertices[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.COLOR_INDEX];
+        return this.vertexData[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.COLOR_INDEX];
     }
 
     @Override
     public int getVertexNormal(int idx) {
-        return this.vertices[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.NORMAL_INDEX];
+        return this.vertexData[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.NORMAL_INDEX];
     }
 
     @Override
     public int getLight(int idx) {
-        return this.vertices[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.LIGHT_INDEX];
+        return this.vertexData[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.LIGHT_INDEX];
     }
 
     @Override
     public Sprite getSprite() {
-        return this.sprite;
+        if (((Object)this) instanceof TexturedBakedQuad bq) {
+            return bq.sprite;
+        }
+        return null;
     }
 
     @Override
     public float getTexU(int idx) {
-        return Float.intBitsToFloat(this.vertices[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.TEXTURE_INDEX]);
+        return Float.intBitsToFloat(this.vertexData[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.TEXTURE_INDEX]);
     }
 
     @Override
     public float getTexV(int idx) {
-        return Float.intBitsToFloat(this.vertices[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.TEXTURE_INDEX + 1]);
+        return Float.intBitsToFloat(this.vertexData[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.TEXTURE_INDEX + 1]);
     }
 
     @Override
@@ -110,7 +100,7 @@ public abstract class BakedQuadMixin implements BakedQuadView {
 
     @Override
     public int getTintIndex() {
-        return this.tintIndex;
+        return this.colorIndex;
     }
 
     @Override
@@ -130,13 +120,13 @@ public abstract class BakedQuadMixin implements BakedQuadView {
 
     @Override
     public int getMaxLightQuad(int idx) {
-        return LightTexture.lightCoordsWithEmission(getLight(idx), getLightEmission());
+        return this.vertexData[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.LIGHT_INDEX];
     }
 
     @Override
     @Unique(silent = true) // The target class has a function with the same name in a remapped environment
     public boolean hasShade() {
-        return this.shade;
+        return false;
     }
 
     @Override
