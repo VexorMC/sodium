@@ -27,9 +27,6 @@ import java.util.Map;
 @Mixin(WorldRenderer.class)
 public abstract class LevelRendererMixin implements LevelRendererExtension {
     @Shadow
-    private int ticks;
-
-    @Shadow
     @Final
     private Map<Integer, BlockBreakingInfo> blockBreakingInfos;
     @Unique
@@ -172,5 +169,14 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
     @Inject(method = "renderEntities", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/WorldRenderer;noCullingBlockEntities:Ljava/util/Set;", shift = At.Shift.BEFORE, ordinal = 1))
     private void onRenderBlockEntities(Entity entity, CameraView cameraView, float tickDelta, CallbackInfo ci) {
         this.renderer.renderBlockEntities(this.blockBreakingInfos, tickDelta);
+    }
+
+    /**
+     * @reason Redirect to our renderer
+     * @author Lunasa
+     */
+    @Overwrite
+    public String getChunksDebugString() {
+        return this.renderer.getChunksDebugString();
     }
 }
