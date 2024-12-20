@@ -3,17 +3,26 @@ package net.caffeinemc.mods.sodium.client.gui.screen;
 import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
 import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
+import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class RenderableScreen extends Screen {
-    private final List<Renderable> widgets = new ArrayList<>();
+    protected final List<Renderable> widgets = new ArrayList<>();
 
     @Override
     public void render(int mouseX, int mouseY, float tickDelta) {
         this.renderBackground();
+
+        for (; !this.client.options.touchscreen && Mouse.next(); this.client.currentScreen.handleMouse()) {
+            int dWheel = Mouse.getEventDWheel();
+
+            if (dWheel != 0) {
+                getEventListeners().forEach(el -> el.mouseScrolled(mouseX, mouseY, dWheel, dWheel));
+            }
+        }
 
         widgets.forEach(renderable -> renderable.render(mouseX, mouseY, tickDelta));
     }
@@ -21,41 +30,25 @@ public class RenderableScreen extends Screen {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int button) {
         super.mouseClicked(mouseX, mouseY, button);
-        for (GuiEventListener listener : getEventListeners()) {
-            if (listener.mouseClicked(mouseX, mouseY, button)) {
-                return;
-            }
-        }
+        getEventListeners().forEach(el -> el.mouseClicked(mouseX, mouseY, button));
     }
 
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int button) {
         super.mouseReleased(mouseX, mouseY, button);
-        for (GuiEventListener listener : getEventListeners()) {
-            if (listener.mouseReleased(mouseX, mouseY, button)) {
-                return;
-            }
-        }
+        getEventListeners().forEach(el -> el.mouseReleased(mouseX, mouseY, button));
     }
 
     @Override
     protected void mouseDragged(int mouseX, int mouseY, int button, long mouseLastClicked) {
         super.mouseDragged(mouseX, mouseY, button, mouseLastClicked);
-        for (GuiEventListener listener : getEventListeners()) {
-            if (listener.mouseDragged(mouseX, mouseY, button)) {
-                return;
-            }
-        }
+        getEventListeners().forEach(el -> el.mouseDragged(mouseX, mouseY, button));
     }
 
     @Override
     protected void keyPressed(char id, int code) {
         super.keyPressed(id, code);
-        for (GuiEventListener listener : getEventListeners()) {
-            if (listener.keyPressed(code, 0, 0)) {
-                return;
-            }
-        }
+        getEventListeners().forEach(el -> el.keyPressed(code, id));
     }
 
     public void clearWidgets() {

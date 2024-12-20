@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 
 // TODO: Rename in Sodium 0.6
 public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptable {
-    private final List<OptionPage> pages = new ArrayList<>();
+    public final List<OptionPage> pages = new ArrayList<>();
 
     private final List<ControlElement<?>> controls = new ArrayList<>();
 
@@ -49,14 +49,15 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
 
     private OptionPage currentPage;
 
-    private FlatButtonWidget applyButton, closeButton, undoButton;
+    protected FlatButtonWidget applyButton, closeButton, undoButton;
     private FlatButtonWidget donateButton, hideDonateButton;
 
     private ControlElement<?> hoveredElement;
 
+    protected boolean hasPendingChanges;
     private @Nullable ScreenPrompt prompt;
 
-    SodiumOptionsGUI(Screen prevScreen) {
+    public SodiumOptionsGUI(Screen prevScreen) {
         this.prevScreen = prevScreen;
 
         this.pages.add(SodiumGameOptionPages.general());
@@ -145,7 +146,7 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
         }
     }
 
-    private void rebuildGUI() {
+    protected void rebuildGUI() {
         this.controls.clear();
 
         this.clearWidgets();
@@ -276,6 +277,8 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
         this.closeButton.setEnabled(!hasChanges);
 
         this.hoveredElement = hovered;
+
+        this.hasPendingChanges = hasChanges;
     }
 
     private Stream<Option<?>> getAllOptions() {
@@ -410,7 +413,7 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
 
     @Override
     protected void keyPressed(char id, int code) {
-        if (this.prompt != null && this.prompt.keyPressed(code, 0, 0)) {
+        if (this.prompt != null && this.prompt.keyPressed(code, id)) {
         } else {
             super.keyPressed(id, code);
         }
@@ -461,5 +464,9 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
                 new LiteralText("."),
                 new LiteralText("And thanks again for using our mod! We hope it helps you (and your computer.)")
         );
+    }
+
+    public boolean shouldCloseOnEsc() {
+        return !this.hasPendingChanges;
     }
 }

@@ -131,13 +131,13 @@ public class ScreenPrompt implements GuiEventListener, Renderable {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(int keyCode, char scanCode) {
         if (keyCode == Keyboard.KEY_ESCAPE) {
             this.close();
             return true;
         }
 
-        return GuiEventListener.super.keyPressed(keyCode, scanCode, modifiers);
+        return GuiEventListener.super.keyPressed(keyCode, scanCode);
     }
 
     @Override

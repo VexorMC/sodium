@@ -15,11 +15,17 @@ public interface GuiEventListener {
         return false;
     }
 
-    default public boolean keyPressed(int n, int n2, int n3) {
+    default public boolean keyPressed(int code, char character) {
         return false;
     }
 
+    default boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) { return false; }
+
     default public boolean isMouseOver(double d, double d2) {
+        return false;
+    }
+
+    default boolean changeFocus(boolean lookForwards) {
         return false;
     }
 

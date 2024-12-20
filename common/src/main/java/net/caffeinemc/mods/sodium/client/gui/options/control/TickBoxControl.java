@@ -76,7 +76,7 @@ public class TickBoxControl implements Control<Boolean> {
         }
 
         @Override
-        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        public boolean keyPressed(int keyCode, char scanCode) {
             if (!isFocused()) return false;
 
             if (CommonInputs.selected(keyCode)) {

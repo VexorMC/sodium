@@ -1,9 +1,11 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
+import me.flashyreese.mods.reeses_sodium_options.client.gui.OptionExtended;
 import net.caffeinemc.mods.sodium.client.gui.options.Option;
 import net.caffeinemc.mods.sodium.client.gui.widgets.AbstractWidget;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
+import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,12 +40,15 @@ public class ControlElement<T> extends AbstractWidget {
         String label;
         if (this.option.isAvailable()) {
             if (this.option.hasChanged()) {
-                label = ChatFormatting.ITALIC + name;
+                label = Formatting.ITALIC + name + " *";
+            } else if (option instanceof OptionExtended<?> optionExtended && optionExtended.isHighlight()) {
+                Formatting color = optionExtended.isSelected() ? Formatting.DARK_GREEN : Formatting.YELLOW;
+                label = color + name;
             } else {
-                label = ChatFormatting.WHITE + name;
+                label = Formatting.WHITE + name;
             }
         } else {
-            label = String.valueOf(ChatFormatting.GRAY) + ChatFormatting.STRIKETHROUGH + name;
+            label = String.valueOf(Formatting.GRAY) + Formatting.STRIKETHROUGH + name;
         }
 
         this.hovered = this.dim.containsCursor(mouseX, mouseY);

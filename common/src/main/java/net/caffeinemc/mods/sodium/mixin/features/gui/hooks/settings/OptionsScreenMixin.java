@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.mixin.features.gui.hooks.settings;
 
+import me.flashyreese.mods.reeses_sodium_options.client.gui.ReeseSodiumVideoOptionsScreen;
 import net.caffeinemc.mods.sodium.client.gui.SodiumOptionsGUI;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.SettingsScreen;
@@ -14,7 +15,7 @@ public class OptionsScreenMixin extends Screen {
     @Inject(method = "buttonClicked", at = @At("HEAD"), cancellable = true)
     private void open(ButtonWidget button, CallbackInfo ci) {
         if(button.active && button.id == 101) {
-            this.client.setScreen(SodiumOptionsGUI.createScreen(this));
+            this.client.setScreen(new ReeseSodiumVideoOptionsScreen(this));
 
             ci.cancel();
         }

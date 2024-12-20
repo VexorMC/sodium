@@ -167,7 +167,7 @@ public class SliderControl implements Control<Integer> {
         }
 
         @Override
-        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        public boolean keyPressed(int keyCode, char scanCode) {
             if (!isFocused()) return false;
 
             if (keyCode == Keyboard.KEY_LEFT) {

@@ -1,9 +1,11 @@
 package net.caffeinemc.mods.sodium.client.gui.options;
 
+import me.flashyreese.mods.reeses_sodium_options.client.gui.OptionExtended;
 import net.caffeinemc.mods.sodium.client.gui.options.binding.GenericBinding;
 import net.caffeinemc.mods.sodium.client.gui.options.binding.OptionBinding;
 import net.caffeinemc.mods.sodium.client.gui.options.control.Control;
 import net.caffeinemc.mods.sodium.client.gui.options.storage.OptionStorage;
+import net.caffeinemc.mods.sodium.client.util.Dim2i;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
 
@@ -14,7 +16,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
-public class OptionImpl<S, T> implements Option<T> {
+public class OptionImpl<S, T> implements OptionExtended<T> {
     private final OptionStorage<S> storage;
 
     private final OptionBinding<S, T> binding;
@@ -31,6 +33,12 @@ public class OptionImpl<S, T> implements Option<T> {
     private T modifiedValue;
 
     private final BooleanSupplier enabled;
+
+    private Dim2i parentDimension;
+    private Dim2i dim2i;
+    private boolean highlight;
+    private boolean selected;
+
 
     private OptionImpl(OptionStorage<S> storage,
                        Text name,
@@ -116,6 +124,46 @@ public class OptionImpl<S, T> implements Option<T> {
 
     public static <S, T> OptionImpl.Builder<S, T> createBuilder(@SuppressWarnings("unused") Class<T> type, OptionStorage<S> storage) {
         return new Builder<>(storage);
+    }
+
+    @Override
+    public boolean isHighlight() {
+        return this.highlight;
+    }
+
+    @Override
+    public void setHighlight(boolean highlight) {
+        this.highlight = highlight;
+    }
+
+    @Override
+    public Dim2i getDim2i() {
+        return this.dim2i;
+    }
+
+    @Override
+    public void setDim2i(Dim2i dim2i) {
+        this.dim2i = dim2i;
+    }
+
+    @Override
+    public Dim2i getParentDimension() {
+        return this.parentDimension;
+    }
+
+    @Override
+    public void setParentDimension(Dim2i dim2i) {
+        this.parentDimension = dim2i;
+    }
+
+    @Override
+    public boolean isSelected() {
+        return this.selected;
+    }
+
+    @Override
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     public static class Builder<S, T> {

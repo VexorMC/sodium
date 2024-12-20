@@ -76,7 +76,7 @@ public class FlatButtonWidget extends AbstractWidget implements Renderable {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(int keyCode, char scanCode) {
         if (!this.isFocused())
             return false;
 

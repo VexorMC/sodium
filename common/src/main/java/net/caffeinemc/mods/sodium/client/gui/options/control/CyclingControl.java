@@ -109,7 +109,7 @@ public class CyclingControl<T extends Enum<T>> implements Control<T> {
         }
 
         @Override
-        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        public boolean keyPressed(int keyCode, char scanCode) {
             if (!isFocused()) return false;
 
             if (CommonInputs.selected(keyCode)) {
