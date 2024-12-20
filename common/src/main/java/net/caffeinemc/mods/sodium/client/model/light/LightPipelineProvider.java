@@ -10,7 +10,7 @@ public class LightPipelineProvider {
     private final EnumMap<LightMode, LightPipeline> lighters = new EnumMap<>(LightMode.class);
 
     public LightPipelineProvider(LightDataAccess cache) {
-        this.lighters.put(LightMode.SMOOTH, new SmoothLightPipeline(cache));
+        this.lighters.put(LightMode.SMOOTH, new FlatLightPipeline(cache));
         this.lighters.put(LightMode.FLAT, new FlatLightPipeline(cache));
     }
 

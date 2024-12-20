@@ -19,7 +19,7 @@ import net.minecraft.world.BlockView;
 public class FabricBlockAccess implements PlatformBlockAccess {
     @Override
     public int getLightEmission(BlockState state, BlockView level, BlockPos pos) {
-        return level.getLight(pos, 0);
+        return state.getBlock().getLightLevel();
     }
 
     @Override

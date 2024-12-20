@@ -29,48 +29,36 @@ public class FlatLightPipeline implements LightPipeline {
         this.lightCache = lightCache;
     }
 
-    // TODO: Actually impl light
     @Override
-    public void calculate(ModelQuadView quad, BlockPos pos, QuadLightData out, Direction cullFace, Direction lightFace, boolean shade, boolean enhanced) {
+    public void calculate(ModelQuadView quad, BlockPos pos, QuadLightData out, Direction cullFace, Direction face, boolean shade, boolean enhanced) {
         int lightmap;
 
         // To match vanilla behavior, use the cull face if it exists/is available
         if (cullFace != null) {
             lightmap = getOffsetLightmap(pos, cullFace);
-            Arrays.fill(out.br, this.lightCache.getLevel().getBrightness(lightFace, shade));
         } else {
             int flags = quad.getFlags();
             // If the face is aligned, use the light data above it
             // To match vanilla behavior, also treat the face as aligned if it is parallel and the block state is a full cube
-            if ((flags & ModelQuadFlags.IS_ALIGNED) != 0 || ((flags & ModelQuadFlags.IS_PARALLEL) != 0 && unpackFC(this.lightCache.get(pos)))) {
-                lightmap = getOffsetLightmap(pos, lightFace);
-                Arrays.fill(out.br, this.lightCache.getLevel().getBrightness(lightFace, shade));
+            if ((flags & ModelQuadFlags.IS_ALIGNED) != 0 || ((flags & ModelQuadFlags.IS_PARALLEL) != 0 && LightDataAccess.unpackFC(this.lightCache.get(pos)))) {
+                lightmap = getOffsetLightmap(pos, face);
             } else {
-                lightmap = getEmissiveLightmap(this.lightCache.get(pos));
-                Arrays.fill(out.br, enhanced ? PlatformBlockAccess.getInstance().getNormalVectorShade(quad, (LevelSlice)this.lightCache.getLevel(), shade) : this.lightCache.getLevel().getBrightness(lightFace, shade));
+                lightmap = LightDataAccess.getLightmap(this.lightCache.get(pos));
             }
         }
 
         Arrays.fill(out.lm, lightmap);
+        Arrays.fill(out.br, this.lightCache.getLevel().getBrightness(face, shade));
     }
 
-    /**
-     * When vanilla computes an offset lightmap with flat lighting, it passes the original BlockState but the
-     * offset BlockPos to {@link }.
-     * This does not make much sense but fixes certain issues, primarily dark quads on light-emitting blocks
-     * behind tinted glass. {@link LightDataAccess} cannot efficiently store lightmaps computed with
-     * inconsistent values so this method exists to mirror vanilla behavior as closely as possible.
-     */
     private int getOffsetLightmap(BlockPos pos, Direction face) {
-        int word = this.lightCache.get(pos);
-
-        // Check emissivity of the origin state
-        if (unpackEM(word)) {
-            return LightTexture.FULL_BRIGHT;
+        int lightmap = LightDataAccess.getLightmap(this.lightCache.get(pos, face));
+        // If the block light is not 15 (max)...
+        if ((lightmap & 0xF0) != 0xF0) {
+            int originLightmap = LightDataAccess.getLightmap(this.lightCache.get(pos));
+            // ...take the maximum combined block light at the origin and offset positions
+            lightmap = (lightmap & ~0xFF) | Math.max(lightmap & 0xFF, originLightmap & 0xFF);
         }
-
-        // Use light values from the offset pos, but luminance from the origin pos
-        int adjWord = this.lightCache.get(pos, face);
-        return LightTexture.pack(Math.max(unpackBL(adjWord), unpackLU(word)), unpackSL(adjWord));
+        return lightmap;
     }
 }
