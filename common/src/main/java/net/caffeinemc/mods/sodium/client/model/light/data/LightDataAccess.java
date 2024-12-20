@@ -60,7 +60,7 @@ public abstract class LightDataAccess {
 
     protected int compute(int x, int y, int z) {
         BlockPos pos = this.pos.setPosition(x, y, z);
-        BlockView level = this.level;
+        LevelSlice level = this.level;
 
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
@@ -89,21 +89,11 @@ public abstract class LightDataAccess {
             bl = 0;
             sl = 0;
         } else {
-            int encodedLight = level.getLight(pos, 0);
-
-            bl = getBlockLight(encodedLight);
-            sl = getSkyLight(encodedLight);
+            bl = level.getBlockLight(pos);
+            sl = level.getSkyLight(pos);
         }
 
         return packFC(fc) | packFO(fo) | packOP(op) | packEM(em) | packAO(ao) | packLU(lu) | packSL(sl) | packBL(bl);
-    }
-
-    public static int getSkyLight(int encodedLight) {
-        return encodedLight >> 20;
-    }
-
-    public static int getBlockLight(int encodedLight) {
-        return (encodedLight >> 4) & 0xFFF;
     }
 
     public static int packBL(int blockLight) {

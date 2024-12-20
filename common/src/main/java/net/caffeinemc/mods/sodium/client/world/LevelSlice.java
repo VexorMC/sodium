@@ -282,6 +282,44 @@ public final class LevelSlice implements BlockView {
                 [getLocalBlockIndex(relBlockX & 15, relBlockY & 15, relBlockZ & 15)];
     }
 
+    public int getSkyLight(BlockPos pos) {
+        if (!this.volume.contains(new Vec3d(pos.getX(), pos.getY(), pos.getZ()))) {
+            return 0;
+        }
+        int relBlockX = pos.getX() - this.originBlockX;
+        int relBlockY = pos.getY() - this.originBlockY;
+        int relBlockZ = pos.getZ() - this.originBlockZ;
+
+        var lightArrays = this.lightArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
+
+        var skyLightArray = lightArrays[LightType.SKY.ordinal()];
+
+        int localBlockX = relBlockX & 15;
+        int localBlockY = relBlockY & 15;
+        int localBlockZ = relBlockZ & 15;
+
+        return skyLightArray == null ? 0 : skyLightArray.get(localBlockX, localBlockY, localBlockZ);
+    }
+
+    public int getBlockLight(BlockPos pos) {
+        if (!this.volume.contains(new Vec3d(pos.getX(), pos.getY(), pos.getZ()))) {
+            return 0;
+        }
+        int relBlockX = pos.getX() - this.originBlockX;
+        int relBlockY = pos.getY() - this.originBlockY;
+        int relBlockZ = pos.getZ() - this.originBlockZ;
+
+        var lightArrays = this.lightArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
+
+        var blockLightArray = lightArrays[LightType.BLOCK.ordinal()];
+
+        int localBlockX = relBlockX & 15;
+        int localBlockY = relBlockY & 15;
+        int localBlockZ = relBlockZ & 15;
+
+        return blockLightArray == null ? 0 : blockLightArray.get(localBlockX, localBlockY, localBlockZ);
+    }
+
     @Override
     public int getLight(BlockPos pos, int ambientDarkness) {
         if (!this.volume.contains(new Vec3d(pos.getX(), pos.getY(), pos.getZ()))) {
