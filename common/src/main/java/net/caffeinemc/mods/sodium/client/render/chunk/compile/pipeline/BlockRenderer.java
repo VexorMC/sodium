@@ -192,7 +192,7 @@ public class BlockRenderer extends AbstractBlockRenderContext {
             out.u = quad.u(srcIndex);
             out.v = quad.v(srcIndex);
 
-            out.light = quad.lightmap(srcIndex);
+            out.light = 15;
         }
 
         var atlasSprite = quad.sprite(SpriteFinderCache.forBlockAtlas());
