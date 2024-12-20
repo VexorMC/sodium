@@ -78,7 +78,7 @@ public class FluidRendererImpl extends FluidRenderer {
         AbstractFluidBlock block = WorldUtil.getFluid(fluidState);
         Sprite[] sprites = block.getMaterial() == net.minecraft.block.material.Material.LAVA ? lavaSprites : waterSprites;
 
-        defaultRenderer.render(level, blockState, fluidState, blockPos, offset, collector, meshBuilder, material, colorProviderRegistry.getColorProvider(block), sprites);
+        // defaultRenderer.render(level, blockState, fluidState, blockPos, offset, collector, meshBuilder, material, colorProviderRegistry.getColorProvider(block), sprites);
     }
 
     private static class DefaultRenderContext {

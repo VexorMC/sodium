@@ -27,8 +27,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.function.Consumer;
 
 @Mixin(WorldRenderer.class)
 public abstract class LevelRendererMixin implements LevelRendererExtension {
@@ -86,11 +84,13 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         double y = entity.prevTickY + (entity.y - entity.prevTickY) * tickDelta;
         double z = entity.prevTickZ + (entity.z - entity.prevTickZ) * tickDelta;
 
+        Matrix4f projectionMatrix = new Matrix4f(CameraAccessor.getProjectionMatrix());
+        Matrix4f modelViewMatrix = new Matrix4f(CameraAccessor.getModelMatrix());
+
+        modelViewMatrix.translate(0f, 16f, 0f);
+
         try {
-            this.renderer.drawChunkLayer(renderLayer, new ChunkRenderMatrices(
-                    new Matrix4f(CameraAccessor.getProjectionMatrix()),
-                    new Matrix4f(CameraAccessor.getModelMatrix())
-            ), x, y, z);
+            this.renderer.drawChunkLayer(renderLayer, new ChunkRenderMatrices(projectionMatrix, modelViewMatrix), x, y, z);
         } finally {
             RenderDevice.exitManagedCode();
         }

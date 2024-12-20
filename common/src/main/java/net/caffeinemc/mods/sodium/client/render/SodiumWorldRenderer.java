@@ -80,9 +80,7 @@ public class SodiumWorldRenderer {
      * @return The SodiumWorldRenderer based on the current dimension, or null if none is attached
      */
     public static SodiumWorldRenderer instanceNullable() {
-        var level = MinecraftClient.getInstance().world;
-
-        if (level instanceof LevelRendererExtension extension) {
+        if (MinecraftClient.getInstance().worldRenderer instanceof LevelRendererExtension extension) {
             return extension.sodium$getWorldRenderer();
         }
 

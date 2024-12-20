@@ -8,9 +8,11 @@ import net.caffeinemc.mods.sodium.client.gl.state.GlStateTracker;
 import net.caffeinemc.mods.sodium.client.gl.sync.GlFence;
 import net.caffeinemc.mods.sodium.client.gl.tessellation.*;
 import net.caffeinemc.mods.sodium.client.gl.util.EnumBitField;
+import net.caffeinemc.mods.sodium.client.util.UInt32;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class GLRenderDevice implements RenderDevice {
     private final GlStateTracker stateTracker = new GlStateTracker();
@@ -194,7 +196,8 @@ public class GLRenderDevice implements RenderDevice {
 
             System.out.println("Mapping buffer of length %s".formatted(length));
 
-            ByteBuffer buf = GL30.glMapBufferRange(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, length, flags.getBitField(), null);
+            ByteBuffer oldBuf = ByteBuffer.allocateDirect((int) length).order(ByteOrder.nativeOrder());
+            ByteBuffer buf = GL30.glMapBufferRange(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, length, flags.getBitField(), oldBuf);
 
             if (buf == null) {
                 throw new RuntimeException("Failed to map buffer");
