@@ -18,6 +18,7 @@
   "sodium.options.view_bobbing.tooltip": "If enabled, the player's view will sway and bob when moving around. Players who experience motion sickness while playing may benefit from disabling this.",
   "sodium.options.attack_indicator.tooltip": "Controls where the Attack Indicator is displayed on screen.",
   "sodium.options.autosave_indicator.tooltip": "If enabled, an indicator will be shown when the game is saving the world to disk.",
+  "sodium.options.clouds.tooltip": "Controls if the clouds are rendered or not.",
   "sodium.options.graphics_quality.tooltip": "The default graphics quality controls some legacy options and is necessary for mod compatibility. If the options below are left to \"Default\", they will use this setting.",
   "sodium.options.clouds_quality.tooltip": "The quality level used for rendering clouds in the sky. Even though the options are labeled \"Fast\" and \"Fancy\", the effect on performance is negligible.",
   "sodium.options.weather_quality.tooltip": "Controls the distance that weather effects, such as rain and snow, will be rendered.",
