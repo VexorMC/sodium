@@ -175,8 +175,8 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
             int elementCount = (int) SectionRenderDataUnsafe.getElementCount(pMeshData, facing);
 
             // Use the ByteBuffer for setting values instead of MemoryUtil.memPutInt
-            baseVerticesBuffer.put(size * Integer.BYTES, baseVertexOffset);
-            elementCountsBuffer.put(size * Integer.BYTES, elementCount);
+            baseVerticesBuffer.put(size, baseVertexOffset);
+            elementCountsBuffer.put(size, elementCount);
 
             // Using shared index buffer, store address (0)
             elementPointersBuffer.put(size, 0L);
@@ -205,8 +205,8 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
             long elementCount = SectionRenderDataUnsafe.getElementCount(pMeshData, facing);
 
             // Use ByteBuffer to set values safely
-            baseVerticesBuffer.put(size * Integer.BYTES, (int) vertexOffset);
-            elementCountsBuffer.put(size * Integer.BYTES, (int) elementCount);
+            baseVerticesBuffer.put(size, (int) vertexOffset);
+            elementCountsBuffer.put(size, (int) elementCount);
 
             // * 4 to convert to bytes (the index buffer contains integers)
             // Use ByteBuffer for address and element count updates

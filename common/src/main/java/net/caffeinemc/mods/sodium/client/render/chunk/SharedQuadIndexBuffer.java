@@ -35,7 +35,7 @@ public class SharedQuadIndexBuffer {
         int primitiveCount = elementCount / ELEMENTS_PER_PRIMITIVE;
 
         if (primitiveCount > this.maxPrimitives) {
-            this.grow(commandList, Math.abs(this.getNextSize(primitiveCount)));
+            this.grow(commandList, this.getNextSize(primitiveCount));
         }
     }
 
@@ -44,12 +44,14 @@ public class SharedQuadIndexBuffer {
     }
 
     private void grow(CommandList commandList, int primitiveCount) {
-        var bufferSize = Math.abs(primitiveCount * this.indexType.getBytesPerElement() * ELEMENTS_PER_PRIMITIVE);
+        var bufferSize = primitiveCount * this.indexType.getBytesPerElement() * ELEMENTS_PER_PRIMITIVE;
+
+        if (bufferSize < 0) return;
 
         commandList.allocateStorage(this.buffer, bufferSize, GlBufferUsage.STATIC_DRAW);
 
         var mapped = commandList.mapBuffer(this.buffer, 0, bufferSize, EnumBitField.of(GlBufferMapFlags.INVALIDATE_BUFFER, GlBufferMapFlags.WRITE, GlBufferMapFlags.UNSYNCHRONIZED));
-        this.indexType.createIndexBuffer(mapped.getMemoryBuffer(), Math.abs(primitiveCount));
+        this.indexType.createIndexBuffer(mapped.getMemoryBuffer(), primitiveCount);
 
         commandList.unmap(mapped);
 
