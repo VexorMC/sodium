@@ -1,39 +1,25 @@
 package net.caffeinemc.mods.sodium.mixin.core.world.biome;
 
 import net.caffeinemc.mods.sodium.client.world.BiomeSeedProvider;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.profiler.Profiler;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.level.LevelInfo;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.function.Supplier;
-
-@Mixin(ClientLevel.class)
+@Mixin(ClientWorld.class)
 public class ClientLevelMixin implements BiomeSeedProvider {
     @Unique
     private long biomeZoomSeed;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void captureSeed(ClientPacketListener packetListener,
-                             ClientLevel.ClientLevelData levelData,
-                             ResourceKey<Level> dimension,
-                             Holder<DimensionType> dimensionType,
-                             int loadDistance,
-                             int simulationDistance,
-                             LevelRenderer renderer,
-                             boolean isDebug,
-                             long biomeZoomSeed, int k,
-                             CallbackInfo ci) {
-        this.biomeZoomSeed = biomeZoomSeed;
+    private void captureSeed(ClientPlayNetworkHandler clientPlayNetworkHandler, LevelInfo levelInfo, int i, Difficulty difficulty, Profiler profiler, CallbackInfo ci) {
+        this.biomeZoomSeed = levelInfo.getSeed();
     }
 
     @Override

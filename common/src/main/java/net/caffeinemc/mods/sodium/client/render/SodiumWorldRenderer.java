@@ -20,7 +20,6 @@ import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.caffeinemc.mods.sodium.client.services.PlatformBlockAccess;
 import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
 import net.caffeinemc.mods.sodium.client.world.LevelRendererExtension;
-import net.caffeinemc.mods.sodium.mixin.core.render.world.EntityRendererAccessor;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BlockBreakingInfo;
@@ -285,8 +284,8 @@ public class SodiumWorldRenderer {
         ChunkTracker.forEachChunk(tracker.getReadyChunks(), this.renderSectionManager::onChunkAdded);
     }
 
-    public void renderBlockEntities( Map<Integer, BlockBreakingInfo> blockBreakingProgressions,
-                                    float tickDelta, LocalBooleanRef isGlowing) {
+    public void renderBlockEntities(Map<Integer, BlockBreakingInfo> blockBreakingProgressions,
+                                    float tickDelta) {
         Vec3d cameraPos = Camera.getPosition();
         double x = cameraPos.x;
         double y = cameraPos.y;
@@ -300,8 +299,8 @@ public class SodiumWorldRenderer {
 
         BlockEntityRenderDispatcher blockEntityRenderer = BlockEntityRenderDispatcher.INSTANCE;
 
-        this.renderBlockEntities(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, player, isGlowing);
-        this.renderGlobalBlockEntities(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, player, isGlowing);
+        this.renderBlockEntities(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, player);
+        this.renderGlobalBlockEntities(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, player);
     }
 
     private void renderBlockEntities(Map<Integer, BlockBreakingInfo> blockBreakingProgressions,
@@ -310,8 +309,7 @@ public class SodiumWorldRenderer {
                                      double y,
                                      double z,
                                      BlockEntityRenderDispatcher blockEntityRenderer,
-                                     ClientPlayerEntity player,
-                                     LocalBooleanRef isGlowing) {
+                                     ClientPlayerEntity player) {
         SortedRenderLists renderLists = this.renderSectionManager.getRenderLists();
         Iterator<ChunkRenderList> renderListIterator = renderLists.iterator();
 
@@ -336,7 +334,7 @@ public class SodiumWorldRenderer {
                 }
 
                 for (BlockEntity blockEntity : blockEntities) {
-                    renderBlockEntity(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, blockEntity, player, isGlowing);
+                    renderBlockEntity(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, blockEntity, player);
                 }
             }
         }
@@ -348,8 +346,7 @@ public class SodiumWorldRenderer {
                                            double y,
                                            double z,
                                            BlockEntityRenderDispatcher blockEntityRenderer,
-                                           ClientPlayerEntity player,
-                                           LocalBooleanRef isGlowing) {
+                                           ClientPlayerEntity player) {
         for (var renderSection : this.renderSectionManager.getSectionsWithGlobalEntities()) {
             var blockEntities = renderSection.getGlobalBlockEntities();
 
@@ -358,7 +355,7 @@ public class SodiumWorldRenderer {
             }
 
             for (var blockEntity : blockEntities) {
-                renderBlockEntity(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, blockEntity, player, isGlowing);
+                renderBlockEntity(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, blockEntity, player);
             }
         }
     }
@@ -370,8 +367,7 @@ public class SodiumWorldRenderer {
                                           double z,
                                           BlockEntityRenderDispatcher dispatcher,
                                           BlockEntity entity,
-                                          ClientPlayerEntity player,
-                                          LocalBooleanRef isGlowing) {
+                                          ClientPlayerEntity player) {
         BlockPos pos = entity.getPos();
 
         GL11.glPushMatrix();
@@ -383,11 +379,6 @@ public class SodiumWorldRenderer {
 
         dispatcher.renderEntity(entity, tickDelta, destroyProgress);
 
-        if (isGlowing != null) {
-            if (PlatformBlockAccess.getInstance().shouldBlockEntityGlow(entity, player)) {
-                isGlowing.set(true);
-            }
-        }
 
         GL11.glPopMatrix();
     }

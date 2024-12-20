@@ -1,6 +1,5 @@
 package net.caffeinemc.mods.sodium.mixin.features.render.immediate.buffer_builder.intrinsics;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
 import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
@@ -8,7 +7,8 @@ import net.caffeinemc.mods.sodium.client.render.immediate.model.BakedModelEncode
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteUtil;
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.model.BakedQuad;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,12 +25,10 @@ public abstract class BufferBuilderMixin implements VertexConsumer {
         if (!this.fastFormat) {
             VertexConsumer.super.putBulkData(matrices, bakedQuad, r, g, b, a, light, overlay);
 
-            SpriteUtil.markSpriteActive(bakedQuad.getSprite());
-
             return;
         }
 
-        if (bakedQuad.getVertices().length < 32) {
+        if (bakedQuad.getVertexData().length < 32) {
             return; // we do not accept quads with less than 4 properly sized vertices
         }
 
@@ -49,12 +47,10 @@ public abstract class BufferBuilderMixin implements VertexConsumer {
         if (!this.fastFormat) {
             VertexConsumer.super.putBulkData(matrices, bakedQuad, brightnessTable, r, g, b, a, light, overlay, colorize);
 
-            SpriteUtil.markSpriteActive(bakedQuad.getSprite());
-
             return;
         }
 
-        if (bakedQuad.getVertices().length < 32) {
+        if (bakedQuad.getVertexData().length < 32) {
             return; // we do not accept quads with less than 4 properly sized vertices
         }
 

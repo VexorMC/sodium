@@ -112,8 +112,8 @@ public class SodiumGameOptions {
             return this.name;
         }
 
-        public boolean isFancy() {
-            return (this == FANCY) || (this == DEFAULT);
+        public boolean isFancy(boolean fancy) {
+            return (this == FANCY) || (this == DEFAULT && !fancy) || fancy;
         }
     }
 

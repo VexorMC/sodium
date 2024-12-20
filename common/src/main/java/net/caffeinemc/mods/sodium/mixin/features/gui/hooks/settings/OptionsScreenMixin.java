@@ -1,27 +1,22 @@
 package net.caffeinemc.mods.sodium.mixin.features.gui.hooks.settings;
 
 import net.caffeinemc.mods.sodium.client.gui.SodiumOptionsGUI;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.options.OptionsScreen;
-import net.minecraft.network.chat.Component;
-import org.spongepowered.asm.mixin.Dynamic;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.SettingsScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(OptionsScreen.class)
+@Mixin(SettingsScreen.class)
 public class OptionsScreenMixin extends Screen {
-    protected OptionsScreenMixin(Component title) {
-        super(title);
-    }
+    @Inject(method = "buttonClicked", at = @At("HEAD"), cancellable = true)
+    private void open(ButtonWidget button, CallbackInfo ci) {
+        if(button.active && button.id == 101) {
+            this.client.setScreen(SodiumOptionsGUI.createScreen(this));
 
-    @Dynamic
-    @Inject(method = {
-            "method_19828",
-            "lambda$init$2"
-    }, require = 1, at = @At("HEAD"), cancellable = true)
-    private void open(CallbackInfoReturnable<Screen> ci) {
-        ci.setReturnValue(SodiumOptionsGUI.createScreen(this));
+            ci.cancel();
+        }
     }
 }

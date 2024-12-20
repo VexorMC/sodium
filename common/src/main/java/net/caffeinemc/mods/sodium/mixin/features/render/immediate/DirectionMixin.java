@@ -1,11 +1,8 @@
 package net.caffeinemc.mods.sodium.mixin.features.render.immediate;
 
-import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
-import net.caffeinemc.mods.sodium.mixin.core.render.immediate.consumer.SheetedDecalTextureGeneratorMixin;
-import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.FaceBakery;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
@@ -28,8 +25,9 @@ public class DirectionMixin {
      * @reason Avoid looping over all directions and computing the dot product
      */
     @SuppressWarnings({ "StatementWithEmptyBody", "JavadocReference" })
+    @Environment(EnvType.CLIENT)
     @Overwrite
-    public static Direction getApproximateNearest(float x, float y, float z) {
+    public static Direction getFacing(float x, float y, float z) {
         // Vanilla quirk: return NORTH if all coordinates are zero
         if (x == 0 && y == 0 && z == 0)
             return Direction.NORTH;

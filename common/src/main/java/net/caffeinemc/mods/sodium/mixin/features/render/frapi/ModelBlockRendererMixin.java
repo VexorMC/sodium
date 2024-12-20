@@ -18,16 +18,16 @@ package net.caffeinemc.mods.sodium.mixin.features.render.frapi;
 
 import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
 import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
+import dev.lunasa.compat.mojang.minecraft.BlockColors;
+import dev.lunasa.compat.mojang.minecraft.random.SingleThreadedRandomSource;
 import net.caffeinemc.mods.sodium.client.render.frapi.render.NonTerrainBlockRenderContext;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
-import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.block.BlockModelRenderer;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.BlockView;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,24 +35,21 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Entrypoint of the FRAPI pipeline for non-terrain block rendering, for the baked models that require it.
  */
 @Mixin(BlockModelRenderer.class)
 public abstract class ModelBlockRendererMixin {
-    @Shadow
-    @Final
-    private BlockColors blockColors;
-
     @Unique
-    private final ThreadLocal<NonTerrainBlockRenderContext> contexts = ThreadLocal.withInitial(() -> new NonTerrainBlockRenderContext(blockColors));
+    private final ThreadLocal<NonTerrainBlockRenderContext> contexts = ThreadLocal.withInitial(() -> new NonTerrainBlockRenderContext(BlockColors.INSTANCE));
 
-    @Inject(method = "tesselateBlock", at = @At("HEAD"), cancellable = true)
-    private void onRender(BlockAndTintGetter blockView, BakedModel model, BlockState state, BlockPos pos, PoseStack matrix, VertexConsumer buffer, boolean cull, RandomSource rand, long seed, int overlay, CallbackInfo ci) {
+    @Inject(method = "render(Lnet/minecraft/world/BlockView;Lnet/minecraft/client/render/model/BakedModel;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/client/render/BufferBuilder;Z)Z", at = @At("HEAD"), cancellable = true)
+    private void onRender(BlockView world, BakedModel model, BlockState state, BlockPos pos, BufferBuilder buffer, boolean cull, CallbackInfoReturnable<Boolean> cir) {
         if (!((FabricBakedModel) model).isVanillaAdapter()) {
-            contexts.get().renderModel(blockView, model, state, pos, matrix, buffer, cull, rand, seed, overlay);
-            ci.cancel();
+            contexts.get().renderModel(world, model, state, pos, new PoseStack(), (VertexConsumer) buffer, cull, new SingleThreadedRandomSource(42L), 0L, 0);
+            cir.cancel();
         }
     }
 }

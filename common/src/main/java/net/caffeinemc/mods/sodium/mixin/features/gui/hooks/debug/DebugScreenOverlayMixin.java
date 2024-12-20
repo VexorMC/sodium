@@ -5,8 +5,8 @@ import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
 import net.caffeinemc.mods.sodium.client.util.MathUtil;
 import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.DebugScreenOverlay;
+import net.minecraft.client.gui.hud.DebugHud;
+import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 
-@Mixin(DebugScreenOverlay.class)
+@Mixin(DebugHud.class)
 public abstract class DebugScreenOverlayMixin {
-    @Redirect(method = "getSystemInformation", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Lists;newArrayList([Ljava/lang/Object;)Ljava/util/ArrayList;", remap = false))
+    @Redirect(method = "getRightText", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Lists;newArrayList([Ljava/lang/Object;)Ljava/util/ArrayList;", remap = false))
     private ArrayList<String> redirectRightTextEarly(Object[] elements) {
         ArrayList<String> strings = Lists.newArrayList((String[]) elements);
         strings.add("");
@@ -43,16 +43,16 @@ public abstract class DebugScreenOverlayMixin {
     }
 
     @Unique
-    private static ChatFormatting getVersionColor() {
+    private static Formatting getVersionColor() {
         String version = SodiumClientMod.getVersion();
-        ChatFormatting color;
+        Formatting color;
 
         if (version.contains("-local")) {
-            color = ChatFormatting.RED;
+            color = Formatting.RED;
         } else if (version.contains("-snapshot")) {
-            color = ChatFormatting.LIGHT_PURPLE;
+            color = Formatting.LIGHT_PURPLE;
         } else {
-            color = ChatFormatting.GREEN;
+            color = Formatting.GREEN;
         }
 
         return color;

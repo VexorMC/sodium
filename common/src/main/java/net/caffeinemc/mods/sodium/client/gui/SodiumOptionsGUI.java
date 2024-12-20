@@ -52,7 +52,6 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
     private FlatButtonWidget applyButton, closeButton, undoButton;
     private FlatButtonWidget donateButton, hideDonateButton;
 
-    private boolean hasPendingChanges;
     private ControlElement<?> hoveredElement;
 
     private @Nullable ScreenPrompt prompt;
@@ -276,7 +275,6 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
         this.undoButton.setVisible(hasChanges);
         this.closeButton.setEnabled(!hasChanges);
 
-        this.hasPendingChanges = hasChanges;
         this.hoveredElement = hovered;
     }
 

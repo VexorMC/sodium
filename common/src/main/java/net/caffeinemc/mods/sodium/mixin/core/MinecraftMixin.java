@@ -1,13 +1,13 @@
 package net.caffeinemc.mods.sodium.mixin.core;
 
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
+import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
-import net.caffeinemc.mods.sodium.client.checks.ResourcePackScanner;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.util.profiling.Profiler;
-import net.minecraft.util.profiling.ProfilerFiller;
-import org.lwjgl.opengl.GL32C;
+import net.legacyfabric.fabric.mixin.networking.client.MinecraftClientMixin;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.profiler.Profiler;
+import org.lwjgl.opengl.GL32;
+import org.lwjgl.opengl.GLSync;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,25 +18,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.concurrent.CompletableFuture;
 
-@Mixin(Minecraft.class)
+@Mixin(MinecraftClient.class)
 public class MinecraftMixin {
     @Shadow
     @Final
-    private ReloadableResourceManager resourceManager;
+    public Profiler profiler;
     @Unique
-    private final LongArrayFIFOQueue fences = new LongArrayFIFOQueue();
+    private final ObjectArrayFIFOQueue<GLSync> fences = new ObjectArrayFIFOQueue<>();
 
     /**
      * We run this at the beginning of the frame (except for the first frame) to give the previous frame plenty of time
      * to render on the GPU. This allows us to stall on ClientWaitSync for less time.
      */
-    @Inject(method = "runTick", at = @At("HEAD"))
-    private void preRender(boolean tick, CallbackInfo ci) {
-        ProfilerFiller profiler = Profiler.get();
-        profiler.push("wait_for_gpu");
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void preRender(CallbackInfo ci) {
+        this.profiler.push("wait_for_gpu");
 
         while (this.fences.size() > SodiumClientMod.options().advanced.cpuRenderAheadLimit) {
-            var fence = this.fences.dequeueLong();
+            var fence = this.fences.dequeue();
             // We do a ClientWaitSync here instead of a WaitSync to not allow the CPU to get too far ahead of the GPU.
             // This is also needed to make sure that our persistently-mapped staging buffers function correctly, rather
             // than being overwritten by data meant for future frames before the current one has finished rendering on
@@ -54,38 +53,21 @@ public class MinecraftMixin {
             // Because we are also waiting on the client for the FenceSync to finish, the flush is effectively treated
             // like a Finish command, where we know that once ClientWaitSync returns, it's likely that everything
             // before it has been completed by the GPU.
-            GL32C.glClientWaitSync(fence, GL32C.GL_SYNC_FLUSH_COMMANDS_BIT, Long.MAX_VALUE);
-            GL32C.glDeleteSync(fence);
+            GL32.glClientWaitSync(fence, GL32.GL_SYNC_FLUSH_COMMANDS_BIT, Long.MAX_VALUE);
+            GL32.glDeleteSync(fence);
         }
 
         profiler.pop();
     }
 
-    @Inject(method = "runTick", at = @At("RETURN"))
-    private void postRender(boolean tick, CallbackInfo ci) {
-        var fence = GL32C.glFenceSync(GL32C.GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    @Inject(method = "tick", at = @At("RETURN"))
+    private void postRender(CallbackInfo ci) {
+        var fence = GL32.glFenceSync(GL32.GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 
-        if (fence == 0) {
+        if (!fence.isValid()) {
             throw new RuntimeException("Failed to create fence object");
         }
 
         this.fences.enqueue(fence);
     }
-
-    /**
-     * Check for problematic core shader resource packs after the initial game launch.
-     */
-    @Inject(method = "buildInitialScreens", at = @At("TAIL"))
-    private void postInit(CallbackInfoReturnable<Runnable> cir) {
-        ResourcePackScanner.checkIfCoreShaderLoaded(this.resourceManager);
-    }
-
-    /**
-     * Check for problematic core shader resource packs after every resource reload.
-     */
-    @Inject(method = "reloadResourcePacks()Ljava/util/concurrent/CompletableFuture;", at = @At("TAIL"))
-    private void postResourceReload(CallbackInfoReturnable<CompletableFuture<Void>> cir) {
-        ResourcePackScanner.checkIfCoreShaderLoaded(this.resourceManager);
-    }
-
 }

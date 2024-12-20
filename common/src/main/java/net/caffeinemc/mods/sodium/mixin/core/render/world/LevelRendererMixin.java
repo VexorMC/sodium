@@ -1,7 +1,5 @@
 package net.caffeinemc.mods.sodium.mixin.core.render.world;
 
-import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
@@ -11,53 +9,35 @@ import net.caffeinemc.mods.sodium.client.render.viewport.ViewportProvider;
 import net.caffeinemc.mods.sodium.client.services.PlatformLevelRenderHooks;
 import net.caffeinemc.mods.sodium.client.util.FlawlessFrames;
 import net.caffeinemc.mods.sodium.client.world.LevelRendererExtension;
-import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.caffeinemc.mods.sodium.mixin.core.access.CameraAccessor;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.render.*;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.server.level.BlockDestructionProgress;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.function.Consumer;
 
-@Mixin(LevelRenderer.class)
+@Mixin(WorldRenderer.class)
 public abstract class LevelRendererMixin implements LevelRendererExtension {
-    @Shadow
-    @Final
-    private RenderBuffers renderBuffers;
-
-    @Shadow
-    @Final
-    private Long2ObjectMap<SortedSet<BlockDestructionProgress>> destructionProgress;
-
-    @Shadow
-    @Nullable
-    private ClientLevel level;
-
     @Shadow
     private int ticks;
 
     @Shadow
     @Final
-    private Minecraft minecraft;
-
-    @Shadow
-    private Frustum cullingFrustum;
-
+    private Map<Integer, BlockBreakingInfo> blockBreakingInfos;
     @Unique
     private SodiumWorldRenderer renderer;
 
@@ -66,19 +46,19 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         return this.renderer;
     }
 
-    @Redirect(method = "allChanged()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;getEffectiveRenderDistance()I", ordinal = 1))
-    private int nullifyBuiltChunkStorage(Options options) {
+    @Redirect(method = "reload()V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/option/GameOptions;viewDistance:I", ordinal = 1))
+    private int nullifyBuiltChunkStorage(GameOptions instance) {
         // Do not allow any resources to be allocated
         return 0;
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(Minecraft client, EntityRenderDispatcher entityRenderDispatcher, BlockEntityRenderDispatcher blockEntityRenderDispatcher, RenderBuffers bufferBuilderStorage, CallbackInfo ci) {
+    private void init(MinecraftClient client, CallbackInfo ci) {
         this.renderer = new SodiumWorldRenderer(client);
     }
 
-    @Inject(method = "setLevel", at = @At("RETURN"))
-    private void onWorldChanged(ClientLevel level, CallbackInfo ci) {
+    @Inject(method = "setWorld", at = @At("RETURN"))
+    private void onWorldChanged(ClientWorld level, CallbackInfo ci) {
         RenderDevice.enterManagedCode();
 
         try {
@@ -88,25 +68,8 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         }
     }
 
-    /**
-     * @reason Redirect to our renderer
-     * @author JellySquid
-     */
-    @Overwrite
-    public int countRenderedSections() {
-        return this.renderer.getVisibleChunkCount();
-    }
 
-    /**
-     * @reason Redirect the check to our renderer
-     * @author JellySquid
-     */
-    @Overwrite
-    public boolean hasRenderedAllSections() {
-        return this.renderer.isTerrainRenderComplete();
-    }
-
-    @Inject(method = "needsUpdate", at = @At("RETURN"))
+    @Inject(method = "scheduleTerrainUpdate", at = @At("RETURN"))
     private void onTerrainUpdateScheduled(CallbackInfo ci) {
         this.renderer.scheduleTerrainUpdate();
     }
@@ -116,16 +79,35 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
      * @author JellySquid
      */
     @Overwrite
-    private void renderSectionLayer(RenderType renderLayer, double x, double y, double z, Matrix4f modelMatrix, Matrix4f projectionMatrix) {
+    public int renderLayer(RenderLayer renderLayer, double tickDelta, int anaglyphFilter, Entity entity) {
         RenderDevice.enterManagedCode();
 
+        double x = entity.prevTickX + (entity.x - entity.prevTickX) * tickDelta;
+        double y = entity.prevTickY + (entity.y - entity.prevTickY) * tickDelta;
+        double z = entity.prevTickZ + (entity.z - entity.prevTickZ) * tickDelta;
+
         try {
-            this.renderer.drawChunkLayer(renderLayer, new ChunkRenderMatrices(projectionMatrix, modelMatrix), x, y, z);
+            this.renderer.drawChunkLayer(renderLayer, new ChunkRenderMatrices(
+                    new Matrix4f(CameraAccessor.getProjectionMatrix()),
+                    new Matrix4f(CameraAccessor.getModelMatrix())
+            ), x, y, z);
         } finally {
             RenderDevice.exitManagedCode();
         }
 
-        PlatformLevelRenderHooks.getInstance().runChunkLayerEvents(renderLayer, ((LevelRenderer) (Object) this), modelMatrix, projectionMatrix, this.ticks, this.minecraft.gameRenderer.getMainCamera(), this.cullingFrustum);
+        return 0;
+
+    }
+
+    /**
+     * This seems to fix the weird crashes with LWJGL complaining about a
+     * buffer being used when an array buffer is bound.
+     */
+    @Inject(method = "renderSky", at = @At(value = "HEAD"))
+    public void renderSky(CallbackInfo ci) {
+        GL30.glBindVertexArray(0);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     /**
@@ -133,26 +115,24 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
      * @author JellySquid
      */
     @Overwrite
-    private void setupRender(Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator) {
-
-        var viewport = ((ViewportProvider) frustum).sodium$createViewport();
+    public void setupTerrain(Entity entity, double tickDelta, CameraView cameraView, int frame, boolean spectator) {
+        var viewport = ((ViewportProvider) Frustum.getInstance()).sodium$createViewport();
         var updateChunksImmediately = FlawlessFrames.isActive();
 
         RenderDevice.enterManagedCode();
 
         try {
-            this.renderer.setupTerrain(camera, viewport, spectator, updateChunksImmediately);
+            this.renderer.setupTerrain(viewport, spectator, true);
         } finally {
             RenderDevice.exitManagedCode();
         }
     }
-
     /**
      * @reason Redirect chunk updates to our renderer
      * @author JellySquid
      */
     @Overwrite
-    public void setBlocksDirty(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+    public void updateBlock(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
         this.renderer.scheduleRebuildForBlockArea(minX, minY, minZ, maxX, maxY, maxZ, false);
     }
 
@@ -161,8 +141,16 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
      * @author JellySquid
      */
     @Overwrite
-    public void setSectionDirtyWithNeighbors(int x, int y, int z) {
-        this.renderer.scheduleRebuildForChunks(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1, false);
+    public void onRenderRegionUpdate(int x1, int y1, int z1, int x2, int y2, int z2) {
+        this.renderer.scheduleRebuildForChunks(x1, y1, z1, x2, y2, z2, false);
+    }
+
+    /**
+     * @reason Redirect the updates to our renderer
+     * @author JellySquid
+     */
+    @Overwrite
+    public void updateChunks(long p) {
     }
 
     /**
@@ -170,29 +158,11 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
      * @author JellySquid
      */
     @Overwrite
-    private void setBlockDirty(BlockPos pos, boolean important) {
-        this.renderer.scheduleRebuildForBlockArea(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1, pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1, important);
+    public void onBlockUpdate(BlockPos pos) {
+        this.renderer.scheduleRebuildForBlockArea(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1, pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1, false);
     }
 
-    /**
-     * @reason Redirect chunk updates to our renderer
-     * @author JellySquid
-     */
-    @Overwrite
-    private void setSectionDirty(int x, int y, int z, boolean important) {
-        this.renderer.scheduleRebuildForChunk(x, y, z, important);
-    }
-
-    /**
-     * @reason Redirect chunk updates to our renderer
-     * @author JellySquid
-     */
-    @Overwrite
-    public boolean isSectionCompiled(BlockPos pos) {
-        return this.renderer.isSectionReady(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
-    }
-
-    @Inject(method = "allChanged()V", at = @At("RETURN"))
+    @Inject(method = "reload()V", at = @At("RETURN"))
     private void onReload(CallbackInfo ci) {
         RenderDevice.enterManagedCode();
 
@@ -203,27 +173,8 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         }
     }
 
-    @Overwrite
-    private void renderBlockEntities(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, MultiBufferSource.BufferSource bufferSource2, Camera camera, float f) {
-        // TODO 1.21.2: Add the NeoForge glowing patch
-        this.renderer.renderBlockEntities(new PoseStack(), this.renderBuffers, this.destructionProgress, camera, f, null);
-    }
-
-    // Exclusive to NeoForge, allow to fail.
-    @SuppressWarnings("all")
-    @Inject(method = "iterateVisibleBlockEntities", at = @At("HEAD"), cancellable = true, require = 0)
-    public void replaceBlockEntityIteration(Consumer<BlockEntity> blockEntityConsumer, CallbackInfo ci) {
-        ci.cancel();
-
-        this.renderer.iterateVisibleBlockEntities(blockEntityConsumer);
-    }
-
-    /**
-    * @reason Replace the debug string
-    * @author JellySquid
-    */
-    @Overwrite
-    public String getSectionStatistics() {
-        return this.renderer.getChunksDebugString();
+    @Inject(method = "renderEntities", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/WorldRenderer;noCullingBlockEntities:Ljava/util/Set;", shift = At.Shift.BEFORE, ordinal = 1))
+    private void onRenderBlockEntities(Entity entity, CameraView cameraView, float tickDelta, CallbackInfo ci) {
+        this.renderer.renderBlockEntities(this.blockBreakingInfos, tickDelta);
     }
 }

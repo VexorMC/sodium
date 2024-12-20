@@ -1,27 +1,25 @@
 package net.caffeinemc.mods.sodium.mixin.features.options.render_layers;
 
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
-import net.minecraft.client.Minecraft;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.LeavesBlock;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(LeavesBlock.class)
 public class LeavesBlockMixin extends Block {
-    public LeavesBlockMixin() {
-        super(Properties.ofFullCopy(Blocks.AIR));
-        throw new AssertionError("Mixin constructor called!");
+
+    public LeavesBlockMixin(Material material, MaterialColor materialColor) {
+        super(material, materialColor);
     }
 
-    @Override
-    public boolean skipRendering(BlockState state, BlockState stateFrom, Direction direction) {
-        if (SodiumClientMod.options().quality.leavesQuality.isFancy(Minecraft.getInstance().options.graphicsMode().get())) {
-            return super.skipRendering(state, stateFrom, direction);
-        } else {
-            return stateFrom.getBlock() instanceof LeavesBlock || super.skipRendering(state, stateFrom, direction);
-        }
+    @ModifyVariable(method = "setGraphics", at = @At("HEAD"), argsOnly = true, index = 1)
+    private boolean getSodiumLeavesQuality(boolean fancy) {
+        return SodiumClientMod.options().quality.leavesQuality.isFancy(fancy);
     }
 }

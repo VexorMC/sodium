@@ -1,19 +1,11 @@
 package net.caffeinemc.mods.sodium.mixin.features.gui.hooks.console;
 
-
-import com.llamalad7.mixinextras.sugar.Local;
 import net.caffeinemc.mods.sodium.client.gui.console.ConsoleHooks;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.util.profiling.ProfilerFiller;
-import org.lwjgl.glfw.GLFW;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.GameRenderer;
+import org.lwjgl.Sys;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -21,36 +13,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
     @Shadow
-    @Final
-    Minecraft minecraft;
+    private MinecraftClient client;
 
-    @Shadow
-    @Final
-    private RenderBuffers renderBuffers;
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;render(IIF)V", shift = At.Shift.AFTER))
+    private void onRender(float tickDelta, long nanoTime, CallbackInfo ci) {
+        client.profiler.push("sodium_console_overlay");
 
-    @Unique
-    private static boolean HAS_RENDERED_OVERLAY_ONCE = false;
+        ConsoleHooks.render(Sys.getTime());
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;flush()V", shift = At.Shift.AFTER))
-    private void onRender(DeltaTracker deltaTracker, boolean bl, CallbackInfo ci, @Local ProfilerFiller profiler) {
-        // Do not start updating the console overlay until the font renderer is ready
-        // This prevents the console from using tofu boxes for everything during early startup
-        if (Minecraft.getInstance().getOverlay() != null) {
-            if (!HAS_RENDERED_OVERLAY_ONCE) {
-                return;
-            }
-        }
-
-        profiler.push("sodium_console_overlay");
-
-        GuiGraphics drawContext = new GuiGraphics(this.minecraft, this.renderBuffers.bufferSource());
-
-        ConsoleHooks.render(drawContext, GLFW.glfwGetTime());
-
-        drawContext.flush();
-
-        profiler.pop();
-
-        HAS_RENDERED_OVERLAY_ONCE = true;
+        client.profiler.pop();
     }
 }
