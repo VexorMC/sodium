@@ -1,8 +1,8 @@
 package net.caffeinemc.mods.sodium.client.world.biome;
 
-import dev.lunasa.compat.mojang.math.Mth;
-import dev.lunasa.compat.mojang.minecraft.math.QuartPos;
-import dev.lunasa.compat.mojang.minecraft.random.LinearCongruentialGenerator;
+import dev.vexor.radium.compat.mojang.math.Mth;
+import dev.vexor.radium.compat.mojang.minecraft.math.QuartPos;
+import dev.vexor.radium.compat.mojang.minecraft.random.LinearCongruentialGenerator;
 import net.caffeinemc.mods.sodium.client.world.BiomeSeedProvider;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;

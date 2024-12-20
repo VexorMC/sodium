@@ -1,30 +1,33 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.block.Block;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 
 public class BlockOcclusionCache {
-    private final BlockPos.Mutable cachedPositionObject = new BlockPos.Mutable();
+    private final BlockPos.Mutable cpos = new BlockPos.Mutable(0, 0, 0);
+
+    public BlockOcclusionCache() {
+    }
+
     /**
-     * @param selfState The state of the block in the level
-     * @param view The block view for this render context
-     * @param selfPos The position of the block
+     * @param view   The world view for this render context
+     * @param pos    The position of the block
      * @param facing The facing direction of the side to check
      * @return True if the block side facing {@param dir} is not occluded, otherwise false
      */
-    public boolean shouldDrawSide(BlockState selfState, BlockView view, BlockPos selfPos, Direction facing) {
-        BlockPos.Mutable otherPos = this.cachedPositionObject;
-        otherPos.setPosition(selfPos.getX() + facing.getOffsetX(), selfPos.getY() + facing.getOffsetY(), selfPos.getZ() + facing.getOffsetZ());
+    public boolean shouldDrawSide(BlockView view, BlockPos pos, Direction facing) {
+        BlockPos.Mutable adjPos = this.cpos;
 
-        // Blocks can define special behavior to control whether faces are rendered.
-        // This is mostly used by transparent blocks (Leaves, Glass, etc.) to not render interior faces between blocks
-        // of the same type.
+        adjPos.setPosition(
+                pos.getX() + facing.getOffsetX(),
+                pos.getY() + facing.getOffsetY(),
+                pos.getZ() + facing.getOffsetZ()
+        );
 
-        // TODO: Implement Voxel Shape occlusion from upstream.
+        Block self = view.getBlockState(pos).getBlock();
 
-        return selfState.getBlock().isSideInvisible(view, otherPos, facing);
+        return self.isSideInvisible(view, adjPos, facing);
     }
-
 }

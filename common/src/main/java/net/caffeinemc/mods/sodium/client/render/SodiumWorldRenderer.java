@@ -1,10 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render;
 
-import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
-import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
-import dev.lunasa.compat.mojang.minecraft.render.FogHelper;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import dev.vexor.radium.compat.mojang.minecraft.render.FogHelper;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
@@ -17,7 +13,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkTrackerHolder;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.CameraMovement;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
-import net.caffeinemc.mods.sodium.client.services.PlatformBlockAccess;
 import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
 import net.caffeinemc.mods.sodium.client.world.LevelRendererExtension;
 import net.minecraft.block.entity.BlockEntity;
@@ -31,7 +26,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ClientPlayerEntity;
 import net.minecraft.util.math.BlockPos;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
@@ -42,7 +37,6 @@ import org.lwjgl.opengl.GL11;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.function.Consumer;
 
 /**

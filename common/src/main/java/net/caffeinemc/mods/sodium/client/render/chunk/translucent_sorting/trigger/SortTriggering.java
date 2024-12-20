@@ -13,7 +13,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.Aligna
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortType;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.DynamicTopoData;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.TranslucentData;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 
 /**
  * This class is a central point in translucency sorting. It counts the number

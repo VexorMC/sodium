@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
+import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.buffer.GlBuffer;
 import net.caffeinemc.mods.sodium.client.gl.buffer.GlBufferMapFlags;
 import net.caffeinemc.mods.sodium.client.gl.buffer.GlBufferUsage;
@@ -50,7 +51,12 @@ public class SharedQuadIndexBuffer {
         commandList.allocateStorage(this.buffer, bufferSize, GlBufferUsage.STATIC_DRAW);
 
         var mapped = commandList.mapBuffer(this.buffer, 0, bufferSize, EnumBitField.of(GlBufferMapFlags.INVALIDATE_BUFFER, GlBufferMapFlags.WRITE, GlBufferMapFlags.UNSYNCHRONIZED));
-        this.indexType.createIndexBuffer(mapped.getMemoryBuffer(), primitiveCount);
+
+        try {
+            this.indexType.createIndexBuffer(mapped.getMemoryBuffer(), primitiveCount);
+        } catch (Exception e) {
+            SodiumClientMod.logger().warn("Failed to create index buffer", e);
+        }
 
         commandList.unmap(mapped);
 

@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
-import dev.lunasa.compat.mojang.math.Mth;
-import dev.lunasa.compat.mojang.minecraft.render.FogHelper;
+import dev.vexor.radium.compat.mojang.math.Mth;
+import dev.vexor.radium.compat.mojang.minecraft.render.FogHelper;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
@@ -39,7 +39,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigge
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.SortTriggering;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkMeshFormats;
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteUtil;
-import net.caffeinemc.mods.sodium.client.render.util.RenderAsserts;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.caffeinemc.mods.sodium.client.util.CameraUtils;
@@ -51,7 +50,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import org.apache.commons.lang3.ArrayUtils;

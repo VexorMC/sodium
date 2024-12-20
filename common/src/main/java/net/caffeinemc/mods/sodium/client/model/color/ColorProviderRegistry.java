@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.model.color;
 
-import dev.lunasa.compat.mojang.minecraft.BlockColors;
+import dev.vexor.radium.compat.mojang.minecraft.BlockColors;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;

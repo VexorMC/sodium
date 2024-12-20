@@ -1,9 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gl.device;
 
-import dev.lunasa.compat.lwjgl3.MemoryUtil;
-import dev.lunasa.compat.lwjgl3.Pointer;
-import org.lwjgl.PointerBuffer;
-import java.nio.IntBuffer;
+import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
+import dev.vexor.radium.compat.lwjgl3.Pointer;
 
 /**
  * Provides a fixed-size queue for building a draw-command list usable with

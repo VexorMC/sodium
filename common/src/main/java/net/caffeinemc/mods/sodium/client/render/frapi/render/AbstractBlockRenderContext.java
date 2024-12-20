@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.render;
 
-import dev.lunasa.compat.mojang.minecraft.random.RandomSource;
-import dev.lunasa.compat.mojang.minecraft.render.LightTexture;
+import dev.vexor.radium.compat.mojang.minecraft.random.RandomSource;
+import dev.vexor.radium.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.model.light.LightMode;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipeline;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
@@ -147,7 +147,7 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
         if ((this.cullCompletionFlags & mask) == 0) {
             this.cullCompletionFlags |= mask;
 
-            if (this.occlusionCache.shouldDrawSide(this.state, this.level, this.pos, face)) {
+            if (this.occlusionCache.shouldDrawSide(this.level, this.pos, face)) {
                 this.cullResultFlags |= mask;
                 return false;
             } else {

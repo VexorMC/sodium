@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 
-import dev.lunasa.compat.mojang.minecraft.BlockColors;
+import dev.vexor.radium.compat.mojang.minecraft.BlockColors;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
 import net.caffeinemc.mods.sodium.client.model.light.data.ArrayLightDataCache;

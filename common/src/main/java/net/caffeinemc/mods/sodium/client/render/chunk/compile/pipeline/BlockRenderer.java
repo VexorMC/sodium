@@ -1,7 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 
-import dev.lunasa.compat.mojang.minecraft.random.SingleThreadedRandomSource;
-import net.caffeinemc.mods.sodium.api.util.ColorABGR;
+import dev.vexor.radium.compat.mojang.minecraft.random.SingleThreadedRandomSource;
 import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
@@ -38,7 +37,6 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 

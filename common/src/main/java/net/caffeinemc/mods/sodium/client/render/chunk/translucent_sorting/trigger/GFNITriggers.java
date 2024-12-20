@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.DynamicData;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.TranslucentData;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.SortTriggering.SectionTriggers;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 
 /**
  * Performs triggering based on globally-indexed face planes, bucketed by their normals.

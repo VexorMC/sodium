@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gui.prompt;
 
-import dev.lunasa.compat.mojang.minecraft.gui.Renderable;
-import dev.lunasa.compat.mojang.minecraft.gui.event.GuiEventListener;
+import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
+import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
 import net.caffeinemc.mods.sodium.client.gui.widgets.AbstractWidget;
 import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;

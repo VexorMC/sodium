@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gui.screen;
 
-import dev.lunasa.compat.mojang.minecraft.gui.Renderable;
-import dev.lunasa.compat.mojang.minecraft.gui.event.GuiEventListener;
+import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
+import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
 
 import java.util.ArrayList;

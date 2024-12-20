@@ -1,13 +1,11 @@
 package net.caffeinemc.mods.sodium.client.model.light.data;
 
-import dev.lunasa.compat.mojang.minecraft.render.LightTexture;
-import net.caffeinemc.mods.sodium.client.services.PlatformBlockAccess;
+import dev.vexor.radium.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.BlockView;
 
 /**
  * The light data cache is used to make accessing the light data and occlusion properties of blocks cheaper. The data

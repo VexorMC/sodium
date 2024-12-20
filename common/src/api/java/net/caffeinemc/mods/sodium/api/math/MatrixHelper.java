@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.api.math;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.PoseStack;
 import net.caffeinemc.mods.sodium.api.util.NormI8;
 import net.minecraft.util.math.Direction;
 

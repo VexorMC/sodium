@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.model.light.smooth;
 
-import dev.lunasa.compat.mojang.minecraft.render.LightTexture;
+import dev.vexor.radium.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;

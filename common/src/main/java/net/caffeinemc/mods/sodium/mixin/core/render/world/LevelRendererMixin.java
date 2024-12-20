@@ -1,12 +1,9 @@
 package net.caffeinemc.mods.sodium.mixin.core.render.world;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
 import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.ChunkRenderMatrices;
 import net.caffeinemc.mods.sodium.client.render.viewport.ViewportProvider;
-import net.caffeinemc.mods.sodium.client.services.PlatformLevelRenderHooks;
 import net.caffeinemc.mods.sodium.client.util.FlawlessFrames;
 import net.caffeinemc.mods.sodium.client.world.LevelRendererExtension;
 import net.caffeinemc.mods.sodium.mixin.core.access.CameraAccessor;
@@ -16,7 +13,6 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;

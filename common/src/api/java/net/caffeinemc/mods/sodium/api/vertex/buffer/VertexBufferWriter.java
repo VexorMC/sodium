@@ -1,10 +1,10 @@
 package net.caffeinemc.mods.sodium.api.vertex.buffer;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.api.memory.MemoryIntrinsics;
 import net.minecraft.client.render.VertexFormat;
 import org.jetbrains.annotations.Nullable;
-import dev.lunasa.compat.lwjgl3.MemoryStack;
+import dev.vexor.radium.compat.lwjgl3.MemoryStack;
 
 public interface VertexBufferWriter {
     /**

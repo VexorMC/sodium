@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
-import dev.lunasa.compat.mojang.minecraft.gui.draw.Rect2i;
-import dev.lunasa.compat.mojang.minecraft.gui.input.CommonInputs;
+import dev.vexor.radium.compat.mojang.minecraft.gui.draw.Rect2i;
+import dev.vexor.radium.compat.mojang.minecraft.gui.input.CommonInputs;
 import net.caffeinemc.mods.sodium.client.gui.options.Option;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
 

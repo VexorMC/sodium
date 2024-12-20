@@ -12,7 +12,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.*
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.GeometryPlanes;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.SortTriggering;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;

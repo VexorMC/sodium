@@ -1,10 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gl.sync;
 
-import dev.lunasa.compat.lwjgl3.MemoryStack;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GLSync;
-
-import java.nio.IntBuffer;
 
 public class GlFence {
     private final GLSync id;

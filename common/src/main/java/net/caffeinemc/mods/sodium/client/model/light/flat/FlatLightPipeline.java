@@ -1,19 +1,14 @@
 package net.caffeinemc.mods.sodium.client.model.light.flat;
 
-import dev.lunasa.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipeline;
 import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
 import net.caffeinemc.mods.sodium.client.model.light.data.QuadLightData;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
-import net.caffeinemc.mods.sodium.client.services.PlatformBlockAccess;
-import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 import java.util.Arrays;
-
-import static net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess.*;
 
 /**
  * A light pipeline which implements "classic-style" lighting through simply using the light value of the adjacent

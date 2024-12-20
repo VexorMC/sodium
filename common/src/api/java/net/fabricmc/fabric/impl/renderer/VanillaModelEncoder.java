@@ -5,7 +5,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import dev.lunasa.compat.mojang.minecraft.random.RandomSource;
+import dev.vexor.radium.compat.mojang.minecraft.random.RandomSource;
 import net.legacyfabric.fabric.api.util.TriState;
 import org.jetbrains.annotations.Nullable;
 

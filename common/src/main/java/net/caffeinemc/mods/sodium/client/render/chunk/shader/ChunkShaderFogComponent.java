@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.shader;
 
-import dev.lunasa.compat.mojang.minecraft.render.FogHelper;
+import dev.vexor.radium.compat.mojang.minecraft.render.FogHelper;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformFloat;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformFloat4v;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformInt;

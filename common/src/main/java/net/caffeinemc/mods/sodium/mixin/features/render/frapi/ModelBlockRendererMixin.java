@@ -16,10 +16,10 @@
 
 package net.caffeinemc.mods.sodium.mixin.features.render.frapi;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
-import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
-import dev.lunasa.compat.mojang.minecraft.BlockColors;
-import dev.lunasa.compat.mojang.minecraft.random.SingleThreadedRandomSource;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.PoseStack;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.VertexConsumer;
+import dev.vexor.radium.compat.mojang.minecraft.BlockColors;
+import dev.vexor.radium.compat.mojang.minecraft.random.SingleThreadedRandomSource;
 import net.caffeinemc.mods.sodium.client.render.frapi.render.NonTerrainBlockRenderContext;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.minecraft.block.BlockState;
@@ -28,13 +28,10 @@ import net.minecraft.client.render.block.BlockModelRenderer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**

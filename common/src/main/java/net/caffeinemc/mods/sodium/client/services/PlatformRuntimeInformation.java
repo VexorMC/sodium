@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.services;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
-import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.PoseStack;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.VertexConsumer;
 
 import java.nio.file.Path;
 

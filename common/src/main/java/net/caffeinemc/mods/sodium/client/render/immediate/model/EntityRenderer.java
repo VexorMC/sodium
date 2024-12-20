@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.immediate.model;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.PoseStack;
 import net.caffeinemc.mods.sodium.api.math.MatrixHelper;
 import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
 import net.caffeinemc.mods.sodium.api.vertex.format.common.EntityVertex;
@@ -9,7 +9,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import dev.lunasa.compat.lwjgl3.MemoryStack;
+import dev.vexor.radium.compat.lwjgl3.MemoryStack;
 
 import static net.caffeinemc.mods.sodium.client.render.immediate.model.ModelCuboid.*;
 

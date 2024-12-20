@@ -16,10 +16,10 @@
 
 package net.caffeinemc.mods.sodium.client.render.frapi.render;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
-import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
-import dev.lunasa.compat.mojang.minecraft.BlockColors;
-import dev.lunasa.compat.mojang.minecraft.random.RandomSource;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.PoseStack;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.VertexConsumer;
+import dev.vexor.radium.compat.mojang.minecraft.BlockColors;
+import dev.vexor.radium.compat.mojang.minecraft.random.RandomSource;
 import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.light.LightMode;

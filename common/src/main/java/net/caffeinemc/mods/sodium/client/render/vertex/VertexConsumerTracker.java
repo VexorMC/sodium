@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.vertex;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSet;
 import it.unimi.dsi.fastutil.objects.ReferenceSets;

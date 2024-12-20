@@ -5,7 +5,7 @@ import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexFormat;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderBindingPoints;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
-import dev.lunasa.compat.lwjgl3.MemoryUtil;
+import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
 import net.minecraft.util.math.MathHelper;
 
 public class CompactChunkVertex implements ChunkVertexType {

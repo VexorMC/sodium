@@ -7,7 +7,7 @@ import org.joml.Vector3dc;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectRBTreeMap;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.TranslucentData;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.SortTriggering.SectionTriggers;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 
 /**
  * Performs direct triggering for sections that are sorted by distance. Direct

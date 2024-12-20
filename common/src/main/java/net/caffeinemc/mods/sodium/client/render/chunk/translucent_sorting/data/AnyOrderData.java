@@ -2,7 +2,7 @@ package net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortType;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TQuad;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 
 /**
  * With this sort type the section's translucent quads can be rendered in any

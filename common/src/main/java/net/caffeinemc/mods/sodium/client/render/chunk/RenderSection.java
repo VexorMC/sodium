@@ -10,7 +10,7 @@ import net.caffeinemc.mods.sodium.client.util.task.CancellationToken;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

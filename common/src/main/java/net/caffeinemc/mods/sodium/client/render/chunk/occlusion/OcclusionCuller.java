@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.occlusion;
 
-import dev.lunasa.compat.mojang.math.Mth;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.math.Mth;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;

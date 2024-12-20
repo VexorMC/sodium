@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.immediate.model;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.PoseStack;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.api.math.MatrixHelper;
@@ -11,7 +11,7 @@ import net.caffeinemc.mods.sodium.api.vertex.format.common.EntityVertex;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import dev.lunasa.compat.lwjgl3.MemoryStack;
+import dev.vexor.radium.compat.lwjgl3.MemoryStack;
 
 public class BakedModelEncoder {
     private static int mergeLighting(int stored, int calculated) {

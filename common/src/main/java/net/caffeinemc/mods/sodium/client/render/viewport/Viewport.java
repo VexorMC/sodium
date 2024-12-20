@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.viewport;
 
-import dev.lunasa.compat.mojang.math.Mth;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.math.Mth;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.caffeinemc.mods.sodium.client.render.viewport.frustum.Frustum;
 import net.minecraft.util.math.BlockPos;
 import org.joml.Vector3d;

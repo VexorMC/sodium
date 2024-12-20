@@ -4,7 +4,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortTy
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TQuad;
 import net.caffeinemc.mods.sodium.client.util.MathUtil;
 import net.caffeinemc.mods.sodium.client.util.sorting.RadixSort;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 
 import java.util.Arrays;
 

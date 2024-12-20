@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.fabric.model;
 
-import dev.lunasa.compat.mojang.minecraft.random.RandomSource;
+import dev.vexor.radium.compat.mojang.minecraft.random.RandomSource;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import net.caffeinemc.mods.sodium.client.services.PlatformModelAccess;
 import net.caffeinemc.mods.sodium.client.services.SodiumModelData;
@@ -12,13 +12,11 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class FabricModelAccess implements PlatformModelAccess {

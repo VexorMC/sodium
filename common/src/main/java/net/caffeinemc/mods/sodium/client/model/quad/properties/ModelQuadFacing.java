@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.model.quad.properties;
 
-import dev.lunasa.compat.mojang.math.Mth;
+import dev.vexor.radium.compat.mojang.math.Mth;
 import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
 import net.caffeinemc.mods.sodium.api.util.NormI8;
 import net.minecraft.util.math.Direction;

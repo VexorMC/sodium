@@ -20,7 +20,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import dev.lunasa.compat.mojang.minecraft.random.RandomSource;
+import dev.vexor.radium.compat.mojang.minecraft.random.RandomSource;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.world.BlockView;
 import org.jetbrains.annotations.Nullable;

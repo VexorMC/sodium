@@ -1,8 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
-import dev.lunasa.compat.lwjgl3.MemoryUtil;
+import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
-import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexAttributeBinding;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
 import net.caffeinemc.mods.sodium.client.gl.device.DrawCommandList;
 import net.caffeinemc.mods.sodium.client.gl.device.MultiDrawBatch;
@@ -17,7 +16,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataUnsa
 import net.caffeinemc.mods.sodium.client.render.chunk.lists.ChunkRenderList;
 import net.caffeinemc.mods.sodium.client.render.chunk.lists.ChunkRenderListIterable;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
-import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderBindingPoints;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderInterface;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior;

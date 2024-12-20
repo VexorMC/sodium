@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.services;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;

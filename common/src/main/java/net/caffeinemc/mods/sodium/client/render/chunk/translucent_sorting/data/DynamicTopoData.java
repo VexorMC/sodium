@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TQuad;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.GeometryPlanes;
 import net.caffeinemc.mods.sodium.client.util.sorting.RadixSort;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import org.joml.Vector3dc;
 import org.joml.Vector3fc;
 

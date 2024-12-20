@@ -2,7 +2,7 @@ package net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortType;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.GeometryPlanes;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import org.joml.Vector3dc;
 
 public abstract class DynamicData extends MixedDirectionData {

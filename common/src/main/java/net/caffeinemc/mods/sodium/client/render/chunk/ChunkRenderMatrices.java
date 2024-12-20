@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.PoseStack;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.render.Camera;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;

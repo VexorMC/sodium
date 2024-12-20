@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.world;
 
-import dev.lunasa.compat.mojang.math.Mth;
+import dev.vexor.radium.compat.mojang.math.Mth;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import net.caffeinemc.mods.sodium.client.services.*;
 import net.caffeinemc.mods.sodium.client.world.biome.LevelColorCache;
@@ -15,7 +15,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.LightType;

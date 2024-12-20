@@ -16,7 +16,7 @@
 
 package net.caffeinemc.mods.sodium.client.render.frapi.material;
 
-import dev.lunasa.compat.mojang.math.Mth;
+import dev.vexor.radium.compat.mojang.math.Mth;
 import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
 import net.fabricmc.fabric.api.renderer.v1.material.MaterialView;
 import net.fabricmc.fabric.api.renderer.v1.material.ShadeMode;

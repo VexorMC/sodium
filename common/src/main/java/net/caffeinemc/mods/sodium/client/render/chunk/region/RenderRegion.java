@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.region;
 
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.gl.arena.GlBufferArena;
 import net.caffeinemc.mods.sodium.client.gl.arena.staging.StagingBuffer;

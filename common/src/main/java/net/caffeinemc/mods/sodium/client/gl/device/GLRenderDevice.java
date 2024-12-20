@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gl.device;
 
-import dev.lunasa.compat.lwjgl3.MemoryUtil;
+import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
 import net.caffeinemc.mods.sodium.client.gl.array.GlVertexArray;
 import net.caffeinemc.mods.sodium.client.gl.buffer.*;
 import net.caffeinemc.mods.sodium.client.gl.functions.DeviceFunctions;
@@ -8,8 +8,6 @@ import net.caffeinemc.mods.sodium.client.gl.state.GlStateTracker;
 import net.caffeinemc.mods.sodium.client.gl.sync.GlFence;
 import net.caffeinemc.mods.sodium.client.gl.tessellation.*;
 import net.caffeinemc.mods.sodium.client.gl.util.EnumBitField;
-import net.caffeinemc.mods.sodium.client.util.UInt32;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

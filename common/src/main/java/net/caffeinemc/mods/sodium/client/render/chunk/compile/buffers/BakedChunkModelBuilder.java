@@ -1,12 +1,11 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.buffers;
 
-import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
+import dev.vexor.radium.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.builder.ChunkMeshBufferBuilder;
-import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.Sprite;
 
 public class BakedChunkModelBuilder implements ChunkModelBuilder {

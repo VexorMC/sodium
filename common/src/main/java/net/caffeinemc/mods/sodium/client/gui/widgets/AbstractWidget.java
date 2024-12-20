@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gui.widgets;
 
-import dev.lunasa.compat.mojang.minecraft.gui.Renderable;
-import dev.lunasa.compat.mojang.minecraft.gui.event.GuiEventListener;
+import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
+import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;

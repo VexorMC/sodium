@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.services;
 
-import dev.lunasa.compat.mojang.minecraft.math.SectionPos;
-import dev.lunasa.compat.mojang.minecraft.random.RandomSource;
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
+import dev.vexor.radium.compat.mojang.minecraft.random.RandomSource;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.RenderLayer;

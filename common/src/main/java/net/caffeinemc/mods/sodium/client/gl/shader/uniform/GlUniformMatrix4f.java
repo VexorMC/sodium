@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gl.shader.uniform;
 
-import dev.lunasa.compat.lwjgl3.MemoryStack;
+import dev.vexor.radium.compat.lwjgl3.MemoryStack;
 import org.joml.Matrix4fc;
 import org.lwjgl.opengl.GL20;
 

@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.model.color;
 
-import dev.lunasa.compat.mojang.minecraft.IBlockColor;
+import dev.vexor.radium.compat.mojang.minecraft.IBlockColor;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.blender.BlendedColorProvider;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;

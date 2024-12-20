@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.util.color;
 
-import dev.lunasa.compat.mojang.Util;
-import dev.lunasa.compat.mojang.math.Mth;
+import dev.vexor.radium.compat.mojang.Util;
+import dev.vexor.radium.compat.mojang.math.Mth;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.function.Function;

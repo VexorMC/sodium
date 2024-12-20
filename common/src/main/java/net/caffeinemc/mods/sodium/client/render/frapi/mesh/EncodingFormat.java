@@ -16,8 +16,7 @@
 
 package net.caffeinemc.mods.sodium.client.render.frapi.mesh;
 
-import com.google.common.base.Preconditions;
-import dev.lunasa.compat.mojang.math.Mth;
+import dev.vexor.radium.compat.mojang.math.Mth;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.VertexFormat;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
