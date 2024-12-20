@@ -2,7 +2,6 @@ package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 
 import dev.vexor.radium.compat.mojang.minecraft.random.SingleThreadedRandomSource;
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
-import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
@@ -12,12 +11,9 @@ import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadOrientation;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
-import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
-import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.parameters.AlphaCutoffParameter;
-import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.parameters.MaterialParameters;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.builder.ChunkMeshBufferBuilder;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
@@ -112,7 +108,7 @@ public class BlockRenderer extends AbstractBlockRenderContext {
 
         modelData = null;
 
-        Iterable<RenderLayer> renderTypes = PlatformModelAccess.getInstance().getModelRenderTypes(level, model, state, pos, random, modelData);
+        Iterable<RenderLayer> renderTypes = PlatformModelAccess.getInstance().getModelRenderTypes(level, model, state, pos, random, null);
 
         for (RenderLayer type : renderTypes) {
             this.type = type;
@@ -208,20 +204,9 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         // attempt render pass downgrade if possible
         var pass = material.pass;
 
-        var downgradedPass = attemptPassDowngrade(atlasSprite, pass);
-        if (downgradedPass != null) {
-            pass = downgradedPass;
-        }
-
         // collect all translucent quads into the translucency sorting system if enabled
         if (pass.isTranslucent() && this.collector != null) {
             this.collector.appendQuad(quad.getFaceNormal(), vertices, normalFace);
-        }
-
-        // if there was a downgrade from translucent to cutout, the material bits' alpha cutoff needs to be updated
-        if (downgradedPass != null && material == DefaultMaterials.TRANSLUCENT && pass == DefaultTerrainRenderPasses.CUTOUT) {
-            // ONE_TENTH and HALF are functionally the same so it doesn't matter which one we take here
-            materialBits = MaterialParameters.pack(AlphaCutoffParameter.ONE_TENTH, material.mipped);
         }
 
         ChunkModelBuilder builder = this.buffers.get(pass);
@@ -250,31 +235,6 @@ public class BlockRenderer extends AbstractBlockRenderContext {
     }
 
     private @Nullable TerrainRenderPass attemptPassDowngrade(Sprite sprite, TerrainRenderPass pass) {
-        // TODO: Make this a setting
         return null;
-
-        /*
-        boolean attemptDowngrade = true;
-        boolean hasNonOpaqueVertex = false;
-
-        for (int i = 0; i < 4; i++) {
-            hasNonOpaqueVertex |= ColorABGR.unpackAlpha(this.vertices[i].color) != 0xFF;
-        }
-
-        // don't do downgrade if some vertex is not fully opaque
-        if (pass.isTranslucent() && hasNonOpaqueVertex) {
-            attemptDowngrade = false;
-        }
-
-        if (attemptDowngrade) {
-            attemptDowngrade = validateQuadUVs(sprite);
-        }
-
-        if (attemptDowngrade) {
-            return getDowngradedPass(sprite, pass);
-        }
-
-        return null;
-         */
     }
 }
