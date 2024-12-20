@@ -106,7 +106,7 @@ public class NonTerrainBlockRenderContext extends AbstractBlockRenderContext {
 
     private void tintQuad(MutableQuadViewImpl quad) {
         if (quad.tintIndex() != -1) {
-            final int blockColor = 0xFF000000 | this.colorMap.getColor(this.state);
+            final int blockColor = this.colorMap.getColor(this.state);
 
             for (int i = 0; i < 4; i++) {
                 quad.color(i, ColorMixer.mulComponentWise(blockColor, quad.color(i)));

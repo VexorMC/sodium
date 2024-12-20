@@ -1,9 +1,15 @@
 package net.caffeinemc.mods.sodium.client.world.biome;
 
+import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.color.world.FoliageColors;
 import net.minecraft.client.color.world.GrassColors;
+import net.minecraft.world.biome.Biome;
 
 public class BiomeColorMaps {
+    public static final BiomeColors.ColorProvider GRASS_COLOR = Biome::getGrassColor;
+    public static final BiomeColors.ColorProvider FOLIAGE_COLOR = Biome::getFoliageColor;
+    public static final BiomeColors.ColorProvider WATER_COLOR = (biome, pos) -> biome.waterColor;
+
     private static final int WIDTH = 256;
     private static final int HEIGHT = 256;
 

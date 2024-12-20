@@ -69,7 +69,7 @@ public class SodiumGameOptions {
         public GraphicsQuality leavesQuality = GraphicsQuality.DEFAULT;
         public LightingQuality smoothLighting = LightingQuality.HIGH;
 
-        public int biomeBlendRadius = 4;
+        public int biomeBlendRadius = 2;
 
         public boolean enableVignette = true;
     }

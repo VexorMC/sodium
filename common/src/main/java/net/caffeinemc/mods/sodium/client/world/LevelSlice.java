@@ -2,7 +2,9 @@ package net.caffeinemc.mods.sodium.client.world;
 
 import dev.vexor.radium.compat.mojang.math.Mth;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.services.*;
+import net.caffeinemc.mods.sodium.client.world.biome.BiomeColorSource;
 import net.caffeinemc.mods.sodium.client.world.biome.LevelColorCache;
 import net.caffeinemc.mods.sodium.client.world.biome.LevelBiomeSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
@@ -147,8 +149,7 @@ public final class LevelSlice implements BlockView {
         this.blockEntityArrays = new Int2ReferenceMap[SECTION_ARRAY_SIZE];
         this.auxLightManager = new SodiumAuxiliaryLightManager[SECTION_ARRAY_SIZE];
 
-        // TODO: Make this a setting
-        var biomeBlendRadius = 4;
+        var biomeBlendRadius = SodiumClientMod.options().quality.biomeBlendRadius;
 
         this.biomeSlice = new LevelBiomeSlice();
         this.biomeColors = new LevelColorCache(this.biomeSlice, biomeBlendRadius);
@@ -386,5 +387,9 @@ public final class LevelSlice implements BlockView {
             case NORTH, SOUTH -> .8f;
             default -> .6f;
         };
+    }
+
+    public int getColor(BiomeColorSource source, int blockX, int blockY, int blockZ) {
+        return this.biomeColors.getColor(source.getProvider(), blockX, blockY, blockZ);
     }
 }

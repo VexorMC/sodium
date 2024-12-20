@@ -4,7 +4,7 @@ import dev.vexor.radium.compat.mojang.minecraft.IBlockColor;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.blender.BlendedColorProvider;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.minecraft.client.color.world.BiomeColors;
+import net.caffeinemc.mods.sodium.client.world.biome.BiomeColorSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.block.BlockState;
 
@@ -24,7 +24,7 @@ public class DefaultColorProviders {
 
         @Override
         protected int getColor(LevelSlice slice, T state, BlockPos pos) {
-            return 0xFF000000 | BiomeColors.getGrassColor(slice, pos);
+            return slice.getColor(BiomeColorSource.GRASS, pos.getX(), pos.getY(), pos.getZ());
         }
     }
 
@@ -37,7 +37,7 @@ public class DefaultColorProviders {
 
         @Override
         protected int getColor(LevelSlice slice, T state, BlockPos pos) {
-            return 0xFF000000 | BiomeColors.getFoliageColor(slice, pos);
+            return slice.getColor(BiomeColorSource.GRASS, pos.getX(), pos.getY(), pos.getZ());
         }
     }
 
@@ -50,7 +50,7 @@ public class DefaultColorProviders {
 
         @Override
         public void getColors(LevelSlice slice, BlockPos pos, BlockPos.Mutable scratchPos, BlockState state, ModelQuadView quad, int[] output) {
-            Arrays.fill(output, 0xFF000000 | this.color.colorMultiplier(state, slice, pos, quad.getTintIndex()));
+            Arrays.fill(output, this.color.colorMultiplier(state, slice, pos, quad.getTintIndex()));
         }
     }
 }
