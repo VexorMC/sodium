@@ -27,6 +27,7 @@ import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -58,6 +59,8 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
 
     @Override
     public ChunkBuildOutput execute(ChunkBuildContext buildContext, CancellationToken cancellationToken) {
+        System.out.println("Begin chunk build");
+
         Profiler profiler = MinecraftClient.getInstance().profiler;
         BuiltSectionInfo.Builder renderData = new BuiltSectionInfo.Builder();
         ChunkOcclusionDataBuilder occluder = new ChunkOcclusionDataBuilder();
@@ -91,6 +94,8 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
         BlockRenderer blockRenderer = cache.getBlockRenderer();
         blockRenderer.prepare(buffers, slice, collector);
 
+        System.out.println("Begin render blocks");
+
         profiler.push("render blocks");
         try {
             for (int y = minY; y < maxY; y++) {
@@ -102,12 +107,14 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                     for (int x = minX; x < maxX; x++) {
                         BlockState blockState = slice.getBlockState(x, y, z);
 
-                        if (!blockState.getBlock().hasBlockEntity()) {
+                        if (blockState.getBlock().getMaterial() == Material.AIR && !blockState.getBlock().hasBlockEntity()) {
                             continue;
                         }
 
                         blockPos.setPosition(x, y, z);
                         modelOffset.setPosition(x & 15, y & 15, z & 15);
+
+                        System.out.println("rendering block: " + blockPos);
 
                         if (BlockRenderType.isModel(blockState.getBlock().getBlockType()) && WorldUtil.toFluidBlock(blockState.getBlock()) == null) {
                             BakedModel model = cache.getBlockModels()

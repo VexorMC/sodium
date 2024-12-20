@@ -61,16 +61,11 @@ public class FluidRendererImpl extends FluidRenderer {
 
         defaultContext.setUp(this.colorProviderRegistry, this.defaultRenderer, level, blockState, fluidState, blockPos, offset, collector, meshBuilder, material, false);
 
-        Tessellator.getInstance().getBuffer().begin(
-                GL11.GL_QUADS,
-                VertexFormats.POSITION_TEXTURE2_COLOR
-        );
-
-        try {
-            MinecraftClient.getInstance().getBlockRenderManager().fluidRenderer.render(level, blockState, blockPos, Tessellator.getInstance().getBuffer());
-        } finally {
-            defaultContext.clear();
-        }
+        //try {
+        //    MinecraftClient.getInstance().getBlockRenderManager().fluidRenderer.render(level, blockState, blockPos, Tessellator.getInstance().getBuffer());
+        //} finally {
+        //    defaultContext.clear();
+        //}
     }
 
     private static class DefaultRenderContext {
