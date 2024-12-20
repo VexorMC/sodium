@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gl.device;
 
+import dev.lunasa.compat.lwjgl3.MemoryUtil;
 import net.caffeinemc.mods.sodium.client.gl.array.GlVertexArray;
 import net.caffeinemc.mods.sodium.client.gl.buffer.*;
 import net.caffeinemc.mods.sodium.client.gl.functions.DeviceFunctions;
@@ -191,6 +192,8 @@ public class GLRenderDevice implements RenderDevice {
 
             this.bindBuffer(GlBufferTarget.ARRAY_BUFFER, buffer);
 
+            System.out.println(length);
+
             ByteBuffer buf = GL30.glMapBufferRange(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, length, flags.getBitField(), null);
 
             if (buf == null) {
@@ -272,17 +275,17 @@ public class GLRenderDevice implements RenderDevice {
         public void multiDrawElementsBaseVertex(MultiDrawBatch batch, GlIndexType indexType) {
             GlPrimitiveType primitiveType = GLRenderDevice.this.activeTessellation.getPrimitiveType();
 
-            for (int i = 0; i < batch.size; i++) {
-                long elementPointer = batch.elementPointers.get(i);
-                int elementCount = batch.elementCounts.get(i);
-                int baseVertex = batch.baseVertices.get(i);
+            for (int i = 0; i < batch.size(); i++) {
+                int elementCount = MemoryUtil.memGetInt(batch.pElementCount + i * Integer.BYTES);
+                long elementPointer = MemoryUtil.memGetAddress(batch.pElementPointer + i * Long.BYTES);
+                int baseVertex = MemoryUtil.memGetInt(batch.pBaseVertex + i * Integer.BYTES);
 
                 GL32.glDrawElementsBaseVertex(
                         primitiveType.getId(),
-                        elementCount,      // Number of elements
+                        elementCount,
                         indexType.getFormatId(),
-                        elementPointer,    // Offset in the index buffer
-                        baseVertex         // Base vertex
+                        elementPointer,
+                        baseVertex
                 );
             }
         }

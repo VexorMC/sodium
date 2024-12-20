@@ -163,23 +163,19 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
     /**
      * Generates the draw commands for a chunk's meshes using the shared index buffer.
      */
+    @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
     private static void addNonIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
-        LongBuffer elementPointersBuffer = batch.elementPointers;
-        IntBuffer baseVerticesBuffer = batch.baseVertices;
-        IntBuffer elementCountsBuffer = batch.elementCounts;
+        final var pElementPointer = batch.pElementPointer;
+        final var pBaseVertex = batch.pBaseVertex;
+        final var pElementCount = batch.pElementCount;
 
         int size = batch.size;
 
         for (int facing = 0; facing < ModelQuadFacing.COUNT; facing++) {
-            int baseVertexOffset = (int) SectionRenderDataUnsafe.getVertexOffset(pMeshData, facing);
-            int elementCount = (int) SectionRenderDataUnsafe.getElementCount(pMeshData, facing);
-
-            // Use the ByteBuffer for setting values instead of MemoryUtil.memPutInt
-            baseVerticesBuffer.put(size, baseVertexOffset);
-            elementCountsBuffer.put(size, elementCount);
-
-            // Using shared index buffer, store address (0)
-            elementPointersBuffer.put(size, 0L);
+            // Uint32 -> Int32 cast is always safe and should be optimized away
+            MemoryUtil.memPutInt(pBaseVertex + (size << 2), (int) SectionRenderDataUnsafe.getVertexOffset(pMeshData, facing));
+            MemoryUtil.memPutInt(pElementCount + (size << 2), (int) SectionRenderDataUnsafe.getElementCount(pMeshData, facing));
+            MemoryUtil.memPutAddress(pElementPointer + (size << 3), 0 /* using a shared index buffer */);
 
             size += (mask >> facing) & 1;
         }
@@ -191,28 +187,29 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
      * Generates the draw commands for a chunk's meshes, where each mesh has a separate index buffer. This is used
      * when rendering translucent geometry, as each geometry set needs a sorted index buffer.
      */
+    @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
     private static void addIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
-        LongBuffer elementPointersBuffer = batch.elementPointers;
-        IntBuffer baseVerticesBuffer = batch.baseVertices;
-        IntBuffer elementCountsBuffer = batch.elementCounts;
+        final var pElementPointer = batch.pElementPointer;
+        final var pBaseVertex = batch.pBaseVertex;
+        final var pElementCount = batch.pElementCount;
 
         int size = batch.size;
 
         long elementOffset = SectionRenderDataUnsafe.getBaseElement(pMeshData);
 
         for (int facing = 0; facing < ModelQuadFacing.COUNT; facing++) {
-            long vertexOffset = SectionRenderDataUnsafe.getVertexOffset(pMeshData, facing);
-            long elementCount = SectionRenderDataUnsafe.getElementCount(pMeshData, facing);
+            final long vertexOffset = SectionRenderDataUnsafe.getVertexOffset(pMeshData, facing);
+            final long elementCount = SectionRenderDataUnsafe.getElementCount(pMeshData, facing);
 
-            // Use ByteBuffer to set values safely
-            baseVerticesBuffer.put(size, (int) vertexOffset);
-            elementCountsBuffer.put(size, (int) elementCount);
+            // Uint32 -> Int32 cast is always safe and should be optimized away
+            MemoryUtil.memPutInt(pBaseVertex + (size << 2), UInt32.uncheckedDowncast(vertexOffset));
+            MemoryUtil.memPutInt(pElementCount + (size << 2), UInt32.uncheckedDowncast(elementCount));
 
             // * 4 to convert to bytes (the index buffer contains integers)
-            // Use ByteBuffer for address and element count updates
-            elementPointersBuffer.put(size, elementOffset << 2);
+            // the section render data storage for the indices stores the offset in indices (also called elements)
+            MemoryUtil.memPutAddress(pElementPointer + (size << 3), elementOffset << 2);
 
-            // Update elementOffset for next iteration
+            // adding the number of elements works because the index data has one index per element (which are the indices)
             elementOffset += elementCount;
             size += (mask >> facing) & 1;
         }
