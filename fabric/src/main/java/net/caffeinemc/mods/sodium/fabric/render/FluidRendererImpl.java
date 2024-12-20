@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.fabric.render;
 
 import dev.lunasa.compat.mojang.blaze3d.vertex.VertexConsumer;
+import dev.lunasa.compat.mojang.minecraft.WorldUtil;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
@@ -12,14 +13,18 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.FluidRend
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
+import net.caffeinemc.mods.sodium.client.render.texture.SpriteFinderCache;
 import net.caffeinemc.mods.sodium.client.services.FluidRendererFactory;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
+import net.fabricmc.fabric.impl.renderer.SpriteFinderImpl;
 import net.minecraft.block.AbstractFluidBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
@@ -61,11 +66,19 @@ public class FluidRendererImpl extends FluidRenderer {
 
         defaultContext.setUp(this.colorProviderRegistry, this.defaultRenderer, level, blockState, fluidState, blockPos, offset, collector, meshBuilder, material, false);
 
-        //try {
-        //    MinecraftClient.getInstance().getBlockRenderManager().fluidRenderer.render(level, blockState, blockPos, Tessellator.getInstance().getBuffer());
-        //} finally {
-        //    defaultContext.clear();
-        //}
+        Sprite[] lavaSprites = new Sprite[2];
+        Sprite[] waterSprites = new Sprite[2];
+
+        SpriteAtlasTexture spriteAtlasTexture = MinecraftClient.getInstance().getSpriteAtlasTexture();
+        lavaSprites[0] = spriteAtlasTexture.getSprite("minecraft:blocks/lava_still");
+        lavaSprites[1] = spriteAtlasTexture.getSprite("minecraft:blocks/lava_flow");
+        waterSprites[0] = spriteAtlasTexture.getSprite("minecraft:blocks/water_still");
+        waterSprites[1] = spriteAtlasTexture.getSprite("minecraft:blocks/water_flow");
+
+        AbstractFluidBlock block = WorldUtil.getFluid(fluidState);
+        Sprite[] sprites = block.getMaterial() == net.minecraft.block.material.Material.LAVA ? lavaSprites : waterSprites;
+
+        defaultRenderer.render(level, blockState, fluidState, blockPos, offset, collector, meshBuilder, material, colorProviderRegistry.getColorProvider(block), sprites);
     }
 
     private static class DefaultRenderContext {

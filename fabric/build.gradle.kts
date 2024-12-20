@@ -19,8 +19,8 @@ dependencies {
     configurationCommonModJava(project(path = ":common", configuration = "commonMainJava"))
     configurationCommonModResources(project(path = ":common", configuration = "commonMainResources"))
 
-    implementation("org.joml:joml:1.10.8")
-    implementation("it.unimi.dsi:fastutil:8.5.15")
+    configurationCommonModJava("org.joml:joml:1.10.8")
+    configurationCommonModJava("it.unimi.dsi:fastutil:8.5.15")
 }
 
 sourceSets.apply {
