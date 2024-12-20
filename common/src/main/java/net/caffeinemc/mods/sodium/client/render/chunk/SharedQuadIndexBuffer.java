@@ -7,6 +7,7 @@ import net.caffeinemc.mods.sodium.client.gl.buffer.GlMutableBuffer;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
 import net.caffeinemc.mods.sodium.client.gl.tessellation.GlIndexType;
 import net.caffeinemc.mods.sodium.client.gl.util.EnumBitField;
+import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -34,7 +35,7 @@ public class SharedQuadIndexBuffer {
         int primitiveCount = elementCount / ELEMENTS_PER_PRIMITIVE;
 
         if (primitiveCount > this.maxPrimitives) {
-            this.grow(commandList, this.getNextSize(primitiveCount));
+            this.grow(commandList, Math.abs(this.getNextSize(primitiveCount)));
         }
     }
 
@@ -43,12 +44,12 @@ public class SharedQuadIndexBuffer {
     }
 
     private void grow(CommandList commandList, int primitiveCount) {
-        var bufferSize = primitiveCount * this.indexType.getBytesPerElement() * ELEMENTS_PER_PRIMITIVE;
+        var bufferSize = Math.abs(primitiveCount * this.indexType.getBytesPerElement() * ELEMENTS_PER_PRIMITIVE);
 
         commandList.allocateStorage(this.buffer, bufferSize, GlBufferUsage.STATIC_DRAW);
 
         var mapped = commandList.mapBuffer(this.buffer, 0, bufferSize, EnumBitField.of(GlBufferMapFlags.INVALIDATE_BUFFER, GlBufferMapFlags.WRITE, GlBufferMapFlags.UNSYNCHRONIZED));
-        this.indexType.createIndexBuffer(mapped.getMemoryBuffer(), primitiveCount);
+        this.indexType.createIndexBuffer(mapped.getMemoryBuffer(), Math.abs(primitiveCount));
 
         commandList.unmap(mapped);
 

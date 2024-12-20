@@ -1,7 +1,5 @@
 package net.caffeinemc.mods.sodium.client.gl.device;
 
-import dev.lunasa.compat.lwjgl3.MemoryUtil;
-import dev.lunasa.compat.lwjgl3.Pointer;
 import org.lwjgl.BufferUtils;
 
 import java.nio.IntBuffer;
@@ -12,20 +10,24 @@ import java.nio.LongBuffer;
  * {@link org.lwjgl.opengl.GL32#glDrawElementsBaseVertex)}.
  */
 public final class MultiDrawBatch {
-    public final LongBuffer elementPointers;
-    public final IntBuffer elementCounts;
-    public final IntBuffer baseVertices;
+    public LongBuffer elementPointers;
+    public IntBuffer elementCounts;
+    public IntBuffer baseVertices;
 
     private final int capacity;
 
     public int size;
 
     public MultiDrawBatch(int capacity) {
+        this.capacity = capacity;
+
         this.elementPointers = BufferUtils.createLongBuffer(capacity);
         this.elementCounts = BufferUtils.createIntBuffer(capacity);
         this.baseVertices = BufferUtils.createIntBuffer(capacity);
-        this.capacity = capacity;
-        this.size = 0;
+
+        this.elementPointers.clear().limit(capacity).put(new long[capacity]).flip();
+        this.elementCounts.clear().limit(capacity).put(new int[capacity]).flip();
+        this.baseVertices.clear().limit(capacity).put(new int[capacity]).flip();
     }
 
     public int size() {
@@ -38,9 +40,16 @@ public final class MultiDrawBatch {
 
     public void clear() {
         this.size = 0;
+
+        this.elementPointers.clear().limit(capacity).put(new long[capacity]).flip();
+        this.elementCounts.clear().limit(capacity).put(new int[capacity]).flip();
+        this.baseVertices.clear().limit(capacity).put(new int[capacity]).flip();
     }
 
     public void delete() {
+        this.elementPointers = null;
+        this.elementCounts = null;
+        this.baseVertices = null;
     }
 
     public boolean isEmpty() {
@@ -49,9 +58,11 @@ public final class MultiDrawBatch {
 
     public int getIndexBufferSize() {
         int elements = 0;
-        for (int i = 0; i < this.size; i++) {
-            elements = Math.max(elements, this.elementCounts.get(i));
+
+        for (int index = 0; index < this.size; index++) {
+            elements = Math.max(elements, this.elementCounts.get(index));
         }
+
         return elements;
     }
 }

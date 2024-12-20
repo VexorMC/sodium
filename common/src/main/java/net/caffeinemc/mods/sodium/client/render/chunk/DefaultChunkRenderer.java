@@ -26,6 +26,9 @@ import net.caffeinemc.mods.sodium.client.util.BitwiseMath;
 import net.caffeinemc.mods.sodium.client.util.UInt32;
 import dev.lunasa.compat.lwjgl3.MemoryUtil;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.util.Iterator;
 
 public class DefaultChunkRenderer extends ShaderChunkRenderer {
@@ -160,19 +163,23 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
     /**
      * Generates the draw commands for a chunk's meshes using the shared index buffer.
      */
-    @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
     private static void addNonIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
-        final var pElementPointer = MemoryUtil.memAddress(batch.elementPointers);
-        final var pBaseVertex = MemoryUtil.memAddress(batch.baseVertices);
-        final var pElementCount = MemoryUtil.memAddress(batch.elementCounts);
+        LongBuffer elementPointersBuffer = batch.elementPointers;
+        IntBuffer baseVerticesBuffer = batch.baseVertices;
+        IntBuffer elementCountsBuffer = batch.elementCounts;
 
         int size = batch.size;
 
         for (int facing = 0; facing < ModelQuadFacing.COUNT; facing++) {
-            // Uint32 -> Int32 cast is always safe and should be optimized away
-            MemoryUtil.memPutInt(pBaseVertex + (size << 2), (int) SectionRenderDataUnsafe.getVertexOffset(pMeshData, facing));
-            MemoryUtil.memPutInt(pElementCount + (size << 2), (int) SectionRenderDataUnsafe.getElementCount(pMeshData, facing));
-            MemoryUtil.memPutAddress(pElementPointer + (size << 3), 0 /* using a shared index buffer */);
+            int baseVertexOffset = (int) SectionRenderDataUnsafe.getVertexOffset(pMeshData, facing);
+            int elementCount = (int) SectionRenderDataUnsafe.getElementCount(pMeshData, facing);
+
+            // Use the ByteBuffer for setting values instead of MemoryUtil.memPutInt
+            baseVerticesBuffer.put(size * Integer.BYTES, baseVertexOffset);
+            elementCountsBuffer.put(size * Integer.BYTES, elementCount);
+
+            // Using shared index buffer, store address (0)
+            elementPointersBuffer.put(size, 0L);
 
             size += (mask >> facing) & 1;
         }
@@ -184,29 +191,28 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
      * Generates the draw commands for a chunk's meshes, where each mesh has a separate index buffer. This is used
      * when rendering translucent geometry, as each geometry set needs a sorted index buffer.
      */
-    @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
     private static void addIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
-        final var pElementPointer = MemoryUtil.memAddress(batch.elementPointers);
-        final var pBaseVertex = MemoryUtil.memAddress(batch.baseVertices);
-        final var pElementCount = MemoryUtil.memAddress(batch.elementCounts);
+        LongBuffer elementPointersBuffer = batch.elementPointers;
+        IntBuffer baseVerticesBuffer = batch.baseVertices;
+        IntBuffer elementCountsBuffer = batch.elementCounts;
 
         int size = batch.size;
 
         long elementOffset = SectionRenderDataUnsafe.getBaseElement(pMeshData);
 
         for (int facing = 0; facing < ModelQuadFacing.COUNT; facing++) {
-            final long vertexOffset = SectionRenderDataUnsafe.getVertexOffset(pMeshData, facing);
-            final long elementCount = SectionRenderDataUnsafe.getElementCount(pMeshData, facing);
+            long vertexOffset = SectionRenderDataUnsafe.getVertexOffset(pMeshData, facing);
+            long elementCount = SectionRenderDataUnsafe.getElementCount(pMeshData, facing);
 
-            // Uint32 -> Int32 cast is always safe and should be optimized away
-            MemoryUtil.memPutInt(pBaseVertex + (size << 2), UInt32.uncheckedDowncast(vertexOffset));
-            MemoryUtil.memPutInt(pElementCount + (size << 2), UInt32.uncheckedDowncast(elementCount));
+            // Use ByteBuffer to set values safely
+            baseVerticesBuffer.put(size * Integer.BYTES, (int) vertexOffset);
+            elementCountsBuffer.put(size * Integer.BYTES, (int) elementCount);
 
             // * 4 to convert to bytes (the index buffer contains integers)
-            // the section render data storage for the indices stores the offset in indices (also called elements)
-            MemoryUtil.memPutAddress(pElementPointer + (size << 3), elementOffset << 2);
+            // Use ByteBuffer for address and element count updates
+            elementPointersBuffer.put(size, elementOffset << 2);
 
-            // adding the number of elements works because the index data has one index per element (which are the indices)
+            // Update elementOffset for next iteration
             elementOffset += elementCount;
             size += (mask >> facing) & 1;
         }
