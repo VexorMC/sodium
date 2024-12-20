@@ -314,7 +314,7 @@ public class QuadViewImpl implements QuadView, ModelQuadView {
 
     @Override
     public int getVertexNormal(int idx) {
-        return data[normalIndex(idx)];
+        return data[normalIndex(idx - 1)];
     }
 
     @Override

@@ -65,12 +65,4 @@ public class MinecraftMixin {
 
         this.fences.enqueue(fence);
     }
-
-    /**
-     * @reason Eff GL Errors!
-     * @author Lunasa
-     */
-    @Overwrite
-    private void setGlErrorMessage(String message) {
-    }
 }
