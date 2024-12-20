@@ -100,9 +100,9 @@ public class SodiumWorldRenderer {
         }
 
         // If we have a level is already loaded, unload the renderer
-        if (this.level != null) {
-            this.unloadLevel();
-        }
+        // if (this.level != null) {
+        //    this.unloadLevel();
+        // }
 
         // If we're loading a new level, load the renderer
         if (level != null) {
@@ -272,7 +272,6 @@ public class SodiumWorldRenderer {
 
     private void initRenderer(CommandList commandList) {
         if (this.renderSectionManager != null) {
-            this.renderSectionManager.destroy();
             this.renderSectionManager = null;
         }
 
