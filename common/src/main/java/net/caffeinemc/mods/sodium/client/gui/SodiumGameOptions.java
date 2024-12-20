@@ -8,8 +8,6 @@ import net.caffeinemc.mods.sodium.client.gui.options.TextProvider;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.caffeinemc.mods.sodium.client.util.FileUtil;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior;
-import net.minecraft.client.GraphicsStatus;
-import net.minecraft.network.chat.Component;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 

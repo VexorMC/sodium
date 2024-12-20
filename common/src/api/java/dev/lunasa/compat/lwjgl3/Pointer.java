@@ -3,7 +3,6 @@ package dev.lunasa.compat.lwjgl3;
 import org.jetbrains.annotations.Nullable;
 
 import static dev.lunasa.compat.lwjgl3.MemoryUtil.NULL;
-import static dev.lunasa.neon.MemoryUtil.NULL;
 import static org.lwjgl.LWJGLUtil.CHECKS;
 
 /**
@@ -13,7 +12,7 @@ import static org.lwjgl.LWJGLUtil.CHECKS;
  * information about the underlying architecture of the running JVM process.</p>
  *
  * <p>When interacting with native functions, pointer values are mapped to Java {@code long}. LWJGL automatically converts long values to the correct pointer
- * addresses when used in native code. Native functions sometimes require arrays of pointer values; the {@link PointerBuffer} class may be used for that
+ * addresses when used in native code. Native functions sometimes require arrays of pointer values; the {@link org.lwjgl.PointerBuffer} class may be used for that
  * purpose. It has an API similar to a {@link java.nio.LongBuffer} but handles pointer casts automatically.</p>
  */
 public interface Pointer {
