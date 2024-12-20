@@ -18,10 +18,6 @@ public class DefaultColorProviders {
     public static class GrassColorProvider<T> extends BlendedColorProvider<T> {
         public static final ColorProvider<BlockState> BLOCKS = new GrassColorProvider<>();
 
-        private GrassColorProvider() {
-
-        }
-
         @Override
         protected int getColor(LevelSlice slice, T state, BlockPos pos) {
             return slice.getColor(BiomeColorSource.GRASS, pos.getX(), pos.getY(), pos.getZ());
@@ -31,13 +27,9 @@ public class DefaultColorProviders {
     public static class FoliageColorProvider<T> extends BlendedColorProvider<T> {
         public static final ColorProvider<BlockState> BLOCKS = new FoliageColorProvider<>();
 
-        private FoliageColorProvider() {
-
-        }
-
         @Override
         protected int getColor(LevelSlice slice, T state, BlockPos pos) {
-            return slice.getColor(BiomeColorSource.GRASS, pos.getX(), pos.getY(), pos.getZ());
+            return slice.getColor(BiomeColorSource.FOLIAGE, pos.getX(), pos.getY(), pos.getZ());
         }
     }
 

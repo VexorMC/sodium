@@ -11,7 +11,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 
-
 // TODO: Make the registry a global somewhere that is only initialized once after content load
 public class ColorProviderRegistry {
     private final Reference2ReferenceMap<Block, ColorProvider<BlockState>> blocks = new Reference2ReferenceOpenHashMap<>();

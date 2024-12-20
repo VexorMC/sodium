@@ -8,11 +8,11 @@ import net.minecraft.block.Block;
 
 public interface BlockColorsExtension {
     static Reference2ReferenceMap<Block, IBlockColor> getProviders(BlockColors blockColors) {
-        return ((BlockColorsExtension) blockColors).sodium$getProviders();
+        return blockColors.sodium$getProviders();
     }
 
     static ReferenceSet<Block> getOverridenVanillaBlocks(BlockColors blockColors) {
-        return ((BlockColorsExtension) blockColors).sodium$getOverridenVanillaBlocks();
+        return blockColors.sodium$getOverridenVanillaBlocks();
     }
 
     Reference2ReferenceMap<Block, IBlockColor> sodium$getProviders();
