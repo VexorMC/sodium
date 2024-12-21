@@ -41,10 +41,8 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
     public void setupState() {
         MinecraftClient.getInstance().gameRenderer.enableLightmap();
 
-        MinecraftClient client = MinecraftClient.getInstance();
-
         this.bindTexture(ChunkShaderTextureSlot.BLOCK, GLX.textureUnit);
-        this.bindTexture(ChunkShaderTextureSlot.LIGHT, client.getTextureManager().getTexture(client.gameRenderer.lightmapTextureId).getGlId());
+        this.bindTexture(ChunkShaderTextureSlot.LIGHT, GLX.lightmapTextureUnit);
 
         this.fogShader.setup();
     }
