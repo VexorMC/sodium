@@ -52,7 +52,7 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
 
     @Deprecated(forRemoval = true) // should be handled properly in GFX instead.
     private void bindTexture(ChunkShaderTextureSlot slot, int textureId) {
-        GlStateManager.activeTexture(textureId);
+        GlStateManager.activeTexture(textureId); // this shouldn't be needed?
 
         var uniform = this.uniformTextures.get(slot);
         uniform.setInt(textureId);
