@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gl.device;
 
 import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
+import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.array.GlVertexArray;
 import net.caffeinemc.mods.sodium.client.gl.buffer.*;
 import net.caffeinemc.mods.sodium.client.gl.functions.DeviceFunctions;
@@ -192,7 +193,7 @@ public class GLRenderDevice implements RenderDevice {
 
             this.bindBuffer(GlBufferTarget.ARRAY_BUFFER, buffer);
 
-            System.out.println("Mapping buffer of length %s".formatted(length));
+            SodiumClientMod.logger().info("Mapping buffer of length %s".formatted(length));
 
             ByteBuffer oldBuf = ByteBuffer.allocateDirect((int) length).order(ByteOrder.nativeOrder());
             ByteBuffer buf = GL30.glMapBufferRange(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, length, flags.getBitField(), oldBuf);

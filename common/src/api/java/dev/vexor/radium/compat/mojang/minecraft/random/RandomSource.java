@@ -1,13 +1,14 @@
 package dev.vexor.radium.compat.mojang.minecraft.random;
 
-import kotlin.random.Random;
+import java.util.Random;
 
 public interface RandomSource {
     @Deprecated
     public static final double GAUSSIAN_SPREAD_FACTOR = 2.297;
+    static final Random random = new Random();
 
     public static RandomSource createNewThreadLocalInstance() {
-        return new SingleThreadedRandomSource(Random.Default.nextLong());
+        return new SingleThreadedRandomSource(random.nextLong());
     }
 
     public void setSeed(long var1);
