@@ -130,7 +130,7 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                             }
                         }
 
-                        if (blockState.getBlock().hasTransparency()) {
+                        if (blockState.getBlock().isFullBlock()) {
                             occluder.markClosed(blockPos);
                         }
                     }

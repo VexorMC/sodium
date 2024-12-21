@@ -70,7 +70,7 @@ public abstract class LightDataAccess {
         }
 
         boolean op = !block.hasTransparency() || block.getOpacity() == 0;
-        boolean fo = block.hasTransparency();
+        boolean fo = block.isFullBlock();
         boolean fc = block.renderAsNormalBlock();
 
         // OPTIMIZE: Do not calculate lightmap data if the block is full and opaque.
