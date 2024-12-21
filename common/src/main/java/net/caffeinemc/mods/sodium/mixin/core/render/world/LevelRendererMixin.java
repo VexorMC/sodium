@@ -1,5 +1,7 @@
 package net.caffeinemc.mods.sodium.mixin.core.render.world;
 
+import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
 import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.ChunkRenderMatrices;
@@ -29,6 +31,9 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
     @Shadow
     @Final
     private Map<Integer, BlockBreakingInfo> blockBreakingInfos;
+    @Shadow
+    @Final
+    private MinecraftClient client;
     @Unique
     private SodiumWorldRenderer renderer;
 
@@ -81,6 +86,10 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         Matrix4f modelViewMatrix = new Matrix4f(CameraAccessor.getModelMatrix());
 
         modelViewMatrix.translate(0f, 16f, 0f);
+
+        GlStateManager.activeTexture(GLX.textureUnit);
+        GlStateManager.bindTexture(this.client.getSpriteAtlasTexture().getGlId());
+        GlStateManager.enableTexture();
 
         try {
             this.renderer.drawChunkLayer(renderLayer, new ChunkRenderMatrices(projectionMatrix, modelViewMatrix), x, y, z);
