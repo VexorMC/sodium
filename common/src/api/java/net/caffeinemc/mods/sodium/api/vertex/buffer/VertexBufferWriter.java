@@ -48,7 +48,7 @@ public interface VertexBufferWriter {
         String name = clazz.getName();
 
         return new IllegalArgumentException(String.format("The class %s does not implement interface VertexBufferWriter, " +
-                "which is required for compatibility with Sodium (see: https://github.com/CaffeineMC/sodium/issues/1620)", name));
+                "which is required for compatibility with Radium", name));
     }
 
     /**

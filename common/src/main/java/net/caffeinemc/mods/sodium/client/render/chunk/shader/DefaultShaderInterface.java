@@ -39,8 +39,6 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
 
     @Override // the shader interface should not modify pipeline state
     public void setupState() {
-        MinecraftClient.getInstance().gameRenderer.enableLightmap();
-
         this.bindTexture(ChunkShaderTextureSlot.BLOCK, GLX.textureUnit);
         this.bindTexture(ChunkShaderTextureSlot.LIGHT, GLX.lightmapTextureUnit);
 

@@ -19,7 +19,7 @@ import java.nio.file.Path;
 
 // TODO: Rename in Sodium 0.6
 public class SodiumGameOptions {
-    private static final String DEFAULT_FILE_NAME = "sodium-options.json";
+    private static final String DEFAULT_FILE_NAME = "radium-options.json";
 
     public final QualitySettings quality = new QualitySettings();
     public final AdvancedSettings advanced = new AdvancedSettings();
