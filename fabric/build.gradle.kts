@@ -11,6 +11,9 @@ base {
 val configurationCommonModJava: Configuration = configurations.create("commonJava") {
     isCanBeResolved = true
 }
+val shadow: Configuration = configurations.create("shadow") {
+    isCanBeResolved = true
+}
 val configurationCommonModResources: Configuration = configurations.create("commonResources") {
     isCanBeResolved = true
 }
@@ -19,14 +22,16 @@ dependencies {
     configurationCommonModJava(project(path = ":common", configuration = "commonMainJava"))
     configurationCommonModResources(project(path = ":common", configuration = "commonMainResources"))
 
-    configurationCommonModJava("org.joml:joml:1.10.8")
-    configurationCommonModJava("it.unimi.dsi:fastutil:8.5.15")
+    shadow("org.joml:joml:1.10.8")
+    shadow("it.unimi.dsi:fastutil:8.5.15")
 }
 
 sourceSets.apply {
     main {
         compileClasspath += configurationCommonModJava
         runtimeClasspath += configurationCommonModJava
+        compileClasspath += shadow
+        runtimeClasspath += shadow
     }
 }
 
@@ -59,6 +64,8 @@ loom {
 tasks {
     jar {
         from(configurationCommonModJava)
+
+        shadow.forEach { from(zipTree(it)) { exclude("META-INF", "META-INF/**") } }
     }
 
     remapJar {
