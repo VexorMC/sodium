@@ -1,8 +1,9 @@
 <img src="common/src/main/resources/sodium-icon.png" width="128">
 
-# Sodium
+# Radium
+*Radium is a fork of Sodium, a rendering optimization mod for the Minecraft client which focuses on reducing microstutter and improving frame rates, made to have compatibility with 1.8.9*
 
-Sodium is a powerful rendering engine and optimization mod for the Minecraft client which improves frame rates and reduces
+Radium is a powerful rendering engine and optimization mod for the Minecraft client which improves frame rates and reduces
 micro-stutter, while fixing many graphical issues in Minecraft.
 
 **This mod is the result of thousands of hours of development, and is made possible thanks to players like you.** If you
@@ -28,35 +29,35 @@ not come with any support or warranty. It is often the case they have issues and
 
 The latest nightly build for each current branch of development can be downloaded below.
 
-- Minecraft 1.21.4 (latest): [Download nightly](https://nightly.link/CaffeineMC/sodium/workflows/build-commit/dev/sodium-artifacts-dev.zip) or [View all builds](https://github.com/CaffeineMC/sodium/actions/workflows/build-commit.yml?query=branch%3Adev)
-- Minecraft 1.21.3: [Download nightly](https://nightly.link/CaffeineMC/sodium/workflows/build-commit/1.21.3%2Fstable/sodium-artifacts-1.21.3-stable.zip) or [View all builds](https://github.com/CaffeineMC/sodium/actions/workflows/build-commit.yml?query=branch%3A1.21.3%2Fstable)
-- Minecraft 1.21.1: [Download nightly](https://nightly.link/CaffeineMC/sodium/workflows/build-commit/1.21.1%2Fstable/sodium-artifacts-1.21.1-stable.zip) or [View all builds](https://github.com/CaffeineMC/sodium/actions/workflows/build-commit.yml?query=branch%3A1.21.1%2Fstable)
+- Minecraft 1.8.9 (latest): [Download nightly](https://nightly.link/VexorMC/sodium/workflows/build-commit/dev/sodium-artifacts-dev.zip) or [View all builds](https://github.com/VexorMC/sodium/actions/workflows/build-commit.yml?query=branch%3Adev)
 
 ### 🖥️ Installation
 
 Since the release of Sodium 0.6.0, both the _Fabric_ and _NeoForge_ mod loaders are supported. We generally recommend
 that new users prefer to use the _Fabric_ mod loader, since it is more lightweight and stable (for the time being.)
 
-For more information about downloading and installing the mod, please refer to our [Installation Guide](https://github.com/CaffeineMC/sodium/wiki/Installation).
+For more information about downloading and installing the mod, please refer to our [Installation Guide](https://github.com/VexorMC/sodium/wiki/Installation).
 
 ### 🙇 Getting Help
 
 For technical support (including help with mod installation problems and game crashes), please use our
-[official Discord server](https://caffeinemc.net/discord).
+[official Discord server](https://caffeinemc.net/discord). Do NOT ask for support in the CaffeineMC discord server.
 
 ### 📬 Reporting Issues
 
 If you do not need technical support and would like to report an issue (bug, crash, etc.) or otherwise request changes
 (for mod compatibility, new features, etc.), then we encourage you to open an issue on the
-[project issue tracker](https://github.com/CaffeineMC/sodium/issues).
+[project issue tracker](https://github.com/VexorMC/sodium/issues).
 
 Please note that while the issue tracker is open to feature requests, development is primarily focused on
 improving compatibility, performance, and finishing any unimplemented features necessary for parity with
 the vanilla renderer.
 
+Please do not report issues in the sodium repository
+
 ### 💬 Join the Community
 
-We have an [official Discord community](https://caffeinemc.net/discord) for all of our projects. By joining, you can:
+We have an [official Discord community](https://discord.vexor.dev) for all of our projects. By joining, you can:
 - Get installation help and technical support for all of our mods
 - Get the latest updates about development and community events
 - Talk with and collaborate with the rest of our team
@@ -92,7 +93,7 @@ with `./gradlew.bat` (Windows) or `./gradlew` (macOS and Linux).
 
 ### Build Requirements
 
-- OpenJDK 21
+- OpenJDK 17
     - We recommend using the [Eclipse Temurin](https://adoptium.net/) distribution as it's regularly tested by our developers and known
       to be of high quality.
 - Gradle 8.10.x

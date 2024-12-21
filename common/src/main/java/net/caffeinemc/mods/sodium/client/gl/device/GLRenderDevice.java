@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gl.device;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.array.GlVertexArray;
@@ -38,6 +39,8 @@ public class GLRenderDevice implements RenderDevice {
 
         this.stateTracker.clear();
         this.isActive = true;
+
+        GlStateManager.disableCull();
     }
 
     @Override

@@ -1,4 +1,4 @@
-rootProject.name = "sodium"
+rootProject.name = "radium"
 
 pluginManagement {
     repositories {

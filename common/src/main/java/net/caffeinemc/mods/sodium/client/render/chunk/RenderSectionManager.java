@@ -166,7 +166,7 @@ public class RenderSectionManager {
         BlockPos origin = CameraUtils.getBlockPosition();
 
         if (spectator &&
-                this.level.getBlockState(origin).getBlock().hasTransparency()) {
+                !this.level.getBlockState(origin).getBlock().hasTransparency()) {
             useOcclusionCulling = false;
         } else {
             useOcclusionCulling = SodiumClientMod.options().performance.smartCull;

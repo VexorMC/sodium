@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class SodiumClientMod {
     private static SodiumGameOptions CONFIG;
-    private static final Logger LOGGER = LogManager.getLogger("Sodium");
+    private static final Logger LOGGER = LogManager.getLogger("Radium");
 
     private static String MOD_VERSION;
 
