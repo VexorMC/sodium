@@ -68,7 +68,7 @@ public class ConfigCorruptedScreen extends Screen {
     public void render(int mouseX, int mouseY, float delta) {
         super.render(mouseX, mouseY, delta);
 
-        this.textRenderer.draw("Sodium Renderer", 32, 32, 0xffffff);
+        this.textRenderer.draw("Radium Renderer", 32, 32, 0xffffff);
         this.textRenderer.draw("Could not load the configuration file", 32, 48, 0xff0000);
 
         for (int i = 0; i < TEXT_BODY.size(); i++) {

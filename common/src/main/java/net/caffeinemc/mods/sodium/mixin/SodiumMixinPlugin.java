@@ -16,25 +16,25 @@ import java.util.Set;
 public class SodiumMixinPlugin implements IMixinConfigPlugin {
     private static final String MIXIN_PACKAGE_ROOT = "net.caffeinemc.mods.sodium.mixin.";
 
-    private final Logger logger = LogManager.getLogger("Sodium");
+    private final Logger logger = LogManager.getLogger("Radium");
     private MixinConfig config;
     private boolean dependencyResolutionFailed;
 
     @Override
     public void onLoad(String mixinPackage) {
         try {
-            this.config = MixinConfig.load(new File("./config/sodium-mixins.properties"));
+            this.config = MixinConfig.load(new File("./config/radium-mixins.properties"));
         } catch (Exception e) {
-            throw new RuntimeException("Could not load configuration file for Sodium", e);
+            throw new RuntimeException("Could not load configuration file for Radium", e);
         }
 
         this.dependencyResolutionFailed = PlatformRuntimeInformation.getInstance().isModInLoadingList("embeddium");
 
         if (dependencyResolutionFailed) {
-            this.logger.error("Not applying any Sodium mixins; dependency resolution has failed.");
+            this.logger.error("Not applying any Radium mixins; dependency resolution has failed.");
         }
 
-        this.logger.info("Loaded configuration file for Sodium: {} options available, {} override(s) found",
+        this.logger.info("Loaded configuration file for Radium: {} options available, {} override(s) found",
                 this.config.getOptionCount(), this.config.getOptionOverrideCount());
     }
 

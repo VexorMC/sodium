@@ -8,19 +8,19 @@ import java.util.Arrays;
 /**
  * A light data cache which uses a flat-array to store the light data for the blocks in a given chunk and its direct
  * neighbors. This is considerably faster than using a hash table to lookup values for a given block position and
- * can be re-used by {@link LevelSlice} to avoid allocations.
+ * can be re-used by {@link net.caffeinemc.mods.sodium.client.world.LevelSlice} to avoid allocations.
  */
 public class ArrayLightDataCache extends LightDataAccess {
     private static final int NEIGHBOR_BLOCK_RADIUS = 2;
     private static final int BLOCK_LENGTH = 16 + (NEIGHBOR_BLOCK_RADIUS * 2);
 
-    private final int[] light;
+    private final long[] light;
 
     private int xOffset, yOffset, zOffset;
 
-    public ArrayLightDataCache(LevelSlice level) {
-        this.level = level;
-        this.light = new int[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
+    public ArrayLightDataCache(LevelSlice world) {
+        this.level = world;
+        this.light = new long[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
     }
 
     public void reset(SectionPos origin) {
@@ -28,7 +28,7 @@ public class ArrayLightDataCache extends LightDataAccess {
         this.yOffset = origin.minBlockY() - NEIGHBOR_BLOCK_RADIUS;
         this.zOffset = origin.minBlockZ() - NEIGHBOR_BLOCK_RADIUS;
 
-        Arrays.fill(this.light, 0);
+        Arrays.fill(this.light, 0L);
     }
 
     private int index(int x, int y, int z) {
@@ -40,10 +40,10 @@ public class ArrayLightDataCache extends LightDataAccess {
     }
 
     @Override
-    public int get(int x, int y, int z) {
+    public long get(int x, int y, int z) {
         int l = this.index(x, y, z);
 
-        int word = this.light[l];
+        long word = this.light[l];
 
         if (word != 0) {
             return word;

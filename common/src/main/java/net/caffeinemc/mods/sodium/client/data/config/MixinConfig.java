@@ -16,7 +16,7 @@ import java.util.Properties;
  */
 @SuppressWarnings("CanBeFinal")
 public class MixinConfig {
-    protected static final Logger LOGGER = LogManager.getLogger("SodiumConfig");
+    protected static final Logger LOGGER = LogManager.getLogger("RadiumConfig");
 
     protected static final String JSON_KEY_SODIUM_OPTIONS = "sodium:options";
 
@@ -227,7 +227,7 @@ public class MixinConfig {
         }
 
         try (Writer writer = new FileWriter(file)) {
-            writer.write("# This is the configuration file for Sodium.\n");
+            writer.write("# This is the configuration file for Radium.\n");
             writer.write("#\n");
             writer.write("# You can find information on editing this file and all the available options here:\n");
             writer.write("# https://github.com/CaffeineMC/sodium/wiki/Configuration-File\n");

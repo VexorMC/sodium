@@ -7,7 +7,6 @@ import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-
 import java.util.Arrays;
 
 /**
@@ -38,7 +37,7 @@ public class FlatLightPipeline implements LightPipeline {
             if ((flags & ModelQuadFlags.IS_ALIGNED) != 0 || ((flags & ModelQuadFlags.IS_PARALLEL) != 0 && LightDataAccess.unpackFC(this.lightCache.get(pos)))) {
                 lightmap = getOffsetLightmap(pos, face);
             } else {
-                lightmap = LightDataAccess.getLightmap(this.lightCache.get(pos));
+                lightmap = LightDataAccess.unpackLM(this.lightCache.get(pos));
             }
         }
 
@@ -47,10 +46,10 @@ public class FlatLightPipeline implements LightPipeline {
     }
 
     private int getOffsetLightmap(BlockPos pos, Direction face) {
-        int lightmap = LightDataAccess.getLightmap(this.lightCache.get(pos, face));
+        int lightmap = LightDataAccess.unpackLM(this.lightCache.get(pos, face));
         // If the block light is not 15 (max)...
         if ((lightmap & 0xF0) != 0xF0) {
-            int originLightmap = LightDataAccess.getLightmap(this.lightCache.get(pos));
+            int originLightmap = LightDataAccess.unpackLM(this.lightCache.get(pos));
             // ...take the maximum combined block light at the origin and offset positions
             lightmap = (lightmap & ~0xFF) | Math.max(lightmap & 0xFF, originLightmap & 0xFF);
         }

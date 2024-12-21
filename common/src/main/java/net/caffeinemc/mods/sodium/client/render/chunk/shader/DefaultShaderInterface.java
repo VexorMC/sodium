@@ -39,8 +39,6 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
 
     @Override // the shader interface should not modify pipeline state
     public void setupState() {
-        MinecraftClient.getInstance().gameRenderer.enableLightmap();
-
         this.bindTexture(ChunkShaderTextureSlot.BLOCK, GLX.textureUnit);
         this.bindTexture(ChunkShaderTextureSlot.LIGHT, GLX.lightmapTextureUnit);
 
@@ -54,10 +52,10 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
 
     @Deprecated(forRemoval = true) // should be handled properly in GFX instead.
     private void bindTexture(ChunkShaderTextureSlot slot, int textureId) {
-        GlStateManager.bindTexture(textureId);
+        GlStateManager.activeTexture(textureId);
 
         var uniform = this.uniformTextures.get(slot);
-        uniform.setInt(slot.ordinal());
+        uniform.setInt(textureId);
     }
 
     @Override
