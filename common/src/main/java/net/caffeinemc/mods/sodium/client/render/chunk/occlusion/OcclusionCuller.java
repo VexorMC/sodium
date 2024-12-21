@@ -215,7 +215,7 @@ public class OcclusionCuller {
     private static final float CHUNK_SECTION_SIZE = CHUNK_SECTION_RADIUS + 1.0f /* maximum model extent */ + 0.125f /* epsilon */;
 
     public static boolean isWithinFrustum(Viewport viewport, RenderSection section) {
-        return viewport.isBoxVisible(section.getCenterX(), section.getCenterY(), section.getCenterZ(),
+        return viewport.isBoxVisible(section.getOriginX(), section.getOriginY(), section.getOriginZ(),
                 CHUNK_SECTION_SIZE, CHUNK_SECTION_SIZE, CHUNK_SECTION_SIZE);
     }
 
@@ -223,7 +223,7 @@ public class OcclusionCuller {
     private static final float CHUNK_SECTION_SIZE_NEARBY = CHUNK_SECTION_RADIUS + 2.0f /* bigger model extent */ + 0.125f /* epsilon */;
 
     public static boolean isWithinNearbySectionFrustum(Viewport viewport, RenderSection section) {
-        return viewport.isBoxVisible(section.getCenterX(), section.getCenterY(), section.getCenterZ(),
+        return viewport.isBoxVisible(section.getOriginX(), section.getOriginY(), section.getOriginZ(),
                 CHUNK_SECTION_SIZE_NEARBY, CHUNK_SECTION_SIZE_NEARBY, CHUNK_SECTION_SIZE_NEARBY);
     }
 

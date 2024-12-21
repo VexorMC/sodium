@@ -31,18 +31,14 @@ public final class Viewport {
     }
 
     public boolean isBoxVisible(int intOriginX, int intOriginY, int intOriginZ, float floatSizeX, float floatSizeY, float floatSizeZ) {
-        float floatOriginX = (intOriginX - this.transform.intX) - this.transform.fracX;
-        float floatOriginY = (intOriginY - this.transform.intY) - this.transform.fracY;
-        float floatOriginZ = (intOriginZ - this.transform.intZ) - this.transform.fracZ;
-
         return this.frustum.testAab(
-                floatOriginX - floatSizeX,
-                floatOriginY - floatSizeY,
-                floatOriginZ - floatSizeZ,
+                intOriginX,
+                intOriginY,
+                intOriginZ,
 
-                floatOriginX + floatSizeX,
-                floatOriginY + floatSizeY,
-                floatOriginZ + floatSizeZ
+                floatSizeX,
+                floatSizeY,
+                floatSizeZ
         );
     }
 

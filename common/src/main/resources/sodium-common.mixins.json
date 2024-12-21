@@ -14,7 +14,7 @@
     "core.access.CameraAccessor",
     "core.render.TextureAtlasMixin",
     "core.render.VertexFormatMixin",
-    "core.render.frustum.FrustumMixin",
+    "core.render.frustum.CullingCameraViewMixin",
     "core.render.immediate.consumer.BufferBuilderMixin",
     "core.render.world.LevelRendererMixin",
     "core.world.biome.ClientLevelMixin",
