@@ -1,0 +1,16 @@
+{
+  "package" : "dev.vexor.radium.frapi.mixin",
+  "required" : true,
+  "compatibilityLevel" : "JAVA_17",
+  "injectors" : {
+    "defaultRequire" : 1
+  },
+  "overwrites" : {
+    "conformVisibility" : true
+  },
+  "client" : [
+    "renderer.client.BakedModelMixin",
+    "renderer.client.debughud.DebugHudMixin",
+    "renderer.client.SpriteAtlasTextureMixin"
+  ]
+}

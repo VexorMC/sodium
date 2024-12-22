@@ -2,8 +2,8 @@ package net.caffeinemc.mods.sodium.mixin.features.render.frapi;
 
 import dev.vexor.radium.compat.mojang.minecraft.random.RandomSource;
 import net.caffeinemc.mods.sodium.client.render.frapi.render.AbstractBlockRenderContext;
-import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
-import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.QuadEmitter;
+import dev.vexor.radium.frapi.api.renderer.v1.model.FabricBakedModel;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.util.math.BlockPos;

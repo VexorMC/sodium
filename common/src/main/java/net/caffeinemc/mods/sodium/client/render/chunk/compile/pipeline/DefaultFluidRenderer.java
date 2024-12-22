@@ -33,10 +33,10 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.joml.Vector3d;
 
 public class DefaultFluidRenderer {
     // TODO: allow this to be changed by vertex format, WARNING: make sure TranslucentGeometryCollector knows about EPSILON
@@ -167,7 +167,7 @@ public class DefaultFluidRenderer {
             southEastHeight -= EPSILON;
             northEastHeight -= EPSILON;
 
-            Vec3d velocity = AbstractFluidBlock.getFlowingFluidByMaterial(fluid.getMaterial()).getFluidVec(level, blockPos);
+            Vector3d velocity = WorldUtil.getVelocity(level, blockPos, fluidState);
 
             Sprite sprite;
             float u1, u2, u3, u4;

@@ -16,7 +16,7 @@
 
 package net.caffeinemc.mods.sodium.client.render.frapi.material;
 
-import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
+import dev.vexor.radium.frapi.api.renderer.v1.material.RenderMaterial;
 import net.legacyfabric.fabric.api.util.TriState;
 
 public class RenderMaterialImpl extends MaterialViewImpl implements RenderMaterial {

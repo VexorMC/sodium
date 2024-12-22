@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package net.caffeinemc.mods.sodium.client.render.frapi.render;
+package dev.vexor.radium.frapi.api.renderer.v1.mesh;
 
-import dev.vexor.radium.frapi.api.renderer.v1.mesh.QuadEmitter;
-
-public abstract class AbstractRenderContext {
-    abstract QuadEmitter getEmitter();
+@FunctionalInterface
+public interface QuadTransform {
+	/**
+	 * Return false to filter out quads from rendering. When more than one transform
+	 * is in effect, returning false means unapplied transforms will not receive the quad.
+	 */
+	boolean transform(MutableQuadView quad);
 }

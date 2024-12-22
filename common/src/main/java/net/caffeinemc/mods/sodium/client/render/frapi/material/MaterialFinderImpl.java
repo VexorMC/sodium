@@ -16,7 +16,7 @@
 
 package net.caffeinemc.mods.sodium.client.render.frapi.material;
 
-import net.fabricmc.fabric.api.renderer.v1.material.*;
+import dev.vexor.radium.frapi.api.renderer.v1.material.*;
 import net.legacyfabric.fabric.api.util.TriState;
 
 import java.util.Objects;

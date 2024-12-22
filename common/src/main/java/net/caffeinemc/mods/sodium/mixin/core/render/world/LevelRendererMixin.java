@@ -118,7 +118,7 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
      */
     @Overwrite
     public void setupTerrain(Entity entity, double tickDelta, CameraView cameraView, int frame, boolean spectator) {
-        var viewport = ((ViewportProvider) cameraView).sodium$createViewport();
+        var viewport = ((ViewportProvider) cameraView).sodium$createViewport(tickDelta);
         var updateChunksImmediately = FlawlessFrames.isActive();
 
         RenderDevice.enterManagedCode();

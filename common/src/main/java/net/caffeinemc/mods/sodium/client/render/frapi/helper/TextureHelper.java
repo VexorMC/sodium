@@ -16,7 +16,7 @@
 
 package net.caffeinemc.mods.sodium.client.render.frapi.helper;
 
-import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.MutableQuadView;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
 

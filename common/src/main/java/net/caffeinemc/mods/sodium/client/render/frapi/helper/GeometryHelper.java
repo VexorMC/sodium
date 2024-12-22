@@ -17,7 +17,7 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.helper;
 
 import dev.vexor.radium.compat.mojang.math.Mth;
-import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.QuadView;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.util.math.Direction;
 import org.joml.Vector3fc;

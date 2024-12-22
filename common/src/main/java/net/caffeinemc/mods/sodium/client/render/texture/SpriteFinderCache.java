@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.texture;
 
-import net.fabricmc.fabric.api.renderer.v1.model.SpriteFinder;
+import dev.vexor.radium.frapi.api.renderer.v1.model.SpriteFinder;
 import net.minecraft.client.MinecraftClient;
 
 /**

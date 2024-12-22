@@ -19,10 +19,10 @@ package net.caffeinemc.mods.sodium.client.render.frapi;
 import net.caffeinemc.mods.sodium.client.render.frapi.material.MaterialFinderImpl;
 import net.caffeinemc.mods.sodium.client.render.frapi.material.RenderMaterialImpl;
 import net.caffeinemc.mods.sodium.client.render.frapi.mesh.MutableMeshImpl;
-import net.fabricmc.fabric.api.renderer.v1.Renderer;
-import net.fabricmc.fabric.api.renderer.v1.material.MaterialFinder;
-import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
-import net.fabricmc.fabric.api.renderer.v1.mesh.MutableMesh;
+import dev.vexor.radium.frapi.api.renderer.v1.Renderer;
+import dev.vexor.radium.frapi.api.renderer.v1.material.MaterialFinder;
+import dev.vexor.radium.frapi.api.renderer.v1.material.RenderMaterial;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.MutableMesh;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;

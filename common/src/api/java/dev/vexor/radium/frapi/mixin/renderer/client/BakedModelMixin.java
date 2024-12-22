@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package net.caffeinemc.mods.sodium.client.render.frapi.render;
+package dev.vexor.radium.frapi.mixin.renderer.client;
 
-import dev.vexor.radium.frapi.api.renderer.v1.mesh.QuadEmitter;
+import org.spongepowered.asm.mixin.Mixin;
 
-public abstract class AbstractRenderContext {
-    abstract QuadEmitter getEmitter();
+import net.minecraft.client.render.model.BakedModel;
+
+import dev.vexor.radium.frapi.api.renderer.v1.model.FabricBakedModel;
+
+/**
+ * Avoids instanceof checks and enables consistent code path for all baked models.
+ */
+@Mixin(BakedModel.class)
+public interface BakedModelMixin extends FabricBakedModel {
 }

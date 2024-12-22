@@ -21,7 +21,7 @@ import dev.vexor.radium.compat.mojang.blaze3d.vertex.VertexConsumer;
 import dev.vexor.radium.compat.mojang.minecraft.BlockColors;
 import dev.vexor.radium.compat.mojang.minecraft.random.SingleThreadedRandomSource;
 import net.caffeinemc.mods.sodium.client.render.frapi.render.NonTerrainBlockRenderContext;
-import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
+import dev.vexor.radium.frapi.api.renderer.v1.model.FabricBakedModel;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.block.BlockModelRenderer;

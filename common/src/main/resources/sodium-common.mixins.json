@@ -12,7 +12,6 @@
   "client" : [
     "core.MinecraftMixin",
     "core.access.CameraAccessor",
-    "core.render.TextureAtlasMixin",
     "core.render.VertexFormatMixin",
     "core.render.frustum.CullingCameraViewMixin",
     "core.render.immediate.consumer.BufferBuilderMixin",

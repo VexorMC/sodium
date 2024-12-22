@@ -22,8 +22,8 @@ import net.minecraft.client.render.VertexFormat;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import net.caffeinemc.mods.sodium.client.render.frapi.material.RenderMaterialImpl;
-import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
-import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.QuadView;
+import dev.vexor.radium.frapi.api.renderer.v1.model.ModelHelper;
 import net.minecraft.util.math.Direction;
 
 /**

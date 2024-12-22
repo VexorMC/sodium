@@ -16,17 +16,17 @@
 
 package net.caffeinemc.mods.sodium.client.render.frapi.mesh;
 
-import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
-import net.fabricmc.fabric.api.renderer.v1.mesh.MutableMesh;
-import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
-import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.Mesh;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.MutableMesh;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.MutableQuadView;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.QuadEmitter;
 
 import java.util.function.Consumer;
 
 /**
  * Our implementation of {@link MutableMesh}, used for static mesh creation and baking.
  * Not much to it - mainly it just needs to grow the int[] array as quads are appended
- * and maintain/provide a properly-configured {@link net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView} instance.
+ * and maintain/provide a properly-configured {@link MutableQuadView} instance.
  * All the encoding and other work is handled in the quad base classes.
  * The one interesting bit is in {@link MutableQuadViewImpl#emitDirectly()}.
  */

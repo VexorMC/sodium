@@ -21,10 +21,10 @@ import net.caffeinemc.mods.sodium.client.render.frapi.render.AbstractBlockRender
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteFinderCache;
 import net.caffeinemc.mods.sodium.client.services.SodiumModelData;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
-import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
-import net.fabricmc.fabric.api.renderer.v1.material.ShadeMode;
-import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
+import dev.vexor.radium.frapi.api.renderer.v1.material.BlendMode;
+import dev.vexor.radium.frapi.api.renderer.v1.material.RenderMaterial;
+import dev.vexor.radium.frapi.api.renderer.v1.material.ShadeMode;
+import dev.vexor.radium.frapi.api.renderer.v1.model.FabricBakedModel;
 import net.legacyfabric.fabric.api.util.TriState;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

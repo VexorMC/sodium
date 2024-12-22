@@ -17,9 +17,9 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.mesh;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
-import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
-import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.Mesh;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.QuadEmitter;
+import dev.vexor.radium.frapi.api.renderer.v1.mesh.QuadView;
 import org.jetbrains.annotations.Range;
 
 import java.util.function.Consumer;
