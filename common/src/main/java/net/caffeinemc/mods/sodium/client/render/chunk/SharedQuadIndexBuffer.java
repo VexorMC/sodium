@@ -44,7 +44,7 @@ public class SharedQuadIndexBuffer {
     }
 
     private void grow(CommandList commandList, int primitiveCount) {
-        var bufferSize = primitiveCount * this.indexType.getBytesPerElement() * ELEMENTS_PER_PRIMITIVE;
+        long bufferSize = ((long)primitiveCount) * this.indexType.getBytesPerElement() * ELEMENTS_PER_PRIMITIVE;
 
         commandList.allocateStorage(this.buffer, bufferSize, GlBufferUsage.STATIC_DRAW);
 

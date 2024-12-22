@@ -60,7 +60,7 @@ public class FluidRendererImpl extends FluidRenderer {
 
         defaultContext.setUp(this.colorProviderRegistry, this.defaultRenderer, level, blockState, fluidState, blockPos, offset, collector, meshBuilder, material, false);
 
-        defaultRenderer.render(level, blockState, blockPos, offset, collector, meshBuilder, material);
+        // defaultRenderer.render(level, blockState, blockPos, offset, collector, meshBuilder, material);
     }
 
     private static class DefaultRenderContext {

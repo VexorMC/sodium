@@ -2,11 +2,13 @@ package net.caffeinemc.mods.sodium.client.render.chunk.shader;
 
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformFloat;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformFloat3v;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformInt;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformMatrix4f;
 import net.minecraft.client.MinecraftClient;
 import org.joml.Matrix4fc;
+import org.lwjgl.Sys;
 import org.lwjgl.opengl.GL11;
 
 import java.util.EnumMap;
