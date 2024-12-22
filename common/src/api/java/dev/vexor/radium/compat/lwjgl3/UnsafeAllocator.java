@@ -1,7 +1,9 @@
 package dev.vexor.radium.compat.lwjgl3;
 
+import java.lang.reflect.Field;
+
 public class UnsafeAllocator implements MemoryUtil.MemoryAllocator {
-    static final sun.misc.Unsafe UNSAFE;
+    private static final sun.misc.Unsafe UNSAFE;
 
     static {
         UNSAFE = getUnsafeInstance();
@@ -9,26 +11,35 @@ public class UnsafeAllocator implements MemoryUtil.MemoryAllocator {
 
     @Override
     public long malloc(long size) {
-        return UNSAFE.allocateMemory(size);
+        validateSize(size);
+        long address = UNSAFE.allocateMemory(size);
+        if (address == 0) {
+            throw new OutOfMemoryError("Failed to allocate memory");
+        }
+        return address;
     }
 
     @Override
     public long calloc(long num, long size) {
-        long totalSize = num * size;
-        long address = UNSAFE.allocateMemory(totalSize);
-        if (address == 0) {
-            throw new OutOfMemoryError("Failed to allocate memory");
-        }
+        validateSize(num);
+        validateSize(size);
+        long totalSize = Math.multiplyExact(num, size);
+        long address = malloc(totalSize);
         UNSAFE.setMemory(address, totalSize, (byte) 0);
         return address;
     }
 
     @Override
     public long realloc(long ptr, long size) {
+        validateSize(size);
         if (ptr == 0) {
             return malloc(size);
         }
-        return UNSAFE.reallocateMemory(ptr, size);
+        long newAddress = UNSAFE.reallocateMemory(ptr, size);
+        if (newAddress == 0) {
+            throw new OutOfMemoryError("Failed to reallocate memory");
+        }
+        return newAddress;
     }
 
     @Override
@@ -40,36 +51,48 @@ public class UnsafeAllocator implements MemoryUtil.MemoryAllocator {
 
     @Override
     public long aligned_alloc(long alignment, long size) {
+        validateAlignment(alignment);
+        validateSize(size);
+
         long misalignment = alignment - 1;
-        long address = malloc(size + misalignment);
-        if (address == 0) {
+        long rawAddress = malloc(size + misalignment + Long.BYTES);
+        if (rawAddress == 0) {
             throw new OutOfMemoryError("Failed to allocate aligned memory");
         }
-        long alignedAddress = (address + misalignment) & ~misalignment;
+
+        long alignedAddress = (rawAddress + Long.BYTES + misalignment) & ~misalignment;
+        UNSAFE.putLong(alignedAddress - Long.BYTES, rawAddress);
+
         return alignedAddress;
     }
 
     @Override
     public void aligned_free(long ptr) {
-        free(ptr);
+        if (ptr != 0) {
+            long rawAddress = UNSAFE.getLong(ptr - Long.BYTES);
+            free(rawAddress);
+        }
     }
 
-    public static sun.misc.Unsafe getUnsafeInstance() throws SecurityException {
-        java.lang.reflect.Field[] fields = sun.misc.Unsafe.class.getDeclaredFields();
-        for (java.lang.reflect.Field field : fields) {
-            if (!field.getType().equals(sun.misc.Unsafe.class))
-                continue;
-            int modifiers = field.getModifiers();
-            if (!(java.lang.reflect.Modifier.isStatic(modifiers) && java.lang.reflect.Modifier.isFinal(modifiers)))
-                continue;
-            field.setAccessible(true);
-            try {
-                return (sun.misc.Unsafe) field.get(null);
-            } catch (IllegalAccessException e) {
-                /* Ignore */
-            }
-            break;
+    private static void validateSize(long size) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Size must be greater than 0");
         }
-        throw new UnsupportedOperationException("Unable to access Unsafe instance");
+    }
+
+    private static void validateAlignment(long alignment) {
+        if (alignment <= 0 || (alignment & (alignment - 1)) != 0) {
+            throw new IllegalArgumentException("Alignment must be a power of 2");
+        }
+    }
+
+    private static sun.misc.Unsafe getUnsafeInstance() {
+        try {
+            Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            return (sun.misc.Unsafe) unsafeField.get(null);
+        } catch (Exception e) {
+            throw new UnsupportedOperationException("Unable to access Unsafe instance", e);
+        }
     }
 }
