@@ -6,7 +6,6 @@ import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
 import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.ChunkRenderMatrices;
 import net.caffeinemc.mods.sodium.client.render.viewport.ViewportProvider;
-import net.caffeinemc.mods.sodium.client.util.FlawlessFrames;
 import net.caffeinemc.mods.sodium.client.world.LevelRendererExtension;
 import net.caffeinemc.mods.sodium.mixin.core.access.CameraAccessor;
 import net.minecraft.client.MinecraftClient;
@@ -119,7 +118,7 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
     @Overwrite
     public void setupTerrain(Entity entity, double tickDelta, CameraView cameraView, int frame, boolean spectator) {
         var viewport = ((ViewportProvider) cameraView).sodium$createViewport(tickDelta);
-        var updateChunksImmediately = FlawlessFrames.isActive();
+        var updateChunksImmediately = true;
 
         RenderDevice.enterManagedCode();
 

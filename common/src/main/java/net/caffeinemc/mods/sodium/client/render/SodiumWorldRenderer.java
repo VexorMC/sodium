@@ -171,8 +171,9 @@ public class SodiumWorldRenderer {
         Vec3d posRaw = Camera.getPosition();
         Vector3d pos = new Vector3d(posRaw.x, posRaw.y, posRaw.z);
         Matrix4f projectionMatrix = new Matrix4f(Camera.PROJECTION_MATRIX);
-        float pitch = Camera.getRotationX();
-        float yaw = Camera.getRotationYZ();
+
+        float pitch = Camera.getRotationZ();
+        float yaw = Camera.getRotationX();
         float fogDistance = FogHelper.getFogEnd();
 
         if (this.lastCameraPos == null) {
