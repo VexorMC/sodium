@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gl.device;
 
-import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
-import dev.vexor.radium.compat.lwjgl3.Pointer;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.Pointer;
 
 /**
  * Provides a fixed-size queue for building a draw-command list usable with

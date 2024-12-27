@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
-import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
+import org.lwjgl.system.MemoryUtil;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
 import net.caffeinemc.mods.sodium.client.gl.device.DrawCommandList;

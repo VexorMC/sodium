@@ -12,8 +12,5 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(EntityRenderer.class)
 public abstract class EntityRendererMixin<T extends Entity> {
-    @WrapOperation(method = "shouldRender", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/CameraView;isBoxInFrustum(Lnet/minecraft/util/math/Box;)Z"))
-    private boolean preShouldRender(CameraView instance, Box box, Operation<Boolean> original, T entity) {
-        return original.call(instance, box);
-    }
+
 }

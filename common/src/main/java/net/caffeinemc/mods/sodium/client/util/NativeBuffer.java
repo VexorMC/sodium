@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
+import org.lwjgl.system.MemoryUtil;
 
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;

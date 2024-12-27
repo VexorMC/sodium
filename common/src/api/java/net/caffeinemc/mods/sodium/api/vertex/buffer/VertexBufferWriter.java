@@ -4,7 +4,7 @@ import dev.vexor.radium.compat.mojang.blaze3d.vertex.VertexConsumer;
 import net.caffeinemc.mods.sodium.api.memory.MemoryIntrinsics;
 import net.minecraft.client.render.VertexFormat;
 import org.jetbrains.annotations.Nullable;
-import dev.vexor.radium.compat.lwjgl3.MemoryStack;
+import org.lwjgl.system.MemoryStack;
 
 public interface VertexBufferWriter {
     /**

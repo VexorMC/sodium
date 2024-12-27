@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.api.vertex.attributes.common;
 
-import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
+import org.lwjgl.system.MemoryUtil;
 
 public class ColorAttribute {
     public static void set(long ptr, int color) {

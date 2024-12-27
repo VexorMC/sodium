@@ -3,7 +3,7 @@ package net.caffeinemc.mods.sodium.client.render.chunk.vertex.builder;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
-import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
+import org.lwjgl.system.MemoryUtil;
 import java.nio.ByteBuffer;
 
 public class ChunkMeshBufferBuilder {

@@ -11,7 +11,7 @@ import net.caffeinemc.mods.sodium.api.vertex.format.common.EntityVertex;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import dev.vexor.radium.compat.lwjgl3.MemoryStack;
+import org.lwjgl.system.MemoryStack;
 
 public class BakedModelEncoder {
     private static int mergeLighting(int stored, int calculated) {

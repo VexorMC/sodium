@@ -12,7 +12,7 @@ import org.joml.Math;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import dev.vexor.radium.compat.lwjgl3.MemoryStack;
+import org.lwjgl.system.MemoryStack;
 
 public class QuadEncoder {
     public static void writeQuadVertices(MutableQuadViewImpl quad, VertexConsumer vertexConsumer, int overlay, Matrix4f matPosition, boolean trustedNormals, Matrix3f matNormal) {

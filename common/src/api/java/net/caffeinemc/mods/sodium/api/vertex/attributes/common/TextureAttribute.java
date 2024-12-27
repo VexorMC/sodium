@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.api.vertex.attributes.common;
 
 import org.joml.Vector2f;
-import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
+import org.lwjgl.system.MemoryUtil;
 
 public class TextureAttribute {
     public static void put(long ptr, Vector2f vec) {

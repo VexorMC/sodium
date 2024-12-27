@@ -18,6 +18,10 @@ val configurationCommonModResources: Configuration = configurations.create("comm
     isCanBeResolved = true
 }
 
+repositories {
+    maven("https://jitpack.io/")
+}
+
 dependencies {
     configurationCommonModJava(project(path = ":common", configuration = "commonMainJava"))
     configurationCommonModResources(project(path = ":common", configuration = "commonMainResources"))
@@ -38,6 +42,8 @@ sourceSets.apply {
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
     mappings("net.legacyfabric:yarn:1.8.9+build.551:v2")
+    implementation("io.waterwave.Legacy-LWJGL3:lwjgl:3.3.2-5")
+    runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
 
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
     modImplementation("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")

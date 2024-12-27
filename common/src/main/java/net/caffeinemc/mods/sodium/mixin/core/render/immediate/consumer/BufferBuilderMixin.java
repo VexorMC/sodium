@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.mixin.core.render.immediate.consumer;
 
-import dev.vexor.radium.compat.lwjgl3.MemoryStack;
-import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import net.caffeinemc.mods.sodium.client.render.vertex.buffer.BufferBuilderExtension;
 import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
 import net.minecraft.client.render.BufferBuilder;

@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.data;
 
-import net.caffeinemc.mods.sodium.client.util.UInt32;
-import dev.vexor.radium.compat.lwjgl3.MemoryUtil;
+    import net.caffeinemc.mods.sodium.client.util.UInt32;
+    import org.lwjgl.system.MemoryUtil;
 
 // This code is a terrible hack to get around the fact that we are so incredibly memory bound, and that we
 // have no control over memory layout. The chunk rendering code spends an astronomical amount of time chasing

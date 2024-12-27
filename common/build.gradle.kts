@@ -25,6 +25,10 @@ sourceSets {
     create("desktop")
 }
 
+repositories {
+    maven("https://jitpack.io/")
+}
+
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
     mappings("net.legacyfabric:yarn:1.8.9+build.551:v2")
@@ -39,6 +43,9 @@ dependencies {
     compileOnly("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
 
     modCompileOnly("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
+
+    implementation("io.waterwave.Legacy-LWJGL3:lwjgl:3.3.2-5")
+    runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
 
     // We need to be careful during pre-launch that we don't touch any Minecraft classes, since other mods
     // will not yet have an opportunity to apply transformations.

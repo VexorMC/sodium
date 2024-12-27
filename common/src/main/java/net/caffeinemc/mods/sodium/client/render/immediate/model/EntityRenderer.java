@@ -9,7 +9,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import dev.vexor.radium.compat.lwjgl3.MemoryStack;
+import org.lwjgl.system.MemoryStack;
 
 import static net.caffeinemc.mods.sodium.client.render.immediate.model.ModelCuboid.*;
 
