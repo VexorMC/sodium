@@ -79,7 +79,7 @@ public class BuiltSectionInfo {
          * @param sprite The sprite
          */
         public void addSprite(Sprite sprite) {
-            if (SpriteUtil.hasAnimation(sprite)) {
+            if (sprite.hasMeta()) {
                 this.animatedSprites.add(sprite);
             }
         }

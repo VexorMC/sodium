@@ -7,10 +7,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.List;
+
 @Mixin(Sprite.class)
 public abstract class SpriteContentsMixin implements SpriteContentsExtension {
     @Shadow
     private AnimationMetadata meta;
+    @Shadow
+    protected List<int[][]> frames;
     @Unique
     private boolean active;
 
@@ -21,11 +25,11 @@ public abstract class SpriteContentsMixin implements SpriteContentsExtension {
 
     @Override
     public boolean sodium$hasAnimation() {
-        return this.meta != null;
+        return this.frames.size() > 1;
     }
 
     @Override
-    public boolean sodium$isActive() {
+        public boolean sodium$isActive() {
         return this.active;
     }
 }

@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.fabric.render;
 
 import dev.vexor.radium.compat.mojang.minecraft.WorldUtil;
+import dev.vexor.radium.util.FluidSprites;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
@@ -27,40 +28,23 @@ public class FluidRendererImpl extends FluidRenderer {
     private final DefaultFluidRenderer defaultRenderer;
     private final DefaultRenderContext defaultContext;
 
+    private final FluidSprites sprites;
+
     public FluidRendererImpl(ColorProviderRegistry colorProviderRegistry, LightPipelineProvider lighters) {
         this.colorProviderRegistry = colorProviderRegistry;
-        defaultRenderer = new DefaultFluidRenderer(colorProviderRegistry, lighters);
+        defaultRenderer = new DefaultFluidRenderer(lighters);
         defaultContext = new DefaultRenderContext();
+        sprites = FluidSprites.create();
     }
 
     public void render(LevelSlice level, BlockState blockState, BlockState fluidState, BlockPos blockPos, BlockPos offset, TranslucentGeometryCollector collector, ChunkBuildBuffers buffers) {
         var material = DefaultMaterials.forFluidState(fluidState);
         var meshBuilder = buffers.get(material);
-
-        // Invoking FluidRenderHandler#renderFluid can invoke vanilla FluidRenderer#render.
-        //
-        // Sodium cannot let vanilla FluidRenderer#render run (during the invocation of FluidRenderHandler#renderFluid)
-        // for two reasons.
-        // 1. It is the hot path and vanilla FluidRenderer#render is not very fast.
-        // 2. Fabric API's mixins to FluidRenderer#render expect it to be initially called from the chunk rebuild task,
-        // not from inside FluidRenderHandler#renderFluid. Not upholding this assumption will result in all custom
-        // geometry to be buffered twice.
-        //
-        // The default implementation of FluidRenderHandler#renderFluid invokes vanilla FluidRenderer#render, but
-        // Fabric API does not support invoking vanilla FluidRenderer#render from FluidRenderHandler#renderFluid
-        // directly and it does not support calling the default implementation of FluidRenderHandler#renderFluid (super)
-        // more than once. Because of this, the parameters to vanilla FluidRenderer#render will be the same as those
-        // initially passed to FluidRenderHandler#renderFluid, so they can be ignored.
-        //
-        // Due to all the above, Sodium injects into head of vanilla FluidRenderer#render before Fabric API and cancels
-        // the call if it was invoked from inside FluidRenderHandler#renderFluid. The injector ends up calling
-        // DefaultFluidRenderer#render, which emulates what vanilla FluidRenderer#render does, but is more efficient.
-        // To allow invoking this method from the injector, where there is no local Sodium context, the renderer and
-        // parameters are bundled into a DefaultRenderContext which is stored in a ThreadLocal.
+        var fluid = WorldUtil.getFluid(fluidState);
 
         defaultContext.setUp(this.colorProviderRegistry, this.defaultRenderer, level, blockState, fluidState, blockPos, offset, collector, meshBuilder, material, false);
 
-        // defaultRenderer.render(level, blockState, blockPos, offset, collector, meshBuilder, material);
+        defaultRenderer.render(level, blockState, blockPos, offset, collector, meshBuilder, material, defaultContext.getColorProvider(fluid), sprites.forFluid(fluid));
     }
 
     private static class DefaultRenderContext {
