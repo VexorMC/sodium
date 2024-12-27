@@ -11,6 +11,7 @@ import net.caffeinemc.mods.sodium.client.render.immediate.model.BakedModelEncode
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteUtil;
 import net.caffeinemc.mods.sodium.client.render.vertex.VertexConsumerUtils;
 import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.GameRenderer;
@@ -66,6 +67,19 @@ public class ModelBlockRendererMixin {
             return;
         }
 
+        double x = (double)pos.getX();
+        double y = (double)pos.getY();
+        double z = (double)pos.getZ();
+        Block.OffsetType offsetType = state.getBlock().getOffsetType();
+        if (offsetType != Block.OffsetType.NONE) {
+            long l = MathHelper.hashCode(pos);
+            x += ((double)((float)(l >> 16 & 15L) / 15.0F) - (double)0.5F) * (double)0.5F;
+            y += ((double)((float)(l >> 24 & 15L) / 15.0F) - (double)0.5F) * (double)0.5F;
+            if (offsetType == Block.OffsetType.XYZ) {
+                z += ((double)((float)(l >> 20 & 15L) / 15.0F) - (double)1.0F) * 0.2;
+            }
+        }
+
         cir.cancel();
 
         int i = state.getBlock().getColor(state.getBlock().getRenderState(state));
@@ -86,12 +100,17 @@ public class ModelBlockRendererMixin {
 
         int defaultColor = ColorABGR.pack(red, green, blue, 1.0F);
 
+        PoseStack poseStack = new PoseStack();
+
+        poseStack.pushPose();
+        poseStack.translate(x, y, z);
+
         for (Direction direction : DirectionUtil.ALL_DIRECTIONS) {
             random.setSeed(42L);
             List<BakedQuad> quads = model.getByDirection(direction);
 
             if (!quads.isEmpty()) {
-                renderQuads(new PoseStack().last(), writer, defaultColor, quads, 0, 0);
+                renderQuads(poseStack.last(), writer, defaultColor, quads, 0, 0);
             }
         }
 
@@ -99,7 +118,9 @@ public class ModelBlockRendererMixin {
         List<BakedQuad> quads = model.getQuads();
 
         if (!quads.isEmpty()) {
-            renderQuads(new PoseStack().last(), writer, defaultColor, quads, 0, 0);
+            renderQuads(poseStack.last(), writer, defaultColor, quads, 0, 0);
         }
+
+        poseStack.popPose();
     }
 }
