@@ -11,6 +11,6 @@ public final class SimpleFrustum implements Frustum {
 
     @Override
     public boolean testAab(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
-        return this.frustum.isBoxInFrustum(minX, minY, minZ, maxX, maxY, maxZ);
+        return true;
     }
 }
