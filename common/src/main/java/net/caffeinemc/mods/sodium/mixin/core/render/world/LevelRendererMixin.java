@@ -11,8 +11,11 @@ import net.caffeinemc.mods.sodium.mixin.core.access.CameraAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL15;
@@ -23,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
 import java.util.Map;
 
 @Mixin(WorldRenderer.class)
@@ -33,6 +37,15 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
     @Shadow
     @Final
     private MinecraftClient client;
+    @Shadow
+    private int renderedEntityCount;
+    @Shadow
+    @Final
+    private EntityRenderDispatcher entityRenderDispatcher;
+    @Shadow
+    private ClientWorld world;
+    @Shadow
+    private int totalEntityCount;
     @Unique
     private SodiumWorldRenderer renderer;
 
@@ -172,9 +185,79 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         }
     }
 
-    @Inject(method = "renderEntities", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/WorldRenderer;noCullingBlockEntities:Ljava/util/Set;", shift = At.Shift.BEFORE, ordinal = 1))
-    private void onRenderBlockEntities(Entity entity, CameraView cameraView, float tickDelta, CallbackInfo ci) {
-        this.renderer.renderBlockEntities(this.blockBreakingInfos, tickDelta);
+    /**
+     * @author Decencies
+     * @reason Redirect entities to our renderer
+     */
+    @Overwrite
+    public void renderEntities(Entity player, CameraView camera, float partialTicks) {
+        this.world.profiler.push("prepare");
+        Entity renderView = client.getCameraEntity();
+
+        BlockEntityRenderDispatcher.INSTANCE
+                .updateCamera(world, client.getTextureManager(), client.textRenderer, renderView, partialTicks);
+
+        entityRenderDispatcher
+                .updateCamera(world, client.textRenderer, renderView, client.targetedEntity, client.options, partialTicks);
+
+        double renderX = renderView.prevTickX + (renderView.x - renderView.prevTickX) * partialTicks;
+        double renderY = renderView.prevTickY + (renderView.y - renderView.prevTickY) * partialTicks;
+        double renderZ = renderView.prevTickZ + (renderView.z - renderView.prevTickZ) * partialTicks;
+        BlockEntityRenderDispatcher.CAMERA_X = renderX;
+        BlockEntityRenderDispatcher.CAMERA_Y = renderY;
+        BlockEntityRenderDispatcher.CAMERA_Z = renderZ;
+
+        entityRenderDispatcher.updateCamera(renderX, renderY, renderZ);
+        client.gameRenderer.enableLightmap();
+        world.profiler.swap("global");
+        List<Entity> list = this.world.getLoadedEntities();
+        totalEntityCount = list.size();
+
+        Entity effect;
+        for(int j = 0; j < world.entities.size(); ++j) {
+            effect = world.entities.get(j);
+            if (effect.shouldRender(renderX, renderY, renderZ)) {
+                entityRenderDispatcher.renderEntity(effect, partialTicks);
+            }
+        }
+
+        BlockPos.Mutable entityBlockPos = new BlockPos.Mutable();
+        // Apply entity distance scaling
+        for(Entity entity : world.getLoadedEntities()) {
+            // Skip entities that shouldn't render in this pass
+            //if(!entity.shouldRenderInPass(pass)) {
+            //    continue;
+            //}
+
+            // Do regular vanilla checks for visibility
+            if (!entity.shouldRender(renderX, renderY, renderZ) && (!entity.hasVehicle() || entity.rider != null)) {
+                continue;
+            }
+
+            // Check if any corners of the bounding box are in a visible subchunk
+            if(!SodiumWorldRenderer.instance().isEntityVisible(entity)) {
+                continue;
+            }
+
+            boolean isSleeping = renderView instanceof LivingEntity && ((LivingEntity) renderView).isSleeping();
+
+            if (!(entity != renderView || client.options.perspective != 0 || isSleeping)) {
+                continue;
+            }
+
+            entityBlockPos.setPosition((int) entity.x, (int) entity.y, (int) entity.z);
+
+            if (entity.y < 0.0D || entity.y >= 256.0D || this.world.blockExists(entityBlockPos))
+            {
+                ++this.renderedEntityCount;
+                this.entityRenderDispatcher.method_6915(entity, partialTicks, false);
+            }
+        }
+
+        renderer.renderBlockEntities(blockBreakingInfos, partialTicks);
+
+        client.gameRenderer.disableLightmap();
+        client.profiler.pop();
     }
 
     /**

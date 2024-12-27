@@ -420,7 +420,7 @@ public class SodiumWorldRenderer {
      * Returns whether or not the entity intersects with any visible chunks in the graph.
      * @return True if the entity is visible, otherwise false
      */
-    public <T extends Entity> boolean isEntityVisible(EntityRenderer<T> renderer, T entity) {
+    public <T extends Entity> boolean isEntityVisible(T entity) {
         if (!this.useEntityCulling) {
             return true;
         }
