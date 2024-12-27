@@ -78,7 +78,7 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
 
 
 
-    private final MutableQuadViewImpl editorQuad = new BlockEmitter();
+    private final BlockEmitter editorQuad = new BlockEmitter();
 
     /**
      * The world which the block is being rendered in.
@@ -216,7 +216,7 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
                 // Call processQuad instead of emit for efficiency
                 // (avoid unnecessarily clearing data, trying to apply transforms, and performing cull check again)
 
-                this.processQuad(editorQuad);
+                editorQuad.transformAndEmit();
             }
         }
 

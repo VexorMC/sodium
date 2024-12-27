@@ -190,7 +190,6 @@ public class RenderSectionManager {
 
         RenderRegion region = this.regions.createForChunk(x, y, z);
 
-        System.out.println("Init section at x=" + x + ", y=" + y + ", z=" + z);
         RenderSection renderSection = new RenderSection(region, x, y, z);
         region.addSection(renderSection);
 
