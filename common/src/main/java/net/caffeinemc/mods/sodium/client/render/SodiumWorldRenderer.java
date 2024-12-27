@@ -12,6 +12,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkTracker;
 import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkTrackerHolder;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.CameraMovement;
+import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
 import net.caffeinemc.mods.sodium.client.world.LevelRendererExtension;
@@ -168,12 +169,13 @@ public class SodiumWorldRenderer {
             throw new IllegalStateException("Client instance has no active player entity");
         }
 
-        Vec3d posRaw = Camera.getPosition();
-        Vector3d pos = new Vector3d(posRaw.x, posRaw.y, posRaw.z);
+        //Vec3d posRaw = Camera.getPosition();
+        var cam = viewport.getTransform();
+        var pos = new Vector3d(cam.x, cam.y, cam.z);//new Vector3d(posRaw.x, posRaw.y, posRaw.z);
         Matrix4f projectionMatrix = new Matrix4f(Camera.PROJECTION_MATRIX);
 
-        float pitch = Camera.getRotationZ();
-        float yaw = Camera.getRotationX();
+        float pitch = Camera.getRotationX();
+        float yaw = Camera.getRotationYZ();
         float fogDistance = FogHelper.getFogEnd();
 
         if (this.lastCameraPos == null) {

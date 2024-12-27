@@ -4,6 +4,7 @@ import dev.vexor.radium.compat.mojang.math.Mth;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.caffeinemc.mods.sodium.client.render.viewport.frustum.Frustum;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3d;
 
 public final class Viewport {
@@ -13,7 +14,7 @@ public final class Viewport {
     private final SectionPos sectionCoords;
     private final BlockPos blockCoords;
 
-    public Viewport(Frustum frustum, Vector3d position) {
+    public Viewport(Frustum frustum, Vec3d position) {
         this.frustum = frustum;
         this.transform = new CameraTransform(position.x, position.y, position.z);
 
@@ -31,14 +32,18 @@ public final class Viewport {
     }
 
     public boolean isBoxVisible(int intOriginX, int intOriginY, int intOriginZ, float floatSizeX, float floatSizeY, float floatSizeZ) {
-        return this.frustum.testAab(
-                intOriginX,
-                intOriginY,
-                intOriginZ,
+        float floatOriginX = intOriginX - this.transform.fracX;
+        float floatOriginY = intOriginY - this.transform.fracY;
+        float floatOriginZ = intOriginZ - this.transform.fracZ;
 
-                floatSizeX,
-                floatSizeY,
-                floatSizeZ
+        return this.frustum.testAab(
+                floatOriginX - floatSizeX,
+                floatOriginY - floatSizeY,
+                floatOriginZ - floatSizeZ,
+
+                floatOriginX + floatSizeX,
+                floatOriginY + floatSizeY,
+                floatOriginZ + floatSizeZ
         );
     }
 

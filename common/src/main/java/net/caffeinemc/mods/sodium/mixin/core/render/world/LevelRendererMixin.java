@@ -5,7 +5,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
 import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.ChunkRenderMatrices;
+import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.caffeinemc.mods.sodium.client.render.viewport.ViewportProvider;
+import net.caffeinemc.mods.sodium.client.render.viewport.frustum.SimpleFrustum;
 import net.caffeinemc.mods.sodium.client.world.LevelRendererExtension;
 import net.caffeinemc.mods.sodium.mixin.core.access.CameraAccessor;
 import net.minecraft.client.MinecraftClient;
@@ -17,6 +19,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
@@ -97,9 +100,12 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         Matrix4f projectionMatrix = new Matrix4f(CameraAccessor.getProjectionMatrix());
         Matrix4f modelViewMatrix = new Matrix4f(CameraAccessor.getModelMatrix());
 
-        GlStateManager.activeTexture(GLX.textureUnit);
-        GlStateManager.bindTexture(this.client.getSpriteAtlasTexture().getGlId());
-        GlStateManager.enableTexture();
+
+        // client.gameRenderer.enableLightmap();
+       //GlStateManager.activeTexture(GLX.textureUnit);
+       //GlStateManager.bindTexture(this.client.getSpriteAtlasTexture().getGlId());
+       //GlStateManager.enableTexture();
+
 
         try {
             this.renderer.drawChunkLayer(renderLayer, new ChunkRenderMatrices(projectionMatrix, modelViewMatrix), x, y, z);
@@ -117,9 +123,9 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
      */
     @Inject(method = "renderSky", at = @At(value = "HEAD"))
     public void renderSky(CallbackInfo ci) {
-        GL30.glBindVertexArray(0);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+        //GL30.glBindVertexArray(0);
+        //GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        //GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     /**
@@ -128,8 +134,14 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
      */
     @Overwrite
     public void setupTerrain(Entity entity, double tickDelta, CameraView cameraView, int frame, boolean spectator) {
-        var viewport = ((ViewportProvider) cameraView).sodium$createViewport(tickDelta);
-        var updateChunksImmediately = true;
+        double x = entity.prevTickX + (entity.x - entity.prevTickX) * tickDelta;
+        double y = entity.prevTickY + (entity.y - entity.prevTickY) * tickDelta;
+        double z = entity.prevTickZ + (entity.z - entity.prevTickZ) * tickDelta;
+
+        var frustum = new SimpleFrustum((CullingCameraView) cameraView);
+        var transform = new Vec3d(x, y, z);
+        var viewport = new Viewport(frustum, transform);
+        var updateChunksImmediately = false;
 
         RenderDevice.enterManagedCode();
 
@@ -149,29 +161,11 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
     }
 
     /**
-     * @reason Redirect chunk updates to our renderer
-     * @author JellySquid
-     */
-    @Overwrite
-    public void onRenderRegionUpdate(int x1, int y1, int z1, int x2, int y2, int z2) {
-        this.renderer.scheduleRebuildForChunks(x1, y1, z1, x2, y2, z2, false);
-    }
-
-    /**
      * @reason Redirect the updates to our renderer
      * @author JellySquid
      */
     @Overwrite
     public void updateChunks(long p) {
-    }
-
-    /**
-     * @reason Redirect chunk updates to our renderer
-     * @author JellySquid
-     */
-    @Overwrite
-    public void onBlockUpdate(BlockPos pos) {
-        this.renderer.scheduleRebuildForBlockArea(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1, pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1, false);
     }
 
     @Inject(method = "reload()V", at = @At("RETURN"))
