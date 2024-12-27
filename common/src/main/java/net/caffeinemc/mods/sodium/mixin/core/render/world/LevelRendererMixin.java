@@ -84,8 +84,6 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         Matrix4f projectionMatrix = new Matrix4f(CameraAccessor.getProjectionMatrix());
         Matrix4f modelViewMatrix = new Matrix4f(CameraAccessor.getModelMatrix());
 
-        modelViewMatrix.translate(0f, 16f, 0f);
-
         GlStateManager.activeTexture(GLX.textureUnit);
         GlStateManager.bindTexture(this.client.getSpriteAtlasTexture().getGlId());
         GlStateManager.enableTexture();
