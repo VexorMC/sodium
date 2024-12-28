@@ -329,17 +329,13 @@ public class DefaultFluidRenderer {
             }
 
             if (this.isSideExposed(level, posX, posY, posZ, dir, Math.max(c1, c2))) {
-                int adjX = posX + dir.getOffsetX();
-                int adjY = posY + dir.getOffsetY();
-                int adjZ = posZ + dir.getOffsetZ();
-
                 Sprite sprite = sprites[1];
 
                 float u1 = sprite.getFrameU(0.0F);
-                float u2 = sprite.getFrameU(0.5F);
-                float v1 = sprite.getFrameV((1.0F - c1) * 0.5F);
-                float v2 = sprite.getFrameV((1.0F - c2) * 0.5F);
-                float v3 = sprite.getFrameV(0.5F);
+                float u2 = sprite.getFrameU(8F);
+                float v1 = sprite.getFrameV((1.0F - c1) * 16.0F * 0.5F);
+                float v2 = sprite.getFrameV((1.0F - c2) * 16.0F * 0.5F);
+                float v3 = sprite.getFrameV(8.0F);
 
                 quad.setSprite(sprite);
 
