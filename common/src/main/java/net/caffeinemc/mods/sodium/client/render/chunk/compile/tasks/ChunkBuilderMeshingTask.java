@@ -100,8 +100,9 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                 for (int z = minZ; z < maxZ; z++) {
                     for (int x = minX; x < maxX; x++) {
                         BlockState blockState = slice.getBlockState(x, y, z);
+                        var blockType = blockState.getBlock().getBlockType();
 
-                        if (blockState.getBlock().getMaterial() == Material.AIR && !blockState.getBlock().hasBlockEntity()) {
+                        if (BlockRenderType.isInvisible(blockType) && !blockState.getBlock().hasBlockEntity()) {
                             continue;
                         }
 
@@ -111,13 +112,13 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
 
                         modelOffset.setPosition(x & 15, y & 15, z & 15);
 
-                        if (BlockRenderType.isModel(blockState.getBlock().getBlockType())) {
+                        if (BlockRenderType.isModel(blockType)) {
                             BakedModel model = cache.getBlockModels()
                                     .getBakedModel(blockState);
                             blockRenderer.renderModel(model, blockState, blockPos, modelOffset);
                         }
 
-                        if (WorldUtil.getFluid(blockState) != null) {
+                        if (BlockRenderType.isLiquid(blockType)) {
                             cache.getFluidRenderer().render(slice, blockState, blockState, blockPos, modelOffset, collector, buffers);
                         }
 
@@ -133,7 +134,8 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                             }
                         }
 
-                        if (blockState.getBlock().isFullBlock()) {
+                        // todo: is hasTransparency in oldium
+                        if (blockState.getBlock().isTranslucent()) {
                             occluder.markClosed(blockPos);
                         }
                     }
