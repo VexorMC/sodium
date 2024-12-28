@@ -9,6 +9,7 @@ import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightMode;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
+import net.caffeinemc.mods.sodium.client.model.light.data.QuadLightData;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadOrientation;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
@@ -74,25 +75,25 @@ public class BlockRenderer extends AbstractBlockRenderContext {
 
         this.posOffset.set(origin.getX(), origin.getY(), origin.getZ());
 
-        //Block.OffsetType offsetType = state.getBlock().getOffsetType();
-//
-        //if (offsetType != Block.OffsetType.NONE) {
-        //    int x = origin.getX();
-        //    int z = origin.getZ();
-        //    // Taken from MathHelper.hashCode()
-        //    long i = (x * 3129871L) ^ z * 116129781L;
-        //    i = i * i * 42317861L + i * 11L;
-//
-        //    double fx = (((i >> 16 & 15L) / 15.0F) - 0.5f) * 0.5f;
-        //    double fz = (((i >> 24 & 15L) / 15.0F) - 0.5f) * 0.5f;
-        //    double fy = 0;
-//
-        //    if (offsetType == Block.OffsetType.XYZ) {
-        //        fy += (((i >> 20 & 15L) / 15.0F) - 1.0f) * 0.2f;
-        //    }
-//
-        //    posOffset.add((float) fx, (float) fy, (float) fz);
-        //}
+        var offsetType = state.getBlock().getOffsetType();
+
+        if (offsetType != Block.OffsetType.NONE) {
+            int x = origin.getX();
+            int z = origin.getZ();
+            // Taken from MathHelper.hashCode()
+            long i = (x * 3129871L) ^ z * 116129781L;
+            i = i * i * 42317861L + i * 11L;
+
+            double fx = (((i >> 16 & 15L) / 15.0F) - 0.5f) * 0.5f;
+            double fz = (((i >> 24 & 15L) / 15.0F) - 0.5f) * 0.5f;
+            double fy = 0;
+
+            if (offsetType == Block.OffsetType.XYZ) {
+                fy += (((i >> 20 & 15L) / 15.0F) - 1.0f) * 0.2f;
+            }
+
+            posOffset.add((float) fx, (float) fy, (float) fz);
+        }
 
         this.colorProvider = this.colorProviderRegistry.getColorProvider(state.getBlock());
 
@@ -101,10 +102,7 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         this.prepareCulling(true);
         this.prepareAoInfo(model.useAmbientOcclusion());
 
-        this.type = state.getBlock().getRenderLayerType();
         VanillaModelEncoder.emitBlockQuads(getEmitter(), model, state, this::isFaceCulled);
-
-        type = null;
     }
 
     /**
@@ -134,7 +132,7 @@ public class BlockRenderer extends AbstractBlockRenderContext {
 
         this.tintQuad(quad);
         this.shadeQuad(quad, lightMode, emissive, shadeMode);
-        this.bufferQuad(quad, this.quadLightData.br, material);
+        this.bufferQuad(quad, this.quadLightData, material);
     }
 
     private void tintQuad(MutableQuadViewImpl quad) {
@@ -154,7 +152,7 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         }
     }
 
-    private void bufferQuad(MutableQuadViewImpl quad, float[] brightnesses, Material material) {
+    private void bufferQuad(MutableQuadViewImpl quad, QuadLightData light, Material material) {
         // TODO: Find a way to reimplement quad reorientation
         ModelQuadOrientation orientation = ModelQuadOrientation.NORMAL;
         ChunkVertexEncoder.Vertex[] vertices = this.vertices;
@@ -168,16 +166,15 @@ public class BlockRenderer extends AbstractBlockRenderContext {
             out.y = quad.y(srcIndex) + offset.y;
             out.z = quad.z(srcIndex) + offset.z;
 
-            out.color = quad.color(srcIndex);//ColorARGB.fromABGR();
-            out.ao = brightnesses[srcIndex];
+            out.color = quad.color(srcIndex);
+            out.ao = light.br[srcIndex];
 
             out.u = quad.u(srcIndex);
             out.v = quad.v(srcIndex);
 
-            out.light = this.quadLightData.lm[srcIndex];
+            out.light = light.lm[srcIndex];
         }
 
-        //var atlasSprite = quad.sprite(SpriteFinderCache.forBlockAtlas());
         var materialBits = material.bits();
         ModelQuadFacing normalFace = quad.normalFace();
 
@@ -192,7 +189,5 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         ChunkModelBuilder builder = this.buffers.get(pass);
         ChunkMeshBufferBuilder vertexBuffer = builder.getVertexBuffer(normalFace);
         vertexBuffer.push(vertices, materialBits);
-
-        //builder.addSprite(atlasSprite);
     }
 }
