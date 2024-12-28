@@ -1,7 +1,9 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 
 import dev.vexor.radium.compat.mojang.minecraft.random.SingleThreadedRandomSource;
+import dev.vexor.radium.frapi.impl.renderer.VanillaModelEncoder;
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
+import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
@@ -19,12 +21,10 @@ import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexE
 import net.caffeinemc.mods.sodium.client.render.frapi.mesh.MutableQuadViewImpl;
 import net.caffeinemc.mods.sodium.client.render.frapi.render.AbstractBlockRenderContext;
 import net.caffeinemc.mods.sodium.client.render.texture.SpriteFinderCache;
-import net.caffeinemc.mods.sodium.client.services.SodiumModelData;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import dev.vexor.radium.frapi.api.renderer.v1.material.BlendMode;
 import dev.vexor.radium.frapi.api.renderer.v1.material.RenderMaterial;
 import dev.vexor.radium.frapi.api.renderer.v1.material.ShadeMode;
-import dev.vexor.radium.frapi.api.renderer.v1.model.FabricBakedModel;
 import net.legacyfabric.fabric.api.util.TriState;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -75,25 +75,25 @@ public class BlockRenderer extends AbstractBlockRenderContext {
 
         this.posOffset.set(origin.getX(), origin.getY(), origin.getZ());
 
-        Block.OffsetType offsetType = state.getBlock().getOffsetType();
-
-        if (offsetType != Block.OffsetType.NONE) {
-            int x = origin.getX();
-            int z = origin.getZ();
-            // Taken from MathHelper.hashCode()
-            long i = (x * 3129871L) ^ z * 116129781L;
-            i = i * i * 42317861L + i * 11L;
-
-            double fx = (((i >> 16 & 15L) / 15.0F) - 0.5f) * 0.5f;
-            double fz = (((i >> 24 & 15L) / 15.0F) - 0.5f) * 0.5f;
-            double fy = 0;
-
-            if (offsetType == Block.OffsetType.XYZ) {
-                fy += (((i >> 20 & 15L) / 15.0F) - 1.0f) * 0.2f;
-            }
-
-            posOffset.add((float) fx, (float) fy, (float) fz);
-        }
+        //Block.OffsetType offsetType = state.getBlock().getOffsetType();
+//
+        //if (offsetType != Block.OffsetType.NONE) {
+        //    int x = origin.getX();
+        //    int z = origin.getZ();
+        //    // Taken from MathHelper.hashCode()
+        //    long i = (x * 3129871L) ^ z * 116129781L;
+        //    i = i * i * 42317861L + i * 11L;
+//
+        //    double fx = (((i >> 16 & 15L) / 15.0F) - 0.5f) * 0.5f;
+        //    double fz = (((i >> 24 & 15L) / 15.0F) - 0.5f) * 0.5f;
+        //    double fy = 0;
+//
+        //    if (offsetType == Block.OffsetType.XYZ) {
+        //        fy += (((i >> 20 & 15L) / 15.0F) - 1.0f) * 0.2f;
+        //    }
+//
+        //    posOffset.add((float) fx, (float) fy, (float) fz);
+        //}
 
         this.colorProvider = this.colorProviderRegistry.getColorProvider(state.getBlock());
 
@@ -102,13 +102,10 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         this.prepareCulling(true);
         this.prepareAoInfo(model.useAmbientOcclusion());
 
-        modelData = null;
-
         this.type = state.getBlock().getRenderLayerType();
-        ((FabricBakedModel) model).emitBlockQuads(getEmitter(), this.level, state, pos, this.randomSupplier, this::isFaceCulled);
+        VanillaModelEncoder.emitBlockQuads(getEmitter(), model, state, this::isFaceCulled);
 
         type = null;
-        modelData = SodiumModelData.EMPTY;
     }
 
     /**
@@ -172,24 +169,17 @@ public class BlockRenderer extends AbstractBlockRenderContext {
             out.y = quad.y(srcIndex) + offset.y;
             out.z = quad.z(srcIndex) + offset.z;
 
-            int color;
 
-            if (state.getBlock().isTranslucent()) {
-                color = ColorABGR.mulRGB(quad.color(srcIndex), 1.0f);
-            } else {
-                color = ColorABGR.mulRGB(quad.color(srcIndex), brightnesses[srcIndex]);
-            }
-
-            out.color = color;
+            out.color = ColorARGB.fromABGR(quad.color(srcIndex));
             out.ao = brightnesses[srcIndex];
 
             out.u = quad.u(srcIndex);
             out.v = quad.v(srcIndex);
 
-            out.light = quad.lightmap(srcIndex);
+            out.light = 15;//quad.lightmap(srcIndex);
         }
 
-        var atlasSprite = quad.sprite(SpriteFinderCache.forBlockAtlas());
+        //var atlasSprite = quad.sprite(SpriteFinderCache.forBlockAtlas());
         var materialBits = material.bits();
         ModelQuadFacing normalFace = quad.normalFace();
 
@@ -205,6 +195,6 @@ public class BlockRenderer extends AbstractBlockRenderContext {
         ChunkMeshBufferBuilder vertexBuffer = builder.getVertexBuffer(normalFace);
         vertexBuffer.push(vertices, materialBits);
 
-        builder.addSprite(atlasSprite);
+        //builder.addSprite(atlasSprite);
     }
 }

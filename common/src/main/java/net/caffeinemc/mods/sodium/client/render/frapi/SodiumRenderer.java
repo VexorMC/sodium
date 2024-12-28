@@ -17,12 +17,9 @@
 package net.caffeinemc.mods.sodium.client.render.frapi;
 
 import net.caffeinemc.mods.sodium.client.render.frapi.material.MaterialFinderImpl;
-import net.caffeinemc.mods.sodium.client.render.frapi.material.RenderMaterialImpl;
-import net.caffeinemc.mods.sodium.client.render.frapi.mesh.MutableMeshImpl;
 import dev.vexor.radium.frapi.api.renderer.v1.Renderer;
 import dev.vexor.radium.frapi.api.renderer.v1.material.MaterialFinder;
 import dev.vexor.radium.frapi.api.renderer.v1.material.RenderMaterial;
-import dev.vexor.radium.frapi.api.renderer.v1.mesh.MutableMesh;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
@@ -43,10 +40,6 @@ public class SodiumRenderer implements Renderer {
 
     private SodiumRenderer() { }
 
-    @Override
-    public MutableMesh mutableMesh() {
-        return new MutableMeshImpl();
-    }
 
     @Override
     public MaterialFinder materialFinder() {
@@ -54,16 +47,11 @@ public class SodiumRenderer implements Renderer {
     }
 
     @Override
-    public RenderMaterial materialById(Identifier id) {
-        return materialMap.get(id);
-    }
-
-    @Override
     public boolean registerMaterial(Identifier id, RenderMaterial material) {
         if (materialMap.containsKey(id)) return false;
 
         // cast to prevent acceptance of impostor implementations
-        materialMap.put(id, (RenderMaterialImpl) material);
+        materialMap.put(id, material);
         return true;
     }
 }

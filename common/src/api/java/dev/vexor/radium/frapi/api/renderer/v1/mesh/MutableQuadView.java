@@ -270,13 +270,6 @@ public interface MutableQuadView extends QuadView {
 	MutableQuadView tag(int tag);
 
 	/**
-	 * Copies all quad properties from the given {@link QuadView} to this quad.
-	 *
-	 * <p>Calling this method does not emit the quad.
-	 */
-	MutableQuadView copyFrom(QuadView quad);
-
-	/**
 	 * Enables bulk vertex data transfer using the standard Minecraft vertex formats.
 	 * Only the {@link BakedQuad#getVertexData() quad vertex data} is copied.
 	 * This method should be performant whenever caller's vertex representation makes it feasible.
@@ -292,12 +285,12 @@ public interface MutableQuadView extends QuadView {
 	 * Enables bulk vertex data transfer using the standard Minecraft quad format.
 	 *
 	 * <p>The material applied to this quad view might be slightly different from the {@code material} parameter
-	 * regarding diffuse shading. If either the baked quad {@link BakedQuad#hasShade() does not have shade} or the
+	 * regarding diffuse shading. If either the baked quad {@link BakedQuad#hasColor() does not have shade} or the
 	 * material {@link MaterialFinder#disableDiffuse(boolean) does not have shade}, diffuse shading will be disabled for
 	 * this quad view. This is reflected in the quad view's {@link #material()}, but the {@code material} parameter is
 	 * unchanged (it is immutable anyway).
 	 *
-	 * <p>The {@linkplain BakedQuad#getLightEmission() baked quad's light emission} will be applied to the lightmap
+	 * <p>The {@linkplain BakedQuad#getColorIndex() baked quad's light emission} will be applied to the lightmap
 	 * values from the vertex data after copying.
 	 *
 	 * <p>Calling this method does not emit the quad.

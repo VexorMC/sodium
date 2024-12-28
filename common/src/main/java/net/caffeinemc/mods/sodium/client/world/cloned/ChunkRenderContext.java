@@ -5,5 +5,5 @@ import net.minecraft.util.math.Box;
 
 import java.util.List;
 
-public record ChunkRenderContext(SectionPos origin, ClonedChunkSection[] sections, Box volume, List<?> renderers) {
+public record ChunkRenderContext(SectionPos origin, ClonedChunkSection[] sections, Box volume) {
 }

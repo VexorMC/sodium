@@ -4,7 +4,7 @@ import dev.vexor.radium.compat.mojang.minecraft.BlockColors;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
 import net.caffeinemc.mods.sodium.client.model.light.data.ArrayLightDataCache;
-import net.caffeinemc.mods.sodium.client.services.FluidRendererFactory;
+import net.caffeinemc.mods.sodium.client.render.FluidRendererImpl;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.minecraft.client.MinecraftClient;
@@ -29,7 +29,7 @@ public class BlockRenderCache {
         var colorRegistry = new ColorProviderRegistry(BlockColors.INSTANCE);
 
         this.blockRenderer = new BlockRenderer(colorRegistry, lightPipelineProvider);
-        this.fluidRenderer = FluidRendererFactory.getInstance().createPlatformFluidRenderer(colorRegistry, lightPipelineProvider);
+        this.fluidRenderer = new FluidRendererImpl(colorRegistry, lightPipelineProvider);
 
         this.blockModels = minecraft.getBlockRenderManager().getModels();
     }

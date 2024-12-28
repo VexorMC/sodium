@@ -12,7 +12,7 @@ public interface PlatformMixinOverrides {
 
     List<MixinOverride> applyModOverrides();
 
-    public final class MixinOverride {
+    final class MixinOverride {
         private final String modId;
         private final String option;
         private final boolean enabled;

@@ -19,7 +19,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.buffers.ChunkModel
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
-import net.caffeinemc.mods.sodium.client.services.PlatformBlockAccess;
 import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.block.AbstractFluidBlock;
@@ -109,7 +108,7 @@ public class DefaultFluidRenderer {
         int posZ = blockPos.getZ();
 
         AbstractFluidBlock fluid = (AbstractFluidBlock) fluidState.getBlock();
-        
+
         boolean cullUp = this.isFluidOccluded(level, blockPos, Direction.UP, fluid);
         boolean cullDown = this.isFluidOccluded(level, blockPos, Direction.DOWN, fluid) ||
                 !this.isSideExposed(level, posX, posY, posZ, Direction.DOWN, 0.8888889F);
@@ -333,18 +332,6 @@ public class DefaultFluidRenderer {
 
                 Sprite sprite = sprites[1];
 
-                boolean isOverlay = false;
-
-                if (sprites.length > 2 && sprites[2] != null) {
-                    BlockPos adjPos = this.scratchPos.setPosition(adjX, adjY, adjZ);
-                    BlockState adjBlock = level.getBlockState(adjPos);
-
-                    if (PlatformBlockAccess.getInstance().shouldShowFluidOverlay(adjBlock, level, adjPos, fluidState)) {
-                        sprite = sprites[2];
-                        isOverlay = true;
-                    }
-                }
-
                 float u1 = sprite.getFrameU(0.0F);
                 float u2 = sprite.getFrameU(0.5F);
                 float v1 = sprite.getFrameV((1.0F - c1) * 0.5F);
@@ -364,11 +351,7 @@ public class DefaultFluidRenderer {
 
                 this.updateQuad(quad, level, blockPos, lighter, dir, facing, br, colorProvider, fluidState);
                 this.writeQuad(meshBuilder, collector, material, offset, quad, facing, false);
-
-                if (!isOverlay) {
-                    this.writeQuad(meshBuilder, collector, material, offset, quad, facing.getOpposite(), true);
-                }
-
+                this.writeQuad(meshBuilder, collector, material, offset, quad, facing.getOpposite(), true);
             }
         }
     }

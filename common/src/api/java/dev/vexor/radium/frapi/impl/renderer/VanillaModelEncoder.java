@@ -42,7 +42,7 @@ public class VanillaModelEncoder {
 	private static final RenderMaterial STANDARD_MATERIAL = Renderer.get().materialFinder().shadeMode(ShadeMode.VANILLA).find();
 	private static final RenderMaterial NO_AO_MATERIAL = Renderer.get().materialFinder().shadeMode(ShadeMode.VANILLA).ambientOcclusion(TriState.FALSE).find();
 
-	public static void emitBlockQuads(QuadEmitter emitter, BakedModel model, @Nullable BlockState state, Supplier<RandomSource> randomSupplier, Predicate<@Nullable Direction> cullTest) {
+	public static void emitBlockQuads(QuadEmitter emitter, BakedModel model, @Nullable BlockState state, Predicate<@Nullable Direction> cullTest) {
 		final RenderMaterial defaultMaterial = model.useAmbientOcclusion() ? STANDARD_MATERIAL : NO_AO_MATERIAL;
 
 		for (int i = 0; i <= ModelHelper.NULL_FACE_ID; i++) {
@@ -63,25 +63,6 @@ public class VanillaModelEncoder {
             
             for (final BakedQuad quad : quads) {
                 emitter.fromVanilla(quad, defaultMaterial, cullFace);
-                emitter.emit();
-            }
-		}
-	}
-
-	public static void emitItemQuads(QuadEmitter emitter, BakedModel model, @Nullable BlockState state, Supplier<RandomSource> randomSupplier) {
-		for (int i = 0; i <= ModelHelper.NULL_FACE_ID; i++) {
-			final Direction cullFace = ModelHelper.faceFromIndex(i);
-
-            final List<BakedQuad> quads;
-
-            if (cullFace != null) {
-                quads = model.getByDirection(cullFace);
-            } else {
-                quads = model.getQuads();
-            }
-
-            for (final BakedQuad quad : quads) {
-                emitter.fromVanilla(quad, STANDARD_MATERIAL, cullFace);
                 emitter.emit();
             }
 		}

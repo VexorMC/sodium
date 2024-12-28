@@ -94,11 +94,6 @@ public interface MaterialFinder extends MaterialView {
 	MaterialFinder shadeMode(ShadeMode mode);
 
 	/**
-	 * Copies all properties from the given {@link MaterialView} to this material finder.
-	 */
-	MaterialFinder copyFrom(MaterialView material);
-
-	/**
 	 * Resets this instance to default values. Values will match those in effect when an instance is newly obtained via
 	 * {@link Renderer#materialFinder()}.
 	 */

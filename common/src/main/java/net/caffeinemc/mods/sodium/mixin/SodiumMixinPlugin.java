@@ -28,12 +28,6 @@ public class SodiumMixinPlugin implements IMixinConfigPlugin {
             throw new RuntimeException("Could not load configuration file for Radium", e);
         }
 
-        this.dependencyResolutionFailed = PlatformRuntimeInformation.getInstance().isModInLoadingList("embeddium");
-
-        if (dependencyResolutionFailed) {
-            this.logger.error("Not applying any Radium mixins; dependency resolution has failed.");
-        }
-
         this.logger.info("Loaded configuration file for Radium: {} options available, {} override(s) found",
                 this.config.getOptionCount(), this.config.getOptionOverrideCount());
     }

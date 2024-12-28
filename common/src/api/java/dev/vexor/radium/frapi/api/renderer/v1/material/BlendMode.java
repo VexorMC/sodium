@@ -59,18 +59,4 @@ public enum BlendMode {
 	BlendMode(@Nullable RenderLayer blockRenderLayer) {
 		this.blockRenderLayer = blockRenderLayer;
 	}
-
-	public static BlendMode fromRenderLayer(@Nullable RenderLayer renderLayer) {
-		if (renderLayer == RenderLayer.SOLID) {
-			return SOLID;
-		} else if (renderLayer == RenderLayer.CUTOUT_MIPPED) {
-			return CUTOUT_MIPPED;
-		} else if (renderLayer == RenderLayer.CUTOUT) {
-			return CUTOUT;
-		} else if (renderLayer == RenderLayer.TRANSLUCENT) {
-			return TRANSLUCENT;
-		} else {
-			return DEFAULT;
-		}
-	}
 }

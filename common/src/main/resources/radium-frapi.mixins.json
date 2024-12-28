@@ -9,7 +9,6 @@
     "conformVisibility" : true
   },
   "client" : [
-    "renderer.client.BakedModelMixin",
     "renderer.client.debughud.DebugHudMixin",
     "renderer.client.SpriteAtlasTextureMixin"
   ]

@@ -17,16 +17,10 @@
 package dev.vexor.radium.frapi.api.renderer.v1.model;
 
 import java.util.Arrays;
-import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.util.math.Direction;
-
-import dev.vexor.radium.frapi.api.renderer.v1.mesh.Mesh;
 
 /**
  * Collection of utilities for model implementations.
@@ -60,39 +54,4 @@ public final class ModelHelper {
 
 	/** @see #faceFromIndex(int) */
 	private static final Direction[] FACES = Arrays.copyOf(Direction.values(), 7);
-
-	/**
-	 * Converts a mesh into an array of lists of vanilla baked quads.
-	 * Useful for creating vanilla baked models when required for compatibility.
-	 * The array indexes correspond to {@link Direction#getId()} with the
-	 * addition of {@link #NULL_FACE_ID}.
-	 *
-	 * <p>Retrieves sprites from the block texture atlas via {@link SpriteFinder}.
-	 */
-	public static List<BakedQuad>[] toQuadLists(Mesh mesh) {
-		SpriteFinder finder = SpriteFinder.get(MinecraftClient.getInstance().getSpriteAtlasTexture());
-
-		@SuppressWarnings("unchecked")
-		final ImmutableList.Builder<BakedQuad>[] builders = new ImmutableList.Builder[7];
-
-		for (int i = 0; i < 7; i++) {
-			builders[i] = ImmutableList.builder();
-		}
-
-		if (mesh != null) {
-			mesh.forEach(q -> {
-				Direction cullFace = q.cullFace();
-				builders[cullFace == null ? NULL_FACE_ID : cullFace.getId()].add(q.toBakedQuad(finder.find(q)));
-			});
-		}
-
-		@SuppressWarnings("unchecked")
-		List<BakedQuad>[] result = new List[7];
-
-		for (int i = 0; i < 7; i++) {
-			result[i] = builders[i].build();
-		}
-
-		return result;
-	}
 }

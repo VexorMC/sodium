@@ -22,7 +22,6 @@ import net.minecraft.util.Identifier;
 
 import dev.vexor.radium.frapi.api.renderer.v1.material.MaterialFinder;
 import dev.vexor.radium.frapi.api.renderer.v1.material.RenderMaterial;
-import dev.vexor.radium.frapi.api.renderer.v1.mesh.MutableMesh;
 import dev.vexor.radium.frapi.impl.renderer.RendererManager;
 
 /**
@@ -51,15 +50,6 @@ public interface Renderer {
 	}
 
 	/**
-	 * Obtain a new {@link MutableMesh} instance to build optimized meshes and create baked models
-	 * with enhanced features.
-	 *
-	 * <p>Renderer does not retain a reference to returned instances, so they should be re-used
-	 * when possible to avoid memory allocation overhead.
-	 */
-	MutableMesh mutableMesh();
-
-	/**
 	 * Obtain a new {@link MaterialFinder} instance to retrieve standard {@link RenderMaterial}
 	 * instances.
 	 *
@@ -68,12 +58,6 @@ public interface Renderer {
 	 */
 	MaterialFinder materialFinder();
 
-	/**
-	 * Return a material previously registered via {@link #registerMaterial(Identifier, RenderMaterial)}.
-	 * Will return null if no material was found matching the given identifier.
-	 */
-	@Nullable
-	RenderMaterial materialById(Identifier id);
 
 	/**
 	 * Register a material for re-use by other mods or models within a mod.

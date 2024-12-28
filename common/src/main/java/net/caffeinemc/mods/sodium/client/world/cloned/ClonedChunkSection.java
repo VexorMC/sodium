@@ -1,11 +1,9 @@
 package net.caffeinemc.mods.sodium.client.world.cloned;
 
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.services.*;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.caffeinemc.mods.sodium.client.world.SodiumAuxiliaryLightManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -31,15 +29,11 @@ public class ClonedChunkSection {
     private final SectionPos pos;
 
     private final @Nullable Int2ReferenceMap<BlockEntity> blockEntityMap;
-    private final @Nullable Int2ReferenceMap<Object> blockEntityRenderDataMap;
 
     private final @Nullable ChunkNibbleArray[] lightDataArrays;
-    private final @Nullable SodiumAuxiliaryLightManager auxLightManager;
 
     private final @Nullable char[] blockData;
     private final @Nullable Biome[] biomeData;
-
-    private final SodiumModelDataContainer modelMap;
 
     private long lastUsedTimestamp = Long.MAX_VALUE;
 
@@ -50,19 +44,12 @@ public class ClonedChunkSection {
         Biome[] biomeData = null;
 
         Int2ReferenceMap<BlockEntity> blockEntityMap = null;
-        Int2ReferenceMap<Object> blockEntityRenderDataMap = null;
-        SodiumModelDataContainer modelMap = PlatformModelAccess.getInstance().getModelDataContainer(level, pos);
-        auxLightManager = PlatformLevelAccess.INSTANCE.getLightManager(chunk, pos);
 
         if (section != null) {
             if (!section.isEmpty()) {
                 blockData = section.getBlockStates();
 
                 blockEntityMap = copyBlockEntities(chunk, pos);
-
-                if (blockEntityMap != null && PlatformBlockAccess.getInstance().platformHasBlockData()) {
-                    blockEntityRenderDataMap = copyBlockEntityRenderData(level, blockEntityMap);
-                }
             }
 
             biomeData = convertBiomeArray(chunk.getBiomeArray());
@@ -70,10 +57,8 @@ public class ClonedChunkSection {
 
         this.blockData = blockData;
         this.biomeData = biomeData;
-        this.modelMap = modelMap;
 
         this.blockEntityMap = blockEntityMap;
-        this.blockEntityRenderDataMap = blockEntityRenderDataMap;
 
         this.lightDataArrays = copyLightData(level, section);
     }
@@ -158,33 +143,6 @@ public class ClonedChunkSection {
         return blockEntities;
     }
 
-    @Nullable
-    private static Int2ReferenceMap<Object> copyBlockEntityRenderData(World level, Int2ReferenceMap<BlockEntity> blockEntities) {
-        Int2ReferenceOpenHashMap<Object> blockEntityRenderDataMap = null;
-
-        // Retrieve any render data after we have copied all block entities, as this will call into the code of
-        // other mods. This could potentially result in the chunk being modified, which would cause problems if we
-        // were iterating over any data in that chunk.
-        // See https://github.com/CaffeineMC/sodium/issues/942 for more info.
-        for (var entry : Int2ReferenceMaps.fastIterable(blockEntities)) {
-            Object data = PlatformLevelAccess.getInstance().getBlockEntityData(entry.getValue());
-
-            if (data != null) {
-                if (blockEntityRenderDataMap == null) {
-                    blockEntityRenderDataMap = new Int2ReferenceOpenHashMap<>();
-                }
-
-                blockEntityRenderDataMap.put(entry.getIntKey(), data);
-            }
-        }
-
-        if (blockEntityRenderDataMap != null) {
-            blockEntityRenderDataMap.trim();
-        }
-
-        return blockEntityRenderDataMap;
-    }
-
     public SectionPos getPosition() {
         return this.pos;
     }
@@ -209,14 +167,6 @@ public class ClonedChunkSection {
         return this.blockEntityMap;
     }
 
-    public @Nullable Int2ReferenceMap<Object> getBlockEntityRenderDataMap() {
-        return this.blockEntityRenderDataMap;
-    }
-
-    public SodiumModelDataContainer getModelMap() {
-        return modelMap;
-    }
-
     public @Nullable ChunkNibbleArray getLightArray(LightType lightType) {
         return this.lightDataArrays[lightType.ordinal()];
     }
@@ -227,9 +177,5 @@ public class ClonedChunkSection {
 
     public void setLastUsedTimestamp(long timestamp) {
         this.lastUsedTimestamp = timestamp;
-    }
-
-    public SodiumAuxiliaryLightManager getAuxLightManager() {
-        return auxLightManager;
     }
 }

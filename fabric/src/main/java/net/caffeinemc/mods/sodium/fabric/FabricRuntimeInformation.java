@@ -20,24 +20,4 @@ public class FabricRuntimeInformation implements PlatformRuntimeInformation {
     public Path getConfigDirectory() {
         return FabricLoader.getInstance().getConfigDir();
     }
-
-    @Override
-    public boolean platformHasEarlyLoadingScreen() {
-        return false;
-    }
-
-    @Override
-    public boolean platformUsesRefmap() {
-        return true;
-    }
-
-    @Override
-    public boolean isModInLoadingList(String modId) {
-        return FabricLoader.getInstance().isModLoaded(modId);
-    }
-
-    @Override
-    public boolean usesAlphaMultiplication() {
-        return false;
-    }
 }

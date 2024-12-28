@@ -11,10 +11,7 @@
   },
   "client" : [
     "core.MinecraftMixin",
-    "core.access.CameraAccessor",
     "core.render.VertexFormatMixin",
-    "core.render.frustum.CullingCameraViewMixin",
-    "core.render.immediate.consumer.BufferBuilderMixin",
     "core.render.world.LevelRendererMixin",
     "core.world.biome.ClientLevelMixin",
     "core.world.map.ClientChunkCacheMixin",
@@ -27,11 +24,7 @@
     "features.options.overlays.GuiMixin",
     "features.options.render_layers.LeavesBlockMixin",
     "features.options.weather.LevelRendererMixin",
-    "features.render.entity.cull.EntityRendererMixin",
-    "features.render.frapi.BakedModelMixin",
-    "features.render.frapi.ModelBlockRendererMixin",
     "features.render.immediate.DirectionMixin",
-    "features.render.immediate.buffer_builder.intrinsics.BufferBuilderMixin",
     "features.textures.animations.tracking.SpriteContentsMixin",
     "features.textures.animations.tracking.TextureAtlasMixin"
   ],

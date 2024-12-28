@@ -9,6 +9,6 @@
     "conformVisibility": true
   },
   "client": [
-      "core.model.quad.BakedQuadMixin"
+    "core.model.quad.BakedQuadMixin"
   ]
 }

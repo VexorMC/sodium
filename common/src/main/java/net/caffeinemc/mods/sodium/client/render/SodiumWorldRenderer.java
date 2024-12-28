@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dev.vexor.radium.compat.mojang.minecraft.render.FogHelper;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
@@ -275,7 +276,7 @@ public class SodiumWorldRenderer {
 
     public void renderBlockEntities(Map<Integer, BlockBreakingInfo> blockBreakingProgressions,
                                     float tickDelta) {
-        Vec3d cameraPos = Camera.getPosition();
+        var cameraPos = lastCameraPos;//Camera.getPosition();
         double x = cameraPos.x;
         double y = cameraPos.y;
         double z = cameraPos.z;
@@ -359,17 +360,16 @@ public class SodiumWorldRenderer {
                                           ClientPlayerEntity player) {
         BlockPos pos = entity.getPos();
 
-        GL11.glPushMatrix();
-        GL11.glTranslated((double) pos.getX() - x, (double) pos.getY() - y, (double) pos.getZ() - z);
+        //GlStateManager.pushMatrix();
+        //GlStateManager.translate(pos.getX() - x, pos.getY() - y, pos.getZ() - z);
 
         int destroyProgress = blockBreakingProgressions.values().stream().filter(info ->
-            info.getPos().equals(pos)).map((info) -> info.getStage()).findFirst().orElse(-1);
+                info.getPos().equals(pos)).map(BlockBreakingInfo::getStage).findFirst().orElse(-1);
 
 
         dispatcher.renderEntity(entity, tickDelta, destroyProgress);
 
-
-        GL11.glPopMatrix();
+        //GlStateManager.popMatrix();
     }
 
     public void iterateVisibleBlockEntities(Consumer<BlockEntity> blockEntityConsumer) {

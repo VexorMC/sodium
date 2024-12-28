@@ -30,7 +30,6 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import static net.caffeinemc.mods.sodium.client.render.frapi.mesh.EncodingFormat.*;
@@ -113,17 +112,6 @@ public class QuadViewImpl implements QuadView, ModelQuadView {
     }
 
     @Override
-    public Vector3f copyPos(int vertexIndex, @Nullable Vector3f target) {
-        if (target == null) {
-            target = new Vector3f();
-        }
-
-        final int index = baseIndex + vertexIndex * VERTEX_STRIDE + VERTEX_X;
-        target.set(Float.intBitsToFloat(data[index]), Float.intBitsToFloat(data[index + 1]), Float.intBitsToFloat(data[index + 2]));
-        return target;
-    }
-
-    @Override
     public int color(int vertexIndex) {
         return data[baseIndex + vertexIndex * VERTEX_STRIDE + VERTEX_COLOR];
     }
@@ -136,17 +124,6 @@ public class QuadViewImpl implements QuadView, ModelQuadView {
     @Override
     public float v(int vertexIndex) {
         return Float.intBitsToFloat(data[baseIndex + vertexIndex * VERTEX_STRIDE + VERTEX_V]);
-    }
-
-    @Override
-    public Vector2f copyUv(int vertexIndex, @Nullable Vector2f target) {
-        if (target == null) {
-            target = new Vector2f();
-        }
-
-        final int index = baseIndex + vertexIndex * VERTEX_STRIDE + VERTEX_U;
-        target.set(Float.intBitsToFloat(data[index]), Float.intBitsToFloat(data[index + 1]));
-        return target;
     }
 
     @Override
@@ -163,56 +140,8 @@ public class QuadViewImpl implements QuadView, ModelQuadView {
         return (normalFlags() & (1 << vertexIndex)) != 0;
     }
 
-    /** True if any vertex normal has been set. */
-    public boolean hasVertexNormals() {
-        return normalFlags() != 0;
-    }
-
-    /** True if all vertex normals have been set. */
-    public boolean hasAllVertexNormals() {
-        return (normalFlags() & 0b1111) == 0b1111;
-    }
-
     protected final int normalIndex(int vertexIndex) {
         return baseIndex + vertexIndex * VERTEX_STRIDE + VERTEX_NORMAL;
-    }
-
-    /**
-     * This method will only return a meaningful value if {@link #hasNormal} returns {@code true} for the same vertex index.
-     */
-    public int packedNormal(int vertexIndex) {
-        return data[normalIndex(vertexIndex)];
-    }
-
-    @Override
-    public float normalX(int vertexIndex) {
-        return hasNormal(vertexIndex) ? NormI8.unpackX(data[normalIndex(vertexIndex)]) : Float.NaN;
-    }
-
-    @Override
-    public float normalY(int vertexIndex) {
-        return hasNormal(vertexIndex) ? NormI8.unpackY(data[normalIndex(vertexIndex)]) : Float.NaN;
-    }
-
-    @Override
-    public float normalZ(int vertexIndex) {
-        return hasNormal(vertexIndex) ? NormI8.unpackZ(data[normalIndex(vertexIndex)]) : Float.NaN;
-    }
-
-    @Override
-    @Nullable
-    public Vector3f copyNormal(int vertexIndex, @Nullable Vector3f target) {
-        if (hasNormal(vertexIndex)) {
-            if (target == null) {
-                target = new Vector3f();
-            }
-
-            final int normal = data[normalIndex(vertexIndex)];
-            NormI8.unpack(normal, target);
-            return target;
-        } else {
-            return null;
-        }
     }
 
     @Override
@@ -263,21 +192,6 @@ public class QuadViewImpl implements QuadView, ModelQuadView {
     @Override
     public final int tag() {
         return data[baseIndex + HEADER_TAG];
-    }
-
-    @Override
-    public final void toVanilla(int[] target, int targetIndex) {
-        System.arraycopy(data, baseIndex + HEADER_STRIDE, target, targetIndex, QUAD_STRIDE);
-
-        // The color is the fourth integer in each vertex.
-        // EncodingFormat.VERTEX_COLOR is not used because it also
-        // contains the header size; vanilla quads do not have a header.
-        int colorIndex = targetIndex + 3;
-
-        for (int i = 0; i < 4; i++) {
-            target[colorIndex] = ColorHelper.toVanillaColor(target[colorIndex]);
-            colorIndex += QuadView.VANILLA_VERTEX_STRIDE;
-        }
     }
 
     // ModelQuadView method implementations below

@@ -1,15 +1,11 @@
 package net.caffeinemc.mods.sodium.mixin.core.render.world;
 
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
 import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.ChunkRenderMatrices;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
-import net.caffeinemc.mods.sodium.client.render.viewport.ViewportProvider;
 import net.caffeinemc.mods.sodium.client.render.viewport.frustum.SimpleFrustum;
 import net.caffeinemc.mods.sodium.client.world.LevelRendererExtension;
-import net.caffeinemc.mods.sodium.mixin.core.access.CameraAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.render.*;
@@ -21,8 +17,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -97,15 +91,8 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         double y = entity.prevTickY + (entity.y - entity.prevTickY) * tickDelta;
         double z = entity.prevTickZ + (entity.z - entity.prevTickZ) * tickDelta;
 
-        Matrix4f projectionMatrix = new Matrix4f(CameraAccessor.getProjectionMatrix());
-        Matrix4f modelViewMatrix = new Matrix4f(CameraAccessor.getModelMatrix());
-
-
-        // client.gameRenderer.enableLightmap();
-       //GlStateManager.activeTexture(GLX.textureUnit);
-       //GlStateManager.bindTexture(this.client.getSpriteAtlasTexture().getGlId());
-       //GlStateManager.enableTexture();
-
+        Matrix4f projectionMatrix = new Matrix4f(Camera.PROJECTION_MATRIX);
+        Matrix4f modelViewMatrix = new Matrix4f(Camera.MODEL_MATRIX);
 
         try {
             this.renderer.drawChunkLayer(renderLayer, new ChunkRenderMatrices(projectionMatrix, modelViewMatrix), x, y, z);
@@ -114,7 +101,6 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         }
 
         return 0;
-
     }
 
     /**

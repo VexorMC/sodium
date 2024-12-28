@@ -9,9 +9,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockOccl
 import net.caffeinemc.mods.sodium.client.render.frapi.SodiumRenderer;
 import net.caffeinemc.mods.sodium.client.render.frapi.mesh.EncodingFormat;
 import net.caffeinemc.mods.sodium.client.render.frapi.mesh.MutableQuadViewImpl;
-import net.caffeinemc.mods.sodium.client.services.PlatformBlockAccess;
-import net.caffeinemc.mods.sodium.client.services.PlatformModelAccess;
-import net.caffeinemc.mods.sodium.client.services.SodiumModelData;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import dev.vexor.radium.frapi.api.renderer.v1.material.BlendMode;
 import dev.vexor.radium.frapi.api.renderer.v1.material.RenderMaterial;
@@ -29,7 +26,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -102,10 +98,6 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
      */
     protected RenderLayer type;
 
-    /**
-     * The current model's model data.
-     */
-    protected SodiumModelData modelData;
 
     private final BlockOcclusionCache occlusionCache = new BlockOcclusionCache();
     private boolean enableCulling = true;
@@ -115,10 +107,6 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
 
     protected RandomSource random;
     protected long randomSeed;
-    protected final Supplier<RandomSource> randomSupplier = () -> {
-        random.setSeed(randomSeed);
-        return random;
-    };
 
     /**
      * Must be set by the subclass constructor.
@@ -181,8 +169,9 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
 
     protected void prepareAoInfo(boolean modelAo) {
         this.useAmbientOcclusion = MinecraftClient.isAmbientOcclusionEnabled();
-        // Ignore the incorrect IDEA warning here.
-        this.defaultLightMode = this.useAmbientOcclusion && modelAo && PlatformBlockAccess.getInstance().getLightEmission(state, level, pos) == 0 ? LightMode.SMOOTH : LightMode.FLAT;
+        // was .getLightLevel
+        var emission = state.getBlock().getBrightness(level, pos);
+        this.defaultLightMode = this.useAmbientOcclusion && modelAo && emission == 0 ? LightMode.SMOOTH : LightMode.FLAT;
     }
 
     protected void shadeQuad(MutableQuadViewImpl quad, LightMode lightMode, boolean emissive, ShadeMode shadeMode) {
@@ -205,29 +194,19 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
                 continue;
             }
 
-            RandomSource random = this.randomSupplier.get();
-            AmbientOcclusionMode ao = PlatformBlockAccess.getInstance().usesAmbientOcclusion(model, state, modelData, type, slice, pos);
+            var ao = MinecraftClient.isAmbientOcclusionEnabled() ? AmbientOcclusionMode.ENABLED : AmbientOcclusionMode.DISABLED;
 
-            final List<BakedQuad> quads = PlatformModelAccess.getInstance().getQuads(level, pos, model, state, cullFace, random, type, modelData);
-            final int count = quads.size();
+            final var quads = cullFace == null ? model.getQuads() : model.getByDirection(cullFace);
 
             for (final BakedQuad q : quads) {
                 editorQuad.fromVanilla(q, (type == RenderLayer.TRANSLUCENT) ? TRANSLUCENT_MATERIAL : STANDARD_MATERIALS[ao.ordinal()], cullFace);
                 // Call processQuad instead of emit for efficiency
                 // (avoid unnecessarily clearing data, trying to apply transforms, and performing cull check again)
 
-                editorQuad.transformAndEmit();
+                this.processQuad(editorQuad);
             }
         }
 
         editorQuad.clear();
-    }
-
-    public SodiumModelData getModelData() {
-        return modelData;
-    }
-
-    public RenderLayer getRenderType() {
-        return type;
     }
 }

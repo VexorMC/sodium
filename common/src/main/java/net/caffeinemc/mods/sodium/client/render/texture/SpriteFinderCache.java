@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.texture;
 
 import dev.vexor.radium.frapi.api.renderer.v1.model.SpriteFinder;
+import dev.vexor.radium.frapi.impl.renderer.SpriteFinderImpl;
 import net.minecraft.client.MinecraftClient;
 
 /**
@@ -13,7 +14,7 @@ public class SpriteFinderCache {
 
     public static SpriteFinder forBlockAtlas() {
         if (blockAtlasSpriteFinder == null) {
-            blockAtlasSpriteFinder = SpriteFinder.get(MinecraftClient.getInstance().getSpriteAtlasTexture());
+            blockAtlasSpriteFinder = SpriteFinderImpl.get(MinecraftClient.getInstance().getSpriteAtlasTexture());
         }
 
         return blockAtlasSpriteFinder;

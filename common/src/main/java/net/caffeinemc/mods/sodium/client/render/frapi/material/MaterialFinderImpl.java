@@ -76,12 +76,6 @@ public class MaterialFinderImpl extends MaterialViewImpl implements MaterialFind
     }
 
     @Override
-    public MaterialFinder copyFrom(MaterialView material) {
-        bits = ((MaterialViewImpl) material).bits;
-        return this;
-    }
-
-    @Override
     public MaterialFinder clear() {
         bits = defaultBits;
         return this;

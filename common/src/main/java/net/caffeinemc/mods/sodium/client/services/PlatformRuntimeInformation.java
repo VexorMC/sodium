@@ -1,8 +1,5 @@
 package net.caffeinemc.mods.sodium.client.services;
 
-import dev.vexor.radium.compat.mojang.blaze3d.vertex.PoseStack;
-import dev.vexor.radium.compat.mojang.blaze3d.vertex.VertexConsumer;
-
 import java.nio.file.Path;
 
 public interface PlatformRuntimeInformation {
@@ -26,24 +23,4 @@ public interface PlatformRuntimeInformation {
      * Returns the current configuration directory for the platform.
      */
     Path getConfigDirectory();
-
-    /**
-     * Returns if the platform has a early loading screen.
-     */
-    boolean platformHasEarlyLoadingScreen();
-
-    /**
-     * Returns if the platform uses refmaps.
-     */
-    boolean platformUsesRefmap();
-
-    /**
-     * Returns if a mod is in the mods folder during loading.
-     */
-    boolean isModInLoadingList(String modId);
-
-    /**
-     * @return Whether {@link VertexConsumer#putBulkData(PoseStack.Pose, net.minecraft.client.render.model.BakedQuad, float[], float, float, float, float, int[], int, boolean)} should multiply the vertex alpha component.
-     */
-    boolean usesAlphaMultiplication();
 }

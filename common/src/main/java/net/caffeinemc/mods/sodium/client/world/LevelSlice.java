@@ -80,10 +80,6 @@ public final class LevelSlice implements BlockView {
     // (Local Section -> Block States) table.
     private final BlockState[][] blockArrays;
 
-    // (Local Section -> Light Manager) table.
-    @SuppressWarnings("MismatchedReadAndWriteOfArray")
-    private final SodiumAuxiliaryLightManager[] auxLightManager;
-
     // (Local Section -> Light Arrays) table.
     private final @Nullable ChunkNibbleArray[][] lightArrays;
 
@@ -134,9 +130,7 @@ public final class LevelSlice implements BlockView {
             }
         }
 
-        List<?> renderers = PlatformLevelRenderHooks.getInstance().retrieveChunkMeshAppenders(level, pos.origin());
-
-        return new ChunkRenderContext(pos, sections, box, renderers);
+        return new ChunkRenderContext(pos, sections, box);
     }
 
     @SuppressWarnings("unchecked")
@@ -147,7 +141,6 @@ public final class LevelSlice implements BlockView {
         this.lightArrays = new ChunkNibbleArray[SECTION_ARRAY_SIZE][LIGHT_TYPES.length];
 
         this.blockEntityArrays = new Int2ReferenceMap[SECTION_ARRAY_SIZE];
-        this.auxLightManager = new SodiumAuxiliaryLightManager[SECTION_ARRAY_SIZE];
 
         var biomeBlendRadius = SodiumClientMod.options().quality.biomeBlendRadius;
 
@@ -189,7 +182,6 @@ public final class LevelSlice implements BlockView {
         this.lightArrays[sectionIndex][LightType.SKY.ordinal()] = section.getLightArray(LightType.SKY);
 
         this.blockEntityArrays[sectionIndex] = section.getBlockEntityMap();
-        this.auxLightManager[sectionIndex] = section.getAuxLightManager();
     }
 
     private void unpackBlockData(BlockState[] blockArray, ChunkRenderContext context, ClonedChunkSection section) {
@@ -235,7 +227,6 @@ public final class LevelSlice implements BlockView {
             Arrays.fill(this.lightArrays[sectionIndex], null);
 
             this.blockEntityArrays[sectionIndex] = null;
-            this.auxLightManager[sectionIndex] = null;
         }
     }
 
