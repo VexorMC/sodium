@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.mixin.features.gui.hooks.console;
 
 import net.caffeinemc.mods.sodium.client.gui.console.ConsoleHooks;
+import net.caffeinemc.mods.sodium.client.gui.console.FPSCounter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import org.lwjgl.Sys;
@@ -22,5 +23,16 @@ public class GameRendererMixin {
         ConsoleHooks.render(Sys.getTime());
 
         client.profiler.pop();
+    }
+
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;render(F)V", shift = At.Shift.AFTER))
+    private void onRenderTwo(float tickDelta, long nanoTime, CallbackInfo ci) {
+        if (!this.client.options.debugEnabled) {
+            client.profiler.push("radium_fps_overlay");
+
+            FPSCounter.INSTANCE.render();
+
+            client.profiler.pop();
+        }
     }
 }
