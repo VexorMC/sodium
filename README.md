@@ -102,7 +102,7 @@ with `./gradlew.bat` (Windows) or `./gradlew` (macOS and Linux).
 
 ## 📜 License
 
-Except where otherwise stated, the contents of this repository are provided under the GNU GPL v3 license by [Lunasa](https://lunasa.dev)
+Except where otherwise stated, the contents of this repository are provided under the [Polyform Shield 1.0.0](SODIUM-LICENSE.md) license by [Lunasa](https://lunasa.dev)
 
 The Sodium source code, licensed under [Polyform Shield 1.0.0](SODIUM-LICENSE.md), is provided by [JellySquid](https://jellysquid.me).
 [Other third-party license notices](thirdparty/NOTICE.txt)
