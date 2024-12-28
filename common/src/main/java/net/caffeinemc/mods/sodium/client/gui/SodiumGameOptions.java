@@ -62,6 +62,8 @@ public class SodiumGameOptions {
 
         public boolean cpuRenderAhead = true;
         public int cpuRenderAheadLimit = 3;
+
+        public boolean fpsOverlay = true;
     }
 
     public static class QualitySettings {

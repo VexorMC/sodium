@@ -22,14 +22,17 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.Transl
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.block.AbstractFluidBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.FluidBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -165,7 +168,7 @@ public class DefaultFluidRenderer {
             southEastHeight -= EPSILON;
             northEastHeight -= EPSILON;
 
-            Vector3d velocity = WorldUtil.getVelocity(level, blockPos, fluidState);
+            Vec3d velocity = AbstractFluidBlock.getFlowingFluidByMaterial(fluid.getMaterial()).getFluidVec(level, blockPos);
 
             Sprite sprite;
             float u1, u2, u3, u4;
@@ -173,11 +176,11 @@ public class DefaultFluidRenderer {
 
             if (velocity.x == 0.0D && velocity.z == 0.0D) {
                 sprite = sprites[0];
-                u1 = sprite.getFrameU(0.0f);
-                v1 = sprite.getFrameV(0.0f);
+                u1 = sprite.getFrameU(0.0D);
+                v1 = sprite.getFrameV(0.0D);
                 u2 = u1;
-                v2 = sprite.getFrameV(1.0f);
-                u3 = sprite.getFrameU(1.0f);
+                v2 = sprite.getFrameV(16.0D);
+                u3 = sprite.getFrameU(16.0D);
                 v3 = v2;
                 u4 = u3;
                 v4 = v1;
@@ -186,14 +189,14 @@ public class DefaultFluidRenderer {
                 float dir = (float) MathHelper.atan2(velocity.z, velocity.x) - (1.5707964f);
                 float sin = MathHelper.sin(dir) * 0.25F;
                 float cos = MathHelper.cos(dir) * 0.25F;
-                u1 = sprite.getFrameU(0.5F + (-cos - sin));
-                v1 = sprite.getFrameV(0.5F + -cos + sin);
-                u2 = sprite.getFrameU(0.5F + -cos + sin);
-                v2 = sprite.getFrameV(0.5F + cos + sin);
-                u3 = sprite.getFrameU(0.5F + cos + sin);
-                v3 = sprite.getFrameV(0.5F + (cos - sin));
-                u4 = sprite.getFrameU(0.5F + (cos - sin));
-                v4 = sprite.getFrameV(0.5F + (-cos - sin));
+                u1 = sprite.getFrameU(8.0F + (-cos - sin) * 16.0F);
+                v1 = sprite.getFrameV(8.0F + (-cos + sin) * 16.0F);
+                u2 = sprite.getFrameU(8.0F + (-cos + sin) * 16.0F);
+                v2 = sprite.getFrameV(8.0F + (cos + sin) * 16.0F);
+                u3 = sprite.getFrameU(8.0F + (cos + sin) * 16.0F);
+                v3 = sprite.getFrameV(8.0F + (cos - sin) * 16.0F);
+                u4 = sprite.getFrameU(8.0F + (cos - sin) * 16.0F);
+                v4 = sprite.getFrameV(8.0F + (-cos - sin) * 16.0F);
             }
 
             float uAvg = (u1 + u2 + u3 + u4) / 4.0F;
@@ -477,6 +480,22 @@ public class DefaultFluidRenderer {
     private float fluidHeight(BlockView world, AbstractFluidBlock fluid, BlockPos blockPos, Direction direction) {
         BlockState blockState = world.getBlockState(blockPos);
 
-        return WorldUtil.getFluidHeight(fluid, fluid.getMeta(blockState));
+        if (blockState.getBlock().getMaterial() == fluid.getMaterial()) {
+            BlockState fluidStateUp = world.getBlockState(blockPos.up());
+
+            if (fluidStateUp.getBlock().getMaterial() == fluid.getMaterial()) {
+                return 1.0f;
+            } else {
+                try {
+                    return 1f - AbstractFluidBlock.getHeightPercent(blockState.get(AbstractFluidBlock.LEVEL));
+                } catch (Exception e) {
+                    return 0f;
+                }
+            }
+        }
+        if (!blockState.getBlock().isFullBlock()) {
+            return 0.0f;
+        }
+        return -1.0f;
     }
 }

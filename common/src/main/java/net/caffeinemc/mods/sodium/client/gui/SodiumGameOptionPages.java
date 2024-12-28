@@ -334,6 +334,16 @@ public class SodiumGameOptionPages {
                 )
                 .build());
 
+        groups.add(OptionGroup.createBuilder()
+                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
+                        .setName(new TranslatableText("sodium.options.fps_overlay.name"))
+                        .setTooltip(new TranslatableText("sodium.options.fps_overlay.tooltip"))
+                        .setControl(TickBoxControl::new)
+                        .setBinding((opts, value) -> opts.advanced.fpsOverlay = value, opts -> opts.advanced.fpsOverlay)
+                        .build()
+                )
+                .build());
+
         return new OptionPage(new TranslatableText("sodium.options.pages.advanced"), ImmutableList.copyOf(groups));
     }
 }

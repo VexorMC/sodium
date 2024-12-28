@@ -57,7 +57,7 @@ void _vert_init() {
     _vert_color = a_Color;
     _vert_tex_diffuse_coord = _get_texcoord() + _get_texcoord_bias();
 
-    _vert_tex_light_coord = vec2(a_LightAndData.xy) / vec2(256.0);
+    _vert_tex_light_coord = vec2(a_LightAndData.xy) / vec2(16.0);
 
     _material_params = a_LightAndData[2];
     _draw_id = a_LightAndData[3];
