@@ -39,8 +39,6 @@ public class GLRenderDevice implements RenderDevice {
 
         this.stateTracker.clear();
         this.isActive = true;
-
-        GlStateManager.disableCull();
     }
 
     @Override

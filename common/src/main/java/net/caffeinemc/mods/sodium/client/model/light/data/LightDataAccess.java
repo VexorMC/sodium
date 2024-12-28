@@ -69,7 +69,7 @@ public abstract class LightDataAccess {
         boolean em = block.getLightLevel() != 0;
         boolean op = block.isFullBlock() || block.getOpacity() != 0;
         boolean fo = block.isNormalBlock();
-        boolean fc = block.renderAsNormalBlock();
+        boolean fc = block.isFullCube();
 
         int lu = state.getBlock().getLightLevel();
 

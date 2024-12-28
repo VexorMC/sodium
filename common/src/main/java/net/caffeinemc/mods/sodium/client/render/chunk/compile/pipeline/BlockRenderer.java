@@ -28,6 +28,7 @@ import dev.vexor.radium.frapi.api.renderer.v1.material.ShadeMode;
 import net.legacyfabric.fabric.api.util.TriState;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.FlowerBlock;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -70,7 +71,6 @@ public class BlockRenderer extends AbstractBlockRenderContext {
     public void renderModel(BakedModel model, BlockState state, BlockPos pos, BlockPos origin) {
         this.state = state;
         this.pos = pos;
-
         this.randomSeed = 42L;
 
         this.posOffset.set(origin.getX(), origin.getY(), origin.getZ());

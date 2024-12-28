@@ -96,9 +96,9 @@ public class SodiumWorldRenderer {
         }
 
         // If we have a level is already loaded, unload the renderer
-        // if (this.level != null) {
-        //    this.unloadLevel();
-        // }
+        if (this.level != null) {
+            this.unloadLevel();
+        }
 
         // If we're loading a new level, load the renderer
         if (level != null) {
@@ -249,6 +249,8 @@ public class SodiumWorldRenderer {
      * Performs a render pass for the given {@link RenderLayer} and draws all visible chunks for it.
      */
     public void drawChunkLayer(RenderLayer renderLayer, ChunkRenderMatrices matrices, double x, double y, double z) {
+        GlStateManager.disableCull();
+
         this.renderSectionManager.renderLayer(matrices, DefaultTerrainRenderPasses.fromLayer(renderLayer), x, y, z);
     }
 

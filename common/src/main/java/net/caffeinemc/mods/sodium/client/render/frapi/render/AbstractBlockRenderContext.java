@@ -2,6 +2,7 @@ package net.caffeinemc.mods.sodium.client.render.frapi.render;
 
 import dev.vexor.radium.compat.mojang.minecraft.random.RandomSource;
 import dev.vexor.radium.compat.mojang.minecraft.render.LightTexture;
+import dev.vexor.radium.frapi.api.renderer.v1.material.BlendMode;
 import net.caffeinemc.mods.sodium.client.model.light.LightMode;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipeline;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
