@@ -20,7 +20,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.vertex.builder.ChunkMeshBu
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.render.frapi.mesh.MutableQuadViewImpl;
 import net.caffeinemc.mods.sodium.client.render.frapi.render.AbstractBlockRenderContext;
-import net.caffeinemc.mods.sodium.client.render.texture.SpriteFinderCache;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import dev.vexor.radium.frapi.api.renderer.v1.material.BlendMode;
 import dev.vexor.radium.frapi.api.renderer.v1.material.RenderMaterial;
@@ -169,8 +168,7 @@ public class BlockRenderer extends AbstractBlockRenderContext {
             out.y = quad.y(srcIndex) + offset.y;
             out.z = quad.z(srcIndex) + offset.z;
 
-
-            out.color = ColorARGB.fromABGR(quad.color(srcIndex));
+            out.color = quad.color(srcIndex);//ColorARGB.fromABGR();
             out.ao = brightnesses[srcIndex];
 
             out.u = quad.u(srcIndex);

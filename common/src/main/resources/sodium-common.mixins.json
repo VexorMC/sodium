@@ -25,8 +25,6 @@
     "features.options.render_layers.LeavesBlockMixin",
     "features.options.weather.LevelRendererMixin",
     "features.render.immediate.DirectionMixin",
-    "features.textures.animations.tracking.SpriteContentsMixin",
-    "features.textures.animations.tracking.TextureAtlasMixin"
   ],
   "mixins" : [
     "features.options.world.DimensionMixin"

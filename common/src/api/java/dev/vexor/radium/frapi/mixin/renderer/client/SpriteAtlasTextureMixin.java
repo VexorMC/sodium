@@ -19,9 +19,6 @@ package dev.vexor.radium.frapi.mixin.renderer.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.caffeinemc.mods.sodium.client.render.texture.SpriteFinderCache;
-import net.minecraft.client.texture.TextureCreator;
-import net.minecraft.resource.ResourceManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,7 +40,6 @@ public class SpriteAtlasTextureMixin implements SpriteFinderImpl.SpriteFinderAcc
 
     @Inject(method = "method_10315", at = @At("RETURN"))
     private void sodium$deleteSpriteFinder(CallbackInfo ci) {
-        SpriteFinderCache.resetSpriteFinder();
     }
 
     @Override

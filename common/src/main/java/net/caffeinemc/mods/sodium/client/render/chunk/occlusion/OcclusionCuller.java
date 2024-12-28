@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
-import net.caffeinemc.mods.sodium.client.util.Sections;
 import net.caffeinemc.mods.sodium.client.util.collections.DoubleBufferedQueue;
 import net.caffeinemc.mods.sodium.client.util.collections.ReadQueue;
 import net.caffeinemc.mods.sodium.client.util.collections.WriteQueue;
@@ -267,15 +266,14 @@ public class OcclusionCuller {
                       int frame)
     {
         var origin = viewport.getChunkCoord();
+        var maxHeight = SectionPos.blockToSectionCoord(level.getEffectiveHeight());
 
-        if (origin.getY() < Sections.min(level)) {
+        if (origin.getY() < 0) {
             // below the level
-            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame,
-                    Sections.min(level), GraphDirection.DOWN);
-        } else if (origin.getY() > Sections.max(level)) {
+            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame, 0, GraphDirection.DOWN);
+        } else if (origin.getY() > maxHeight) {
             // above the level
-            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame,
-                    Sections.max(level), GraphDirection.UP);
+            this.initOutsideWorldHeight(queue, viewport, searchDistance, frame, maxHeight, GraphDirection.UP);
         } else {
             this.initWithinWorld(visitor, queue, viewport, useOcclusionCulling, frame);
         }

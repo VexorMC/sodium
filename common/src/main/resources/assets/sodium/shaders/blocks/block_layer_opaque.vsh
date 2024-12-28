@@ -46,7 +46,7 @@ void main() {
     gl_Position = u_ProjectionMatrix * u_ModelViewMatrix * vec4(position, 1.0);
 
     // Add the light color to the vertex color, and pass the texture coordinates to the fragment shader
-    v_Color = _vert_color;
+    v_Color = _vert_color * texture(u_LightTex, _vert_tex_light_coord);
     v_TexCoord = _vert_tex_diffuse_coord;
 
     v_MaterialMipBias = _material_mip_bias(_material_params);

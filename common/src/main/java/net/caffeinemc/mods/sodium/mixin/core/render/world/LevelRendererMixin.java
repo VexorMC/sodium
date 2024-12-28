@@ -15,7 +15,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -104,28 +103,13 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
     }
 
     /**
-     * This seems to fix the weird crashes with LWJGL complaining about a
-     * buffer being used when an array buffer is bound.
-     */
-    @Inject(method = "renderSky", at = @At(value = "HEAD"))
-    public void renderSky(CallbackInfo ci) {
-        //GL30.glBindVertexArray(0);
-        //GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-        //GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-    }
-
-    /**
      * @reason Redirect the terrain setup phase to our renderer
      * @author JellySquid
      */
     @Overwrite
     public void setupTerrain(Entity entity, double tickDelta, CameraView cameraView, int frame, boolean spectator) {
-        double x = entity.prevTickX + (entity.x - entity.prevTickX) * tickDelta;
-        double y = entity.prevTickY + (entity.y - entity.prevTickY) * tickDelta;
-        double z = entity.prevTickZ + (entity.z - entity.prevTickZ) * tickDelta;
-
         var frustum = new SimpleFrustum((CullingCameraView) cameraView);
-        var transform = new Vec3d(x, y, z);
+        var transform = entity.getCameraPosVec((float) tickDelta);
         var viewport = new Viewport(frustum, transform);
         var updateChunksImmediately = false;
 
