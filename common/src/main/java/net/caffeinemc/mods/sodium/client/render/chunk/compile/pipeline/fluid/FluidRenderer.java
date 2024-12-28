@@ -1,4 +1,4 @@
-package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
+package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.fluid;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;

@@ -1,4 +1,4 @@
-package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
+package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.fluid;
 
 
 import dev.vexor.radium.compat.mojang.math.Mth;
@@ -16,6 +16,7 @@ import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadViewMutable;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockOcclusionCache;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
@@ -100,7 +101,6 @@ public class DefaultFluidRenderer {
 
         return true;
     }
-
 
     public void render(LevelSlice level, BlockState fluidState, BlockPos blockPos, BlockPos offset, TranslucentGeometryCollector collector, ChunkModelBuilder meshBuilder, Material material, ColorProvider<BlockState> colorProvider, Sprite[] sprites) {
         int posX = blockPos.getX();
