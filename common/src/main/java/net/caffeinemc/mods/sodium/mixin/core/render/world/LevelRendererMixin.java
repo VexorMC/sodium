@@ -93,11 +93,15 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         Matrix4f projectionMatrix = new Matrix4f(Camera.PROJECTION_MATRIX);
         Matrix4f modelViewMatrix = new Matrix4f(Camera.MODEL_MATRIX);
 
+        this.client.gameRenderer.enableLightmap();
+
         try {
             this.renderer.drawChunkLayer(renderLayer, new ChunkRenderMatrices(projectionMatrix, modelViewMatrix), x, y, z);
         } finally {
             RenderDevice.exitManagedCode();
         }
+        this.client.gameRenderer.disableLightmap();
+
 
         return 0;
     }
