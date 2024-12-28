@@ -4,6 +4,8 @@ import dev.vexor.radium.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.MushroomBlock;
+import net.minecraft.block.MushroomPlantBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
@@ -63,20 +65,10 @@ public abstract class LightDataAccess {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
 
-        float ao;
-        boolean em;
-
-        if (block.getLightLevel() == 0) {
-            ao = block.getAmbientOcclusionLightLevel();
-            em = false;
-        } else {
-            ao = 1.0f;
-            em = true;
-        }
-
-        boolean op = !block.hasTransparency() || block.getOpacity() == 0;
+        boolean em = block.getLightLevel() != 0;
+        boolean op = block.isFullBlock() || block.getOpacity() != 0;
         boolean fo = block.hasTransparency();
-        boolean fc = block.isFullCube();
+        boolean fc = block.renderAsNormalBlock();
 
         int lu = state.getBlock().getLightLevel();
 
@@ -97,29 +89,29 @@ public abstract class LightDataAccess {
             }
         }
 
+        float ao;
+        if (lu == 0) {
+            ao = block.getAmbientOcclusionLightLevel();
+        } else {
+            ao = 1.0f;
+        }
 
         return packFC(fc) | packFO(fo) | packOP(op) | packEM(em) | packAO(ao) | packLU(lu) | packSL(sl) | packBL(bl);
     }
 
     public int getLightColor(BlockState blockState, BlockPos blockPos) {
-        boolean em;
-
-        if (blockState.getBlock().getLightLevel() == 0) {
-            em = false;
-        } else {
-            em = true;
+        int em = blockState.getBlock().getLightLevel();
+        if (em != 0) {
+            return LightTexture.FULL_BRIGHT;
         }
 
-        int n;
-        if (em) {
-            return 0xF000F0;
+        int sky = level.getSkyLight(blockPos);
+        int block = level.getBlockLight(blockPos);
+        if (block < em) {
+            block = em;
         }
-        int n2 = level.getSkyLight(blockPos);
-        int n3 = level.getBlockLight(blockPos);
-        if (n3 < (n = blockState.getBlock().getLightLevel())) {
-            n3 = n;
-        }
-        return n2 << 20 | n3 << 4;
+
+        return sky << 20 | block << 4;
     }
 
     public static int packBL(int blockLight) {
