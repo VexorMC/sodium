@@ -1,4 +1,4 @@
-<img src="common/src/main/resources/sodium-icon.png" width="128">
+<img src="common/src/main/resources/radium-icon.png" width="128">
 
 # Radium
 *Radium is a fork of Sodium, a rendering optimization mod for the Minecraft client which focuses on reducing microstutter and improving frame rates, made to have compatibility with 1.8.9*
@@ -18,8 +18,8 @@ then consider [buying me a coffee](https://caffeinemc.net/donate).
 
 #### Stable builds
 
-The latest stable release of Sodium can be downloaded from our official [Modrinth](https://modrinth.com/mod/sodium) and
-[CurseForge](https://www.curseforge.com/minecraft/mc-mods/sodium) pages.
+The latest stable release of Sodium can be downloaded from our official [Modrinth](https://modrinth.com/mod/radium-fabric) and
+[CurseForge](https://www.curseforge.com/minecraft/mc-mods/radium-fabric) pages.
 
 #### Nightly builds (for developers)
 
@@ -57,7 +57,7 @@ Please do not report issues in the sodium repository
 
 ### 💬 Join the Community
 
-We have an [official Discord community](https://discord.vexor.dev) for all of our projects. By joining, you can:
+We have an [official Discord community](https://discord.gg/eg7HsN67) for all of our projects. By joining, you can:
 - Get installation help and technical support for all of our mods
 - Get the latest updates about development and community events
 - Talk with and collaborate with the rest of our team
@@ -102,5 +102,7 @@ with `./gradlew.bat` (Windows) or `./gradlew` (macOS and Linux).
 
 ## 📜 License
 
-Except where otherwise stated (see [third-party license notices](thirdparty/NOTICE.txt)), the content of this repository is provided
-under the [Polyform Shield 1.0.0](LICENSE.md) license by [JellySquid](https://jellysquid.me).
+Except where otherwise stated, the contents of this repository are provided under the [Polyform Shield 1.0.0](SODIUM-LICENSE.md) license by [Lunasa](https://lunasa.dev)
+
+The Sodium source code, licensed under [Polyform Shield 1.0.0](SODIUM-LICENSE.md), is provided by [JellySquid](https://jellysquid.me).
+[Other third-party license notices](thirdparty/NOTICE.txt)
