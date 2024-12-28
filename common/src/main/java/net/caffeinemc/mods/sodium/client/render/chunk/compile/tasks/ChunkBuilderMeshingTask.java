@@ -106,6 +106,9 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                         }
 
                         blockPos.setPosition(x, y, z);
+
+                        blockState = blockState.getBlock().getBlockState(blockState, slice, blockPos);
+
                         modelOffset.setPosition(x & 15, y & 15, z & 15);
 
                         if (BlockRenderType.isModel(blockState.getBlock().getBlockType())) {
