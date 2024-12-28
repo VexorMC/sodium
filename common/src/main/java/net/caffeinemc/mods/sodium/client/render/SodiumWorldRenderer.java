@@ -18,6 +18,7 @@ import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
 import net.caffeinemc.mods.sodium.client.world.LevelRendererExtension;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BlockBreakingInfo;
 import net.minecraft.client.render.Camera;
@@ -30,6 +31,7 @@ import net.minecraft.entity.player.ClientPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 import org.joml.Matrix4f;
@@ -349,6 +351,15 @@ public class SodiumWorldRenderer {
         }
     }
 
+    private static int destroyProgress(Map<Integer, BlockBreakingInfo> progressions, BlockPos pos) {
+        for (BlockBreakingInfo value : progressions.values()) {
+            if (value.getPos().equals(pos))
+                return value.getStage();
+        }
+
+        return -1;
+    }
+
     private static void renderBlockEntity(Map<Integer, BlockBreakingInfo> blockBreakingProgressions,
                                           float tickDelta,
                                           double x,
@@ -359,11 +370,16 @@ public class SodiumWorldRenderer {
                                           ClientPlayerEntity player) {
         BlockPos pos = entity.getPos();
 
+//
+        //if (entity instanceof ChestBlockEntity) {
+        //    pos = pos.offset(Direction.WEST);
+        //    entity = entity.getEntityWorld().getBlockEntity(pos);
+        //}
+
         //GlStateManager.pushMatrix();
         //GlStateManager.translate(pos.getX() - x, pos.getY() - y, pos.getZ() - z);
 
-        int destroyProgress = blockBreakingProgressions.values().stream().filter(info ->
-                info.getPos().equals(pos)).map(BlockBreakingInfo::getStage).findFirst().orElse(-1);
+        int destroyProgress = destroyProgress(blockBreakingProgressions, pos);
 
 
         dispatcher.renderEntity(entity, tickDelta, destroyProgress);
