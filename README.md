@@ -1,4 +1,4 @@
-<img src="common/src/main/resources/sodium-icon.png" width="128">
+<img src="common/src/main/resources/radium-icon.png" width="128">
 
 # Radium
 *Radium is a fork of Sodium, a rendering optimization mod for the Minecraft client which focuses on reducing microstutter and improving frame rates, made to have compatibility with 1.8.9*
