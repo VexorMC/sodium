@@ -74,7 +74,7 @@ public class DefaultFluidRenderer {
 
         BlockPos pos = scratchPos.setPosition(x, y, z);
         BlockState blockState = world.getBlockState(pos);
-        BlockPos adjPos = scratchPos.setPosition(x + dir.getOffsetX(), y + dir.getOffsetY(), z + dir.getOffsetZ());
+        BlockPos adjPos = scratchPos.offset(dir);
         AbstractFluidBlock adjFluid = WorldUtil.getFluid(world.getBlockState(adjPos));
         boolean temp = fluid == adjFluid;
 
@@ -85,7 +85,7 @@ public class DefaultFluidRenderer {
         return temp;
     }
 
-    private boolean isSideExposed(BlockView world, int x, int y, int z, Direction dir, float height) {
+    private boolean isSideExposed(BlockView world, int x, int y, int z, Direction dir) {
         BlockPos pos = scratchPos.setPosition(x + dir.getOffsetX(), y + dir.getOffsetY(), z + dir.getOffsetZ());
         BlockState blockState = world.getBlockState(pos);
         Block block = blockState.getBlock();
@@ -114,7 +114,7 @@ public class DefaultFluidRenderer {
 
         boolean cullUp = this.isFluidOccluded(level, blockPos, Direction.UP, fluid);
         boolean cullDown = this.isFluidOccluded(level, blockPos, Direction.DOWN, fluid) ||
-                !this.isSideExposed(level, posX, posY, posZ, Direction.DOWN, 0.8888889F);
+                !this.isSideExposed(level, posX, posY, posZ, Direction.DOWN);
         boolean cullNorth = this.isFluidOccluded(level, blockPos, Direction.NORTH, fluid);
         boolean cullSouth = this.isFluidOccluded(level, blockPos, Direction.SOUTH, fluid);
         boolean cullWest = this.isFluidOccluded(level, blockPos, Direction.WEST, fluid);
@@ -135,21 +135,20 @@ public class DefaultFluidRenderer {
             southEastHeight = 1.0f;
             northEastHeight = 1.0f;
         } else {
-            var scratchPos = new BlockPos.Mutable();
-            float heightNorth = this.fluidHeight(level, fluid, scratchPos.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ()).offset(Direction.NORTH), Direction.NORTH);
-            float heightSouth = this.fluidHeight(level, fluid, scratchPos.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ()).offset(Direction.SOUTH), Direction.SOUTH);
-            float heightEast = this.fluidHeight(level, fluid, scratchPos.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ()).offset(Direction.EAST), Direction.EAST);
-            float heightWest = this.fluidHeight(level, fluid, scratchPos.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ()).offset(Direction.WEST), Direction.WEST);
-            northWestHeight = this.fluidCornerHeight(level, fluid, fluidHeight, heightNorth, heightWest, scratchPos.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ())
+            float heightNorth = this.fluidHeight(level, fluid, blockPos.offset(Direction.NORTH), Direction.NORTH);
+            float heightSouth = this.fluidHeight(level, fluid, blockPos.offset(Direction.SOUTH), Direction.SOUTH);
+            float heightEast = this.fluidHeight(level, fluid, blockPos.offset(Direction.EAST), Direction.EAST);
+            float heightWest = this.fluidHeight(level, fluid, blockPos.offset(Direction.WEST), Direction.WEST);
+            northWestHeight = this.fluidCornerHeight(level, fluid, fluidHeight, heightNorth, heightWest, blockPos
                     .offset(Direction.NORTH)
                     .offset(Direction.WEST));
-            southWestHeight = this.fluidCornerHeight(level, fluid, fluidHeight, heightSouth, heightWest, scratchPos.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ())
+            southWestHeight = this.fluidCornerHeight(level, fluid, fluidHeight, heightSouth, heightWest, blockPos
                     .offset(Direction.SOUTH)
                     .offset(Direction.WEST));
-            southEastHeight = this.fluidCornerHeight(level, fluid, fluidHeight, heightSouth, heightEast, scratchPos.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ())
+            southEastHeight = this.fluidCornerHeight(level, fluid, fluidHeight, heightSouth, heightEast, blockPos
                     .offset(Direction.SOUTH)
                     .offset(Direction.EAST));
-            northEastHeight = this.fluidCornerHeight(level, fluid, fluidHeight, heightNorth, heightEast, scratchPos.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ())
+            northEastHeight = this.fluidCornerHeight(level, fluid, fluidHeight, heightNorth, heightEast, blockPos
                     .offset(Direction.NORTH)
                     .offset(Direction.EAST));
         }
@@ -162,13 +161,15 @@ public class DefaultFluidRenderer {
 
         quad.setFlags(0);
 
-        if (!cullUp && this.isSideExposed(level, posX, posY, posZ, Direction.UP, Math.min(Math.min(northWestHeight, southWestHeight), Math.min(southEastHeight, northEastHeight)))) {
+        var flow = AbstractFluidBlock.getFlowingFluidByMaterial(fluid.getMaterial());
+
+        if (!cullUp && this.isSideExposed(level, posX, posY, posZ, Direction.UP)) {
             northWestHeight -= EPSILON;
             southWestHeight -= EPSILON;
             southEastHeight -= EPSILON;
             northEastHeight -= EPSILON;
 
-            Vec3d velocity = AbstractFluidBlock.getFlowingFluidByMaterial(fluid.getMaterial()).getFluidVec(level, blockPos);
+            Vec3d velocity = flow.getFluidVec(level, blockPos);
 
             Sprite sprite;
             float u1, u2, u3, u4;
@@ -328,7 +329,7 @@ public class DefaultFluidRenderer {
                 }
             }
 
-            if (this.isSideExposed(level, posX, posY, posZ, dir, Math.max(c1, c2))) {
+            if (this.isSideExposed(level, posX, posY, posZ, dir)) {
                 Sprite sprite = sprites[1];
 
                 float u1 = sprite.getFrameU(0.0F);
