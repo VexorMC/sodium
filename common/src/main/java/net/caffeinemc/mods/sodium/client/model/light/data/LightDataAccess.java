@@ -8,6 +8,7 @@ import net.minecraft.block.MushroomBlock;
 import net.minecraft.block.MushroomPlantBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.LightType;
 
 /**
  * The light data cache is used to make accessing the light data and occlusion properties of blocks cheaper. The data
@@ -67,7 +68,7 @@ public abstract class LightDataAccess {
 
         boolean em = block.getLightLevel() != 0;
         boolean op = block.isFullBlock() || block.getOpacity() != 0;
-        boolean fo = block.hasTransparency();
+        boolean fo = block.isNormalBlock();
         boolean fc = block.renderAsNormalBlock();
 
         int lu = state.getBlock().getLightLevel();
@@ -80,8 +81,8 @@ public abstract class LightDataAccess {
             sl = 0;
         } else {
             if (em) {
-                bl = level.getBlockLight(pos);
-                sl = level.getSkyLight(pos);
+                bl = level.getLight(LightType.BLOCK, pos);
+                sl = level.getLight(LightType.SKY, pos);
             } else {
                 int light = getLightColor(state, pos);
                 bl = LightTexture.block(light);
@@ -99,14 +100,14 @@ public abstract class LightDataAccess {
         return packFC(fc) | packFO(fo) | packOP(op) | packEM(em) | packAO(ao) | packLU(lu) | packSL(sl) | packBL(bl);
     }
 
-    public int getLightColor(BlockState blockState, BlockPos blockPos) {
-        int em = blockState.getBlock().getLightLevel();
+    public int getLightColor(BlockState state, BlockPos pos) {
+        int em = state.getBlock().getLightLevel();
         if (em != 0) {
             return LightTexture.FULL_BRIGHT;
         }
 
-        int sky = level.getSkyLight(blockPos);
-        int block = level.getBlockLight(blockPos);
+        int sky = level.getLight(LightType.SKY, pos);
+        int block = level.getLight(LightType.BLOCK, pos);
         if (block < em) {
             block = em;
         }

@@ -274,43 +274,25 @@ public final class LevelSlice implements BlockView {
                 [getLocalBlockIndex(relBlockX & 15, relBlockY & 15, relBlockZ & 15)];
     }
 
-    public int getSkyLight(BlockPos pos) {
+    public int getLight(LightType type, BlockPos pos) {
         if (!this.volume.contains(new Vec3d(pos.getX(), pos.getY(), pos.getZ()))) {
             return 0;
         }
+
         int relBlockX = pos.getX() - this.originBlockX;
         int relBlockY = pos.getY() - this.originBlockY;
         int relBlockZ = pos.getZ() - this.originBlockZ;
 
-        var lightArrays = this.lightArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
+        var lightArray = this.lightArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)][type.ordinal()];
 
-        var skyLightArray = lightArrays[LightType.SKY.ordinal()];
-
-        int localBlockX = relBlockX & 15;
-        int localBlockY = relBlockY & 15;
-        int localBlockZ = relBlockZ & 15;
-
-        return skyLightArray == null ? 0 : skyLightArray.get(localBlockX, localBlockY, localBlockZ);
-    }
-
-    public int getBlockLight(BlockPos pos) {
-        if (!this.volume.contains(new Vec3d(pos.getX(), pos.getY(), pos.getZ()))) {
+        if (lightArray == null) {
+            // If the array is null, it means the dimension for the current level does not support that light type
             return 0;
         }
-        int relBlockX = pos.getX() - this.originBlockX;
-        int relBlockY = pos.getY() - this.originBlockY;
-        int relBlockZ = pos.getZ() - this.originBlockZ;
 
-        var lightArrays = this.lightArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
-
-        var blockLightArray = lightArrays[LightType.BLOCK.ordinal()];
-
-        int localBlockX = relBlockX & 15;
-        int localBlockY = relBlockY & 15;
-        int localBlockZ = relBlockZ & 15;
-
-        return blockLightArray == null ? 0 : blockLightArray.get(localBlockX, localBlockY, localBlockZ);
+        return lightArray.get(relBlockX & 15, relBlockY & 15, relBlockZ & 15);
     }
+
 
     @Override
     public int getLight(BlockPos pos, int ambientDarkness) {
@@ -331,10 +313,16 @@ public final class LevelSlice implements BlockView {
         int localBlockY = relBlockY & 15;
         int localBlockZ = relBlockZ & 15;
 
-        int skyLight = skyLightArray == null ? 0 : skyLightArray.get(localBlockX, localBlockY, localBlockZ) - ambientDarkness;
+        int skyLight = skyLightArray == null ? 0 : skyLightArray.get(localBlockX, localBlockY, localBlockZ); //- ambientDarkness;
         int blockLight = blockLightArray == null ? 0 : blockLightArray.get(localBlockX, localBlockY, localBlockZ);
 
-        return Math.max(blockLight, skyLight);
+        if (blockLight < ambientDarkness) {
+            blockLight = ambientDarkness;
+        }
+
+        return skyLight << 20 | blockLight << 4;
+
+        //return Math.max(blockLight, skyLight);
     }
 
     @Override
@@ -373,11 +361,18 @@ public final class LevelSlice implements BlockView {
             return this.level.dimension.hasNoSkylight() ? 0.9f : 1.0f;
         }
         return switch (direction) {
-            case DOWN -> .5f;
-            case UP -> 1f;
-            case NORTH, SOUTH -> .8f;
-            default -> .6f;
+            case DOWN -> 0.9F;
+            case UP -> 0.9F;
+            case NORTH, SOUTH -> 0.8F;
+            case WEST, EAST -> 0.6F;
         };
+
+        //return switch (direction) {
+        //    case DOWN -> .5f;
+        //    case UP -> 1f;
+        //    case NORTH, SOUTH -> .8f;
+        //    default -> .6f;
+        //};
     }
 
     public int getColor(BiomeColorSource source, int blockX, int blockY, int blockZ) {
