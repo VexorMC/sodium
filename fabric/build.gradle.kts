@@ -28,6 +28,8 @@ dependencies {
 
     shadow("org.joml:joml:1.10.8")
     shadow("it.unimi.dsi:fastutil:8.5.15")
+    shadow("io.waterwave.Legacy-LWJGL3:lwjgl:3.3.2-5")
+    shadow("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
 }
 
 sourceSets.apply {
