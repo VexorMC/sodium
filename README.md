@@ -8,7 +8,7 @@ micro-stutter, while fixing many graphical issues in Minecraft.
 
 **This mod is the result of thousands of hours of development, and is made possible thanks to players like you.** If you
 would like to show a token of your appreciation for my work, and help support the development of Sodium in the process,
-then consider [buying me a coffee](https://caffeinemc.net/donate).
+then consider [donating to CaffeineMC](https://caffeinemc.net/donate).
 
 <a href="https://caffeinemc.net/donate"><img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" width="180"/></a>
 
