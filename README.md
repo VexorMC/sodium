@@ -6,7 +6,7 @@
 Radium is a powerful rendering engine and optimization mod for the Minecraft client which improves frame rates and reduces
 micro-stutter, while fixing many graphical issues in Minecraft.
 
-**This mod is the result of thousands of hours of development, and is made possible thanks to players like you.** If you
+**Sodium is the result of thousands of hours of development, and is made possible thanks to players like you.** If you
 would like to show a token of your appreciation for my work, and help support the development of Sodium in the process,
 then consider [donating to CaffeineMC](https://caffeinemc.net/donate).
 
