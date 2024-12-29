@@ -17,7 +17,7 @@ public class DefaultColorProviders {
     }
 
     public static final GrassColorProvider GRASS = new GrassColorProvider();
-    public static final GrassColorProvider FOLIAGE = new GrassColorProvider();
+    public static final FoliageColorProvider FOLIAGE = new FoliageColorProvider();
 
     public static class GrassColorProvider extends BlendedColorProvider<BlockState> {
         @Override
