@@ -42,7 +42,7 @@ public class ColorProviderRegistry {
 
     // TODO: Allow mods to install their own color resolvers here
     private void installOverrides() {
-        this.registerBlocks(DefaultColorProviders.GRASS, Blocks.GRASS, Blocks.SUGARCANE, Blocks.TALLGRASS);
+        this.registerBlocks(DefaultColorProviders.GRASS, Blocks.GRASS, Blocks.SUGARCANE, Blocks.TALLGRASS, Blocks.DOUBLE_PLANT);
         this.registerBlocks(DefaultColorProviders.FOLIAGE, Blocks.LEAVES, Blocks.LEAVES2, Blocks.VINE);
         this.registerBlocks(new WaterBlockColors(), Blocks.WATER);
         this.registerFluids(new WaterBlockColors(), Blocks.WATER, Blocks.FLOWING_WATER);

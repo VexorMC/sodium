@@ -28,7 +28,7 @@ public class ClientChunkCacheMixin {
     )
     private void onChunkUnloaded(int x, int z, CallbackInfo ci) {
         ChunkTrackerHolder.get((ClientWorld)this.world)
-                .onChunkStatusRemoved(x, z, ChunkStatus.FLAG_HAS_BLOCK_DATA);
+                .onChunkStatusRemoved(x, z, ChunkStatus.FLAG_ALL);
     }
 
     @Inject(
@@ -41,6 +41,6 @@ public class ClientChunkCacheMixin {
     )
     private void onChunkLoaded(int x, int z, CallbackInfoReturnable<Chunk> cir) {
         ChunkTrackerHolder.get((ClientWorld)this.world)
-                .onChunkStatusAdded(x, z, ChunkStatus.FLAG_HAS_BLOCK_DATA);
+                .onChunkStatusAdded(x, z, ChunkStatus.FLAG_ALL);
     }
 }
