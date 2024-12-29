@@ -31,12 +31,11 @@ The latest nightly build for each current branch of development can be downloade
 
 - Minecraft 1.8.9 (latest): [Download nightly](https://nightly.link/VexorMC/sodium/workflows/build-commit/dev/sodium-artifacts-dev.zip) or [View all builds](https://github.com/VexorMC/sodium/actions/workflows/build-commit.yml?query=branch%3Adev)
 
-### 🖥️ Installation
+### 🔮 Forge Support
 
-Since the release of Sodium 0.6.0, both the _Fabric_ and _NeoForge_ mod loaders are supported. We generally recommend
-that new users prefer to use the _Fabric_ mod loader, since it is more lightweight and stable (for the time being.)
+Currently, Radium **does not** support Forge, and it is likely that will remain the case for some time. Legacy Fabric is a much more lightweight and performant mod loader, and we recommend you use it.
 
-For more information about downloading and installing the mod, please refer to our [Installation Guide](https://github.com/VexorMC/sodium/wiki/Installation).
+To get the latest updates on this matter, please join our [official Discord server](https://caffeinemc.net/discord). 
 
 ### 🙇 Getting Help
 
