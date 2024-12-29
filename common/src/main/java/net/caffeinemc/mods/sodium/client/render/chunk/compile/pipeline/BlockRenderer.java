@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
+import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
@@ -65,7 +66,7 @@ public class BlockRenderer {
         var material = DefaultMaterials.forBlockState(ctx.state());
         var meshBuilder = buffers.get(material);
 
-        ColorProvider<BlockState> colorizer = this.colorProviderRegistry.getColorProvider(ctx.state().getBlock());
+        ColorProvider colorizer = this.colorProviderRegistry.getColorProvider(ctx.state().getBlock());
 
         LightPipeline lighter = this.lighters.getLighter(this.getLightingMode(ctx.state(), ctx.model()));
         Vec3d renderOffset = new Vec3d(0, 0, 0);
@@ -89,12 +90,6 @@ public class BlockRenderer {
 
             renderOffset.add((float) fx, (float) fy, (float) fz);
         }
-
-        //if (ctx.state().hasOffsetFunction()) {
-        //    renderOffset = ctx.state().getOffset(ctx.slice(), ctx.pos());
-        //} else {
-        //    renderOffset = Vector3d.ZERO;
-        //}
 
         for (Direction face : DirectionUtil.ALL_DIRECTIONS) {
             List<BakedQuad> quads = this.getGeometry(ctx, face);
@@ -120,7 +115,7 @@ public class BlockRenderer {
         return this.occlusionCache.shouldDrawSide(ctx.slice(), ctx.pos(), face);
     }
 
-    private void renderQuadList(BlockRenderContext ctx, Material material, LightPipeline lighter, ColorProvider<BlockState> colorizer, Vec3d offset,
+    private void renderQuadList(BlockRenderContext ctx, Material material, LightPipeline lighter, ColorProvider colorizer, Vec3d offset,
                                 ChunkModelBuilder builder, List<BakedQuad> quads, Direction cullFace) {
 
         // This is a very hot allocation, iterate over it manually
@@ -148,30 +143,17 @@ public class BlockRenderer {
         return light;
     }
 
-    private int[] getVertexColors(BlockRenderContext ctx, ColorProvider<BlockState> colorProvider, BakedQuadView quad) {
+    private int[] getVertexColors(BlockRenderContext ctx, ColorProvider colorProvider, BakedQuadView quad) {
         final int[] vertexColors = this.quadColors;
 
         if (colorProvider != null && quad.hasColor()) {
-            colorProvider.getColors(ctx.slice(), ctx.pos(), ctx.state(), quad, vertexColors);
+            colorProvider.getColors(ctx.slice(), ctx.pos(), quad, vertexColors);
+            for (int i = 0; i < 4; i++) {
+                vertexColors[i] = ColorARGB.toABGR(vertexColors[i]);
+            }
         } else {
             Arrays.fill(vertexColors, 0xFFFFFFFF);
         }
-
-        //if (quad.hasColor() && colorProvider != null) {
-        //    colorProvider.getColors(ctx.slice(), ctx.pos(), ctx.state(), quad, vertexColors);
-//
-        //    for (int i = 0; i < 4; i++) {
-        //        quadColors[i] = ColorMixer.mulComponentWise(vertexColors[i], quadColors[i]);
-        //    }
-        //}
-
-        //Arrays.fill(vertexColors, 0xFFFFFFFF);
-
-        //if (colorProvider != null && quad.hasColor()) {
-        //    colorProvider.getColors(ctx.slice(), ctx.pos(), ctx.state(), quad, vertexColors);
-        //} else {
-        //    Arrays.fill(vertexColors, 0xFFFFFFFF);
-        //}
 
         return vertexColors;
     }

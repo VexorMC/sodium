@@ -102,7 +102,7 @@ public class DefaultFluidRenderer {
         return true;
     }
 
-    public void render(LevelSlice level, BlockState fluidState, BlockPos blockPos, BlockPos offset, TranslucentGeometryCollector collector, ChunkModelBuilder meshBuilder, Material material, ColorProvider<BlockState> colorProvider, Sprite[] sprites) {
+    public void render(LevelSlice level, BlockState fluidState, BlockPos blockPos, BlockPos offset, TranslucentGeometryCollector collector, ChunkModelBuilder meshBuilder, Material material, ColorProvider colorProvider, Sprite[] sprites) {
         int posX = blockPos.getX();
         int posY = blockPos.getY();
         int posZ = blockPos.getZ();
@@ -358,7 +358,7 @@ public class DefaultFluidRenderer {
     }
 
     private void updateQuad(ModelQuadViewMutable quad, LevelSlice level, BlockPos pos, LightPipeline lighter, Direction dir, ModelQuadFacing facing, float brightness,
-                            ColorProvider<BlockState> colorProvider, BlockState fluidState) {
+                            ColorProvider colorProvider, BlockState fluidState) {
 
         int normal;
         if (facing.isAligned()) {
@@ -373,7 +373,7 @@ public class DefaultFluidRenderer {
 
         lighter.calculate(quad, pos, light, null, dir, false, false);
 
-        colorProvider.getColors(level, pos, fluidState, quad, this.quadColors);
+        colorProvider.getColors(level, pos, quad, this.quadColors);
 
         // multiply the per-vertex color against the combined brightness
         // the combined brightness is the per-vertex brightness multiplied by the block's brightness

@@ -52,7 +52,7 @@ public class FluidRendererImpl extends FluidRenderer {
             this.hasModOverride = false;
         }
 
-        public ColorProvider<BlockState> getColorProvider(AbstractFluidBlock fluid) {
+        public ColorProvider getColorProvider(AbstractFluidBlock fluid) {
             var override = this.colorProviderRegistry.getColorProvider(fluid);
 
             if (!hasModOverride && override != null) {

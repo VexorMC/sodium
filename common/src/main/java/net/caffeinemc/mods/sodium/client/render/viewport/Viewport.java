@@ -4,6 +4,7 @@ import dev.vexor.radium.compat.mojang.math.Mth;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.caffeinemc.mods.sodium.client.render.viewport.frustum.Frustum;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3d;
 
@@ -25,9 +26,9 @@ public final class Viewport {
         );
 
         this.blockCoords = new BlockPos(
-                Mth.floor(position.x),
-                Mth.floor(position.y),
-                Mth.floor(position.z)
+                MathHelper.floor(position.x),
+                MathHelper.floor(position.y),
+                MathHelper.floor(position.z)
         );
     }
 

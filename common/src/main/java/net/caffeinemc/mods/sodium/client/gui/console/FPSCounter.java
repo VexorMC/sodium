@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gui.console;
 
+import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.minecraft.client.MinecraftClient;
 
 public class FPSCounter {
@@ -24,6 +25,9 @@ public class FPSCounter {
 
     public void render() {
         MinecraftClient minecraft = MinecraftClient.getInstance();
+
+        if (!SodiumClientMod.options().advanced.fpsOverlay)
+            return;
 
         long currentTime = System.nanoTime();
         long deltaTime = currentTime - lastFrameTime;

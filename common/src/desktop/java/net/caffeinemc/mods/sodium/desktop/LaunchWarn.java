@@ -13,7 +13,7 @@ public class LaunchWarn {
                     "<html>" +
                     "<body>" +
                     "<p style='width: 600px; padding: 0 0 8px 0;'>" +
-                    "You have tried to launch Sodium (a Minecraft mod) directly, but it is not an executable program or mod installer. Instead, " +
+                    "You have tried to launch Radium (a Minecraft mod) directly, but it is not an executable program or mod installer. Instead, " +
                     "you must install Fabric Loader for Minecraft, and then place this file in your mods directory." +
                     "</p>" +
                     "<p style='width: 600px; padding: 0 0 8px 0;'>" +
@@ -26,7 +26,7 @@ public class LaunchWarn {
                     "<html>" +
                     "<body>" +
                     "<p style='width: 600px; padding: 0 0 8px 0;'>" +
-                    "You have tried to launch Sodium (a Minecraft mod) directly, but it is not an executable program or mod installer. Instead, " +
+                    "You have tried to launch Radium (a Minecraft mod) directly, but it is not an executable program or mod installer. Instead, " +
                     "you must install Fabric Loader for Minecraft, and then place this file in your mods directory." +
                     "</p>" +
                     "<p style='width: 600px; padding: 0 0 8px 0;'>" +
@@ -43,7 +43,7 @@ public class LaunchWarn {
                     "</p>" +
                     "</body>" +
                     "</html>";
-    public static final String WINDOW_TITLE = "Sodium";
+    public static final String WINDOW_TITLE = "Radium";
 
     public static void main(String[] args) {
         if (GraphicsEnvironment.isHeadless()) {

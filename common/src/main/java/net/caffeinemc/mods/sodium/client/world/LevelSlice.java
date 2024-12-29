@@ -360,19 +360,19 @@ public final class LevelSlice implements BlockView {
         if (!shaded) {
             return this.level.dimension.hasNoSkylight() ? 0.9f : 1.0f;
         }
-        return switch (direction) {
-            case DOWN -> 0.9F;
-            case UP -> 0.9F;
-            case NORTH, SOUTH -> 0.8F;
-            case WEST, EAST -> 0.6F;
-        };
-
         //return switch (direction) {
-        //    case DOWN -> .5f;
-        //    case UP -> 1f;
-        //    case NORTH, SOUTH -> .8f;
-        //    default -> .6f;
+        //    case DOWN -> 0.9F;
+        //    case UP -> 0.9F;
+        //    case NORTH, SOUTH -> 0.8F;
+        //    case WEST, EAST -> 0.6F;
         //};
+
+        return switch (direction) {
+            case DOWN -> .5f;
+            case UP -> 1f;
+            case NORTH, SOUTH -> .8f;
+            default -> .6f;
+        };
     }
 
     public int getColor(BiomeColorSource source, int blockX, int blockY, int blockZ) {

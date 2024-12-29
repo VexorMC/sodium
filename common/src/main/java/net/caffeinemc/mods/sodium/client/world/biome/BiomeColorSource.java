@@ -1,13 +1,12 @@
 package net.caffeinemc.mods.sodium.client.world.biome;
 
 import net.minecraft.client.color.world.BiomeColors;
-
-import static net.caffeinemc.mods.sodium.client.world.biome.BiomeColorMaps.*;
+import net.minecraft.world.biome.Biome;
 
 public enum BiomeColorSource {
-    GRASS(GRASS_COLOR),
-    FOLIAGE(FOLIAGE_COLOR),
-    WATER(WATER_COLOR);
+    GRASS(Biome::getGrassColor),
+    FOLIAGE(Biome::getFoliageColor),
+    WATER((biome, pos) -> biome.waterColor);
 
     private final BiomeColors.ColorProvider provider;
 

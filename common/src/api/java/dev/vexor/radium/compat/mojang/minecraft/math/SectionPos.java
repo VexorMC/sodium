@@ -58,49 +58,6 @@ public class SectionPos
         return n >> 4;
     }
 
-    public static int blockToSectionCoord(double d) {
-        return MathHelper.floor(d) >> 4;
-    }
-
-    public static int sectionRelative(int n) {
-        return n & 0xF;
-    }
-
-    public static short sectionRelativePos(BlockPos blockPos) {
-        int n = SectionPos.sectionRelative(blockPos.getX());
-        int n2 = SectionPos.sectionRelative(blockPos.getY());
-        int n3 = SectionPos.sectionRelative(blockPos.getZ());
-        return (short)(n << 8 | n3 << 4 | n2 << 0);
-    }
-
-    public static int sectionRelativeX(short s) {
-        return s >>> 8 & 0xF;
-    }
-
-    public static int sectionRelativeY(short s) {
-        return s >>> 0 & 0xF;
-    }
-
-    public static int sectionRelativeZ(short s) {
-        return s >>> 4 & 0xF;
-    }
-
-    public int relativeToBlockX(short s) {
-        return this.minBlockX() + SectionPos.sectionRelativeX(s);
-    }
-
-    public int relativeToBlockY(short s) {
-        return this.minBlockY() + SectionPos.sectionRelativeY(s);
-    }
-
-    public int relativeToBlockZ(short s) {
-        return this.minBlockZ() + SectionPos.sectionRelativeZ(s);
-    }
-
-    public BlockPos relativeToBlockPos(short s) {
-        return new BlockPos(this.relativeToBlockX(s), this.relativeToBlockY(s), this.relativeToBlockZ(s));
-    }
-
     public static int sectionToBlockCoord(int n) {
         return n << 4;
     }
@@ -157,19 +114,6 @@ public class SectionPos
         return SectionPos.sectionToBlockCoord(this.z(), 15);
     }
 
-    public static long blockToSection(long l) {
-        BlockPos pos = BlockPos.fromLong(l);
-
-        return SectionPos.asLong(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getY()), SectionPos.blockToSectionCoord(pos.getZ()));
-    }
-
-    public static long getZeroNode(int n, int n2) {
-        return SectionPos.getZeroNode(SectionPos.asLong(n, 0, n2));
-    }
-
-    public static long getZeroNode(long l) {
-        return l & 0xFFFFFFFFFFF00000L;
-    }
 
     public BlockPos origin() {
         return new BlockPos(SectionPos.sectionToBlockCoord(this.x()), SectionPos.sectionToBlockCoord(this.y()), SectionPos.sectionToBlockCoord(this.z()));
@@ -179,9 +123,6 @@ public class SectionPos
         return new ChunkPos(this.x(), this.z());
     }
 
-    public static long asLong(BlockPos blockPos) {
-        return SectionPos.asLong(SectionPos.blockToSectionCoord(blockPos.getX()), SectionPos.blockToSectionCoord(blockPos.getY()), SectionPos.blockToSectionCoord(blockPos.getZ()));
-    }
 
     public static long asLong(int n, int n2, int n3) {
         long l = 0L;

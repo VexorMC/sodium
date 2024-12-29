@@ -10,22 +10,22 @@ public final class QuartPos {
     }
 
     public static int fromBlock(int n) {
-        return n >> 2;
+        return n >> BITS;
     }
 
     public static int quartLocal(int n) {
-        return n & 3;
+        return n & MASK;
     }
 
     public static int toBlock(int n) {
-        return n << 2;
+        return n << BITS;
     }
 
     public static int fromSection(int n) {
-        return n << 2;
+        return n << SECTION_TO_QUARTS_BITS;
     }
 
     public static int toSection(int n) {
-        return n >> 2;
+        return n >> SECTION_TO_QUARTS_BITS;
     }
 }

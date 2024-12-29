@@ -10,16 +10,16 @@ import net.minecraft.util.math.BlockPos;
 import java.util.Arrays;
 
 public class FabricColorProvider {
-    public static ColorProvider<BlockState> adapt() {
+    public static ColorProvider adapt() {
         return new FabricFluidAdapter();
     }
 
-    private static class FabricFluidAdapter implements ColorProvider<BlockState> {
+    private static class FabricFluidAdapter implements ColorProvider {
         public FabricFluidAdapter() {
         }
 
         @Override
-        public void getColors(LevelSlice slice, BlockPos pos, BlockState state, ModelQuadView quad, int[] output) {
+        public void getColors(LevelSlice slice, BlockPos pos, ModelQuadView quad, int[] output) {
             Arrays.fill(output, 0xFF000000 | BiomeColors.getWaterColor(slice, pos));
         }
     }

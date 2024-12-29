@@ -1,6 +1,5 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline;
 
-import dev.vexor.radium.compat.mojang.minecraft.BlockColors;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
 import net.caffeinemc.mods.sodium.client.model.light.data.ArrayLightDataCache;
@@ -27,7 +26,7 @@ public class BlockRenderCache {
 
         LightPipelineProvider lightPipelineProvider = new LightPipelineProvider(this.lightDataCache);
 
-        var colorRegistry = new ColorProviderRegistry(BlockColors.INSTANCE);
+        var colorRegistry = new ColorProviderRegistry();
 
         this.blockRenderer = new BlockRenderer(colorRegistry, lightPipelineProvider);
         this.fluidRenderer = new FluidRendererImpl(colorRegistry, lightPipelineProvider);
