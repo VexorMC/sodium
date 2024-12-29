@@ -15,20 +15,19 @@ public class DefaultColorProviders {
         return new VanillaAdapter(color);
     }
 
-    public static class GrassColorProvider<T> extends BlendedColorProvider<T> {
-        public static final ColorProvider<BlockState> BLOCKS = new GrassColorProvider<>();
+    public static final GrassColorProvider GRASS = new GrassColorProvider();
+    public static final GrassColorProvider FOLIAGE = new GrassColorProvider();
 
+    public static class GrassColorProvider extends BlendedColorProvider<BlockState> {
         @Override
-        protected int getColor(LevelSlice slice, T state, BlockPos pos) {
+        protected int getColor(LevelSlice slice, BlockState state, BlockPos pos) {
             return slice.getColor(BiomeColorSource.GRASS, pos.getX(), pos.getY(), pos.getZ());
         }
     }
 
-    public static class FoliageColorProvider<T> extends BlendedColorProvider<T> {
-        public static final ColorProvider<BlockState> BLOCKS = new FoliageColorProvider<>();
-
+    public static class FoliageColorProvider extends BlendedColorProvider<BlockState> {
         @Override
-        protected int getColor(LevelSlice slice, T state, BlockPos pos) {
+        protected int getColor(LevelSlice slice, BlockState state, BlockPos pos) {
             return slice.getColor(BiomeColorSource.FOLIAGE, pos.getX(), pos.getY(), pos.getZ());
         }
     }
@@ -41,7 +40,7 @@ public class DefaultColorProviders {
         }
 
         @Override
-        public void getColors(LevelSlice slice, BlockPos pos, BlockPos.Mutable scratchPos, BlockState state, ModelQuadView quad, int[] output) {
+        public void getColors(LevelSlice slice, BlockPos pos, BlockState state, ModelQuadView quad, int[] output) {
             Arrays.fill(output, this.color.colorMultiplier(state, slice, pos, quad.getTintIndex()));
         }
     }

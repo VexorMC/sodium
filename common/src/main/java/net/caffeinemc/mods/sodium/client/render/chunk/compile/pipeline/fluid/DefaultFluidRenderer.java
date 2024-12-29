@@ -22,11 +22,9 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.Transl
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.block.AbstractFluidBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.FluidBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
@@ -36,7 +34,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.joml.Vector3d;
 
 public class DefaultFluidRenderer {
     // TODO: allow this to be changed by vertex format, WARNING: make sure TranslucentGeometryCollector knows about EPSILON
@@ -376,7 +373,7 @@ public class DefaultFluidRenderer {
 
         lighter.calculate(quad, pos, light, null, dir, false, false);
 
-        colorProvider.getColors(level, pos, scratchPos, fluidState, quad, this.quadColors);
+        colorProvider.getColors(level, pos, fluidState, quad, this.quadColors);
 
         // multiply the per-vertex color against the combined brightness
         // the combined brightness is the per-vertex brightness multiplied by the block's brightness

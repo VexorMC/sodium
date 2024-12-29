@@ -75,8 +75,7 @@
   "accessWidener" : "sodium-fabric.accesswidener",
   "mixins" : [
     "sodium-common.mixins.json",
-    "sodium-fabric.mixins.json",
-    "radium-frapi.mixins.json"
+    "sodium-fabric.mixins.json"
   ],
   "depends" : {
     "minecraft": ["1.8.9"],

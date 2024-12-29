@@ -9,6 +9,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildContext;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildOutput;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.executor.ChunkBuilder;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderCache;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts;
@@ -81,14 +82,11 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
         BlockPos.Mutable blockPos = new BlockPos.Mutable(minX, minY, minZ);
         BlockPos.Mutable modelOffset = new BlockPos.Mutable();
 
-        TranslucentGeometryCollector collector;
+        TranslucentGeometryCollector collector = null;
         if (SodiumClientMod.options().performance.getSortBehavior() != SortBehavior.OFF) {
             collector = new TranslucentGeometryCollector(render.getPosition());
-        } else {
-            collector = null;
         }
-        BlockRenderer blockRenderer = cache.getBlockRenderer();
-        blockRenderer.prepare(buffers, slice, collector);
+        BlockRenderContext context = new BlockRenderContext(slice, collector);
 
         profiler.push("render blocks");
         try {
@@ -115,7 +113,11 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                         if (BlockRenderType.isModel(blockType)) {
                             BakedModel model = cache.getBlockModels()
                                     .getBakedModel(blockState);
-                            blockRenderer.renderModel(model, blockState, blockPos, modelOffset);
+
+                            context.update(blockPos, modelOffset, blockState, model);
+                            cache.getBlockRenderer()
+                                    .renderModel(context, buffers);
+                            //blockRenderer.renderModel(model, blockState, blockPos, modelOffset);
                         }
 
                         if (BlockRenderType.isLiquid(blockType)) {
@@ -149,9 +151,6 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
             throw fillCrashInfo(CrashReport.create(ex, "Encountered exception while building chunk meshes"), slice, blockPos);
         }
         profiler.swap("mesh appenders");
-
-
-        blockRenderer.release();
 
         SortType sortType = SortType.NONE;
         if (collector != null) {

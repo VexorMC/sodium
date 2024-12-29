@@ -9,13 +9,15 @@ import net.minecraft.util.math.BlockPos;
 
 public abstract class BlendedColorProvider<T> implements ColorProvider<T> {
     @Override
-    public void getColors(LevelSlice slice, BlockPos pos, BlockPos.Mutable scratchPos, T state, ModelQuadView quad, int[] output) {
+    public void getColors(LevelSlice slice, BlockPos pos, T state, ModelQuadView quad, int[] output) {
         for (int vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
-            output[vertexIndex] = this.getVertexColor(slice, pos, scratchPos, quad, state, vertexIndex);
+            output[vertexIndex] = this.getVertexColor(slice, pos, quad, state, vertexIndex);
         }
     }
 
-    private int getVertexColor(LevelSlice slice, BlockPos pos, BlockPos.Mutable scratchPos, ModelQuadView quad, T state, int vertexIndex) {
+    private int getVertexColor(LevelSlice slice, BlockPos pos, ModelQuadView quad, T state, int vertexIndex) {
+        BlockPos.Mutable scratchPos = new BlockPos.Mutable();
+
         // The vertex position
         // We add a half-texel offset since we are sampling points within a color texture
         final float x = quad.getX(vertexIndex) - 0.5f;

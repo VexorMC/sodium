@@ -19,7 +19,7 @@ public class FabricColorProvider {
         }
 
         @Override
-        public void getColors(LevelSlice slice, BlockPos pos, BlockPos.Mutable scratchPos, BlockState state, ModelQuadView quad, int[] output) {
+        public void getColors(LevelSlice slice, BlockPos pos, BlockState state, ModelQuadView quad, int[] output) {
             Arrays.fill(output, 0xFF000000 | BiomeColors.getWaterColor(slice, pos));
         }
     }

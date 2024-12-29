@@ -24,7 +24,7 @@
     "features.options.overlays.GuiMixin",
     "features.options.render_layers.LeavesBlockMixin",
     "features.options.weather.LevelRendererMixin",
-    "features.render.immediate.DirectionMixin",
+    "features.render.immediate.DirectionMixin"
   ],
   "mixins" : [
     "features.options.world.DimensionMixin"
