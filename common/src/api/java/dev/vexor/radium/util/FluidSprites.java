@@ -1,10 +1,11 @@
 package dev.vexor.radium.util;
 
+import net.caffeinemc.mods.sodium.mixin.core.access.ABlockRenderManager;
+import net.caffeinemc.mods.sodium.mixin.core.access.AFluidRenderer;
 import net.minecraft.block.AbstractFluidBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.texture.SpriteAtlasTexture;
 
 /**
  * Caches fluid sprites and quickly allows you to access them for maximum efficiency.
@@ -26,18 +27,10 @@ public class FluidSprites {
     }
 
     public static FluidSprites create() {
-        return new FluidSprites(getSpritesFor("water"), getSpritesFor("lava"));
+        return new FluidSprites(getFluidRenderer().getWaterSprites(), getFluidRenderer().getLavaSprites());
     }
 
-    // There is definitely a better way to do this...
-    private static Sprite[] getSpritesFor(String fluidName) {
-        SpriteAtlasTexture spriteAtlasTexture = MinecraftClient.getInstance().getSpriteAtlasTexture();
-
-        Sprite[] sprites = new Sprite[2];
-
-        sprites[0] = spriteAtlasTexture.getSprite("minecraft:blocks/%s_still".formatted(fluidName));
-        sprites[1] = spriteAtlasTexture.getSprite("minecraft:blocks/%s_flow".formatted(fluidName));
-
-        return sprites;
+    private static AFluidRenderer getFluidRenderer() {
+        return (AFluidRenderer) ((ABlockRenderManager) MinecraftClient.getInstance().getBlockRenderManager()).getFluidRenderer();
     }
 }

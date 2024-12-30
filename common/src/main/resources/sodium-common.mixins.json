@@ -10,6 +10,8 @@
     "conformVisibility" : true
   },
   "client" : [
+    "core.access.ABlockRenderManager",
+    "core.access.AFluidRenderer",
     "core.MinecraftMixin",
     "core.render.VertexFormatMixin",
     "core.render.world.LevelRendererMixin",
