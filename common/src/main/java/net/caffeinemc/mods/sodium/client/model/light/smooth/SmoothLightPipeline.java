@@ -245,15 +245,31 @@ public class SmoothLightPipeline implements LightPipeline {
     /**
      * Calculates the light data for a quad that does not follow any grid and is not parallel to it's light face.
      * Flags: !IS_ALIGNED, !IS_PARTIAL, !IS_FULL
+     *
+     * CHANGED SOME STUFF!! POSSIBLE BEHAVIOUR CHANGE!!!
      */
     private void applyIrregularFace(BlockPos blockPos, ModelQuadView quad, QuadLightData out, boolean shade) {
         final float[] w = this.weights;
         final float[] aoResult = out.br;
         final int[] lightResult = out.lm;
 
+        // Get the face normal for comparison
+        Direction quadFace = quad.getLightFace();
+        Vector3f faceNormal = getFaceNormal(quadFace);
+
         for (int i = 0; i < 4; i++) {
-            // TODO: Avoid this if the accurate normal is the face normal
             Vector3f normal = NormI8.unpack(quad.getAccurateNormal(i), vertexNormal);
+
+            // Skip complex calculation if the accurate normal matches the face normal
+            if (normal.equals(faceNormal)) {
+                // Use simple face-aligned calculation
+                AoFaceData fd = gatherInsetFace(quad, blockPos, i, quadFace, shade);
+                AoNeighborInfo.get(quadFace).calculateCornerWeights(quad.getX(i), quad.getY(i), quad.getZ(i), w);
+                aoResult[i] = fd.getBlendedShade(w) * this.getAmbientBrightness(quadFace, shade);
+                lightResult[i] = ((int) fd.getBlendedSkyLight(w) & 0xF0) << 16 | ((int) fd.getBlendedBlockLight(w) & 0xF0);
+                continue;
+            }
+
             float ao = 0, sky = 0, block = 0, maxAo = 0;
             float maxSky = 0, maxBlock = 0;
 
@@ -314,6 +330,21 @@ public class SmoothLightPipeline implements LightPipeline {
             aoResult[i] = (ao + maxAo) * 0.5f;
             lightResult[i] = (((int) ((sky + maxSky) * 0.5f) & 0xF0) << 16) | ((int) ((block + maxBlock) * 0.5f) & 0xF0);
         }
+    }
+
+    /**
+     * Returns the normal vector for a given block face direction.
+     */
+    private Vector3f getFaceNormal(Direction face) {
+        return switch (face) {
+            case DOWN -> new Vector3f(0, -1, 0);
+            case UP -> new Vector3f(0, 1, 0);
+            case NORTH -> new Vector3f(0, 0, -1);
+            case SOUTH -> new Vector3f(0, 0, 1);
+            case WEST -> new Vector3f(-1, 0, 0);
+            case EAST -> new Vector3f(1, 0, 0);
+            default -> throw new IllegalArgumentException("Invalid face direction");
+        };
     }
 
     /**

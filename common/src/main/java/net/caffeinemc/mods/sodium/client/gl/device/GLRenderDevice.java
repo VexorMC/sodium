@@ -165,48 +165,61 @@ public class GLRenderDevice implements RenderDevice {
             tessellation.delete(this);
         }
 
+
+        /**
+         * CHANGED SOME STUFF!! POSSIBLE BEHAVIOUR CHANGE!!!
+         * */
+
         @Override
         public GlBufferMapping mapBuffer(GlBuffer buffer, long offset, long length, EnumBitField<GlBufferMapFlags> flags) {
             if (buffer.getActiveMapping() != null) {
                 throw new IllegalStateException("Buffer is already mapped");
             }
 
-            if (flags.contains(GlBufferMapFlags.PERSISTENT) && !(buffer instanceof GlImmutableBuffer)) {
-                throw new IllegalStateException("Tried to map mutable buffer as persistent");
+            // Cache the flags bitfield value to avoid repeated bit operations
+            final int flagBits = flags.getBitField();
+
+            // Check GL44 support if persistent mapping is requested
+            if ((flagBits & GlBufferMapFlags.PERSISTENT.getBits()) != 0 &&
+                    !GLContext.getCapabilities().OpenGL44) {
+                throw new IllegalStateException("Persistent buffer mapping requires OpenGL 4.4");
             }
 
-            // TODO: speed this up?
-            if (buffer instanceof GlImmutableBuffer) {
-                EnumBitField<GlBufferStorageFlags> bufferFlags = ((GlImmutableBuffer) buffer).getFlags();
-
-                if (flags.contains(GlBufferMapFlags.PERSISTENT) && !bufferFlags.contains(GlBufferStorageFlags.PERSISTENT)) {
-                    throw new IllegalArgumentException("Tried to map non-persistent buffer as persistent");
+            // Fast path for mutable buffers (most common case)
+            if (!(buffer instanceof GlImmutableBuffer)) {
+                // Only need to check persistent flag for mutable buffers
+                if ((flagBits & GlBufferMapFlags.PERSISTENT.getBits()) != 0) {
+                    throw new IllegalStateException("Tried to map mutable buffer as persistent");
                 }
+            } else {
+                // Immutable buffer validation using raw bit operations
+                int bufferFlags = ((GlImmutableBuffer) buffer).getFlags().getBitField();
 
-                if (flags.contains(GlBufferMapFlags.WRITE) && !bufferFlags.contains(GlBufferStorageFlags.MAP_WRITE)) {
-                    throw new IllegalStateException("Tried to map non-writable buffer as writable");
-                }
+                // Combine all checks into a single bit operation
+                int requiredFlags = 0;
+                if ((flagBits & GlBufferMapFlags.PERSISTENT.getBits()) != 0)
+                    requiredFlags |= GlBufferStorageFlags.PERSISTENT.getBits();
+                if ((flagBits & GlBufferMapFlags.WRITE.getBits()) != 0)
+                    requiredFlags |= GlBufferStorageFlags.MAP_WRITE.getBits();
+                if ((flagBits & GlBufferMapFlags.READ.getBits()) != 0)
+                    requiredFlags |= GlBufferStorageFlags.MAP_READ.getBits();
 
-                if (flags.contains(GlBufferMapFlags.READ) && !bufferFlags.contains(GlBufferStorageFlags.MAP_READ)) {
-                    throw new IllegalStateException("Tried to map non-readable buffer as readable");
+                if ((bufferFlags & requiredFlags) != requiredFlags) {
+                    throw new IllegalStateException("Buffer mapping flags incompatible with storage flags");
                 }
             }
 
-            this.bindBuffer(GlBufferTarget.ARRAY_BUFFER, buffer);
-
-            SodiumClientMod.logger().info("Mapping buffer of length %s".formatted(length));
-
-            ByteBuffer oldBuf = ByteBuffer.allocateDirect((int) length).order(ByteOrder.nativeOrder());
-            ByteBuffer buf = GL30.glMapBufferRange(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, length, flags.getBitField(), oldBuf);
+            // Bind and map in one go
+            GL15.glBindBuffer(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), buffer.handle());
+            ByteBuffer buf = GL30.glMapBufferRange(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(),
+                    offset, length, flagBits, null);
 
             if (buf == null) {
                 throw new RuntimeException("Failed to map buffer");
             }
 
             GlBufferMapping mapping = new GlBufferMapping(buffer, buf);
-
             buffer.setActiveMapping(mapping);
-
             return mapping;
         }
 
