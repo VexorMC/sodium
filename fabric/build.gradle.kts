@@ -29,6 +29,7 @@ dependencies {
     shadow("org.joml:joml:1.10.8")
     shadow("it.unimi.dsi:fastutil:8.5.15")
     shadow("io.waterwave.Legacy-LWJGL3:lwjgl:3.3.2-5")
+    shadow("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-linux")
     shadow("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
 }
 
@@ -45,6 +46,7 @@ dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
     mappings("net.legacyfabric:yarn:1.8.9+build.551:v2")
     implementation("io.waterwave.Legacy-LWJGL3:lwjgl:3.3.2-5")
+    runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-linux")
     runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
 
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
