@@ -123,7 +123,13 @@ public interface ModelQuadView {
      * @return the per-vertex normal if it is set, otherwise the face normal.
      */
     default int getAccurateNormal(int i) {
-        int normal = getVertexNormal(i);
+        int normal;
+
+        try {
+            normal = getVertexNormal(i);
+        } catch (final Exception e) {
+            normal = 0;
+        }
 
         return normal == 0 ? getFaceNormal() : normal;
     }
