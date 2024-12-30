@@ -37,19 +37,7 @@ public class ControlElement<T> extends AbstractWidget {
             name = truncateLabelToFit(name);
         }
 
-        String label;
-        if (this.option.isAvailable()) {
-            if (this.option.hasChanged()) {
-                label = Formatting.ITALIC + name + " *";
-            } else if (option instanceof OptionExtended<?> optionExtended && optionExtended.isHighlight()) {
-                Formatting color = optionExtended.isSelected() ? Formatting.DARK_GREEN : Formatting.YELLOW;
-                label = color + name;
-            } else {
-                label = Formatting.WHITE + name;
-            }
-        } else {
-            label = String.valueOf(Formatting.GRAY) + Formatting.STRIKETHROUGH + name;
-        }
+        String label = getLabel(name);
 
         this.hovered = this.dim.containsCursor(mouseX, mouseY);
 
@@ -59,6 +47,21 @@ public class ControlElement<T> extends AbstractWidget {
         if (this.isFocused()) {
             this.drawBorder(this.dim.x(), this.dim.y(), this.dim.getLimitX(), this.dim.getLimitY(), -1);
         }
+    }
+
+    private @NotNull String getLabel(String name) {
+        String label;
+        if (this.option.isAvailable()) {
+            if (option instanceof OptionExtended<?> optionExtended && optionExtended.isHighlight()) {
+                Formatting color = optionExtended.isSelected() ? Formatting.DARK_GREEN : Formatting.YELLOW;
+                label = color + name;
+            } else {
+                label = Formatting.WHITE + name;
+            }
+        } else {
+            label = String.valueOf(Formatting.GRAY) + Formatting.STRIKETHROUGH + name;
+        }
+        return label;
     }
 
     private @NotNull String truncateLabelToFit(String name) {

@@ -15,13 +15,12 @@ public class RenderableScreen extends Screen {
     @Override
     public void render(int mouseX, int mouseY, float tickDelta) {
         this.renderBackground();
+        super.render(mouseX, mouseY, tickDelta);
 
-        for (; !this.client.options.touchscreen && Mouse.next(); this.client.currentScreen.handleMouse()) {
-            int dWheel = Mouse.getEventDWheel();
+        if (Mouse.hasWheel()) {
+            int dWheel = Mouse.getDWheel();
 
-            if (dWheel != 0) {
-                getEventListeners().forEach(el -> el.mouseScrolled(mouseX, mouseY, dWheel, dWheel));
-            }
+            getEventListeners().forEach(el -> el.mouseScrolled(mouseX, mouseY, dWheel, dWheel));
         }
 
         widgets.forEach(renderable -> renderable.render(mouseX, mouseY, tickDelta));

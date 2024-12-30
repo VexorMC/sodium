@@ -22,6 +22,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilder
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderSortingTask;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderTask;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
+import net.caffeinemc.mods.sodium.client.render.chunk.lists.ChunkRenderList;
 import net.caffeinemc.mods.sodium.client.render.chunk.lists.SortedRenderLists;
 import net.caffeinemc.mods.sodium.client.render.chunk.lists.VisibleChunkCollector;
 import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.GraphDirection;
@@ -37,6 +38,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.T
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.CameraMovement;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.SortTriggering;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkMeshFormats;
+import net.caffeinemc.mods.sodium.client.render.texture.SpriteUtil;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.caffeinemc.mods.sodium.client.util.CameraUtils;
@@ -45,6 +47,7 @@ import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.caffeinemc.mods.sodium.client.world.cloned.ClonedChunkSectionCache;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
@@ -246,7 +249,36 @@ public class RenderSectionManager {
     }
 
     public void tickVisibleRenders() {
+        Iterator<ChunkRenderList> it = this.renderLists.iterator();
 
+        while (it.hasNext()) {
+            ChunkRenderList renderList = it.next();
+
+            var region = renderList.getRegion();
+            var iterator = renderList.sectionsWithSpritesIterator();
+
+            if (iterator == null) {
+                continue;
+            }
+
+            while (iterator.hasNext()) {
+                var section = region.getSection(iterator.nextByteAsInt());
+
+                if (section == null) {
+                    continue;
+                }
+
+                var sprites = section.getAnimatedSprites();
+
+                if (sprites == null) {
+                    continue;
+                }
+
+                for (Sprite sprite : sprites) {
+                    SpriteUtil.markSpriteActive(sprite);
+                }
+            }
+        }
     }
 
     public boolean isSectionVisible(int x, int y, int z) {
