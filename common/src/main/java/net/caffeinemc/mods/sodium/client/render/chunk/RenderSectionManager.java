@@ -211,6 +211,8 @@ public class RenderSectionManager {
         long sectionPos = SectionPos.asLong(x, y, z);
         RenderSection section = this.sectionByPosition.remove(sectionPos);
 
+
+
         if (section == null) {
             return;
         }
@@ -688,13 +690,13 @@ public class RenderSectionManager {
     }
 
     public void onChunkAdded(int x, int z) {
-        for (int y = 1; y < 16; y++) {
+        for (int y = 0; y < 16; y++) {
             this.onSectionAdded(x, y, z);
         }
     }
 
     public void onChunkRemoved(int x, int z) {
-        for (int y = 1; y < 16; y++) {
+        for (int y = 0; y < 16; y++) {
             this.onSectionRemoved(x, y, z);
         }
     }

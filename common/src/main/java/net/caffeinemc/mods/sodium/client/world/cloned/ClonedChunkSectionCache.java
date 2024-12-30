@@ -61,11 +61,15 @@ public class ClonedChunkSectionCache {
 
         @Nullable ChunkSection section = null;
 
-        if (SectionPos.sectionToBlockCoord(y) < 256) {
-            section = chunk.getBlockStorage()[y];
+        if (!withinBuildHeight(SectionPos.sectionToBlockCoord(y))) {
+            section = chunk.getBlockStorage()[SectionPos.blockToSectionCoord(SectionPos.sectionToBlockCoord(y))];
         }
 
         return new ClonedChunkSection(this.level, chunk, section, SectionPos.of(x, y, z));
+    }
+
+    private static boolean withinBuildHeight(int y) {
+        return y < 0 || y >= 256;
     }
 
     public void invalidate(int x, int y, int z) {
