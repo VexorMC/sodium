@@ -34,10 +34,12 @@ public class FluidRendererImpl extends FluidRenderer {
 
         defaultContext.setUp(this.colorProviderRegistry, false);
 
-        defaultRenderer.render(level, blockState, blockPos, offset, collector, meshBuilder, material, defaultContext.getColorProvider(fluid), sprites.forFluid(fluid));
+        // Replace `forFluid` with `getSprites` as per the updated method name
+        defaultRenderer.render(level, blockState, blockPos, offset, collector, meshBuilder, material, defaultContext.getColorProvider(fluid), sprites.getSprites(fluid));
 
         defaultContext.clear();
     }
+
 
     private static class DefaultRenderContext {
         private ColorProviderRegistry colorProviderRegistry;
