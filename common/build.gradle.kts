@@ -1,4 +1,4 @@
-plugins {
+    plugins {
     id("multiloader-base")
     id("java-library")
 
@@ -46,7 +46,9 @@ dependencies {
 
     implementation("io.waterwave.Legacy-LWJGL3:lwjgl:3.3.2-5")
     runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
-
+    implementation("org.antlr:antlr4-runtime:4.13.1")
+    implementation("io.github.douira:glsl-transformer:2.0.1")
+    implementation("org.anarres:jcpp:1.4.14")
     // We need to be careful during pre-launch that we don't touch any Minecraft classes, since other mods
     // will not yet have an opportunity to apply transformations.
     configurationPreLaunch("net.java.dev.jna:jna:5.14.0")

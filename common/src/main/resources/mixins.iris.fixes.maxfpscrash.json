@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.irisshaders.iris.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "iris.refmap.json",
+  "client": [
+    "MixinMaxFpsCrashFix"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -194,10 +194,7 @@ public class GLRenderDevice implements RenderDevice {
 
             this.bindBuffer(GlBufferTarget.ARRAY_BUFFER, buffer);
 
-            SodiumClientMod.logger().info("Mapping buffer of length %s".formatted(length));
-
-            ByteBuffer oldBuf = ByteBuffer.allocateDirect((int) length).order(ByteOrder.nativeOrder());
-            ByteBuffer buf = GL30.glMapBufferRange(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, length, flags.getBitField(), oldBuf);
+            ByteBuffer buf = GL30.glMapBufferRange(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, length, flags.getBitField(), null);
 
             if (buf == null) {
                 throw new RuntimeException("Failed to map buffer");

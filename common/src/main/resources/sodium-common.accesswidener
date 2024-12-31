@@ -13,3 +13,5 @@ accessible field net/minecraft/client/render/Camera PROJECTION_MATRIX Ljava/nio/
 accessible field net/minecraft/client/color/world/FoliageColors colorMap [I
 accessible field net/minecraft/client/color/world/GrassColors colorMap [I
 accessible class net/minecraft/client/color/world/BiomeColors$ColorProvider
+accessible class com/mojang/blaze3d/platform/GlStateManager$BlendFuncState
+accessible class com/mojang/blaze3d/platform/GlStateManager$BooleanState
