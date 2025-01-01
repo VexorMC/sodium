@@ -3,7 +3,6 @@ package net.irisshaders.batchedentityrendering.mixin;
 import dev.vexor.radium.compat.mojang.math.PoseStack;
 import net.irisshaders.batchedentityrendering.impl.Groupable;
 import net.irisshaders.batchedentityrendering.impl.wrappers.TaggingRenderTypeWrapper;
-import net.irisshaders.iris.layer.BufferSourceWrapper;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;

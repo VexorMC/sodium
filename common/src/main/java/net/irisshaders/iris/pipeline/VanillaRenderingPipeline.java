@@ -1,10 +1,8 @@
 package net.irisshaders.iris.pipeline;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkMeshFormats;
-import net.irisshaders.iris.compat.dh.DHCompat;
 import net.irisshaders.iris.features.FeatureFlags;
 import net.irisshaders.iris.gl.texture.TextureType;
 import net.irisshaders.iris.helpers.Tri;
@@ -15,8 +13,8 @@ import net.irisshaders.iris.shaderpack.properties.CloudSetting;
 import net.irisshaders.iris.shaderpack.properties.ParticleRenderingSettings;
 import net.irisshaders.iris.shaderpack.texture.TextureStage;
 import net.irisshaders.iris.uniforms.FrameUpdateNotifier;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
+import org.lwjgl.opengl.GL20;
 
 import java.util.List;
 import java.util.OptionalInt;
@@ -35,12 +33,12 @@ public class VanillaRenderingPipeline implements WorldRenderingPipeline {
 	@Override
 	public void beginLevelRendering() {
 		// Use the default Minecraft framebuffer and ensure that no programs are in use
-		MinecraftClient.getInstance().getMainRenderTarget().bindWrite(true);
-		GlStateManager._glUseProgram(0);
+		MinecraftClient.getInstance().getFramebuffer().bind(true);
+		GL20.glUseProgram(0);
 	}
 
 	@Override
-	public void renderShadows(LevelRendererAccessor worldRenderer, Camera camera) {
+	public void renderShadows(LevelRendererAccessor worldRenderer) {
 		// stub: nothing to do here
 	}
 

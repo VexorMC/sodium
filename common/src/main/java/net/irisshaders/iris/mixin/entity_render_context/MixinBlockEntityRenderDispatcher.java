@@ -2,9 +2,6 @@ package net.irisshaders.iris.mixin.entity_render_context;
 
 import dev.vexor.radium.compat.mojang.math.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.irisshaders.iris.layer.BlockEntityRenderStateShard;
-import net.irisshaders.iris.layer.BufferSourceWrapper;
-import net.irisshaders.iris.layer.OuterWrappedRenderType;
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import net.irisshaders.iris.vertices.ImmediateState;

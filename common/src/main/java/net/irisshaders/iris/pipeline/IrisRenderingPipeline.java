@@ -1004,9 +1004,9 @@ public class IrisRenderingPipeline implements WorldRenderingPipeline, ShaderRend
 	}
 
 	@Override
-	public void renderShadows(LevelRendererAccessor worldRenderer, Camera playerCamera) {
+	public void renderShadows(LevelRendererAccessor worldRenderer) {
 		if (shadowRenderer != null) {
-			this.shadowRenderer.renderShadows(worldRenderer, playerCamera);
+			this.shadowRenderer.renderShadows(worldRenderer);
 		}
 
 		prepareRenderer.renderAll();

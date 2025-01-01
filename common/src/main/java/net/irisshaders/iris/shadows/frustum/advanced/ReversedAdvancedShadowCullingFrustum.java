@@ -2,7 +2,8 @@ package net.irisshaders.iris.shadows.frustum.advanced;
 
 import net.caffeinemc.mods.sodium.client.render.viewport.frustum.Frustum;
 import net.irisshaders.iris.shadows.frustum.BoxCuller;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.math.Box;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 
@@ -15,25 +16,25 @@ public class ReversedAdvancedShadowCullingFrustum extends AdvancedShadowCullingF
 	}
 
 	@Override
-	public void prepare(double cameraX, double cameraY, double cameraZ) {
+	public void start() {
 		if (this.distanceCuller != null) {
-			this.distanceCuller.setPosition(cameraX, cameraY, cameraZ);
+			this.distanceCuller.setPosition(MinecraftClient.getInstance().getCameraEntity().x, MinecraftClient.getInstance().getCameraEntity().y, MinecraftClient.getInstance().getCameraEntity().z);
 		}
-		super.prepare(cameraX, cameraY, cameraZ);
+		super.start();
 	}
 
-	@Override
-	public boolean isVisible(AABB aabb) {
-		if (distanceCuller != null && distanceCuller.isCulled(aabb)) {
-			return false;
-		}
+    @Override
+    public boolean isInFrustum(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        if (distanceCuller != null && distanceCuller.isCulled(new Box(minX, minY, minZ, maxX, maxY, maxZ))) {
+            return false;
+        }
 
-		if (boxCuller != null && !boxCuller.isCulled(aabb)) {
-			return true;
-		}
+        if (boxCuller != null && !boxCuller.isCulled(new Box(minX, minY, minZ, maxX, maxY, maxZ))) {
+            return true;
+        }
 
-		return this.isVisible(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ) != 0;
-	}
+        return isVisible(minX, minY, minZ, maxX, maxY, maxZ) != 0;
+    }
 
 	@Override
 	public int fastAabbTest(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {

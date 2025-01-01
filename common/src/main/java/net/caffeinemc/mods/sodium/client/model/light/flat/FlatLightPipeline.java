@@ -48,7 +48,7 @@ public class FlatLightPipeline implements LightPipeline {
             }
         }
 
-        Arrays.fill(out.lm, lightmap);
+        Arrays.fill(out.lm, LightTexture.FULL_BRIGHT);
     }
 
     /**
@@ -62,12 +62,12 @@ public class FlatLightPipeline implements LightPipeline {
         int word = this.lightCache.get(pos);
 
         // Check emissivity of the origin state
-        if (unpackEM(word)) {
-            return LightTexture.FULL_BRIGHT;
-        }
+        //if (unpackEM(word)) {
+        //    return LightTexture.FULL_BRIGHT;
+        //}
 
         // Use light values from the offset pos, but luminance from the origin pos
-        int adjWord = this.lightCache.get(pos, face);
+        int adjWord = this.lightCache.get(pos);
         return LightTexture.pack(Math.max(unpackBL(adjWord), unpackLU(word)), unpackSL(adjWord));
     }
 }

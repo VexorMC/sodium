@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectSortedMaps;
 import net.irisshaders.batchedentityrendering.impl.ordering.GraphTranslucencyRenderOrderManager;
 import net.irisshaders.batchedentityrendering.impl.ordering.RenderOrderManager;
-import net.irisshaders.iris.layer.WrappingMultiBufferSource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;

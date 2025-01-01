@@ -1,6 +1,7 @@
 package net.irisshaders.iris.shadows.frustum;
 
-import net.minecraft.client.renderer.culling.Frustum;
+
+import net.minecraft.client.render.Frustum;
 
 public class FrustumHolder {
 	private Frustum frustum;

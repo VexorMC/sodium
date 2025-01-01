@@ -5,8 +5,9 @@ import com.sun.management.VMOption;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.caffeinemc.mods.sodium.client.render.viewport.ViewportProvider;
 import net.irisshaders.iris.shadows.frustum.BoxCuller;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4fc;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -77,8 +78,6 @@ public class AdvancedShadowCullingFrustum extends Frustum implements net.caffein
 	public AdvancedShadowCullingFrustum(Matrix4fc modelViewProjection, Matrix4fc shadowProjection, Vector3f shadowLightVectorFromOrigin,
 										BoxCuller boxCuller) {
 		// We're overriding all of the methods, don't pass any matrices down.
-		super(new org.joml.Matrix4f(), new org.joml.Matrix4f());
-
 
 		/*
 			testing code, please ignore
@@ -279,24 +278,16 @@ public class AdvancedShadowCullingFrustum extends Frustum implements net.caffein
 
 	// Note: These functions are copied & modified from the vanilla Frustum class.
 	@Override
-	public void prepare(double cameraX, double cameraY, double cameraZ) {
-		if (this.boxCuller != null) {
-			boxCuller.setPosition(cameraX, cameraY, cameraZ);
-		}
-
-		this.x = cameraX;
-		this.y = cameraY;
-		this.z = cameraZ;
+	public void start() {
+		this.x = MinecraftClient.getInstance().getCameraEntity().x;
+		this.y = MinecraftClient.getInstance().getCameraEntity().y;
+		this.z = MinecraftClient.getInstance().getCameraEntity().z;
 	}
 
-	@Override
-	public boolean isVisible(AABB aabb) {
-		if (boxCuller != null && boxCuller.isCulled(aabb)) {
-			return false;
-		}
-
-		return this.isVisible(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ) != 0;
-	}
+    @Override
+    public boolean isInFrustum(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        return this.isVisible(minX, minY, minZ, maxX, maxY, maxZ) != 0;
+    }
 
 	// For Sodium
 	public int fastAabbTest(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
@@ -422,7 +413,7 @@ public class AdvancedShadowCullingFrustum extends Frustum implements net.caffein
 	}
 
 	@Override
-	public Viewport sodium$createViewport() {
-		return new Viewport(this, position.set(x, y, z));
+	public Viewport sodium$createViewport(double tickDelta) {
+		return new Viewport(this, new Vec3d(x, y, z));
 	}
 }

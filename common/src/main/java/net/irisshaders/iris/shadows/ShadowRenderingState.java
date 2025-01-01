@@ -1,9 +1,6 @@
 package net.irisshaders.iris.shadows;
 
 import dev.vexor.radium.compat.mojang.math.PoseStack;
-import net.minecraft.client.Camera;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.renderer.RenderBuffers;
 
 public class ShadowRenderingState {
 	private static BlockEntityRenderFunction function = (ShadowRenderer::renderBlockEntities);
@@ -16,8 +13,8 @@ public class ShadowRenderingState {
 		ShadowRenderingState.function = function;
 	}
 
-	public static int renderBlockEntities(ShadowRenderer shadowRenderer, PoseStack modelView, Camera camera, double cameraX, double cameraY, double cameraZ, float tickDelta, boolean hasEntityFrustum, boolean lightsOnly) {
-		return function.renderBlockEntities(shadowRenderer, bufferSource, modelView, camera, cameraX, cameraY, cameraZ, tickDelta, hasEntityFrustum, lightsOnly);
+	public static int renderBlockEntities(ShadowRenderer shadowRenderer, PoseStack modelView, double cameraX, double cameraY, double cameraZ, float tickDelta, boolean hasEntityFrustum, boolean lightsOnly) {
+		return function.renderBlockEntities(shadowRenderer, modelView, cameraX, cameraY, cameraZ, tickDelta, hasEntityFrustum, lightsOnly);
 	}
 
 	public static int getRenderDistance() {
@@ -25,6 +22,6 @@ public class ShadowRenderingState {
 	}
 
 	public interface BlockEntityRenderFunction {
-		int renderBlockEntities(ShadowRenderer shadowRenderer, PoseStack modelView, net.minecraft.client.render.Camera camera, double cameraX, double cameraY, double cameraZ, float tickDelta, boolean hasEntityFrustum, boolean lightsOnly);
+		int renderBlockEntities(ShadowRenderer shadowRenderer, PoseStack modelView, double cameraX, double cameraY, double cameraZ, float tickDelta, boolean hasEntityFrustum, boolean lightsOnly);
 	}
 }

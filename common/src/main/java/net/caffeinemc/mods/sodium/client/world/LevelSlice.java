@@ -14,11 +14,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.*;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
@@ -90,7 +87,7 @@ public final class LevelSlice implements BlockView {
     private int originBlockX, originBlockY, originBlockZ;
 
     // The volume that this WorldSlice contains
-    private Box volume;
+    private BlockBox volume;
 
     public static ChunkRenderContext prepare(World level, SectionPos pos, ClonedChunkSectionCache cache) {
         Chunk chunk = level.getChunk(pos.getX(), pos.getZ());
@@ -103,7 +100,7 @@ public final class LevelSlice implements BlockView {
             return null;
         }
 
-        Box box = new Box(pos.minBlockX() - NEIGHBOR_BLOCK_RADIUS,
+        BlockBox box = new BlockBox(pos.minBlockX() - NEIGHBOR_BLOCK_RADIUS,
                 pos.minBlockY() - NEIGHBOR_BLOCK_RADIUS,
                 pos.minBlockZ() - NEIGHBOR_BLOCK_RADIUS,
                 pos.maxBlockX() + NEIGHBOR_BLOCK_RADIUS,
@@ -262,7 +259,7 @@ public final class LevelSlice implements BlockView {
     }
 
     public BlockState getBlockState(int blockX, int blockY, int blockZ) {
-        if (!this.volume.contains(new Vec3d(blockX, blockY, blockZ))) {
+        if (!this.volume.contains(new Vec3i(blockX, blockY, blockZ))) {
             return EMPTY_BLOCK_STATE;
         }
 
@@ -275,7 +272,7 @@ public final class LevelSlice implements BlockView {
     }
 
     public int getLight(LightType type, BlockPos pos) {
-        if (!this.volume.contains(new Vec3d(pos.getX(), pos.getY(), pos.getZ()))) {
+        if (!this.volume.contains(pos)) {
             return 0;
         }
 
@@ -296,7 +293,7 @@ public final class LevelSlice implements BlockView {
 
     @Override
     public int getLight(BlockPos pos, int ambientDarkness) {
-        if (!this.volume.contains(new Vec3d(pos.getX(), pos.getY(), pos.getZ()))) {
+        if (!this.volume.contains(pos)) {
             return 0;
         }
 
@@ -320,7 +317,7 @@ public final class LevelSlice implements BlockView {
             blockLight = ambientDarkness;
         }
 
-        return skyLight << 20 | blockLight << 4;
+        return blockLight << 4 | skyLight << 20;
 
         //return Math.max(blockLight, skyLight);
     }
@@ -331,7 +328,7 @@ public final class LevelSlice implements BlockView {
     }
 
     public BlockEntity getBlockEntity(int blockX, int blockY, int blockZ) {
-        if (!this.volume.contains(new Vec3d(blockX, blockY, blockZ))) {
+        if (!this.volume.contains(new Vec3i(blockX, blockY, blockZ))) {
             return null;
         }
 

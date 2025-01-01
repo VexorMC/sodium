@@ -2,8 +2,9 @@ package net.irisshaders.iris.shadows.frustum.fallback;
 
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import net.caffeinemc.mods.sodium.client.render.viewport.ViewportProvider;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
 
@@ -11,7 +12,6 @@ public class NonCullingFrustum extends Frustum implements ViewportProvider, net.
 	private final Vector3d position = new Vector3d();
 
 	public NonCullingFrustum() {
-		super(new Matrix4f(), new Matrix4f());
 	}
 
 	// For Immersive Portals
@@ -22,18 +22,23 @@ public class NonCullingFrustum extends Frustum implements ViewportProvider, net.
 		return false;
 	}
 
-	public boolean isVisible(AABB box) {
-		return true;
+    @Override
+    public boolean isInFrustum(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        return true;
+    }
+
+    @Override
+	public void start() {
+		this.position.set(
+                MinecraftClient.getInstance().getCameraEntity().x,
+                MinecraftClient.getInstance().getCameraEntity().y,
+                MinecraftClient.getInstance().getCameraEntity().z
+        );
 	}
 
 	@Override
-	public void prepare(double d, double e, double f) {
-		this.position.set(d, e, f);
-	}
-
-	@Override
-	public Viewport sodium$createViewport() {
-		return new Viewport(this, position);
+	public Viewport sodium$createViewport(double tickDelta) {
+		return new Viewport(this, new Vec3d(position.x, position.y, position.z));
 	}
 
 	@Override
