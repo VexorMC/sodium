@@ -1,9 +1,9 @@
 package net.irisshaders.iris.pbr.format;
 
 import net.irisshaders.iris.Iris;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.FileNotFoundException;
@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.Properties;
 
 public class TextureFormatLoader {
-	public static final ResourceLocation LOCATION = ResourceLocation.withDefaultNamespace("optifine/texture.properties");
+	public static final Identifier LOCATION = new Identifier("optifine/texture.properties");
 
 	private static TextureFormat format;
 
@@ -34,9 +34,13 @@ public class TextureFormatLoader {
 
 	@Nullable
 	private static TextureFormat loadFormat(ResourceManager resourceManager) {
-		Optional<Resource> resource = resourceManager.getResource(LOCATION);
-		if (resource.isPresent()) {
-			try (InputStream stream = resource.get().open()) {
+        Resource resource = null;
+        try {
+            resource = resourceManager.getResource(LOCATION);
+        } catch (IOException e) {
+        }
+        if (resource != null) {
+			try (InputStream stream = resource.getInputStream()) {
 				Properties properties = new Properties();
 				properties.load(stream);
 				String format = properties.getProperty("format");

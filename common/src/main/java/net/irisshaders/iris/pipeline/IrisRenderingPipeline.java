@@ -397,10 +397,7 @@ public class IrisRenderingPipeline implements WorldRenderingPipeline, ShaderRend
 				} else {
 					return createShader(key.getName(), resolver.resolve(key.getProgram()), key);
 				}
-			} catch (FakeChainedJsonException e) {
-				destroyShaders();
-				throw e.getTrueException();
-			} catch (IOException e) {
+			}catch (IOException e) {
 				destroyShaders();
 				throw new RuntimeException(e);
 			} catch (RuntimeException e) {

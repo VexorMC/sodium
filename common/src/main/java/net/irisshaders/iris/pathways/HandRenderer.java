@@ -1,6 +1,5 @@
 package net.irisshaders.iris.pathways;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.vexor.radium.compat.mojang.math.PoseStack;
 import net.irisshaders.batchedentityrendering.impl.FullyBufferedMultiBufferSource;
 import net.irisshaders.iris.Iris;
@@ -8,18 +7,7 @@ import net.irisshaders.iris.mixin.GameRendererAccessor;
 import net.irisshaders.iris.pipeline.WorldRenderingPhase;
 import net.irisshaders.iris.pipeline.WorldRenderingPipeline;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.GameType;
+import net.minecraft.client.render.GameRenderer;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
@@ -30,7 +18,7 @@ public class HandRenderer {
 	private boolean ACTIVE;
 	private boolean renderingSolid;
 
-	private PoseStack setupGlState(GameRenderer gameRenderer, Camera camera, Matrix4fc modelMatrix, float tickDelta) {
+	private PoseStack setupGlState(GameRenderer gameRenderer, Matrix4fc modelMatrix, float tickDelta) {
 		final PoseStack poseStack = new PoseStack();
 
 		// We need to scale the matrix by 0.125 so the hand doesn't clip through blocks.

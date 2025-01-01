@@ -1,15 +1,10 @@
 package net.irisshaders.iris.pathways;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.irisshaders.iris.gl.IrisRenderSystem;
 import net.irisshaders.iris.helpers.VertexBufferHelper;
+import net.minecraft.client.render.*;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Renders a full-screen textured quad to the screen. Used in composite / deferred rendering.
@@ -17,21 +12,8 @@ import net.irisshaders.iris.helpers.VertexBufferHelper;
 public class FullScreenQuadRenderer {
 	public static final FullScreenQuadRenderer INSTANCE = new FullScreenQuadRenderer();
 
-	private final VertexBuffer quad;
-
 	private FullScreenQuadRenderer() {
-		BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		bufferBuilder.addVertex(0.0F, 0.0F, 0.0F).setUv(0.0F, 0.0F);
-		bufferBuilder.addVertex(1.0F, 0.0F, 0.0F).setUv(1.0F, 0.0F);
-		bufferBuilder.addVertex(1.0F, 1.0F, 0.0F).setUv(1.0F, 1.0F);
-		bufferBuilder.addVertex(0.0F, 1.0F, 0.0F).setUv(0.0F, 1.0F);
-		MeshData meshData = bufferBuilder.build();
 
-		quad = new VertexBuffer(VertexBuffer.Usage.STATIC);
-		quad.bind();
-		quad.upload(meshData);
-		Tesselator.getInstance().clear();
-		VertexBuffer.unbind();
 	}
 
 	public void render() {
@@ -43,15 +25,20 @@ public class FullScreenQuadRenderer {
 	}
 
 	public void begin() {
-		((VertexBufferHelper) quad).saveBinding();
-		RenderSystem.disableDepthTest();
-		BufferUploader.reset();
-		quad.bind();
+		GlStateManager.disableDepthTest();
+
 	}
 
 	public void renderQuad() {
-		IrisRenderSystem.overridePolygonMode();
-		quad.draw();
+        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+
+        IrisRenderSystem.overridePolygonMode();
+        bufferBuilder.begin(GL11.GL_QUADS, VertexFormats.POSITION_TEXTURE);
+        bufferBuilder.vertex(0.0F, 0.0F, 0.0F).texture(0.0F, 0.0F).next();
+        bufferBuilder.vertex(1.0F, 0.0F, 0.0F).texture(1.0F, 0.0F).next();
+        bufferBuilder.vertex(1.0F, 1.0F, 0.0F).texture(1.0F, 1.0F).next();
+        bufferBuilder.vertex(0.0F, 1.0F, 0.0F).texture(0.0F, 1.0F).next();
+        Tessellator.getInstance().draw();
 		IrisRenderSystem.restorePolygonMode();
 	}
 
@@ -62,7 +49,6 @@ public class FullScreenQuadRenderer {
 		// Using quad.getFormat().clearBufferState() causes some Intel drivers to freak out:
 		// https://github.com/IrisShaders/Iris/issues/1214
 
-		RenderSystem.enableDepthTest();
-		((VertexBufferHelper) quad).restoreBinding();
+		GlStateManager.enableDepthTest();
 	}
 }

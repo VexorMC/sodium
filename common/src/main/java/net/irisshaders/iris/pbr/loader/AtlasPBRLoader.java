@@ -1,6 +1,5 @@
 package net.irisshaders.iris.pbr.loader;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import net.irisshaders.iris.Iris;
 import net.irisshaders.iris.mixin.texture.AnimationMetadataSectionAccessor;
 import net.irisshaders.iris.mixin.texture.TextureAtlasAccessor;
@@ -14,23 +13,18 @@ import net.irisshaders.iris.pbr.texture.PBRSpriteHolder;
 import net.irisshaders.iris.pbr.texture.PBRType;
 import net.irisshaders.iris.pbr.texture.SpriteContentsExtension;
 import net.irisshaders.iris.pbr.util.ImageManipulationUtil;
-import net.minecraft.client.renderer.texture.SpriteContents;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
-import net.minecraft.client.resources.metadata.animation.FrameSize;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceMetadata;
-import net.minecraft.util.Mth;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.SpriteAtlasTexture;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
-public class AtlasPBRLoader implements PBRTextureLoader<TextureAtlas> {
+public class AtlasPBRLoader implements PBRTextureLoader<SpriteAtlasTexture> {
 	public static final ChannelMipmapGenerator LINEAR_MIPMAP_GENERATOR = new ChannelMipmapGenerator(
 		LinearBlendFunction.INSTANCE,
 		LinearBlendFunction.INSTANCE,
@@ -39,7 +33,7 @@ public class AtlasPBRLoader implements PBRTextureLoader<TextureAtlas> {
 	);
 
 	@Override
-	public void load(TextureAtlas atlas, ResourceManager resourceManager, PBRTextureConsumer pbrTextureConsumer) {
+	public void load(SpriteAtlasTexture atlas, ResourceManager resourceManager, PBRTextureConsumer pbrTextureConsumer) {
 		TextureAtlasAccessor atlasAccessor = (TextureAtlasAccessor) atlas;
 		int atlasWidth = atlasAccessor.callGetWidth();
 		int atlasHeight = atlasAccessor.callGetHeight();
@@ -47,7 +41,7 @@ public class AtlasPBRLoader implements PBRTextureLoader<TextureAtlas> {
 
 		PBRAtlasTexture normalAtlas = null;
 		PBRAtlasTexture specularAtlas = null;
-		for (TextureAtlasSprite sprite : ((TextureAtlasAccessor) atlas).getTexturesByName().values()) {
+		for (Sprite sprite : ((TextureAtlasAccessor) atlas).getTexturesByName().values()) {
 			PBRTextureAtlasSprite normalSprite = createPBRSprite(sprite, resourceManager, atlas, atlasWidth, atlasHeight, mipLevel, PBRType.NORMAL);
 			PBRTextureAtlasSprite specularSprite = createPBRSprite(sprite, resourceManager, atlas, atlasWidth, atlasHeight, mipLevel, PBRType.SPECULAR);
 			if (normalSprite != null) {
@@ -81,19 +75,23 @@ public class AtlasPBRLoader implements PBRTextureLoader<TextureAtlas> {
 	}
 
 	@Nullable
-	protected PBRTextureAtlasSprite createPBRSprite(TextureAtlasSprite sprite, ResourceManager resourceManager, TextureAtlas atlas, int atlasWidth, int atlasHeight, int mipLevel, PBRType pbrType) {
-		ResourceLocation spriteName = sprite.contents().name();
-		ResourceLocation pbrImageLocation = getPBRImageLocation(spriteName, pbrType);
+	protected PBRTextureAtlasSprite createPBRSprite(Sprite sprite, ResourceManager resourceManager, TextureAtlas atlas, int atlasWidth, int atlasHeight, int mipLevel, PBRType pbrType) {
+        Identifier spriteName = new Identifier(sprite.getName());
+        Identifier pbrImageLocation = getPBRImageLocation(spriteName, pbrType);
 
-		Optional<Resource> optionalResource = resourceManager.getResource(pbrImageLocation);
-		if (optionalResource.isEmpty()) {
+        Resource optionalResource = null;
+        try {
+            optionalResource = resourceManager.getResource(pbrImageLocation);
+        } catch (IOException e) {
+        }
+        if (optionalResource == null) {
 			return null;
 		}
-		Resource resource = optionalResource.get();
+		Resource resource = optionalResource;
 
-		ResourceMetadata animationMetadata;
+		Identifier animationMetadata;
 		try {
-			animationMetadata = resource.metadata();
+			animationMetadata = resource.getMetadata("animation");
 		} catch (Exception e) {
 			Iris.logger.error("Unable to parse metadata from {}", pbrImageLocation, e);
 			return null;
@@ -163,13 +161,13 @@ public class AtlasPBRLoader implements PBRTextureLoader<TextureAtlas> {
 		return new PBRTextureAtlasSprite(pbrSpriteName, pbrSpriteContents, atlasWidth, atlasHeight, sprite.getX(), sprite.getY(), sprite);
 	}
 
-	protected ResourceLocation getPBRImageLocation(ResourceLocation spriteName, PBRType pbrType) {
-		String path = pbrType.appendSuffix(spriteName.getPath());
+	protected Identifier getPBRImageLocation(Identifier id, PBRType pbrType) {
+		String path = pbrType.appendSuffix(id.getPath());
 		// Temporary fix for CIT Resewn. CIT Resewn has sprites that are not in the textures/ folder, so a custom check must be used here to avoid that assumption.
 		if (path.startsWith("optifine/cit/")) {
-			return ResourceLocation.fromNamespaceAndPath(spriteName.getNamespace(), path + ".png");
+			return new Identifier(id.getNamespace(), path + ".png");
 		}
-		return ResourceLocation.fromNamespaceAndPath(spriteName.getNamespace(), "textures/" + path + ".png");
+		return new Identifier(id.getNamespace(), "textures/" + path + ".png");
 	}
 
 	protected static class PBRSpriteContents extends SpriteContents implements CustomMipmapGenerator.Provider {

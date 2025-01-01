@@ -1,7 +1,7 @@
 package net.irisshaders.iris.helpers;
 
 
-import net.minecraft.util.FastColor;
+import dev.vexor.radium.compat.mojang.minecraft.FastColor;
 
 /**
  * This is a port of the fast-srgb8 library from thomcc on <a href="https://github.com/thomcc/fast-srgb8">GitHub</a>.
