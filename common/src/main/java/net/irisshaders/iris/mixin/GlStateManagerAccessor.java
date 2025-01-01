@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = GlStateManager.class, remap = false)
 public interface GlStateManagerAccessor {
 	@Accessor("BLEND")
-	static GlStateManager.BlendState getBLEND() {
+	static GlStateManager.BlendFuncState getBLEND() {
 		throw new UnsupportedOperationException("Not accessed");
 	}
 
@@ -17,7 +17,7 @@ public interface GlStateManagerAccessor {
 	}
 
 	@Accessor("DEPTH")
-	static GlStateManager.DepthState getDEPTH() {
+	static GlStateManager.DepthTestState getDEPTH() {
 		throw new UnsupportedOperationException("Not accessed");
 	}
 
@@ -27,7 +27,7 @@ public interface GlStateManagerAccessor {
 	}
 
 	@Accessor("TEXTURES")
-	static GlStateManager.TextureState[] getTEXTURES() {
+	static GlStateManager.Texture2DState[] getTEXTURES() {
 		throw new UnsupportedOperationException("Not accessed");
 	}
 }

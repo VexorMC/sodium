@@ -8,7 +8,8 @@ import net.irisshaders.iris.gl.GlResource;
 import net.irisshaders.iris.gl.IrisRenderSystem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.opengl.GL20C;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.KHRDebug;
 
 import java.util.Locale;
@@ -28,9 +29,9 @@ public class GlShader extends GlResource {
 	}
 
 	private static int createShader(ShaderType type, String name, String src) {
-		int handle = GlStateManager.glCreateShader(type.id);
-		ShaderWorkarounds.safeShaderSource(handle, src);
-		GlStateManager.glCompileShader(handle);
+		int handle = GL20.glCreateShader(type.id);
+		GL20.glShaderSource(handle, src);
+        GL20.glCompileShader(handle);
 
 		GLDebug.nameObject(KHRDebug.GL_SHADER, handle, name + "(" + type.name().toLowerCase(Locale.ROOT) + ")");
 
@@ -40,9 +41,9 @@ public class GlShader extends GlResource {
 			LOGGER.warn("Shader compilation log for " + name + ": " + log);
 		}
 
-		int result = GlStateManager.glGetShaderi(handle, GL20C.GL_COMPILE_STATUS);
+		int result = GL20.glGetShaderi(handle, GL20.GL_COMPILE_STATUS);
 
-		if (result != GL20C.GL_TRUE) {
+		if (result != GL11.GL_TRUE) {
 			throw new ShaderCompileException(name, log);
 		}
 
@@ -59,6 +60,6 @@ public class GlShader extends GlResource {
 
 	@Override
 	protected void destroyInternal() {
-		GlStateManager.glDeleteShader(this.getGlId());
+        GL20.glDeleteShader(this.getGlId());
 	}
 }

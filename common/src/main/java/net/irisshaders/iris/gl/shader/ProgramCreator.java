@@ -7,31 +7,32 @@ import net.irisshaders.iris.gl.GLDebug;
 import net.irisshaders.iris.gl.IrisRenderSystem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.opengl.GL20C;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.KHRDebug;
 
 public class ProgramCreator {
 	private static final Logger LOGGER = LogManager.getLogger(ProgramCreator.class);
 
 	public static int create(String name, GlShader... shaders) {
-		int program = GlStateManager.glCreateProgram();
+		int program = GL20.glCreateProgram();
 
-		GlStateManager._glBindAttribLocation(program, 11, "iris_Entity");
-		GlStateManager._glBindAttribLocation(program, 11, "mc_Entity");
-		GlStateManager._glBindAttribLocation(program, 12, "mc_midTexCoord");
-		GlStateManager._glBindAttribLocation(program, 13, "at_tangent");
-		GlStateManager._glBindAttribLocation(program, 14, "at_midBlock");
+		GL20.glBindAttribLocation(program, 11, "iris_Entity");
+		GL20.glBindAttribLocation(program, 11, "mc_Entity");
+		GL20.glBindAttribLocation(program, 12, "mc_midTexCoord");
+		GL20.glBindAttribLocation(program, 13, "at_tangent");
+		GL20.glBindAttribLocation(program, 14, "at_midBlock");
 
-		GlStateManager._glBindAttribLocation(program, 0, "Position");
-		GlStateManager._glBindAttribLocation(program, 1, "UV0");
+		GL20.glBindAttribLocation(program, 0, "Position");
+		GL20.glBindAttribLocation(program, 1, "UV0");
 
 		for (GlShader shader : shaders) {
 			GLDebug.nameObject(KHRDebug.GL_SHADER, shader.getHandle(), shader.getName());
 
-			GlStateManager.glAttachShader(program, shader.getHandle());
+            GL20.glAttachShader(program, shader.getHandle());
 		}
 
-		GlStateManager.glLinkProgram(program);
+        GL20.glLinkProgram(program);
 
 		GLDebug.nameObject(KHRDebug.GL_PROGRAM, program, name);
 
@@ -46,9 +47,9 @@ public class ProgramCreator {
 			LOGGER.warn("Program link log for " + name + ": " + log);
 		}
 
-		int result = GlStateManager.glGetProgrami(program, GL20C.GL_LINK_STATUS);
+		int result = GL20.glGetProgrami(program, GL20.GL_LINK_STATUS);
 
-		if (result != GL20C.GL_TRUE) {
+		if (result != GL11.GL_TRUE) {
 			throw new ShaderCompileException(name, log);
 		}
 

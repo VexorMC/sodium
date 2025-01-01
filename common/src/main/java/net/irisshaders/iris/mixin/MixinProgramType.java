@@ -1,7 +1,6 @@
 package net.irisshaders.iris.mixin;
 
 import com.mojang.blaze3d.shaders.Program;
-import net.irisshaders.iris.gl.program.IrisProgramTypes;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.opengl.GL32C;
 import org.lwjgl.opengl.GL42C;

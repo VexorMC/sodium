@@ -1,10 +1,12 @@
 package net.irisshaders.iris.gl.program;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.shaders.ProgramManager;
 import net.irisshaders.iris.gl.GlResource;
 import net.irisshaders.iris.gl.IrisRenderSystem;
-import org.lwjgl.opengl.GL43C;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL40;
+import org.lwjgl.opengl.GL42;
+import org.lwjgl.opengl.GL43;
 
 public final class Program extends GlResource {
 	private final ProgramUniforms uniforms;
@@ -22,12 +24,12 @@ public final class Program extends GlResource {
 	public static void unbind() {
 		ProgramUniforms.clearActiveUniforms();
 		ProgramSamplers.clearActiveSamplers();
-		ProgramManager.glUseProgram(0);
+		GL20.glUseProgram(0);
 	}
 
 	public void use() {
-		IrisRenderSystem.memoryBarrier(GL43C.GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL43C.GL_TEXTURE_FETCH_BARRIER_BIT | GL43C.GL_SHADER_STORAGE_BARRIER_BIT);
-		ProgramManager.glUseProgram(getGlId());
+		IrisRenderSystem.memoryBarrier(GL42.GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL42.GL_TEXTURE_FETCH_BARRIER_BIT | GL43.GL_SHADER_STORAGE_BARRIER_BIT);
+		GL20.glUseProgram(getGlId());
 
 		uniforms.update();
 		samplers.update();
@@ -35,7 +37,7 @@ public final class Program extends GlResource {
 	}
 
 	public void destroyInternal() {
-		GlStateManager.glDeleteProgram(getGlId());
+		GL20.glDeleteProgram(getGlId());
 	}
 
 	/**

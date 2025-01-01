@@ -11,11 +11,12 @@ import net.irisshaders.iris.gl.uniform.UniformHolder;
 import net.irisshaders.iris.gl.uniform.UniformType;
 import net.irisshaders.iris.gl.uniform.UniformUpdateFrequency;
 import net.irisshaders.iris.uniforms.SystemTimeUniforms;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBShaderImageLoadStore;
-import org.lwjgl.opengl.GL20C;
-import org.lwjgl.opengl.GL30C;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -45,10 +46,10 @@ public class ProgramUniforms {
 	}
 
 	private static long getCurrentTick() {
-		if (MinecraftClient.getInstance().level == null) {
+		if (MinecraftClient.getInstance().world == null) {
 			return 0L;
 		} else {
-			return MinecraftClient.getInstance().level.getGameTime();
+			return MinecraftClient.getInstance().world.getTimeOfDay();
 		}
 	}
 
@@ -65,39 +66,39 @@ public class ProgramUniforms {
 	private static String getTypeName(int type) {
 		String typeName;
 
-		if (type == GL20C.GL_FLOAT) {
+		if (type == GL11.GL_FLOAT) {
 			typeName = "float";
-		} else if (type == GL20C.GL_INT) {
+		} else if (type == GL11.GL_INT) {
 			typeName = "int";
-		} else if (type == GL20C.GL_FLOAT_MAT4) {
+		} else if (type == GL20.GL_FLOAT_MAT4) {
 			typeName = "mat4";
-		} else if (type == GL20C.GL_FLOAT_VEC4) {
+		} else if (type == GL20.GL_FLOAT_VEC4) {
 			typeName = "vec4";
-		} else if (type == GL20C.GL_FLOAT_MAT3) {
+		} else if (type == GL20.GL_FLOAT_MAT3) {
 			typeName = "mat3";
-		} else if (type == GL20C.GL_FLOAT_VEC3) {
+		} else if (type == GL20.GL_FLOAT_VEC3) {
 			typeName = "vec3";
-		} else if (type == GL20C.GL_FLOAT_MAT2) {
+		} else if (type == GL20.GL_FLOAT_MAT2) {
 			typeName = "mat2";
-		} else if (type == GL20C.GL_FLOAT_VEC2) {
+		} else if (type == GL20.GL_FLOAT_VEC2) {
 			typeName = "vec2";
-		} else if (type == GL20C.GL_INT_VEC2) {
+		} else if (type == GL20.GL_INT_VEC2) {
 			typeName = "ivec2";
-		} else if (type == GL20C.GL_INT_VEC4) {
+		} else if (type == GL20.GL_INT_VEC4) {
 			typeName = "ivec4";
-		} else if (type == GL20C.GL_SAMPLER_3D) {
+		} else if (type == GL20.GL_SAMPLER_3D) {
 			typeName = "sampler3D";
-		} else if (type == GL20C.GL_SAMPLER_2D) {
+		} else if (type == GL20.GL_SAMPLER_2D) {
 			typeName = "sampler2D";
-		} else if (type == GL30C.GL_UNSIGNED_INT_SAMPLER_2D) {
+		} else if (type == GL30.GL_UNSIGNED_INT_SAMPLER_2D) {
 			typeName = "usampler2D";
-		} else if (type == GL30C.GL_UNSIGNED_INT_SAMPLER_3D) {
+		} else if (type == GL30.GL_UNSIGNED_INT_SAMPLER_3D) {
 			typeName = "usampler3D";
-		} else if (type == GL20C.GL_SAMPLER_1D) {
+		} else if (type == GL20.GL_SAMPLER_1D) {
 			typeName = "sampler1D";
-		} else if (type == GL20C.GL_SAMPLER_2D_SHADOW) {
+		} else if (type == GL20.GL_SAMPLER_2D_SHADOW) {
 			typeName = "sampler2DShadow";
-		} else if (type == GL20C.GL_SAMPLER_1D_SHADOW) {
+		} else if (type == GL20.GL_SAMPLER_1D_SHADOW) {
 			typeName = "sampler1DShadow";
 		} else if (type == ARBShaderImageLoadStore.GL_IMAGE_1D) {
 			typeName = "image1D";
@@ -125,43 +126,43 @@ public class ProgramUniforms {
 	}
 
 	private static UniformType getExpectedType(int type) {
-		if (type == GL20C.GL_FLOAT) {
+		if (type == GL11.GL_FLOAT) {
 			return UniformType.FLOAT;
-		} else if (type == GL20C.GL_INT) {
+		} else if (type == GL11.GL_INT) {
 			return UniformType.INT;
-		} else if (type == GL20C.GL_BOOL) {
+		} else if (type == GL20.GL_BOOL) {
 			return UniformType.INT;
-		} else if (type == GL20C.GL_FLOAT_MAT4) {
+		} else if (type == GL20.GL_FLOAT_MAT4) {
 			return UniformType.MAT4;
-		} else if (type == GL20C.GL_FLOAT_VEC4) {
+		} else if (type == GL20.GL_FLOAT_VEC4) {
 			return UniformType.VEC4;
-		} else if (type == GL20C.GL_INT_VEC4) {
+		} else if (type == GL20.GL_INT_VEC4) {
 			return UniformType.VEC4I;
-		} else if (type == GL20C.GL_FLOAT_MAT3) {
+		} else if (type == GL20.GL_FLOAT_MAT3) {
 			return UniformType.MAT3;
-		} else if (type == GL20C.GL_FLOAT_VEC3) {
+		} else if (type == GL20.GL_FLOAT_VEC3) {
 			return UniformType.VEC3;
-		} else if (type == GL20C.GL_INT_VEC3) {
+		} else if (type == GL20.GL_INT_VEC3) {
 			return UniformType.VEC3I;
-		} else if (type == GL20C.GL_FLOAT_MAT2) {
+		} else if (type == GL20.GL_FLOAT_MAT2) {
 			return null;
-		} else if (type == GL20C.GL_FLOAT_VEC2) {
+		} else if (type == GL20.GL_FLOAT_VEC2) {
 			return UniformType.VEC2;
-		} else if (type == GL20C.GL_INT_VEC2) {
+		} else if (type == GL20.GL_INT_VEC2) {
 			return UniformType.VEC2I;
-		} else if (type == GL20C.GL_SAMPLER_3D) {
+		} else if (type == GL20.GL_SAMPLER_3D) {
 			return UniformType.INT;
-		} else if (type == GL20C.GL_SAMPLER_2D) {
+		} else if (type == GL20.GL_SAMPLER_2D) {
 			return UniformType.INT;
-		} else if (type == GL30C.GL_UNSIGNED_INT_SAMPLER_2D) {
+		} else if (type == GL30.GL_UNSIGNED_INT_SAMPLER_2D) {
 			return UniformType.INT;
-		} else if (type == GL30C.GL_UNSIGNED_INT_SAMPLER_3D) {
+		} else if (type == GL30.GL_UNSIGNED_INT_SAMPLER_3D) {
 			return UniformType.INT;
-		} else if (type == GL20C.GL_SAMPLER_1D) {
+		} else if (type == GL20.GL_SAMPLER_1D) {
 			return UniformType.INT;
-		} else if (type == GL20C.GL_SAMPLER_2D_SHADOW) {
+		} else if (type == GL20.GL_SAMPLER_2D_SHADOW) {
 			return UniformType.INT;
-		} else if (type == GL20C.GL_SAMPLER_1D_SHADOW) {
+		} else if (type == GL20.GL_SAMPLER_1D_SHADOW) {
 			return UniformType.INT;
 		} else {
 			return null;
@@ -169,13 +170,13 @@ public class ProgramUniforms {
 	}
 
 	private static boolean isSampler(int type) {
-		return type == GL20C.GL_SAMPLER_1D
-			|| type == GL20C.GL_SAMPLER_2D
-			|| type == GL30C.GL_UNSIGNED_INT_SAMPLER_2D
-			|| type == GL30C.GL_UNSIGNED_INT_SAMPLER_3D
-			|| type == GL20C.GL_SAMPLER_3D
-			|| type == GL20C.GL_SAMPLER_1D_SHADOW
-			|| type == GL20C.GL_SAMPLER_2D_SHADOW;
+		return type == GL20.GL_SAMPLER_1D
+			|| type == GL20.GL_SAMPLER_2D
+			|| type == GL30.GL_UNSIGNED_INT_SAMPLER_2D
+			|| type == GL30.GL_UNSIGNED_INT_SAMPLER_3D
+			|| type == GL20.GL_SAMPLER_3D
+			|| type == GL20.GL_SAMPLER_1D_SHADOW
+			|| type == GL20.GL_SAMPLER_2D_SHADOW;
 	}
 
 	private static boolean isImage(int type) {
@@ -291,7 +292,7 @@ public class ProgramUniforms {
 
 		@Override
 		public OptionalInt location(String name, UniformType type) {
-			int id = GlStateManager._glGetUniformLocation(program, name);
+			int id = GL20.glGetUniformLocation(program, name);
 
 			if (id == -1) {
 				return OptionalInt.empty();
@@ -312,7 +313,7 @@ public class ProgramUniforms {
 		public ProgramUniforms buildUniforms() {
 			// Check for any unsupported uniforms and warn about them so that we can easily figure out what uniforms we
 			// need to add.
-			int activeUniforms = GlStateManager.glGetProgrami(program, GL20C.GL_ACTIVE_UNIFORMS);
+			int activeUniforms = GL20.glGetProgrami(program, GL20.GL_ACTIVE_UNIFORMS);
 			IntBuffer sizeBuf = BufferUtils.createIntBuffer(1);
 			IntBuffer typeBuf = BufferUtils.createIntBuffer(1);
 

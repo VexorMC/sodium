@@ -1,7 +1,7 @@
 package net.irisshaders.iris.gl.state;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 
 public class ShaderAttributeInputs {
 	private boolean ie;
@@ -16,7 +16,7 @@ public class ShaderAttributeInputs {
 	// WARNING: adding new fields requires updating hashCode and equals methods!
 
 	public ShaderAttributeInputs(VertexFormat format, boolean isFullbright, boolean isLines, boolean glint, boolean text, boolean ie) {
-		if (format == DefaultVertexFormat.POSITION_COLOR_NORMAL && !isLines) {
+		if (format == VertexFormats.POSITION_TEXTURE_COLOR_NORMAL && !isLines) {
 			newLines = true;
 		}
 
@@ -24,24 +24,24 @@ public class ShaderAttributeInputs {
 		this.text = text;
 		this.glint = glint;
 
-		format.getElementAttributeNames().forEach(name -> {
-			if ("Color".equals(name)) {
+		format.getElements().forEach(name -> {
+			if ("Color".equals(name.getType().getName())) {
 				color = true;
 			}
 
-			if ("UV0".equals(name)) {
+			if ("UV".equals(name.getType().getName())) {
 				tex = true;
 			}
 
-			if ("UV1".equals(name)) {
+			if ("UV1".equals(name.getType().getName())) {
 				overlay = true;
 			}
 
-			if ("UV2".equals(name) && !isFullbright) {
+			if ("UV2".equals(name.getType().getName()) && !isFullbright) {
 				light = true;
 			}
 
-			if ("Normal".equals(name)) {
+			if ("Normal".equals(name.getType().getName())) {
 				normal = true;
 			}
 		});

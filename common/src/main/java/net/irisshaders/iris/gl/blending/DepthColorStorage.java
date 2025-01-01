@@ -16,7 +16,7 @@ public class DepthColorStorage {
 		if (!depthColorLocked) {
 			// Only save the previous state if the depth and color mask wasn't already locked
 			GlStateManager.ColorMask colorMask = GlStateManagerAccessor.getCOLOR_MASK();
-			GlStateManager.DepthState depthState = GlStateManagerAccessor.getDEPTH();
+			GlStateManager.DepthTestState depthState = GlStateManagerAccessor.getDEPTH();
 
 			originalDepthEnable = depthState.mask;
 			originalColor = new ColorMask(colorMask.red, colorMask.green, colorMask.blue, colorMask.alpha);
@@ -24,8 +24,8 @@ public class DepthColorStorage {
 
 		depthColorLocked = false;
 
-		GlStateManager._depthMask(false);
-		GlStateManager._colorMask(false, false, false, false);
+		GlStateManager.depthMask(false);
+		GlStateManager.colorMask(false, false, false, false);
 
 		depthColorLocked = true;
 	}
@@ -45,8 +45,8 @@ public class DepthColorStorage {
 
 		depthColorLocked = false;
 
-		GlStateManager._depthMask(originalDepthEnable);
+		GlStateManager.depthMask(originalDepthEnable);
 
-		GlStateManager._colorMask(originalColor.isRedMasked(), originalColor.isGreenMasked(), originalColor.isBlueMasked(), originalColor.isAlphaMasked());
+		GlStateManager.colorMask(originalColor.isRedMasked(), originalColor.isGreenMasked(), originalColor.isBlueMasked(), originalColor.isAlphaMasked());
 	}
 }

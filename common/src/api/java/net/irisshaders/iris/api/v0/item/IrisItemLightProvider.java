@@ -1,24 +1,24 @@
 package net.irisshaders.iris.api.v0.item;
 
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
 import org.joml.Vector3f;
 
 public interface IrisItemLightProvider {
 
 	Vector3f DEFAULT_LIGHT_COLOR = new Vector3f(1, 1, 1);
 
-	default int getLightEmission(Player player, ItemStack stack) {
+	default int getLightEmission(PlayerEntity player, ItemStack stack) {
 		if (stack.getItem() instanceof BlockItem item) {
 
-			return item.getBlock().defaultBlockState().getLightEmission();
+			return item.getBlock().getLightLevel();
 		}
 
 		return 0;
 	}
 
-	default Vector3f getLightColor(Player player, ItemStack stack) {
+	default Vector3f getLightColor(PlayerEntity player, ItemStack stack) {
 		return DEFAULT_LIGHT_COLOR;
 	}
 }
