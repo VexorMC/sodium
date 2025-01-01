@@ -25,7 +25,7 @@ import net.minecraft.client.Minecraft;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
-import org.lwjgl.opengl.GL20C;
+import org.lwjgl.opengl.GL20;
 
 import java.util.List;
 import java.util.Locale;
@@ -149,9 +149,9 @@ public class SodiumShader implements ChunkShaderInterface {
 	}
 
 	private void bindTextures() {
-		IrisRenderSystem.bindTextureToUnit(GL20C.GL_TEXTURE_2D, 0, RenderSystem.getShaderTexture(0));
-		IrisRenderSystem.bindTextureToUnit(GL20C.GL_TEXTURE_2D, 2, RenderSystem.getShaderTexture(2));
-		GlStateManager._activeTexture(GL20C.GL_TEXTURE0 + IrisSamplers.LIGHTMAP_TEXTURE_UNIT);
+		IrisRenderSystem.bindTextureToUnit(GL20.GL_TEXTURE_2D, 0, RenderSystem.getShaderTexture(0));
+		IrisRenderSystem.bindTextureToUnit(GL20.GL_TEXTURE_2D, 2, RenderSystem.getShaderTexture(2));
+		GlStateManager._activeTexture(GL20.GL_TEXTURE0 + IrisSamplers.LIGHTMAP_TEXTURE_UNIT);
 	}
 
 	private void applyBlendModes() {

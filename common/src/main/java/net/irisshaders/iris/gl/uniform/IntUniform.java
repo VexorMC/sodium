@@ -1,7 +1,7 @@
 package net.irisshaders.iris.gl.uniform;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.irisshaders.iris.gl.state.ValueUpdateNotifier;
+import org.lwjgl.opengl.GL20;
 
 import java.util.function.IntSupplier;
 
@@ -34,7 +34,7 @@ public class IntUniform extends Uniform {
 
 		if (cachedValue != newValue) {
 			cachedValue = newValue;
-			RenderSystem.glUniform1i(location, newValue);
+			GL20.glUniform1i(location, newValue);
 		}
 	}
 }

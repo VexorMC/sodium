@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.irisshaders.iris.mixin.GlStateManagerAccessor;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL20C;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.IntBuffer;
 
@@ -57,32 +57,32 @@ public class TextureInfoCache {
 
 		public int getInternalFormat() {
 			if (internalFormat == -1) {
-				internalFormat = fetchLevelParameter(GL20C.GL_TEXTURE_INTERNAL_FORMAT);
+				internalFormat = fetchLevelParameter(GL20.GL_TEXTURE_INTERNAL_FORMAT);
 			}
 			return internalFormat;
 		}
 
 		public int getWidth() {
 			if (width == -1) {
-				width = fetchLevelParameter(GL20C.GL_TEXTURE_WIDTH);
+				width = fetchLevelParameter(GL20.GL_TEXTURE_WIDTH);
 			}
 			return width;
 		}
 
 		public int getHeight() {
 			if (height == -1) {
-				height = fetchLevelParameter(GL20C.GL_TEXTURE_HEIGHT);
+				height = fetchLevelParameter(GL20.GL_TEXTURE_HEIGHT);
 			}
 			return height;
 		}
 
 		private int fetchLevelParameter(int pname) {
 			// Keep track of what texture was bound before
-			int previousTextureBinding = GlStateManager._getInteger(GL20C.GL_TEXTURE_BINDING_2D);
+			int previousTextureBinding = GlStateManager._getInteger(GL20.GL_TEXTURE_BINDING_2D);
 
 			// Bind this texture and grab the parameter from it.
 			GlStateManager._bindTexture(id);
-			int parameter = GlStateManager._getTexLevelParameter(GL20C.GL_TEXTURE_2D, 0, pname);
+			int parameter = GlStateManager._getTexLevelParameter(GL20.GL_TEXTURE_2D, 0, pname);
 
 			// Make sure to re-bind the previous texture to avoid issues.
 			GlStateManager._bindTexture(previousTextureBinding);

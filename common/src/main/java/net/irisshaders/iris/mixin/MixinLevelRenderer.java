@@ -29,7 +29,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL43C;
+import org.lwjgl.opengl.GL43;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -106,7 +106,7 @@ public class MixinLevelRenderer {
 		IrisRenderSystem.backupAndDisableCullingState(pipeline.shouldDisableOcclusionCulling());
 
 		if (Iris.shouldActivateWireframe() && this.minecraft.isLocalServer()) {
-			IrisRenderSystem.setPolygonMode(GL43C.GL_LINE);
+			IrisRenderSystem.setPolygonMode(GL43.GL_LINE);
 		}
 	}
 
@@ -144,7 +144,7 @@ public class MixinLevelRenderer {
 		IrisRenderSystem.restoreCullingState();
 
 		if (Iris.shouldActivateWireframe() && this.minecraft.isLocalServer()) {
-			IrisRenderSystem.setPolygonMode(GL43C.GL_FILL);
+			IrisRenderSystem.setPolygonMode(GL43.GL_FILL);
 		}
 	}
 

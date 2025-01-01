@@ -2,7 +2,7 @@ package net.irisshaders.iris.mixin;
 
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
-import org.lwjgl.opengl.GL30C;
+import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,13 +31,13 @@ public class MixinGlStateManager_FramebufferBinding {
 				iris$drawFramebuffer = framebuffer;
 				iris$readFramebuffer = framebuffer;
 			}
-		} else if (target == GL30C.GL_DRAW_FRAMEBUFFER) {
+		} else if (target == GL30.GL_DRAW_FRAMEBUFFER) {
 			if (iris$drawFramebuffer == target) {
 				ci.cancel();
 			} else {
 				iris$drawFramebuffer = framebuffer;
 			}
-		} else if (target == GL30C.GL_READ_FRAMEBUFFER) {
+		} else if (target == GL30.GL_READ_FRAMEBUFFER) {
 			if (iris$readFramebuffer == target) {
 				ci.cancel();
 			} else {

@@ -30,7 +30,7 @@ import net.irisshaders.iris.targets.RenderTargets;
 import net.irisshaders.iris.uniforms.custom.CustomUniforms;
 import net.irisshaders.iris.vertices.sodium.terrain.FormatAnalyzer;
 import net.minecraft.resources.ResourceLocation;
-import org.lwjgl.opengl.GL43C;
+import org.lwjgl.opengl.GL43;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -166,12 +166,12 @@ public class SodiumPrograms {
 			.bindAttribute("at_midBlock", 14)
 			.link((shader) -> {
 				int handle = ((GlObject) shader).handle();
-				GLDebug.nameObject(GL43C.GL_PROGRAM, handle, "sodium-terrain-" + pass.toString().toLowerCase(Locale.ROOT));
+				GLDebug.nameObject(GL43.GL_PROGRAM, handle, "sodium-terrain-" + pass.toString().toLowerCase(Locale.ROOT));
 
-				if (!hasNormal) hasNormal = GL43C.glGetAttribLocation(handle, "iris_Normal") != -1;
-				if (!hasMidBlock) hasMidBlock = GL43C.glGetAttribLocation(handle, "at_midBlock") != -1;
-				if (!hasBlockId) hasBlockId = GL43C.glGetAttribLocation(handle, "mc_Entity") != -1;
-				if (!hasMidUv) hasMidUv = GL43C.glGetAttribLocation(handle, "mc_midTexCoord") != -1;
+				if (!hasNormal) hasNormal = GL43.glGetAttribLocation(handle, "iris_Normal") != -1;
+				if (!hasMidBlock) hasMidBlock = GL43.glGetAttribLocation(handle, "at_midBlock") != -1;
+				if (!hasBlockId) hasBlockId = GL43.glGetAttribLocation(handle, "mc_Entity") != -1;
+				if (!hasMidUv) hasMidUv = GL43.glGetAttribLocation(handle, "mc_midTexCoord") != -1;
 
 				return new SodiumShader(pipeline, pass, shader, handle, source.getDirectives().getBlendModeOverride().orElse(null),
 					createBufferBlendOverrides(source), customUniforms, flipState,

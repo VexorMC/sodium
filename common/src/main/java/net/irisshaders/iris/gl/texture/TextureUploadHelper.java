@@ -1,7 +1,8 @@
 package net.irisshaders.iris.gl.texture;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import org.lwjgl.opengl.GL20C;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 
 public class TextureUploadHelper {
 	private TextureUploadHelper() {
@@ -15,9 +16,9 @@ public class TextureUploadHelper {
 		// It is likely that this also avoids the crashes on AMD that I previously experienced with texture creation.
 		//
 		// This code is from Canvas: https://github.com/grondag/canvas/commit/f0ab652d7a8b7cc9febf0209bee15cffce9eac83
-		GlStateManager._pixelStore(GL20C.GL_UNPACK_ROW_LENGTH, 0);
-		GlStateManager._pixelStore(GL20C.GL_UNPACK_SKIP_ROWS, 0);
-		GlStateManager._pixelStore(GL20C.GL_UNPACK_SKIP_PIXELS, 0);
-		GlStateManager._pixelStore(GL20C.GL_UNPACK_ALIGNMENT, 4);
+		GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
+		GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
+		GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 4);
 	}
 }

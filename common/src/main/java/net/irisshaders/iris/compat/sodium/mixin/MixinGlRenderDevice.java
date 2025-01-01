@@ -2,7 +2,7 @@ package net.irisshaders.iris.compat.sodium.mixin;
 
 import net.caffeinemc.mods.sodium.client.gl.tessellation.GlPrimitiveType;
 import net.irisshaders.iris.vertices.ImmediateState;
-import org.lwjgl.opengl.GL43C;
+import org.lwjgl.opengl.GL43;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class MixinGlRenderDevice {
 	@Redirect(method = "multiDrawElementsBaseVertex", at = @At(value = "INVOKE", target = "Lnet/caffeinemc/mods/sodium/client/gl/tessellation/GlPrimitiveType;getId()I"))
 	private int replaceId(GlPrimitiveType instance) {
-		if (ImmediateState.usingTessellation) return GL43C.GL_PATCHES;
+		if (ImmediateState.usingTessellation) return GL43.GL_PATCHES;
 
 		return instance.getId();
 	}

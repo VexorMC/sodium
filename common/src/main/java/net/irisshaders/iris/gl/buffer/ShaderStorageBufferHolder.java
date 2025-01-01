@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.irisshaders.iris.Iris;
 import net.irisshaders.iris.gl.IrisRenderSystem;
 import net.irisshaders.iris.gl.sampler.SamplerLimits;
-import org.lwjgl.opengl.GL43C;
+import org.lwjgl.opengl.GL43;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class ShaderStorageBufferHolder {
 				buffers[index].createStatic();
 			}
 		});
-		GlStateManager._glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, 0);
+		GlStateManager._glBindBuffer(GL43.GL_SHADER_STORAGE_BUFFER, 0);
 	}
 
 	private static long toMib(long x) {

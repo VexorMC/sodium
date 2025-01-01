@@ -1,16 +1,18 @@
 package net.irisshaders.iris.gl.texture;
 
 import net.irisshaders.iris.gl.IrisRenderSystem;
-import org.lwjgl.opengl.GL30C;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL30;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
 public enum TextureType {
-	TEXTURE_1D(GL30C.GL_TEXTURE_1D),
-	TEXTURE_2D(GL30C.GL_TEXTURE_2D),
-	TEXTURE_3D(GL30C.GL_TEXTURE_3D),
-	TEXTURE_RECTANGLE(GL30C.GL_TEXTURE_3D);
+	TEXTURE_1D(GL11.GL_TEXTURE_1D),
+	TEXTURE_2D(GL11.GL_TEXTURE_2D),
+	TEXTURE_3D(GL12.GL_TEXTURE_3D),
+	TEXTURE_RECTANGLE(GL12.GL_TEXTURE_3D);
 
 	private final int glType;
 

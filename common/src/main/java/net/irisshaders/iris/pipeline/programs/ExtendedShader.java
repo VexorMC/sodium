@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.ARBTextureSwizzle;
-import org.lwjgl.opengl.GL30C;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.KHRDebug;
 
 import java.io.IOException;
@@ -142,7 +142,7 @@ public class ExtendedShader extends ShaderInstance implements ShaderInstanceInte
 	private void setupTextures() {
 		if (intensitySwizzle) {
 			IrisRenderSystem.texParameteriv(RenderSystem.getShaderTexture(0), TextureType.TEXTURE_2D.getGlType(),
-				ARBTextureSwizzle.GL_TEXTURE_SWIZZLE_RGBA, new int[]{GL30C.GL_RED, GL30C.GL_RED, GL30C.GL_RED, GL30C.GL_RED});
+				ARBTextureSwizzle.GL_TEXTURE_SWIZZLE_RGBA, new int[]{GL30.GL_RED, GL30.GL_RED, GL30.GL_RED, GL30.GL_RED});
 		}
 
 		IrisRenderSystem.bindTextureToUnit(TextureType.TEXTURE_2D.getGlType(), IrisSamplers.ALBEDO_TEXTURE_UNIT, RenderSystem.getShaderTexture(0));

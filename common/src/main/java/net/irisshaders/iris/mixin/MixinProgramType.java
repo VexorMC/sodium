@@ -2,8 +2,8 @@ package net.irisshaders.iris.mixin;
 
 import com.mojang.blaze3d.shaders.Program;
 import org.apache.commons.lang3.ArrayUtils;
-import org.lwjgl.opengl.GL32C;
-import org.lwjgl.opengl.GL42C;
+import org.lwjgl.opengl.GL32;
+import org.lwjgl.opengl.GL42;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -21,13 +21,13 @@ public class MixinProgramType {
 		int baseOrdinal = $VALUES.length;
 
 		IrisProgramTypes.GEOMETRY
-			= ProgramTypeAccessor.createProgramType("GEOMETRY", baseOrdinal, "geometry", ".gsh", GL32C.GL_GEOMETRY_SHADER);
+			= ProgramTypeAccessor.createProgramType("GEOMETRY", baseOrdinal, "geometry", ".gsh", GL32.GL_GEOMETRY_SHADER);
 
 		IrisProgramTypes.TESS_CONTROL
-			= ProgramTypeAccessor.createProgramType("TESS_CONTROL", baseOrdinal + 1, "tess_control", ".tcs", GL42C.GL_TESS_CONTROL_SHADER);
+			= ProgramTypeAccessor.createProgramType("TESS_CONTROL", baseOrdinal + 1, "tess_control", ".tcs", GL42.GL_TESS_CONTROL_SHADER);
 
 		IrisProgramTypes.TESS_EVAL
-			= ProgramTypeAccessor.createProgramType("TESS_EVAL", baseOrdinal + 2, "tess_eval", ".tes", GL42C.GL_TESS_EVALUATION_SHADER);
+			= ProgramTypeAccessor.createProgramType("TESS_EVAL", baseOrdinal + 2, "tess_eval", ".tes", GL42.GL_TESS_EVALUATION_SHADER);
 
 		$VALUES = ArrayUtils.addAll($VALUES, IrisProgramTypes.GEOMETRY, IrisProgramTypes.TESS_CONTROL, IrisProgramTypes.TESS_EVAL);
 	}

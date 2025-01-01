@@ -3,7 +3,7 @@ package net.irisshaders.iris.mixin;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.irisshaders.iris.gl.GLDebug;
 import net.irisshaders.iris.targets.Blaze3dRenderTargetExt;
-import org.lwjgl.opengl.GL43C;
+import org.lwjgl.opengl.GL43;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -37,9 +37,9 @@ public class MixinRenderTarget implements Blaze3dRenderTargetExt {
 
 	@Inject(method = "createBuffers", at = @At(value = "RETURN"))
 	private void nameDepthBuffer(int i, int j, boolean bl, CallbackInfo ci) {
-		GLDebug.nameObject(GL43C.GL_TEXTURE, this.depthBufferId, "Main depth texture");
-		GLDebug.nameObject(GL43C.GL_TEXTURE, this.colorTextureId, "Main color texture");
-		GLDebug.nameObject(GL43C.GL_FRAMEBUFFER, this.frameBufferId, "Main framebuffer");
+		GLDebug.nameObject(GL43.GL_TEXTURE, this.depthBufferId, "Main depth texture");
+		GLDebug.nameObject(GL43.GL_TEXTURE, this.colorTextureId, "Main color texture");
+		GLDebug.nameObject(GL43.GL_FRAMEBUFFER, this.frameBufferId, "Main framebuffer");
 	}
 
 	@Override
