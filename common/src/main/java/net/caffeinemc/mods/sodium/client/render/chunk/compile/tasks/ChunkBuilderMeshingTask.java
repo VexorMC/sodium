@@ -97,16 +97,18 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
 
                 for (int z = minZ; z < maxZ; z++) {
                     for (int x = minX; x < maxX; x++) {
-                        BlockState blockState = slice.getBlockState(x, y, z);
-                        var blockType = blockState.getBlock().getBlockType();
+                        blockPos.setPosition(x, y, z);
 
-                        if (BlockRenderType.isInvisible(blockType) && !blockState.getBlock().hasBlockEntity()) {
+                        var blockState = slice.getBlockState(blockPos);
+                        var block = blockState.getBlock();
+                        var blockType = block.getBlockType();
+
+
+                        if (BlockRenderType.isInvisible(blockType) && block.hasBlockEntity()) {
                             continue;
                         }
 
-                        blockPos.setPosition(x, y, z);
-
-                        blockState = blockState.getBlock().getBlockState(blockState, slice, blockPos);
+                        blockState = block.getBlockState(blockState, slice, blockPos);
 
                         modelOffset.setPosition(x & 15, y & 15, z & 15);
 
@@ -117,14 +119,13 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                             context.update(blockPos, modelOffset, blockState, model);
                             cache.getBlockRenderer()
                                     .renderModel(context, buffers);
-                            //blockRenderer.renderModel(model, blockState, blockPos, modelOffset);
                         }
 
                         if (BlockRenderType.isLiquid(blockType)) {
                             cache.getFluidRenderer().render(slice, blockState, blockState, blockPos, modelOffset, collector, buffers);
                         }
 
-                        if (blockState.getBlock().hasBlockEntity()) {
+                        if (block.hasBlockEntity()) {
                             BlockEntity entity = slice.getBlockEntity(blockPos);
 
                             if (entity != null) {
@@ -136,8 +137,7 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                             }
                         }
 
-                        // todo: is hasTransparency in oldium
-                        if (blockState.getBlock().isTranslucent()) {
+                        if (block.hasTransparency()) {
                             occluder.markClosed(blockPos);
                         }
                     }
