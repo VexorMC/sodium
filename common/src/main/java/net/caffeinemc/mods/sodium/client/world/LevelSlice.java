@@ -195,14 +195,14 @@ public final class LevelSlice implements BlockView {
         } else {
             var bounds = context.volume();
 
-            int minBlockX = (int) Math.max(bounds.minX, sectionPos.minBlockX());
-            int maxBlockX = (int) Math.min(bounds.maxX, sectionPos.maxBlockX());
+            int minBlockX = Math.max(bounds.minX, sectionPos.minBlockX());
+            int maxBlockX = Math.min(bounds.maxX, sectionPos.maxBlockX());
 
-            int minBlockY = (int) Math.max(bounds.minY, sectionPos.minBlockY());
-            int maxBlockY = (int) Math.min(bounds.maxY, sectionPos.maxBlockY());
+            int minBlockY = Math.max(bounds.minY, sectionPos.minBlockY());
+            int maxBlockY = Math.min(bounds.maxY, sectionPos.maxBlockY());
 
-            int minBlockZ = (int) Math.max(bounds.minZ, sectionPos.minBlockZ());
-            int maxBlockZ = (int) Math.min(bounds.maxZ, sectionPos.maxBlockZ());
+            int minBlockZ = Math.max(bounds.minZ, sectionPos.minBlockZ());
+            int maxBlockZ = Math.min(bounds.maxZ, sectionPos.maxBlockZ());
 
             for (int x = minBlockX; x <= maxBlockX; x++) {
                 for (int y = minBlockY; y <= maxBlockY; y++) {
@@ -229,7 +229,16 @@ public final class LevelSlice implements BlockView {
 
     @Override
     public @NotNull BlockState getBlockState(BlockPos pos) {
-        return this.getBlockState(pos.getX(), pos.getY(), pos.getZ());
+        if (!this.volume.contains(pos)) {
+            return EMPTY_BLOCK_STATE;
+        }
+
+        int relBlockX = pos.getX() - this.originBlockX;
+        int relBlockY = pos.getY() - this.originBlockY;
+        int relBlockZ = pos.getZ() - this.originBlockZ;
+
+        return this.blockArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)]
+                [getLocalBlockIndex(relBlockX & 15, relBlockY & 15, relBlockZ & 15)];
     }
 
     @Override
@@ -256,19 +265,6 @@ public final class LevelSlice implements BlockView {
     @Override
     public LevelGeneratorType getGeneratorType() {
         return this.level.getGeneratorType();
-    }
-
-    public BlockState getBlockState(int blockX, int blockY, int blockZ) {
-        if (!this.volume.contains(new Vec3i(blockX, blockY, blockZ))) {
-            return EMPTY_BLOCK_STATE;
-        }
-
-        int relBlockX = blockX - this.originBlockX;
-        int relBlockY = blockY - this.originBlockY;
-        int relBlockZ = blockZ - this.originBlockZ;
-
-        return this.blockArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)]
-                [getLocalBlockIndex(relBlockX & 15, relBlockY & 15, relBlockZ & 15)];
     }
 
     public int getLight(LightType type, BlockPos pos) {
@@ -317,24 +313,20 @@ public final class LevelSlice implements BlockView {
             blockLight = ambientDarkness;
         }
 
-        return blockLight << 4 | skyLight << 20;
+        return skyLight << 20 | blockLight << 4;
 
         //return Math.max(blockLight, skyLight);
     }
 
     @Override
     public BlockEntity getBlockEntity(BlockPos pos) {
-        return this.getBlockEntity(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    public BlockEntity getBlockEntity(int blockX, int blockY, int blockZ) {
-        if (!this.volume.contains(new Vec3i(blockX, blockY, blockZ))) {
+        if (!this.volume.contains(pos)) {
             return null;
         }
 
-        int relBlockX = blockX - this.originBlockX;
-        int relBlockY = blockY - this.originBlockY;
-        int relBlockZ = blockZ - this.originBlockZ;
+        int relBlockX = pos.getX() - this.originBlockX;
+        int relBlockY = pos.getY() - this.originBlockY;
+        int relBlockZ = pos.getZ() - this.originBlockZ;
 
         var blockEntities = this.blockEntityArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
 

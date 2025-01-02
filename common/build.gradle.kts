@@ -45,6 +45,7 @@ dependencies {
     modCompileOnly("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
 
     implementation("io.waterwave.Legacy-LWJGL3:lwjgl:3.3.2-5")
+    runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-linux")
     runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
     implementation("org.antlr:antlr4-runtime:4.13.1")
     implementation("io.github.douira:glsl-transformer:2.0.1")
