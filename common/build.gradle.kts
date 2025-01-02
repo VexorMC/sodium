@@ -45,6 +45,7 @@ dependencies {
     modCompileOnly("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
 
     implementation("io.waterwave.Legacy-LWJGL3:lwjgl:3.3.2-5")
+    runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-linux")
     runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
 
     // We need to be careful during pre-launch that we don't touch any Minecraft classes, since other mods

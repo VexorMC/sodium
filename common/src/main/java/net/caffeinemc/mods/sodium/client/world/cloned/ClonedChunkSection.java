@@ -2,15 +2,13 @@ package net.caffeinemc.mods.sodium.client.world.cloned;
 
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
-import net.caffeinemc.mods.sodium.client.services.*;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -117,7 +115,7 @@ public class ClonedChunkSection {
 
     @Nullable
     private static Int2ReferenceMap<BlockEntity> copyBlockEntities(Chunk chunk, SectionPos chunkCoord) {
-        Box box = new Box(chunkCoord.minBlockX(), chunkCoord.minBlockY(), chunkCoord.minBlockZ(),
+        BlockBox box = new BlockBox(chunkCoord.minBlockX(), chunkCoord.minBlockY(), chunkCoord.minBlockZ(),
                 chunkCoord.maxBlockX(), chunkCoord.maxBlockY(), chunkCoord.maxBlockZ());
 
         Int2ReferenceOpenHashMap<BlockEntity> blockEntities = null;
@@ -127,7 +125,7 @@ public class ClonedChunkSection {
             BlockPos pos = entry.getKey();
             BlockEntity entity = entry.getValue();
 
-            if (box.contains(new Vec3d(pos.getX(), pos.getY(), pos.getZ()))) {
+            if (box.contains(pos)) {
                 if (blockEntities == null) {
                     blockEntities = new Int2ReferenceOpenHashMap<>();
                 }

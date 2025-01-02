@@ -35,6 +35,8 @@ import net.minecraft.world.BlockView;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import java.util.Arrays;
+
 public class DefaultFluidRenderer {
     // TODO: allow this to be changed by vertex format, WARNING: make sure TranslucentGeometryCollector knows about EPSILON
     // TODO: move fluid rendering to a separate render pass and control glPolygonOffset and glDepthFunc to fix this properly
@@ -373,12 +375,16 @@ public class DefaultFluidRenderer {
 
         lighter.calculate(quad, pos, light, null, dir, false, false);
 
-        colorProvider.getColors(level, pos, quad, this.quadColors);
+        if (colorProvider != null && quad.hasColor()) {
+            colorProvider.getColors(level, pos, quad, this.quadColors);
+        } else {
+            Arrays.fill(this.quadColors, 0xFFFFFF);
+        }
 
         // multiply the per-vertex color against the combined brightness
         // the combined brightness is the per-vertex brightness multiplied by the block's brightness
         for (int i = 0; i < 4; i++) {
-            this.quadColors[i] = ColorARGB.toABGR(this.quadColors[i]);
+            this.quadColors[i] = ColorARGB.toABGR(this.quadColors[i]) | 0xFF000000;
             this.brightness[i] = light.br[i] * brightness;
         }
     }

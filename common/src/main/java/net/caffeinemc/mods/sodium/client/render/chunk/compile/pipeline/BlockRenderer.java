@@ -138,7 +138,7 @@ public class BlockRenderer {
 
     private QuadLightData getVertexLight(BlockRenderContext ctx, LightPipeline lighter, Direction cullFace, BakedQuadView quad) {
         QuadLightData light = this.quadLightData;
-        lighter.calculate(quad, ctx.pos(), light, cullFace, quad.getLightFace(), quad.hasShade(), true);
+        lighter.calculate(quad, ctx.pos(), light, cullFace, quad.getLightFace(), quad.hasShade(), false);
 
         return light;
     }
@@ -148,11 +148,8 @@ public class BlockRenderer {
 
         if (colorProvider != null && quad.hasColor()) {
             colorProvider.getColors(ctx.slice(), ctx.pos(), quad, vertexColors);
-            for (int i = 0; i < 4; i++) {
-                vertexColors[i] = ColorARGB.toABGR(vertexColors[i]);
-            }
         } else {
-            Arrays.fill(vertexColors, 0xFFFFFFFF);
+            Arrays.fill(vertexColors, 0xFFFFFF);
         }
 
         return vertexColors;
@@ -179,7 +176,7 @@ public class BlockRenderer {
             out.y = ctx.origin().y() + quad.getY(srcIndex) + (float) offset.y;
             out.z = ctx.origin().z() + quad.getZ(srcIndex) + (float) offset.z;
 
-            out.color = colors[srcIndex];
+            out.color = ColorARGB.toABGR(colors[srcIndex]) | 0xFF000000;
             out.ao = light.br[srcIndex];
 
             out.u = quad.getTexU(srcIndex);

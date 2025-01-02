@@ -16,14 +16,12 @@ import net.minecraft.util.math.BlockPos;
 public class FluidRendererImpl extends FluidRenderer {
     private final ColorProviderRegistry colorProviderRegistry;
     private final DefaultFluidRenderer defaultRenderer;
-    private final DefaultRenderContext defaultContext;
 
     private final FluidSprites sprites;
 
     public FluidRendererImpl(ColorProviderRegistry colorProviderRegistry, LightPipelineProvider lighters) {
         this.colorProviderRegistry = colorProviderRegistry;
         defaultRenderer = new DefaultFluidRenderer(lighters);
-        defaultContext = new DefaultRenderContext();
         sprites = FluidSprites.create();
     }
 
@@ -32,34 +30,6 @@ public class FluidRendererImpl extends FluidRenderer {
         var meshBuilder = buffers.get(material);
         var fluid = WorldUtil.getFluid(fluidState);
 
-        defaultContext.setUp(this.colorProviderRegistry, false);
-
-        defaultRenderer.render(level, blockState, blockPos, offset, collector, meshBuilder, material, defaultContext.getColorProvider(fluid), sprites.forFluid(fluid));
-
-        defaultContext.clear();
-    }
-
-    private static class DefaultRenderContext {
-        private ColorProviderRegistry colorProviderRegistry;
-        private boolean hasModOverride;
-
-        public void setUp(ColorProviderRegistry colorProviderRegistry, boolean hasModOverride) {
-            this.colorProviderRegistry = colorProviderRegistry;
-            this.hasModOverride = hasModOverride;
-        }
-
-        public void clear() {
-            this.hasModOverride = false;
-        }
-
-        public ColorProvider getColorProvider(AbstractFluidBlock fluid) {
-            var override = this.colorProviderRegistry.getColorProvider(fluid);
-
-            if (!hasModOverride && override != null) {
-                return override;
-            }
-
-            return FabricColorProvider.adapt();
-        }
+        defaultRenderer.render(level, blockState, blockPos, offset, collector, meshBuilder, material, colorProviderRegistry.getColorProvider(fluid), sprites.forFluid(fluid));
     }
 }
