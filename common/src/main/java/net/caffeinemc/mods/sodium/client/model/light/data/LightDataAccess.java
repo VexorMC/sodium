@@ -67,9 +67,9 @@ public abstract class LightDataAccess {
         Block block = state.getBlock();
 
         boolean em = block.getLightLevel() != 0;
-        boolean op = block.isFullBlock() || block.getOpacity() != 0;
-        boolean fo = block.isNormalBlock();
-        boolean fc = block.isFullCube();
+        boolean op = block.hasTransparency() || block.getOpacity() != 0;
+        boolean fo = block.isFullBlock();
+        boolean fc = block.renderAsNormalBlock();
 
         int lu = state.getBlock().getLightLevel();
 
@@ -90,12 +90,7 @@ public abstract class LightDataAccess {
             }
         }
 
-        float ao;
-        if (lu == 0) {
-            ao = block.getAmbientOcclusionLightLevel();
-        } else {
-            ao = 1.0f;
-        }
+        float ao = block.getAmbientOcclusionLightLevel();
 
         return packFC(fc) | packFO(fo) | packOP(op) | packEM(em) | packAO(ao) | packLU(lu) | packSL(sl) | packBL(bl);
     }

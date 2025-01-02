@@ -28,6 +28,10 @@ public abstract class BakedQuadMixin implements BakedQuadView {
     @Shadow
     @Final
     protected int colorIndex;
+
+    @Shadow
+    public abstract boolean hasColor();
+
     @Unique
     private int flags;
 
@@ -126,7 +130,7 @@ public abstract class BakedQuadMixin implements BakedQuadView {
     @Override
     @Unique(silent = true) // The target class has a function with the same name in a remapped environment
     public boolean hasShade() {
-        return false;
+        return this.hasColor();
     }
 
     @Override

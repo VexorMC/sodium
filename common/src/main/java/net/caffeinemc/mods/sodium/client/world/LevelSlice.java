@@ -92,6 +92,8 @@ public final class LevelSlice implements BlockView {
     // The volume that this WorldSlice contains
     private Box volume;
 
+    private final int[] defaultLightValues;
+
     public static ChunkRenderContext prepare(World level, SectionPos pos, ClonedChunkSectionCache cache) {
         Chunk chunk = level.getChunk(pos.getX(), pos.getZ());
         ChunkSection section = chunk.getBlockStorage()[pos.getY()];
@@ -136,6 +138,10 @@ public final class LevelSlice implements BlockView {
     @SuppressWarnings("unchecked")
     public LevelSlice(ClientWorld level) {
         this.level = level;
+
+        defaultLightValues = new int[LIGHT_TYPES.length];
+        defaultLightValues[LightType.SKY.ordinal()] = level.dimension.hasNoSkylight() ? 0 : LightType.SKY.defaultValue;
+        defaultLightValues[LightType.BLOCK.ordinal()] = LightType.BLOCK.defaultValue;
 
         this.blockArrays = new BlockState[SECTION_ARRAY_SIZE][SECTION_BLOCK_COUNT];
         this.lightArrays = new ChunkNibbleArray[SECTION_ARRAY_SIZE][LIGHT_TYPES.length];
@@ -279,20 +285,65 @@ public final class LevelSlice implements BlockView {
             return 0;
         }
 
-        int relBlockX = pos.getX() - this.originBlockX;
-        int relBlockY = pos.getY() - this.originBlockY;
-        int relBlockZ = pos.getZ() - this.originBlockZ;
+        int relX = pos.getX() - originBlockX;
+        int relY = pos.getY() - originBlockY;
+        int relZ = pos.getZ() - originBlockZ;
 
-        var lightArray = this.lightArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)][type.ordinal()];
+        BlockState state = getBlockStateRelative(relX, relY, relZ);
 
-        if (lightArray == null) {
-            // If the array is null, it means the dimension for the current level does not support that light type
-            return 0;
+        if (!state.getBlock().usesNeighbourLight()) {
+            return getLightFor(type, relX, relY, relZ);
+        } else {
+            int west = getLightFor(type, relX - 1, relY, relZ);
+            int east = getLightFor(type, relX + 1, relY, relZ);
+            int up = getLightFor(type, relX, relY + 1, relZ);
+            int down = getLightFor(type, relX, relY - 1, relZ);
+            int north = getLightFor(type, relX, relY, relZ + 1);
+            int south = getLightFor(type, relX, relY, relZ - 1);
+
+            if (east > west) {
+                west = east;
+            }
+
+            if (up > west) {
+                west = up;
+            }
+
+            if (down > west) {
+                west = down;
+            }
+
+            if (north > west) {
+                west = north;
+            }
+
+            if (south > west) {
+                west = south;
+            }
+
+            return west;
         }
-
-        return lightArray.get(relBlockX & 15, relBlockY & 15, relBlockZ & 15);
     }
 
+    private int getLightFor(LightType type, int relX, int relY, int relZ) {
+        int sectionIdx = getLocalSectionIndex(relX >> 4, relY >> 4, relZ >> 4);
+        ChunkNibbleArray lightArray = lightArrays[sectionIdx][type.ordinal()];
+        if (lightArray == null) {
+            // If the array is null, it means the dimension for the current world does not support that light type
+            return defaultLightValues[type.ordinal()];
+        }
+
+        return lightArray.get(relX & 15, relY & 15, relZ & 15);
+    }
+
+
+    public BlockState getBlockStateRelative(int x, int y, int z) {
+        // NOTE: Not bounds checked. We assume ChunkRenderRebuildTask is the only function using this
+        int sectionIdx = getLocalSectionIndex(x >> 4, y >> 4, z >> 4);
+        int blockIdx = getLocalBlockIndex(x & 15, y & 15, z & 15);
+
+        return blockArrays[sectionIdx][blockIdx];
+    }
 
     @Override
     public int getLight(BlockPos pos, int ambientDarkness) {
@@ -300,29 +351,21 @@ public final class LevelSlice implements BlockView {
             return 0;
         }
 
-        int relBlockX = pos.getX() - this.originBlockX;
-        int relBlockY = pos.getY() - this.originBlockY;
-        int relBlockZ = pos.getZ() - this.originBlockZ;
-
-        var lightArrays = this.lightArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
-
-        var skyLightArray = lightArrays[LightType.SKY.ordinal()];
-        var blockLightArray = lightArrays[LightType.BLOCK.ordinal()];
-
-        int localBlockX = relBlockX & 15;
-        int localBlockY = relBlockY & 15;
-        int localBlockZ = relBlockZ & 15;
-
-        int skyLight = skyLightArray == null ? 0 : skyLightArray.get(localBlockX, localBlockY, localBlockZ); //- ambientDarkness;
-        int blockLight = blockLightArray == null ? 0 : blockLightArray.get(localBlockX, localBlockY, localBlockZ);
-
-        if (blockLight < ambientDarkness) {
-            blockLight = ambientDarkness;
+        int x = pos.getX();
+        int y = pos.getY();
+        int z = pos.getZ();
+        if (y < 0 || y >= 256 || x < -30_000_000 || z < -30_000_000 || x >= 30_000_000 || z >= 30_000_000) {
+            return (defaultLightValues[0] << 20) | (ambientDarkness << 4);
         }
 
-        return skyLight << 20 | blockLight << 4;
+        int skyBrightness = getLight(LightType.SKY, pos);
+        int blockBrightness = getLight(LightType.BLOCK, pos);
 
-        //return Math.max(blockLight, skyLight);
+        if (blockBrightness < ambientDarkness) {
+            blockBrightness = ambientDarkness;
+        }
+
+        return skyBrightness << 20 | blockBrightness << 4;
     }
 
     @Override
