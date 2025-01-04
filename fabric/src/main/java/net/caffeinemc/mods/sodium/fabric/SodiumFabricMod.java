@@ -9,7 +9,7 @@ public class SodiumFabricMod implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModContainer mod = FabricLoader.getInstance()
-                .getModContainer("sodium")
+                .getModContainer("radium")
                 .orElseThrow(NullPointerException::new);
 
         SodiumClientMod.onInitialization(mod.getMetadata().getVersion().getFriendlyString());
