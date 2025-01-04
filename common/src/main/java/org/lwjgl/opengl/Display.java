@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import dev.vexor.radium.lwjgl3.DesktopFileInjector;
+import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.LWJGLException;
@@ -104,7 +105,7 @@ public final class Display {
 	
 	public static int setIcon(@NotNull ByteBuffer[] icons) {
 
-		if (GLFW.glfwGetPlatform() == GLFW.GLFW_PLATFORM_WAYLAND){
+		if (GLFW.glfwGetPlatform() == GLFW.GLFW_PLATFORM_WAYLAND) {
 			// Wayland does not have a standardised way of setting window icons, see
 			// https://www.glfw.org/docs/latest/group__window.html#gadd7ccd39fe7a7d1f0904666ae5932dc5
 			// for more information.
@@ -134,8 +135,12 @@ public final class Display {
 				int dimension = (int) Math.sqrt(size);
 				buffer.put(image.set(dimension, dimension, buf));
 			});
-
-			GLFW.glfwSetWindowIcon(handle, buffer);
+            Buffer copy = GLFWImage.create(icons.length);
+            int old_pos = buffer.position();
+            copy.put(buffer);
+            buffer.position(old_pos);
+            copy.flip();
+			GLFW.glfwSetWindowIcon(handle, copy);
 			return 1;
 		} else {
 			return 0;
@@ -194,9 +199,7 @@ public final class Display {
 			Mouse.create();
 			Keyboard.create();
 			GLFW.glfwShowWindow(handle);
-			if (cached_icons != null) {
-				setIcon(cached_icons);
-			}
+            setIcon(cached_icons);
 		}
 	}
 

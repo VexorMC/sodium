@@ -1,9 +1,9 @@
 {
   "schemaVersion" : 1,
-  "id" : "sodium",
+  "id" : "radium",
   "version" : "${version}",
-  "name" : "Sodium",
-  "description" : "Sodium is a powerful rendering engine for Minecraft which greatly improves frame rates and micro-stutter, while fixing many graphical issues",
+  "name" : "Radium",
+  "description" : "Radium is a powerful rendering engine for Minecraft which greatly improves frame rates and micro-stutter, while fixing many graphical issues",
   "authors" : [
     {
       "name" : "JellySquid (jellysquid3)",
