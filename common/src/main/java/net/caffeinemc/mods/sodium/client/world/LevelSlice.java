@@ -382,7 +382,6 @@ public final class LevelSlice implements BlockView {
             return null;
         }
         BlockEntity e = section.getChunk().getBlockEntity(pos, Chunk.Status.IMMEDIATE);
-        System.out.println("Created block entity at pos = " + pos + " and e " + e);
 
         return e;
     }

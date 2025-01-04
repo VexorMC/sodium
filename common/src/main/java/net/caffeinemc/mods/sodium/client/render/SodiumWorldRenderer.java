@@ -325,8 +325,6 @@ public class SodiumWorldRenderer {
                 }
 
                 for (BlockEntity blockEntity : blockEntities) {
-                    System.out.println("drawing block entity: " + blockEntity + " at " + blockEntity.getPos());
-
                     renderBlockEntity(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, blockEntity, player);
                 }
             }
@@ -348,7 +346,6 @@ public class SodiumWorldRenderer {
             }
 
             for (var blockEntity : blockEntities) {
-                System.out.println("drawing block entity: " + blockEntity + " at " + blockEntity.getPos());
                 renderBlockEntity(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, blockEntity, player);
             }
         }
