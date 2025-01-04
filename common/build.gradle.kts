@@ -19,6 +19,11 @@ sourceSets {
     main.apply {
         java {
             srcDirs("src/api/java")
+            srcDirs("src/vendored/java")
+            srcDirs("src/shaders/java")
+        }
+        resources {
+            srcDirs("src/shaders/resources")
         }
     }
 
