@@ -376,7 +376,7 @@ public class DefaultFluidRenderer {
         lighter.calculate(quad, pos, light, null, dir, false, false);
 
         if (colorProvider != null && quad.hasColor()) {
-            colorProvider.getColors(level, pos, quad, this.quadColors);
+            colorProvider.getColors(level, fluidState, quad, this.quadColors, pos);
         } else {
             Arrays.fill(this.quadColors, 0xFFFFFF);
         }

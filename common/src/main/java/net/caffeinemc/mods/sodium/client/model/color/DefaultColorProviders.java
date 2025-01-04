@@ -4,6 +4,7 @@ import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.blender.BlendedColorProvider;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.biome.BiomeColorSource;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 
 public class DefaultColorProviders {
@@ -14,7 +15,7 @@ public class DefaultColorProviders {
 
     public static class BlockColorProvider implements ColorProvider {
         @Override
-        public void getColors(LevelSlice slice, BlockPos pos, ModelQuadView quad, int[] output) {
+        public void getColors(LevelSlice slice, BlockState state, ModelQuadView quad, int[] output, BlockPos pos) {
             var block = slice.getBlockState(pos).getBlock();
             for (int i = 0; i < output.length; i++) {
                 output[i] = block.getBlockColor(slice, pos, i);
