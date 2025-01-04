@@ -15,12 +15,12 @@ public class SingleBlockLightDataCache extends LightDataAccess {
     private static final int NEIGHBOR_BLOCK_RADIUS = 2;
     private static final int BLOCK_LENGTH = 1 + (NEIGHBOR_BLOCK_RADIUS * 2);
 
-    private final int[] light;
+    private final long[] light;
 
     private int xOffset, yOffset, zOffset;
 
     public SingleBlockLightDataCache() {
-        this.light = new int[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
+        this.light = new long[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
     }
 
     public void reset(BlockPos origin, LevelSlice blockView) {
@@ -46,10 +46,10 @@ public class SingleBlockLightDataCache extends LightDataAccess {
     }
 
     @Override
-    public int get(int x, int y, int z) {
+    public long get(int x, int y, int z) {
         int l = this.index(x, y, z);
 
-        int word = this.light[l];
+        long word = this.light[l];
 
         if (word != 0) {
             return word;

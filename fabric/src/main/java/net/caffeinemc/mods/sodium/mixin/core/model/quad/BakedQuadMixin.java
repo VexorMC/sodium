@@ -29,9 +29,6 @@ public abstract class BakedQuadMixin implements BakedQuadView {
     @Final
     protected int colorIndex;
 
-    @Shadow
-    public abstract boolean hasColor();
-
     @Unique
     private int flags;
 
@@ -40,6 +37,9 @@ public abstract class BakedQuadMixin implements BakedQuadView {
 
     @Unique
     private ModelQuadFacing normalFace = null;
+
+    @Shadow @Override
+    public abstract boolean hasColor();
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(int[] is, int i, Direction direction, CallbackInfo ci) {
@@ -122,13 +122,13 @@ public abstract class BakedQuadMixin implements BakedQuadView {
         return this.direction;
     }
 
+
     @Override
     public int getMaxLightQuad(int idx) {
         return this.vertexData[ModelQuadUtil.vertexOffset(idx) + ModelQuadUtil.LIGHT_INDEX];
     }
 
     @Override
-    @Unique(silent = true) // The target class has a function with the same name in a remapped environment
     public boolean hasShade() {
         return this.hasColor();
     }

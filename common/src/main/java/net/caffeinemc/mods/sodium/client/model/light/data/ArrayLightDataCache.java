@@ -13,13 +13,13 @@ public class ArrayLightDataCache extends LightDataAccess {
     private static final int NEIGHBOR_BLOCK_RADIUS = 2;
     private static final int BLOCK_LENGTH = 16 + (NEIGHBOR_BLOCK_RADIUS * 2);
 
-    private final int[] light;
+    private final long[] light;
 
     private int xOffset, yOffset, zOffset;
 
     public ArrayLightDataCache(LevelSlice level) {
         this.level = level;
-        this.light = new int[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
+        this.light = new long[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
     }
 
     public void reset(SectionPos origin) {
@@ -39,10 +39,10 @@ public class ArrayLightDataCache extends LightDataAccess {
     }
 
     @Override
-    public int get(int x, int y, int z) {
+    public long get(int x, int y, int z) {
         int l = this.index(x, y, z);
 
-        int word = this.light[l];
+        long word = this.light[l];
 
         if (word != 0) {
             return word;

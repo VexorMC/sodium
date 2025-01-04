@@ -165,7 +165,11 @@ public final class LevelSlice implements BlockView {
         for (int x = 0; x < SECTION_ARRAY_LENGTH; x++) {
             for (int y = 0; y < SECTION_ARRAY_LENGTH; y++) {
                 for (int z = 0; z < SECTION_ARRAY_LENGTH; z++) {
-                    this.copySectionData(context, getLocalSectionIndex(x, y, z));
+                    int idx = getLocalSectionIndex(x, y, z);
+                    final ClonedChunkSection section = context.sections()[idx];
+                    this.copySectionData(context, idx);
+                    lightArrays[idx][LightType.BLOCK.ordinal()] = section.getLightArray(LightType.BLOCK);
+                    lightArrays[idx][LightType.SKY.ordinal()] = section.getLightArray(LightType.SKY);
                 }
             }
         }
@@ -390,15 +394,8 @@ public final class LevelSlice implements BlockView {
 
     public float getBrightness(Direction direction, boolean shaded) {
         if (!shaded) {
-            return this.level.dimension.hasNoSkylight() ? 0.9f : 1.0f;
+            return level.dimension.hasNoSkylight() ? 0.9f : 1.0f;
         }
-        //return switch (direction) {
-        //    case DOWN -> 0.9F;
-        //    case UP -> 0.9F;
-        //    case NORTH, SOUTH -> 0.8F;
-        //    case WEST, EAST -> 0.6F;
-        //};
-
         return switch (direction) {
             case DOWN -> .5f;
             case UP -> 1f;
