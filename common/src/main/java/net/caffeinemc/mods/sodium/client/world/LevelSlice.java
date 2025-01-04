@@ -324,6 +324,7 @@ public final class LevelSlice implements BlockView {
 
     private int getLightFor(LightType type, int relX, int relY, int relZ) {
         int sectionIdx = getLocalSectionIndex(relX >> 4, relY >> 4, relZ >> 4);
+
         ChunkNibbleArray lightArray = lightArrays[sectionIdx][type.ordinal()];
         if (lightArray == null) {
             // If the array is null, it means the dimension for the current world does not support that light type
@@ -400,7 +401,7 @@ public final class LevelSlice implements BlockView {
             case DOWN -> .5f;
             case UP -> 1f;
             case NORTH, SOUTH -> .8f;
-            default -> .6f;
+            default -> .7f;
         };
     }
 

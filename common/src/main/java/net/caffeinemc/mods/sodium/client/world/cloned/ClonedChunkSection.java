@@ -28,12 +28,15 @@ public class ClonedChunkSection {
 
     private final @Nullable Int2ReferenceMap<BlockEntity> blockEntityMap;
 
-    private final @Nullable ChunkNibbleArray[] lightDataArrays;
+    private @Nullable ChunkNibbleArray[] lightDataArrays;
 
     private final @Nullable char[] blockData;
     private final @Nullable Biome[] biomeData;
 
     private long lastUsedTimestamp = Long.MAX_VALUE;
+
+    private final ChunkSection section;
+    private final World level;
 
     public ClonedChunkSection(World level, Chunk chunk, @Nullable ChunkSection section, SectionPos pos) {
         this.pos = pos;
@@ -59,6 +62,10 @@ public class ClonedChunkSection {
         this.blockEntityMap = blockEntityMap;
 
         this.lightDataArrays = copyLightData(level, section);
+
+        this.section = section;
+
+        this.level = level;
     }
 
     private static Biome[] convertBiomeArray(byte[] biomeIds) {
@@ -165,8 +172,13 @@ public class ClonedChunkSection {
         return this.blockEntityMap;
     }
 
-    public @Nullable ChunkNibbleArray getLightArray(LightType lightType) {
-        return this.lightDataArrays[lightType.ordinal()];
+    public @Nullable ChunkNibbleArray getLightArray(LightType type) {
+        if (section == null) return null;
+
+        if (type == LightType.SKY) {
+            return (!level.dimension.hasNoSkylight() && section.getSkyLight() != null) ? section.getSkyLight() : null;
+        }
+        return section.getBlockLight();
     }
 
     public long getLastUsedTimestamp() {
@@ -175,5 +187,9 @@ public class ClonedChunkSection {
 
     public void setLastUsedTimestamp(long timestamp) {
         this.lastUsedTimestamp = timestamp;
+    }
+
+    public ChunkSection getSection() {
+        return section;
     }
 }
