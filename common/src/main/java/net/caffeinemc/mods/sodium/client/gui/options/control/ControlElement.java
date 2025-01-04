@@ -1,13 +1,11 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
-import me.flashyreese.mods.reeses_sodium_options.client.gui.OptionExtended;
+import dev.vexor.radium.options.client.gui.OptionExtended;
 import net.caffeinemc.mods.sodium.client.gui.options.Option;
 import net.caffeinemc.mods.sodium.client.gui.widgets.AbstractWidget;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class ControlElement<T> extends AbstractWidget {
     protected final Option<T> option;

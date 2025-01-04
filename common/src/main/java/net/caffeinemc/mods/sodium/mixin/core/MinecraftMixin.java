@@ -1,11 +1,11 @@
 package net.caffeinemc.mods.sodium.mixin.core;
 
+import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.profiler.Profiler;
 import org.lwjgl.opengl.GL32;
-import org.lwjgl.opengl.GLSync;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,7 +17,7 @@ public class MinecraftMixin {
     @Final
     public Profiler profiler;
     @Unique
-    private final ObjectArrayFIFOQueue<GLSync> fences = new ObjectArrayFIFOQueue<>();
+    private final LongArrayFIFOQueue fences = new LongArrayFIFOQueue();
 
     /**
      * We run this at the beginning of the frame (except for the first frame) to give the previous frame plenty of time
@@ -60,7 +60,7 @@ public class MinecraftMixin {
         if (SodiumClientMod.options().advanced.cpuRenderAhead) {
             var fence = GL32.glFenceSync(GL32.GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 
-            if (!fence.isValid()) {
+            if (fence == 0L) {
                 throw new RuntimeException("Failed to create fence object");
             }
 

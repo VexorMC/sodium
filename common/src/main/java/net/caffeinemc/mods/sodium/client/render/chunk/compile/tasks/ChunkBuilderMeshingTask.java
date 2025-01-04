@@ -127,12 +127,12 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
 
                         if (block.hasBlockEntity()) {
                             BlockEntity entity = slice.getBlockEntity(blockPos);
-
+                            BlockEntityRenderer<BlockEntity> renderer = null;
                             if (entity != null) {
-                                BlockEntityRenderer<BlockEntity> renderer = BlockEntityRenderDispatcher.INSTANCE.getRenderer(entity);
+                                renderer = BlockEntityRenderDispatcher.INSTANCE.getRenderer(entity);
 
                                 if (renderer != null) {
-                                    renderData.addBlockEntity(entity, !renderer.rendersOutsideBoundingBox());
+                                    renderData.addBlockEntity(entity, false);
                                 }
                             }
                         }

@@ -31,6 +31,21 @@ dependencies {
     shadow("io.waterwave.Legacy-LWJGL3:lwjgl:3.3.2-5")
     shadow("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-linux")
     shadow("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
+    shadow("org.javassist:javassist:3.29.2-GA")
+    shadow(platform("org.lwjgl:lwjgl-bom:3.3.5"))
+
+    shadow("org.lwjgl:lwjgl")
+    shadow("org.lwjgl:lwjgl-glfw")
+    shadow("org.lwjgl:lwjgl-openal")
+    shadow("org.lwjgl:lwjgl-opengl")
+
+    arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
+        shadow("org.lwjgl:lwjgl::natives-$platform")
+        shadow("org.lwjgl:lwjgl-glfw::natives-$platform")
+        shadow("org.lwjgl:lwjgl-openal::natives-$platform")
+        shadow("org.lwjgl:lwjgl-opengl::natives-$platform")
+    }
+
 }
 
 sourceSets.apply {
@@ -45,12 +60,27 @@ sourceSets.apply {
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
     mappings("net.legacyfabric:yarn:1.8.9+build.551:v2")
-    implementation("io.waterwave.Legacy-LWJGL3:lwjgl:3.3.2-5")
-    runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-linux")
-    runtimeOnly("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
+    implementation("org.javassist:javassist:3.29.2-GA")
+    implementation(platform("org.lwjgl:lwjgl-bom:3.3.5"))
+
+    implementation("org.lwjgl:lwjgl")
+    implementation("org.lwjgl:lwjgl-glfw")
+    implementation("org.lwjgl:lwjgl-openal")
+    implementation("org.lwjgl:lwjgl-opengl")
+
+    arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
+        runtimeOnly("org.lwjgl:lwjgl::natives-$platform")
+        runtimeOnly("org.lwjgl:lwjgl-glfw::natives-$platform")
+        runtimeOnly("org.lwjgl:lwjgl-openal::natives-$platform")
+        runtimeOnly("org.lwjgl:lwjgl-opengl::natives-$platform")
+    }
 
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
     modImplementation("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
+}
+
+configurations.configureEach {
+    exclude(group = "org.lwjgl.lwjgl")
 }
 
 loom {

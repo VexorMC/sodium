@@ -115,7 +115,7 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         var frustum = new SimpleFrustum((CullingCameraView) cameraView);
         var transform = entity.getCameraPosVec((float) tickDelta);
         var viewport = new Viewport(frustum, transform);
-        var updateChunksImmediately = false;
+        var updateChunksImmediately = true;
 
         RenderDevice.enterManagedCode();
 

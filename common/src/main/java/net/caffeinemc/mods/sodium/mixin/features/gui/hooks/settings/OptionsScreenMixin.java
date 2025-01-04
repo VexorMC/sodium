@@ -1,7 +1,6 @@
 package net.caffeinemc.mods.sodium.mixin.features.gui.hooks.settings;
 
-import me.flashyreese.mods.reeses_sodium_options.client.gui.ReeseSodiumVideoOptionsScreen;
-import net.caffeinemc.mods.sodium.client.gui.SodiumOptionsGUI;
+import dev.vexor.radium.options.client.gui.ReeseSodiumVideoOptionsScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.SettingsScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;

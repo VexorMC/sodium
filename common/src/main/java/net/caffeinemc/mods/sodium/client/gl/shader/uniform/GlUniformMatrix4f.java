@@ -17,7 +17,7 @@ public class GlUniformMatrix4f extends GlUniform<Matrix4fc>  {
             FloatBuffer buf = stack.callocFloat(16);
             value.get(buf);
 
-            GL20.glUniformMatrix4(this.index, false, buf);
+            GL20.glUniformMatrix4fv(this.index, false, buf);
         }
     }
 }

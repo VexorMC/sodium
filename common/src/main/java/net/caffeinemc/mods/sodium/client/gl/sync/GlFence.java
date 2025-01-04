@@ -1,20 +1,33 @@
 package net.caffeinemc.mods.sodium.client.gl.sync;
 
 import org.lwjgl.opengl.GL32;
-import org.lwjgl.opengl.GLSync;
+import org.lwjgl.system.MemoryStack;
+
+import java.nio.IntBuffer;
 
 public class GlFence {
-    private final GLSync id;
+    private final long id;
     private boolean disposed;
 
-    public GlFence(GLSync id) {
+    public GlFence(long id) {
         this.id = id;
     }
 
     public boolean isCompleted() {
         this.checkDisposed();
 
-        return GL32.glGetSynci(this.id, GL32.GL_SYNC_STATUS) == GL32.GL_SIGNALED;
+        int result;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer count = stack.callocInt(1);
+            result = GL32.glGetSynci(this.id, GL32.GL_SYNC_STATUS, count);
+
+            if (count.get(0) != 1) {
+                throw new RuntimeException("glGetSync returned more than one value");
+            }
+        }
+
+        return result == GL32.GL_SIGNALED;
     }
 
     public void sync() {

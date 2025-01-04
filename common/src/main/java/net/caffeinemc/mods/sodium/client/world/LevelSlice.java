@@ -155,12 +155,16 @@ public final class LevelSlice implements BlockView {
         }
     }
 
+    private ClonedChunkSection[] sections;
+
     public void copyData(ChunkRenderContext context) {
         this.originBlockX = SectionPos.sectionToBlockCoord(context.origin().getX() - NEIGHBOR_CHUNK_RADIUS);
         this.originBlockY = SectionPos.sectionToBlockCoord(context.origin().getY() - NEIGHBOR_CHUNK_RADIUS);
         this.originBlockZ = SectionPos.sectionToBlockCoord(context.origin().getZ() - NEIGHBOR_CHUNK_RADIUS);
 
         this.volume = context.volume();
+
+        this.sections = context.sections();
 
         for (int x = 0; x < SECTION_ARRAY_LENGTH; x++) {
             for (int y = 0; y < SECTION_ARRAY_LENGTH; y++) {
@@ -368,21 +372,19 @@ public final class LevelSlice implements BlockView {
 
     @Override
     public BlockEntity getBlockEntity(BlockPos pos) {
-        if (!this.volume.contains(pos)) {
-            return null;
-        }
-
         int relBlockX = pos.getX() - this.originBlockX;
         int relBlockY = pos.getY() - this.originBlockY;
         int relBlockZ = pos.getZ() - this.originBlockZ;
 
-        var blockEntities = this.blockEntityArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
+        var section = this.sections[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
 
-        if (blockEntities == null) {
+        if (section == null) {
             return null;
         }
+        BlockEntity e = section.getChunk().getBlockEntity(pos, Chunk.Status.IMMEDIATE);
+        System.out.println("Created block entity at pos = " + pos + " and e " + e);
 
-        return blockEntities.get(getLocalBlockIndex(relBlockX & 15, relBlockY & 15, relBlockZ & 15));
+        return e;
     }
 
     public static int getLocalBlockIndex(int blockX, int blockY, int blockZ) {

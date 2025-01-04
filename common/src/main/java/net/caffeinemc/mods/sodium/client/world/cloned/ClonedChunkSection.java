@@ -37,9 +37,11 @@ public class ClonedChunkSection {
 
     private final ChunkSection section;
     private final World level;
+    private final Chunk chunk;
 
     public ClonedChunkSection(World level, Chunk chunk, @Nullable ChunkSection section, SectionPos pos) {
         this.pos = pos;
+        this.chunk = chunk;
 
         char[] blockData = null;
         Biome[] biomeData = null;
@@ -120,29 +122,28 @@ public class ClonedChunkSection {
         return array;
     }
 
+    private static final BlockPos.Mutable scratchPos = new BlockPos.Mutable();
+
     @Nullable
-    private static Int2ReferenceMap<BlockEntity> copyBlockEntities(Chunk chunk, SectionPos chunkCoord) {
-        BlockBox box = new BlockBox(chunkCoord.minBlockX(), chunkCoord.minBlockY(), chunkCoord.minBlockZ(),
-                chunkCoord.maxBlockX(), chunkCoord.maxBlockY(), chunkCoord.maxBlockZ());
+    private static Int2ReferenceMap<BlockEntity> copyBlockEntities(Chunk chunk, SectionPos pos) {
+        Int2ReferenceOpenHashMap<BlockEntity> blockEntities = new Int2ReferenceOpenHashMap<>();
 
-        Int2ReferenceOpenHashMap<BlockEntity> blockEntities = null;
+        for(int y = pos.minBlockY(); y <= pos.maxBlockY(); y++) {
+            for(int z = pos.minBlockZ(); z <= pos.maxBlockZ(); z++) {
+                for(int x = pos.minBlockX(); x <= pos.maxBlockX(); x++) {
+                    scratchPos.setPosition(x, y, z);
 
-        // Copy the block entities from the chunk into our cloned section
-        for (Map.Entry<BlockPos, BlockEntity> entry : chunk.getBlockEntities().entrySet()) {
-            BlockPos pos = entry.getKey();
-            BlockEntity entity = entry.getValue();
+                    Block block = chunk.getBlockAtPos(scratchPos);
 
-            if (box.contains(pos)) {
-                if (blockEntities == null) {
-                    blockEntities = new Int2ReferenceOpenHashMap<>();
+                    if(block.hasBlockEntity()) {
+                        BlockEntity blockEntity = chunk.getBlockEntity(scratchPos, Chunk.Status.IMMEDIATE);
+
+                        if (blockEntity != null) {
+                            blockEntities.put(LevelSlice.getLocalBlockIndex(x & 15, y & 15, z & 15), blockEntity);
+                        }
+                    }
                 }
-
-                blockEntities.put(LevelSlice.getLocalBlockIndex(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15), entity);
             }
-        }
-
-        if (blockEntities != null) {
-            blockEntities.trim();
         }
 
         return blockEntities;
@@ -153,12 +154,13 @@ public class ClonedChunkSection {
     }
 
     public @Nullable BlockState[] getBlockData() {
-        if (this.blockData == null) return null;
+        if (this.section == null) return null;
+        if (this.section.getBlockStates() == null) return null;
 
         BlockState[] blockData = new BlockState[4096];
 
-        for (int i = 0; i < this.blockData.length; i++) {
-            blockData[i] = Block.BLOCK_STATES.fromId(this.blockData[i]);
+        for (int i = 0; i < this.section.getBlockStates().length; i++) {
+            blockData[i] = Block.BLOCK_STATES.fromId(this.section.getBlockStates()[i]);
         }
 
         return blockData;
@@ -191,5 +193,9 @@ public class ClonedChunkSection {
 
     public ChunkSection getSection() {
         return section;
+    }
+
+    public Chunk getChunk() {
+        return chunk;
     }
 }

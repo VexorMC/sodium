@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gui.options;
 
-import me.flashyreese.mods.reeses_sodium_options.client.gui.OptionExtended;
+import dev.vexor.radium.options.client.gui.OptionExtended;
 import net.caffeinemc.mods.sodium.client.gui.options.binding.GenericBinding;
 import net.caffeinemc.mods.sodium.client.gui.options.binding.OptionBinding;
 import net.caffeinemc.mods.sodium.client.gui.options.control.Control;
