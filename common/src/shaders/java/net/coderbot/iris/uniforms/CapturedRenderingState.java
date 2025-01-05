@@ -3,7 +3,7 @@ package net.coderbot.iris.uniforms;
 import net.coderbot.iris.gl.state.ValueUpdateNotifier;
 import net.coderbot.iris.vendored.joml.Vector3d;
 import net.minecraft.client.MinecraftClient;
-import org.lwjgl.util.vector.Matrix4f;
+import org.joml.Matrix4f;
 
 public class CapturedRenderingState {
 	public static final CapturedRenderingState INSTANCE = new CapturedRenderingState();
@@ -23,7 +23,7 @@ public class CapturedRenderingState {
 	private CapturedRenderingState() {
 	}
 
-	public org.lwjgl.util.vector.Matrix4f getGbufferModelView() {
+	public Matrix4f getGbufferModelView() {
 		return gbufferModelView;
 	}
 

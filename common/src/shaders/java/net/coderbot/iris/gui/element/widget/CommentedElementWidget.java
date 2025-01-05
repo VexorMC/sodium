@@ -1,7 +1,7 @@
 package net.coderbot.iris.gui.element.widget;
 
 import net.coderbot.iris.shaderpack.option.menu.OptionMenuElement;
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
 
 import java.util.Optional;
 
@@ -10,7 +10,7 @@ public abstract class CommentedElementWidget<T extends OptionMenuElement> extend
 		super(element);
 	}
 
-	public abstract Optional<Component> getCommentTitle();
+	public abstract Optional<Text> getCommentTitle();
 
-	public abstract Optional<Component> getCommentBody();
+	public abstract Optional<Text> getCommentBody();
 }

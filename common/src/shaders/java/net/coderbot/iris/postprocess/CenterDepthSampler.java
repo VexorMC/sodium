@@ -14,9 +14,10 @@ import net.coderbot.iris.gl.texture.InternalTextureFormat;
 import net.coderbot.iris.gl.texture.PixelType;
 import net.coderbot.iris.gl.uniform.UniformUpdateFrequency;
 import net.coderbot.iris.uniforms.SystemTimeUniforms;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL21C;
 
 import java.io.IOException;
@@ -35,8 +36,8 @@ public class CenterDepthSampler {
 	private boolean destroyed;
 
 	public CenterDepthSampler(IntSupplier depthSupplier, float halfLife) {
-		this.texture = GlStateManager._genTexture();
-		this.altTexture = GlStateManager._genTexture();
+		this.texture = GL11.glGenTextures();
+		this.altTexture = GL11.glGenTextures();
 		this.framebuffer = new GlFramebuffer();
 
 		// Fall back to a less precise format if the system doesn't support OpenGL 3
@@ -94,7 +95,7 @@ public class CenterDepthSampler {
 		DepthCopyStrategy.fastest(false).copy(this.framebuffer, texture, null, altTexture, 1, 1);
 
 		//Reset viewport
-		Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
+		MinecraftClient.getInstance().getFramebuffer().bind(true);
 	}
 
 	public void setupColorTexture(int texture, InternalTextureFormat format) {
@@ -115,8 +116,8 @@ public class CenterDepthSampler {
 	}
 
 	public void destroy() {
-		GlStateManager._deleteTexture(texture);
-		GlStateManager._deleteTexture(altTexture);
+		GlStateManager.deleteTexture(texture);
+		GlStateManager.deleteTexture(altTexture);
 		framebuffer.destroy();
 		program.destroy();
 		destroyed = true;

@@ -2,17 +2,18 @@ package net.coderbot.iris.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.resources.language.I18n;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 
 /**
  * Class serving as abstraction and
@@ -24,61 +25,75 @@ import net.minecraft.sounds.SoundEvents;
  * some code that will be changed.
  */
 public final class GuiUtil {
-	public static final ResourceLocation IRIS_WIDGETS_TEX = new ResourceLocation("iris", "textures/gui/widgets.png");
-	private static final Component ELLIPSIS = new TextComponent("...");
+    public static final Identifier IRIS_WIDGETS_TEX = new Identifier("iris", "textures/gui/widgets.png");
+    private static final Text ELLIPSIS = new LiteralText("...");
 
-	private GuiUtil() {}
+    private GuiUtil() {
+    }
 
-	private static Minecraft client() {
-		return Minecraft.getInstance();
-	}
+    private static MinecraftClient client() {
+        return MinecraftClient.getInstance();
+    }
 
-	/**
-	 * Binds Iris's widgets texture to be
-	 * used for succeeding draw calls.
-	 */
-	public static void bindIrisWidgetsTexture() {
-		client().getTextureManager().bind(IRIS_WIDGETS_TEX);
-	}
+    /**
+     * Binds Iris's widgets texture to be
+     * used for succeeding draw calls.
+     */
+    public static void bindIrisWidgetsTexture() {
+        client().getTextureManager().bindTexture(IRIS_WIDGETS_TEX);
+    }
 
-	/**
-	 * Draws a button. Button textures must be mapped with the
-	 * same coordinates as those on the vanilla widgets texture.
-	 *
-	 * @param x X position of the left of the button
-	 * @param y Y position of the top of the button
-	 * @param width Width of the button, maximum 398
-	 * @param height Height of the button, maximum 20
-	 * @param hovered Whether the button is being hovered over with the mouse
-	 * @param disabled Whether the button should use the "disabled" texture
-	 */
-	public static void drawButton(PoseStack poseStack, int x, int y, int width, int height, boolean hovered, boolean disabled) {
-		// Create variables for half of the width and height.
-		// Will not be exact when width and height are odd, but
-		// that case is handled within the draw calls.
-		int halfWidth = width / 2;
-		int halfHeight = height / 2;
+    /**
+     * Draws a button. Button textures must be mapped with the
+     * same coordinates as those on the vanilla widgets texture.
+     *
+     * @param x        X position of the left of the button
+     * @param y        Y position of the top of the button
+     * @param width    Width of the button, maximum 398
+     * @param height   Height of the button, maximum 20
+     * @param hovered  Whether the button is being hovered over with the mouse
+     * @param disabled Whether the button should use the "disabled" texture
+     */
+    public static void drawButton(int x, int y, int width, int height, boolean hovered, boolean disabled) {
+        // Create variables for half of the width and height.
+        // Will not be exact when width and height are odd, but
+        // that case is handled within the draw calls.
+        int halfWidth = width / 2;
+        int halfHeight = height / 2;
 
-		// V offset for which button texture to use
-		int vOffset = disabled ? 46 : hovered ? 86 : 66;
+        // V offset for which button texture to use
+        int vOffset = disabled ? 46 : hovered ? 86 : 66;
 
-		// Sets RenderSystem to use solid white as the tint color for blend mode, and enables blend mode
-		RenderSystem.blendColor(1.0f, 1.0f, 1.0f, 1.0f);
-		RenderSystem.enableBlend();
+        // Sets RenderSystem to use solid white as the tint color for blend mode, and enables blend mode
+        RenderSystem.blendColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.enableBlend();
 
-		// Sets RenderSystem to be able to use textures when drawing
-		RenderSystem.enableTexture();
+        // Sets RenderSystem to be able to use textures when drawing
+        RenderSystem.enableTexture();
 
-		// Top left section
-		GuiComponent.blit(poseStack, x, y, 0, vOffset, halfWidth, halfHeight, 256, 256);
-		// Top right section
-		GuiComponent.blit(poseStack, x + halfWidth, y, 200 - (width - halfWidth), vOffset, width - halfWidth, halfHeight, 256, 256);
-		// Bottom left section
-		GuiComponent.blit(poseStack, x, y + halfHeight, 0, vOffset + (20 - (height - halfHeight)), halfWidth, height - halfHeight, 256, 256);
-		// Bottom right section
-		GuiComponent.blit(poseStack, x + halfWidth, y + halfHeight, 200 - (width - halfWidth), vOffset + (20 - (height - halfHeight)), width - halfWidth, height - halfHeight, 256, 256);
-	}
+        // Top left section
+        drawTexture(x, y, 0, vOffset, halfWidth, halfHeight);
+        // Top right section
+        drawTexture(x + halfWidth, y, 200 - (width - halfWidth), vOffset, width - halfWidth, halfHeight);
+        // Bottom left section
+        drawTexture(x, y + halfHeight, 0, vOffset + (20 - (height - halfHeight)), halfWidth, height - halfHeight);
+        // Bottom right section
+        drawTexture(x + halfWidth, y + halfHeight, 200 - (width - halfWidth), vOffset + (20 - (height - halfHeight)), width - halfWidth, height - halfHeight);
+    }
 
+    public static void drawTexture(int x, int y, int u, int v, int width, int height) {
+        float f = 0.00390625F;
+        float g = 0.00390625F;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE);
+        bufferBuilder.vertex((double)(x + 0), (double)(y + height), (double)0.0D).texture((double)((float)(u + 0) * f), (double)((float)(v + height) * g)).next();
+        bufferBuilder.vertex((double)(x + width), (double)(y + height), (double)0.0D).texture((double)((float)(u + width) * f), (double)((float)(v + height) * g)).next();
+        bufferBuilder.vertex((double)(x + width), (double)(y + 0), (double)0.0D).texture((double)((float)(u + width) * f), (double)((float)(v + 0) * g)).next();
+        bufferBuilder.vertex((double)(x + 0), (double)(y + 0), (double)0.0D).texture((double)((float)(u + 0) * f), (double)((float)(v + 0) * g)).next();
+        tessellator.draw();
+    }
+    
 	/**
 	 * Draws a translucent black panel
 	 * with a light border.
@@ -88,20 +103,20 @@ public final class GuiUtil {
 	 * @param width The width of the panel
 	 * @param height The height of the panel
 	 */
-	public static void drawPanel(PoseStack poseStack, int x, int y, int width, int height) {
+	public static void drawPanel(int x, int y, int width, int height) {
 		int borderColor = 0xDEDEDEDE;
 		int innerColor = 0xDE000000;
 
 		// Top border section
-		GuiComponent.fill(poseStack, x, y, x + width, y + 1, borderColor);
+		DrawableHelper.fill(x, y, x + width, y + 1, borderColor);
 		// Bottom border section
-		GuiComponent.fill(poseStack, x, (y + height) - 1, x + width, y + height, borderColor);
+		DrawableHelper.fill(x, (y + height) - 1, x + width, y + height, borderColor);
 		// Left border section
-		GuiComponent.fill(poseStack, x, y + 1, x + 1, (y + height) - 1, borderColor);
+		DrawableHelper.fill(x, y + 1, x + 1, (y + height) - 1, borderColor);
 		// Right border section
-		GuiComponent.fill(poseStack, (x + width) - 1, y + 1, x + width, (y + height) - 1, borderColor);
+		DrawableHelper.fill((x + width) - 1, y + 1, x + width, (y + height) - 1, borderColor);
 		// Inner section
-		GuiComponent.fill(poseStack, x + 1, y + 1, (x + width) - 1, (y + height) - 1, innerColor);
+		DrawableHelper.fill(x + 1, y + 1, (x + width) - 1, (y + height) - 1, innerColor);
 	}
 
 	/**
@@ -111,9 +126,9 @@ public final class GuiUtil {
 	 * @param x The x position of the panel
 	 * @param y The y position of the panel
 	 */
-	public static void drawTextPanel(Font font, PoseStack poseStack, Component text, int x, int y) {
-		drawPanel(poseStack, x, y, font.width(text) + 8, 16);
-		font.drawShadow(poseStack, text, x + 4, y + 4, 0xFFFFFF);
+	public static void drawTextPanel(TextRenderer font, Text text, int x, int y) {
+		drawPanel(x, y, font.getStringWidth(text.asFormattedString()) + 8, 16);
+		font.drawWithShadow(text.asFormattedString(), x + 4, y + 4, 0xFFFFFF);
 	}
 
 	/**
@@ -127,9 +142,9 @@ public final class GuiUtil {
 	 * @param width Width to shorten text to
 	 * @return a shortened text
 	 */
-	public static MutableComponent shortenText(Font font, MutableComponent text, int width) {
-		if (font.width(text) > width) {
-			return new TextComponent(font.plainSubstrByWidth(text.getString(), width - font.width(ELLIPSIS))).append(ELLIPSIS).setStyle(text.getStyle());
+	public static Text shortenText(TextRenderer font, Text text, int width) {
+		if (font.getStringWidth(text.asFormattedString()) > width) {
+			return new LiteralText(font.trimToWidth(text.asFormattedString(), width - font.getStringWidth(ELLIPSIS.asFormattedString()))).append(ELLIPSIS).setStyle(text.getStyle());
 		}
 		return text;
 	}
@@ -144,9 +159,9 @@ public final class GuiUtil {
 	 * @param format Formatting arguments for the translated text, if created
 	 * @return the translated text if found, otherwise the default provided
 	 */
-	public static MutableComponent translateOrDefault(MutableComponent defaultText, String translationDesc, Object ... format) {
-		if (I18n.exists(translationDesc)) {
-			return new TranslatableComponent(translationDesc, format);
+	public static Text translateOrDefault(Text defaultText, String translationDesc, Object ... format) {
+		if (!I18n.translate(translationDesc).equals(translationDesc)) {
+			return new TranslatableText(translationDesc, format);
 		}
 		return defaultText;
 	}
@@ -159,7 +174,7 @@ public final class GuiUtil {
 	 * or other action.
 	 */
 	public static void playButtonClickSound() {
-		client().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
+		client().getSoundManager().play(PositionedSoundInstance.master(new Identifier("gui.button.press"), 1.0F));
 	}
 
 	/**
@@ -202,7 +217,7 @@ public final class GuiUtil {
 			RenderSystem.enableTexture();
 
 			// Draw the texture to the screen
-			GuiComponent.blit(poseStack, x, y, u, v, width, height, 256, 256);
+			DrawableHelper.drawTexture(x, y, u, v, width, height, 256, 256);
 		}
 
 		public int getWidth() {

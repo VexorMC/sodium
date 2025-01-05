@@ -37,6 +37,6 @@ public class SingleColorTexture extends GlResource {
 
 	@Override
 	protected void destroyInternal() {
-		GlStateManager._deleteTexture(getGlId());
+		GlStateManager.deleteTexture(getGlId());
 	}
 }

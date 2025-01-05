@@ -24,10 +24,8 @@ import net.coderbot.iris.shaderpack.preprocessor.JcppProcessor;
 import net.coderbot.iris.shaderpack.texture.CustomTextureData;
 import net.coderbot.iris.shaderpack.texture.TextureFilteringData;
 import net.coderbot.iris.shaderpack.texture.TextureStage;
-import net.v0.IrisApi;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -125,11 +123,10 @@ public class ShaderPack {
 		List<String> invalidFeatureFlags = invalidFlagList.stream().map(FeatureFlags::getHumanReadableName).collect(Collectors.toList());
 
 		if (!invalidFeatureFlags.isEmpty()) {
-			if (Minecraft.getInstance().screen instanceof ShaderPackScreen) {
-				Minecraft.getInstance().setScreen(new FeatureMissingErrorScreen(Minecraft.getInstance().screen, new TranslatableComponent("iris.unsupported.pack"), new TranslatableComponent("iris.unsupported.pack.description", FeatureFlags.getInvalidStatus(invalidFlagList), invalidFeatureFlags.stream()
+			if (MinecraftClient.getInstance().currentScreen instanceof ShaderPackScreen) {
+                MinecraftClient.getInstance().setScreen(new FeatureMissingErrorScreen(MinecraftClient.getInstance().currentScreen, new TranslatableText("iris.unsupported.pack"), new TranslatableText("iris.unsupported.pack.description", FeatureFlags.getInvalidStatus(invalidFlagList), invalidFeatureFlags.stream()
 					.collect(Collectors.joining(", ", ": ", ".")))));
 			}
-			IrisApi.getInstance().getConfig().setShadersEnabledAndApply(false);
 		}
 
 		List<String> optionalFeatureFlags = shaderProperties.getOptionalFeatureFlags().stream().filter(flag -> !FeatureFlags.isInvalid(flag)).collect(Collectors.toList());

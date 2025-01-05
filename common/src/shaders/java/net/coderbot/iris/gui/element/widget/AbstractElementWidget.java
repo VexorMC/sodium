@@ -10,7 +10,7 @@ public abstract class AbstractElementWidget<T extends OptionMenuElement> {
 
 	public static final AbstractElementWidget<OptionMenuElement> EMPTY = new AbstractElementWidget<OptionMenuElement>(null) {
 		@Override
-		public void render(PoseStack poseStack, int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {}
+		public void render(int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {}
 	};
 
 	public AbstractElementWidget(T element) {
@@ -19,7 +19,7 @@ public abstract class AbstractElementWidget<T extends OptionMenuElement> {
 
 	public void init(ShaderPackScreen screen, NavigationController navigation) {}
 
-	public abstract void render(PoseStack poseStack, int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered);
+	public abstract void render(int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered);
 
 	public boolean mouseClicked(double mx, double my, int button) {
 		return false;

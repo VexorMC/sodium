@@ -6,6 +6,7 @@ import net.coderbot.iris.gl.texture.InternalTextureFormat;
 import net.coderbot.iris.gl.texture.PixelFormat;
 import net.coderbot.iris.gl.texture.PixelType;
 import net.coderbot.iris.vendored.joml.Vector2i;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11C;
 import org.lwjgl.opengl.GL13C;
 
@@ -35,7 +36,7 @@ public class RenderTarget {
 		this.height = builder.height;
 
 		int[] textures = new int[2];
-		GlStateManager._genTextures(textures);
+		GL11.glGenTextures(textures);
 
 		this.mainTexture = textures[0];
 		this.altTexture = textures[1];
@@ -46,7 +47,7 @@ public class RenderTarget {
 
 		// Clean up after ourselves
 		// This is strictly defensive to ensure that other buggy code doesn't tamper with our textures
-		GlStateManager._bindTexture(0);
+		GlStateManager.bindTexture(0);
 	}
 
 	private void setupTexture(int texture, int width, int height, boolean allowsLinear) {
@@ -106,7 +107,7 @@ public class RenderTarget {
 		requireValid();
 		isValid = false;
 
-		GlStateManager._deleteTextures(new int[]{mainTexture, altTexture});
+		GL11.glDeleteTextures(new int[]{mainTexture, altTexture});
 	}
 
 	private void requireValid() {

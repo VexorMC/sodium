@@ -29,9 +29,11 @@ import net.coderbot.iris.shaderpack.ProgramSource;
 import net.coderbot.iris.shadows.ShadowRenderTargets;
 import net.coderbot.iris.uniforms.CommonUniforms;
 import net.coderbot.iris.uniforms.FrameUpdateNotifier;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import org.lwjgl.opengl.GL15C;
 import org.lwjgl.opengl.GL20C;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL30C;
 
 import java.util.Map;
@@ -141,7 +143,7 @@ public class CompositeRenderer {
 		this.passes = passes.build();
 		this.flippedAtLeastOnceFinal = flippedAtLeastOnce.build();
 
-		GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
+		GL30.glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
 	}
 
 	public ImmutableSet<Integer> getFlippedAtLeastOnceFinal() {
@@ -214,8 +216,8 @@ public class CompositeRenderer {
 			for (ComputeProgram computeProgram : renderPass.computes) {
 				if (computeProgram != null) {
 					ranCompute = true;
-					com.mojang.blaze3d.pipeline.RenderTarget main = Minecraft.getInstance().getMainRenderTarget();
-					computeProgram.dispatch(main.width, main.height);
+					Framebuffer main = MinecraftClient.getInstance().getFramebuffer();
+					computeProgram.dispatch(main.viewportWidth, main.viewportHeight);
 				}
 			}
 
@@ -251,10 +253,10 @@ public class CompositeRenderer {
 
 		// Make sure to reset the viewport to how it was before... Otherwise weird issues could occur.
 		// Also bind the "main" framebuffer if it isn't already bound.
-		Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
+		MinecraftClient.getInstance().getFramebuffer().bind(true);
 		ProgramUniforms.clearActiveUniforms();
 		ProgramSamplers.clearActiveSamplers();
-		GlStateManager._glUseProgram(0);
+        GL30.glUseProgram(0);
 
 		// NB: Unbinding all of these textures is necessary for proper shaderpack reloading.
 		for (int i = 0; i < SamplerLimits.get().getMaxTextureUnits(); i++) {

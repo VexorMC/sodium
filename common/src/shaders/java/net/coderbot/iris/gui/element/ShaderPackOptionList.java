@@ -10,17 +10,8 @@ import net.coderbot.iris.gui.element.widget.OptionMenuConstructor;
 import net.coderbot.iris.gui.screen.ShaderPackScreen;
 import net.coderbot.iris.shaderpack.ShaderPack;
 import net.coderbot.iris.shaderpack.option.menu.OptionMenuContainer;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.Mth;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -65,7 +56,7 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 		return Math.min(400, width - 12);
 	}
 
-	public void addHeader(Component text, boolean backButton) {
+	public void addHeader(Text text, boolean backButton) {
 		this.addEntry(new HeaderEntry(this.screen, this.navigation, text, backButton));
 	}
 

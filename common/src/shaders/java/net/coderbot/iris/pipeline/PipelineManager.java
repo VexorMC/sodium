@@ -5,7 +5,7 @@ import net.coderbot.iris.Iris;
 import net.coderbot.iris.block_rendering.BlockRenderingSettings;
 import net.coderbot.iris.shaderpack.DimensionId;
 import net.coderbot.iris.uniforms.SystemTimeUniforms;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL20C;
 
@@ -35,8 +35,8 @@ public class PipelineManager {
 			pipelinesPerDimension.put(currentDimension, pipeline);
 
 			if (BlockRenderingSettings.INSTANCE.isReloadRequired()) {
-				if (Minecraft.getInstance().levelRenderer != null) {
-					Minecraft.getInstance().levelRenderer.allChanged();
+				if (MinecraftClient.getInstance().worldRenderer != null) {
+                    MinecraftClient.getInstance().worldRenderer.reload();
 				}
 
 				BlockRenderingSettings.INSTANCE.clearReloadRequired();
@@ -102,13 +102,13 @@ public class PipelineManager {
 		//
 		// Without this code, there will be weird issues when reloading certain shaderpacks.
 		for (int i = 0; i < 16; i++) {
-			GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0 + i);
-			GlStateManager._bindTexture(0);
+			GlStateManager.activeTexture(GL20C.GL_TEXTURE0 + i);
+			GlStateManager.bindTexture(0);
 		}
 
 		// Set the active texture unit to unit 0
 		//
 		// This seems to be what most code expects. It's a sane default in any case.
-		GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0);
+		GlStateManager.activeTexture(GL20C.GL_TEXTURE0);
 	}
 }

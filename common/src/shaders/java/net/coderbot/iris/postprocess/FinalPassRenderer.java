@@ -30,12 +30,10 @@ import net.coderbot.iris.shaderpack.ProgramSource;
 import net.coderbot.iris.shadows.ShadowRenderTargets;
 import net.coderbot.iris.uniforms.CommonUniforms;
 import net.coderbot.iris.uniforms.FrameUpdateNotifier;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11C;
-import org.lwjgl.opengl.GL15C;
-import org.lwjgl.opengl.GL20C;
-import org.lwjgl.opengl.GL30C;
+import org.lwjgl.opengl.*;
 
 import java.util.Map;
 import java.util.Objects;
@@ -94,8 +92,8 @@ public class FinalPassRenderer {
 		// passes that write to framebuffers).
 		this.baseline = renderTargets.createGbufferFramebuffer(flippedBuffers, new int[] {0});
 		this.colorHolder = new GlFramebuffer();
-		this.lastColorTextureId = Minecraft.getInstance().getMainRenderTarget().getColorTextureId();
-		this.lastColorTextureVersion = ((Blaze3dRenderTargetExt) Minecraft.getInstance().getMainRenderTarget()).iris$getColorBufferVersion();
+		this.lastColorTextureId = MinecraftClient.getInstance().getFramebuffer().colorAttachment;
+		this.lastColorTextureVersion = ((Blaze3dRenderTargetExt) MinecraftClient.getInstance().getFramebuffer()).iris$getColorBufferVersion();
 		this.colorHolder.addColorAttachment(0, lastColorTextureId);
 
 		// TODO: We don't actually fully swap the content, we merely copy it from alt to main
@@ -125,7 +123,7 @@ public class FinalPassRenderer {
 
 		this.swapPasses = swapPasses.build();
 
-		GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
+		GL30.glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
 	}
 
 	private static final class Pass {
@@ -152,9 +150,9 @@ public class FinalPassRenderer {
 		RenderSystem.disableAlphaTest();
 		RenderSystem.depthMask(false);
 
-		final com.mojang.blaze3d.pipeline.RenderTarget main = Minecraft.getInstance().getMainRenderTarget();
-		final int baseWidth = main.width;
-		final int baseHeight = main.height;
+		final Framebuffer main = MinecraftClient.getInstance().getFramebuffer();
+		final int baseWidth = main.viewportWidth;
+		final int baseHeight = main.viewportHeight;
 
 		// Note that since DeferredWorldRenderingPipeline uses the depth texture of the main Minecraft framebuffer,
 		// we'll be writing to that depth buffer directly automatically and won't need to futz around with copying
@@ -169,9 +167,9 @@ public class FinalPassRenderer {
 		//
 		// This is not a concern for depthtex1 / depthtex2 since the copy call extracts the depth values, and the
 		// shader pack only ever uses them to read the depth values.
-		if (((Blaze3dRenderTargetExt) main).iris$getColorBufferVersion() != lastColorTextureVersion || main.getColorTextureId() != lastColorTextureId) {
+		if (((Blaze3dRenderTargetExt) main).iris$getColorBufferVersion() != lastColorTextureVersion || main.colorAttachment != lastColorTextureId) {
 			lastColorTextureVersion = ((Blaze3dRenderTargetExt) main).iris$getColorBufferVersion();
-			this.lastColorTextureId = main.getColorTextureId();
+			this.lastColorTextureId = main.colorAttachment;
 			colorHolder.addColorAttachment(0, lastColorTextureId);
 		}
 
@@ -216,7 +214,7 @@ public class FinalPassRenderer {
 			// https://stackoverflow.com/a/23994979/18166885
 			this.baseline.bindAsReadBuffer();
 
-			IrisRenderSystem.copyTexSubImage2D(main.getColorTextureId(), GL11C.GL_TEXTURE_2D, 0, 0, 0, 0, 0, baseWidth, baseHeight);
+			IrisRenderSystem.copyTexSubImage2D(main.colorAttachment, GL11C.GL_TEXTURE_2D, 0, 0, 0, 0, 0, baseWidth, baseHeight);
 		}
 
 		RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
@@ -238,15 +236,15 @@ public class FinalPassRenderer {
 			swapPass.from.bind();
 
 			RenderSystem.bindTexture(swapPass.targetTexture);
-			GlStateManager._glCopyTexSubImage2D(GL20C.GL_TEXTURE_2D, 0, 0, 0, 0, 0, swapPass.width, swapPass.height);
+            GL30.glCopyTexSubImage2D(GL20C.GL_TEXTURE_2D, 0, 0, 0, 0, 0, swapPass.width, swapPass.height);
 		}
 
 		// Make sure to reset the viewport to how it was before... Otherwise weird issues could occur.
 		// Also bind the "main" framebuffer if it isn't already bound.
-		main.bindWrite(true);
+		main.bind(true);
 		ProgramUniforms.clearActiveUniforms();
 		ProgramSamplers.clearActiveSamplers();
-		GlStateManager._glUseProgram(0);
+        GL30.glUseProgram(0);
 
 		for (int i = 0; i < SamplerLimits.get().getMaxTextureUnits(); i++) {
 			// Unbind all textures that we may have used.

@@ -1,10 +1,18 @@
 package net.coderbot.iris.postprocess;
 
+import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.coderbot.iris.gl.IrisRenderSystem;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormatElement;
+import net.minecraft.client.render.VertexFormats;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20C;
+
+import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * Renders a full-screen textured quad to the screen. Used in composite / deferred rendering.
@@ -44,7 +52,35 @@ public class FullScreenQuadRenderer {
 		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         GL15.glBindBuffer(GL20C.GL_ARRAY_BUFFER, quadBuffer);
-		DefaultVertexFormat.POSITION_TEX.setupBufferState(0L);
+        VertexFormat vertexFormat = VertexFormats.POSITION_TEXTURE;
+        int i = vertexFormat.getVertexSize();
+        List<VertexFormatElement> list = vertexFormat.getElements();
+
+        for(int j = 0; j < list.size(); ++j) {
+            VertexFormatElement vertexFormatElement = (VertexFormatElement)list.get(j);
+            VertexFormatElement.Type type = vertexFormatElement.getType();
+            int k = vertexFormatElement.getFormat().getGlId();
+            int l = vertexFormatElement.getIndex();
+            switch (type) {
+                case POSITION:
+                    GL11.glVertexPointer(vertexFormatElement.getCount(), k, i, vertexFormat.getIndex(j));
+                    GL11.glEnableClientState(32884);
+                    break;
+                case UV:
+                    GLX.gl13ClientActiveTexture(GLX.textureUnit + l);
+                    GL11.glTexCoordPointer(vertexFormatElement.getCount(), k, i, vertexFormat.getIndex(j));
+                    GL11.glEnableClientState(32888);
+                    GLX.gl13ClientActiveTexture(GLX.textureUnit);
+                    break;
+                case COLOR:
+                    GL11.glColorPointer(vertexFormatElement.getCount(), k, i, vertexFormat.getIndex(j));
+                    GL11.glEnableClientState(32886);
+                    break;
+                case NORMAL:
+                    GL11.glNormalPointer(k, i, vertexFormat.getIndex(j));
+                    GL11.glEnableClientState(32885);
+            }
+        }
 	}
 
 	public void renderQuad() {
@@ -53,8 +89,30 @@ public class FullScreenQuadRenderer {
 
 	@SuppressWarnings("deprecation")
 	public static void end() {
-		DefaultVertexFormat.POSITION_TEX.clearBufferState();
-		GL15.glBindBuffer(GL20C.GL_ARRAY_BUFFER, 0);
+        VertexFormat vertexFormat = VertexFormats.POSITION_TEXTURE;
+        int j = 0;
+        List<VertexFormatElement> list = vertexFormat.getElements();
+        for(int m = list.size(); j < m; ++j) {
+            VertexFormatElement vertexFormatElement2 = (VertexFormatElement)list.get(j);
+            VertexFormatElement.Type type2 = vertexFormatElement2.getType();
+            int l = vertexFormatElement2.getIndex();
+            switch (type2) {
+                case POSITION:
+                    GL11.glDisableClientState(32884);
+                    break;
+                case UV:
+                    GLX.gl13ClientActiveTexture(GLX.textureUnit + l);
+                    GL11.glDisableClientState(32888);
+                    GLX.gl13ClientActiveTexture(GLX.textureUnit);
+                    break;
+                case COLOR:
+                    GL11.glDisableClientState(32886);
+                    GlStateManager.clearColor();
+                    break;
+                case NORMAL:
+                    GL11.glDisableClientState(32885);
+            }
+        }		GL15.glBindBuffer(GL20C.GL_ARRAY_BUFFER, 0);
 
 		RenderSystem.enableDepthTest();
 

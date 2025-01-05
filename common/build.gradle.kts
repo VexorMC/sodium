@@ -51,13 +51,13 @@ dependencies {
 
     implementation("org.javassist:javassist:3.29.2-GA")
     implementation(platform("org.lwjgl:lwjgl-bom:3.3.5"))
-
+    implementation("org.anarres:jcpp:1.4.14")
     implementation("org.lwjgl:lwjgl")
     implementation("org.lwjgl:lwjgl-glfw")
     implementation("org.lwjgl:lwjgl-openal")
     implementation("org.lwjgl:lwjgl-opengl")
     implementation("org.lwjgl:lwjgl-stb")
-
+    implementation("io.github.douira:glsl-transformer:1.0.1")
     arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
         runtimeOnly("org.lwjgl:lwjgl::natives-$platform")
         runtimeOnly("org.lwjgl:lwjgl-glfw::natives-$platform")

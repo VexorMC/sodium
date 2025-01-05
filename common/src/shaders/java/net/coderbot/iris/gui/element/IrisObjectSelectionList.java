@@ -1,8 +1,5 @@
 package net.coderbot.iris.gui.element;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.ObjectSelectionList;
-
 public class IrisObjectSelectionList<E extends ObjectSelectionList.Entry<E>> extends ObjectSelectionList<E> {
 	public IrisObjectSelectionList(Minecraft client, int width, int height, int top, int bottom, int left, int right, int itemHeight) {
 		super(client, width, height, top, bottom, itemHeight);
