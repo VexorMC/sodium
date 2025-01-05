@@ -68,7 +68,19 @@ public abstract class ShaderChunkRenderer implements ChunkRenderer {
 
         ChunkShaderOptions options = new ChunkShaderOptions(ChunkFogMode.SMOOTH, pass, this.vertexType);
 
-        this.activeProgram = this.compileProgram(options);
+        WorldRenderingPipeline pipeline = Iris.getPipelineManager().getPipelineNullable();
+        GlProgram<ChunkShaderInterface> program = null;
+
+        if (pipeline instanceof IrisRenderingPipeline irisRenderingPipeline) {
+            irisRenderingPipeline.getSodiumPrograms().getFramebuffer(pass).bind();
+            program = irisRenderingPipeline.getSodiumPrograms().getProgram(pass);
+        }
+
+        if (program == null) {
+            program = this.compileProgram(options);
+        }
+
+        this.activeProgram = program;
         this.activeProgram.bind();
         this.activeProgram.getInterface()
                 .setupState();
@@ -88,5 +100,4 @@ public abstract class ShaderChunkRenderer implements ChunkRenderer {
         this.programs.values()
                 .forEach(GlProgram::delete);
     }
-
 }
