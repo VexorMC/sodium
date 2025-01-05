@@ -16,7 +16,7 @@ public class MixinGlStateManager {
 	@Shadow
 	private static int activeTexture;
 
-	@Inject(method = "_enableTexture()V", at = @At("HEAD"))
+	@Inject(method = "enableTexture()V", at = @At("HEAD"))
 	private static void iris$onEnableTexture(CallbackInfo ci) {
 		if (activeTexture == IrisSamplers.ALBEDO_TEXTURE_UNIT) {
 			StateTracker.INSTANCE.albedoSampler = true;
@@ -31,7 +31,7 @@ public class MixinGlStateManager {
 		Iris.getPipelineManager().getPipeline().ifPresent(p -> p.setInputs(StateTracker.INSTANCE.getInputs()));
 	}
 
-	@Inject(method = "_disableTexture()V", at = @At("HEAD"))
+	@Inject(method = "disableTexture()V", at = @At("HEAD"))
 	private static void iris$onDisableTexture(CallbackInfo ci) {
 		if (activeTexture == IrisSamplers.ALBEDO_TEXTURE_UNIT) {
 			StateTracker.INSTANCE.albedoSampler = false;
@@ -44,10 +44,5 @@ public class MixinGlStateManager {
 		}
 
 		Iris.getPipelineManager().getPipeline().ifPresent(p -> p.setInputs(StateTracker.INSTANCE.getInputs()));
-	}
-
-	@Inject(method = "_drawArrays(III)V", at = @At("HEAD"))
-	private static void iris$beforeDrawArrays(int mode, int first, int count, CallbackInfo ci) {
-		Iris.getPipelineManager().getPipeline().ifPresent(WorldRenderingPipeline::syncProgram);
 	}
 }

@@ -1,10 +1,9 @@
 package net.coderbot.iris.mixin.vertices;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.coderbot.iris.block_rendering.BlockRenderingSettings;
 import net.coderbot.iris.vertices.ImmediateState;
 import net.coderbot.iris.vertices.IrisVertexFormats;
+import net.minecraft.client.render.VertexFormat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,33 +14,5 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(VertexFormat.class)
 public class MixinVertexFormat {
-	@Inject(method = "setupBufferState", at = @At("HEAD"), cancellable = true)
-	private void iris$onSetupBufferState(long pointer, CallbackInfo ci) {
-		if (BlockRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat() && ImmediateState.renderWithExtendedVertexFormat) {
-			if ((Object) this == DefaultVertexFormat.BLOCK || (Object) this == DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP) {
-				IrisVertexFormats.TERRAIN.setupBufferState(pointer);
 
-				ci.cancel();
-			} else if ((Object) this == DefaultVertexFormat.NEW_ENTITY) {
-				IrisVertexFormats.ENTITY.setupBufferState(pointer);
-
-				ci.cancel();
-			}
-		}
-	}
-
-	@Inject(method = "clearBufferState", at = @At("HEAD"), cancellable = true)
-	private void iris$onClearBufferState(CallbackInfo ci) {
-		if (BlockRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat() && ImmediateState.renderWithExtendedVertexFormat) {
-			if ((Object) this == DefaultVertexFormat.BLOCK || (Object) this == DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP) {
-				IrisVertexFormats.TERRAIN.clearBufferState();
-
-				ci.cancel();
-			} else if ((Object) this == DefaultVertexFormat.NEW_ENTITY) {
-				IrisVertexFormats.ENTITY.clearBufferState();
-
-				ci.cancel();
-			}
-		}
-	}
 }

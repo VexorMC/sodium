@@ -1,10 +1,10 @@
 package net.coderbot.iris.mixin.vertices;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.coderbot.iris.block_rendering.BlockRenderingSettings;
 import net.coderbot.iris.vertices.IrisVertexFormats;
+import net.minecraft.client.render.VertexBuffer;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -27,9 +27,9 @@ public class MixinVertexBuffer {
 			// vertices will be drawn.
 			//
 			// Needless to say, that is not good if you don't like access violation crashes!
-			if (format == DefaultVertexFormat.BLOCK) {
+			if (format == VertexFormats.BLOCK) {
 				this.format = IrisVertexFormats.TERRAIN;
-			} else if (format == DefaultVertexFormat.NEW_ENTITY || format == DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP) {
+			} else if (format == VertexFormats.ENTITY || format == VertexFormats.POSITION_TEXTURE_COLOR) {
 				this.format = IrisVertexFormats.ENTITY;
 			}
 		}

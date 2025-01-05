@@ -1,13 +1,12 @@
 package net.coderbot.iris.mixin.fantastic;
 
-import net.coderbot.iris.fantastic.IrisParticleRenderTypes;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.BarrierParticle;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,22 +20,13 @@ public class MixinBarrierParticle {
 	private boolean isOpaque;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void iris$resolveTranslucency(ClientLevel level, double x, double y, double z, ItemLike itemConvertible, CallbackInfo ci) {
-		if (itemConvertible instanceof BlockItem) {
-			BlockItem blockItem = (BlockItem) itemConvertible;
+	private void iris$resolveTranslucency(World world, double d, double e, double f, Item item, CallbackInfo ci) {
+		if (item instanceof BlockItem blockItem) {
+			RenderLayer type = blockItem.getBlock().getRenderLayerType();
 
-			RenderType type = ItemBlockRenderTypes.getChunkRenderType(blockItem.getBlock().defaultBlockState());
-
-			if (type == RenderType.solid() || type == RenderType.cutout() || type == RenderType.cutoutMipped()) {
+			if (type == RenderLayer.SOLID || type == RenderLayer.CUTOUT || type == RenderLayer.CUTOUT_MIPPED) {
 				isOpaque = true;
 			}
-		}
-	}
-
-	@Inject(method = "getRenderType", at = @At("HEAD"), cancellable = true)
-	private void iris$overrideParticleRenderType(CallbackInfoReturnable<ParticleRenderType> cir) {
-		if (isOpaque) {
-			cir.setReturnValue(IrisParticleRenderTypes.OPAQUE_TERRAIN);
 		}
 	}
 }

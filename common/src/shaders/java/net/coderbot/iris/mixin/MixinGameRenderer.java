@@ -1,14 +1,13 @@
 package net.coderbot.iris.mixin;
 
-import com.mojang.blaze3d.platform.GlUtil;
+import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.coderbot.iris.Iris;
-import net.v0.IrisApi;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.item.HeldItemRenderer;
+import net.minecraft.resource.ResourceManager;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,21 +21,14 @@ public class MixinGameRenderer {
 	private boolean renderHand;
 
 	@Inject(method = "<init>", at = @At("TAIL"))
-	private void iris$logSystem(Minecraft client, ResourceManager resourceManager, RenderBuffers bufferBuilderStorage,
-								CallbackInfo ci) {
+	private void iris$logSystem(MinecraftClient minecraftClient, ResourceManager resourceManager, CallbackInfo ci) {
 		Iris.logger.info("Hardware information:");
-		Iris.logger.info("CPU: " + GlUtil.getCpuInfo());
-		Iris.logger.info("GPU: " + GlUtil.getRenderer() + " (Supports OpenGL " + GlUtil.getOpenGLVersion() + ")");
+		Iris.logger.info("CPU: " + GLX.getProcessor());
+		Iris.logger.info("GPU: " + GL11.glGetString(7937) + " (Supports OpenGL " + GL11.glGetString(7938) + ")");
 		Iris.logger.info("OS: " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ")");
 	}
 
-	@Redirect(method = "renderItemInHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderHandsWithItems(FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/player/LocalPlayer;I)V"))
-	private void disableVanillaHandRendering(ItemInHandRenderer itemInHandRenderer, float tickDelta, PoseStack poseStack, BufferSource bufferSource, LocalPlayer localPlayer, int light) {
-		if (IrisApi.getInstance().isShaderPackInUse()) {
-			return;
-		}
-
-		itemInHandRenderer.renderHandsWithItems(tickDelta, poseStack, bufferSource, localPlayer, light);
+	@Redirect(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderArmHoldingItem(F)V"))
+	private void disableVanillaHandRendering(HeldItemRenderer instance, float tickDelta) {
 	}
-
 }

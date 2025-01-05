@@ -1,8 +1,8 @@
 package net.coderbot.iris.mixin;
 
 import net.coderbot.iris.Iris;
-import net.minecraft.Formatting;
-import net.minecraft.client.gui.components.DebugScreenOverlay;
+import net.minecraft.client.gui.hud.DebugHud;
+import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,7 +16,7 @@ import java.text.StringCharacterIterator;
 import java.util.List;
 import java.util.Objects;
 
-@Mixin(DebugScreenOverlay.class)
+@Mixin(DebugHud.class)
 public abstract class MixinDebugScreenOverlay {
 	@Unique
 	private static final List<BufferPoolMXBean> iris$pools = ManagementFactory.getPlatformMXBeans(BufferPoolMXBean.class);
@@ -37,7 +37,7 @@ public abstract class MixinDebugScreenOverlay {
 		iris$directPool = Objects.requireNonNull(found);
 	}
 
-    @Inject(method = "getSystemInformation", at = @At("RETURN"))
+    @Inject(method = "getRightText", at = @At("RETURN"))
     private void iris$appendShaderPackText(CallbackInfoReturnable<List<String>> cir) {
         List<String> messages = cir.getReturnValue();
 
@@ -61,14 +61,9 @@ public abstract class MixinDebugScreenOverlay {
 		}
 	}
 
-	@Inject(method = "getGameInformation", at = @At("RETURN"))
+	@Inject(method = "getLeftText", at = @At("RETURN"))
 	private void iris$appendShadowDebugText(CallbackInfoReturnable<List<String>> cir) {
 		List<String> messages = cir.getReturnValue();
-
-		if (!Iris.isSodiumInstalled() && Iris.getCurrentPack().isPresent()) {
-			messages.add(1, Formatting.YELLOW + "[" + Iris.MODNAME + "] Sodium isn't installed; you will have poor performance.");
-			messages.add(2, Formatting.YELLOW + "[" + Iris.MODNAME + "] Install Sodium if you want to run benchmarks or get higher FPS!");
-		}
 
 		Iris.getPipelineManager().getPipeline().ifPresent(pipeline -> pipeline.addDebugText(messages));
 	}

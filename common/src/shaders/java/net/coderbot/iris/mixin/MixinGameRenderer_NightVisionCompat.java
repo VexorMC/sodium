@@ -1,8 +1,8 @@
 package net.coderbot.iris.mixin;
 
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,12 +17,12 @@ public class MixinGameRenderer_NightVisionCompat {
 	//
 	// It's optional because of Night Vision Flash Be Gone overwriting this method, but having this injection
 	// succeed avoids a lot of spurious (but silently caught) NullPointerExceptions.
-	@Inject(method = "getNightVisionScale", at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/world/effect/MobEffectInstance;getDuration()I"), cancellable = true,
+	@Inject(method = "getNightVisionStrength", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/entity/effect/StatusEffectInstance;getDuration()I"), cancellable = true,
 			require = 0)
-	private static void iris$safecheckNightvisionStrength(LivingEntity livingEntity, float partialTicks,
-														  CallbackInfoReturnable<Float> cir){
-		if (livingEntity.getEffect(MobEffects.NIGHT_VISION) == null) {
+	private void iris$safecheckNightvisionStrength(LivingEntity livingEntity, float partialTicks,
+                                                   CallbackInfoReturnable<Float> cir){
+		if (livingEntity.getEffectInstance(StatusEffect.NIGHTVISION) == null) {
 			cir.setReturnValue(0.0f);
 		}
 	}

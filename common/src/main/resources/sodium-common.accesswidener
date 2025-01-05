@@ -18,3 +18,4 @@ accessible class com/mojang/blaze3d/platform/GlStateManager$BooleanState
 accessible class com/mojang/blaze3d/platform/GlStateManager$ColorMask
 accessible class com/mojang/blaze3d/platform/GlStateManager$DepthTestState
 accessible class com/mojang/blaze3d/platform/GlStateManager$Texture2DState
+accessible class com/mojang/blaze3d/platform/GlStateManager$AlphaTestState

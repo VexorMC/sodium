@@ -1,10 +1,5 @@
 package net.coderbot.iris.mixin.vertices;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferVertexConsumer;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.coderbot.iris.block_rendering.BlockRenderingSettings;
 import net.coderbot.iris.vendored.joml.Vector3f;
 import net.coderbot.iris.vertices.BlockSensitiveBufferBuilder;
@@ -13,6 +8,10 @@ import net.coderbot.iris.vertices.ExtendedDataHelper;
 import net.coderbot.iris.vertices.ExtendingBufferBuilder;
 import net.coderbot.iris.vertices.IrisVertexFormats;
 import net.coderbot.iris.vertices.NormalHelper;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormatElement;
+import net.minecraft.client.render.VertexFormats;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +27,7 @@ import java.nio.ByteBuffer;
  * Dynamically and transparently extends the vanilla vertex formats with additional data
  */
 @Mixin(BufferBuilder.class)
-public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockSensitiveBufferBuilder, ExtendingBufferBuilder {
+public abstract class MixinBufferBuilder implements BlockSensitiveBufferBuilder, ExtendingBufferBuilder {
 	@Unique
 	private boolean extending;
 
@@ -65,23 +64,18 @@ public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockS
 	@Unique
 	private int currentLocalPosZ;
 
-	@Shadow
-	private boolean fastFormat;
-
-	@Shadow
-	private boolean fullFormat;
 
 	@Shadow
 	private ByteBuffer buffer;
 
 	@Shadow
-	private int mode;
+	private int drawMode;
 
 	@Shadow
 	private VertexFormat format;
 
 	@Shadow
-	private int nextElementByte;
+	private int currentElementId;
 
 	@Shadow
 	private @Nullable VertexFormatElement currentElement;
@@ -89,10 +83,10 @@ public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockS
 	@Shadow
 	public abstract void begin(int drawMode, VertexFormat vertexFormat);
 
-	@Shadow
-	public abstract void putShort(int i, short s);
+    @Shadow
+    protected abstract void nextElement();
 
-	@Override
+    @Override
 	public void iris$beginWithoutExtending(int drawMode, VertexFormat vertexFormat) {
 		iris$shouldNotExtend = true;
 		begin(drawMode, vertexFormat);
@@ -102,19 +96,19 @@ public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockS
 	@Inject(method = "begin", at = @At("HEAD"))
 	private void iris$onBegin(int drawMode, VertexFormat format, CallbackInfo ci) {
 		boolean shouldExtend = (!iris$shouldNotExtend) && BlockRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat();
-		extending = shouldExtend && (format == DefaultVertexFormat.BLOCK || format == DefaultVertexFormat.NEW_ENTITY
-			|| format == DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+		extending = shouldExtend && (format == VertexFormats.BLOCK || format == VertexFormats.ENTITY
+			|| format == VertexFormats.POSITION_TEXTURE_COLOR);
 		vertexCount = 0;
 
 		if (extending) {
-			injectNormal = format == DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP;
+			injectNormal = format == VertexFormats.POSITION_TEXTURE_COLOR;
 		}
 	}
 
 	@Inject(method = "begin", at = @At("RETURN"))
 	private void iris$afterBegin(int drawMode, VertexFormat format, CallbackInfo ci) {
 		if (extending) {
-			if (format == DefaultVertexFormat.NEW_ENTITY) {
+			if (format == VertexFormats.ENTITY) {
 				this.format = IrisVertexFormats.ENTITY;
 				this.iris$isTerrain = false;
 			} else {
@@ -125,29 +119,26 @@ public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockS
 		}
 	}
 
-	@Inject(method = "discard", at = @At("HEAD"))
+	@Inject(method = "reset", at = @At("HEAD"))
 	private void iris$onReset(CallbackInfo ci) {
 		extending = false;
 		vertexCount = 0;
 	}
 
-	@Inject(method = "switchFormat", at = @At("RETURN"))
-	private void iris$preventHardcodedVertexWriting(VertexFormat format, CallbackInfo ci) {
+	@Inject(method = "begin", at = @At("RETURN"))
+	private void iris$preventHardcodedVertexWriting(int drawMode, VertexFormat format, CallbackInfo ci) {
 		if (!extending) {
 			return;
 		}
-
-		fastFormat = false;
-		fullFormat = false;
 	}
 
-	@Inject(method = "endVertex", at = @At("HEAD"))
+	@Inject(method = "next", at = @At("HEAD"))
 	private void iris$beforeNext(CallbackInfo ci) {
 		if (!extending) {
 			return;
 		}
 
-		if (injectNormal && currentElement == DefaultVertexFormat.ELEMENT_NORMAL) {
+		if (injectNormal && currentElement == VertexFormats.NORMAL_ELEMENT) {
 			this.putInt(0, 0);
 			this.nextElement();
 		}
@@ -167,7 +158,7 @@ public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockS
 		this.nextElement();
 		if (iris$isTerrain) {
 			// MID_BLOCK_ELEMENT
-			int posIndex = this.nextElementByte - 48;
+			int posIndex = this.currentElementId - 48;
 			float x = buffer.getFloat(posIndex);
 			float y = buffer.getFloat(posIndex + 4);
 			float z = buffer.getFloat(posIndex + 8);
@@ -177,7 +168,7 @@ public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockS
 
 		vertexCount++;
 
-		if (mode == GL11.GL_QUADS && vertexCount == 4 || mode == GL11.GL_TRIANGLES && vertexCount == 3) {
+		if (drawMode == GL11.GL_QUADS && vertexCount == 4 || drawMode == GL11.GL_TRIANGLES && vertexCount == 3) {
 			fillExtendedData(vertexCount);
 		}
 	}
@@ -188,7 +179,7 @@ public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockS
 
 		int stride = format.getVertexSize();
 
-		polygon.setup(buffer, nextElementByte, stride, vertexAmount);
+		polygon.setup(buffer, currentElementId, stride, vertexAmount);
 
 		float midU = 0;
 		float midV = 0;
@@ -227,10 +218,10 @@ public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockS
 		}
 
 		for (int vertex = 0; vertex < vertexAmount; vertex++) {
-			buffer.putFloat(nextElementByte - midUOffset - stride * vertex, midU);
-			buffer.putFloat(nextElementByte - midVOffset - stride * vertex, midV);
-			buffer.putInt(nextElementByte - normalOffset - stride * vertex, packedNormal);
-			buffer.putInt(nextElementByte - tangentOffset - stride * vertex, tangent);
+			buffer.putFloat(currentElementId - midUOffset - stride * vertex, midU);
+			buffer.putFloat(currentElementId - midVOffset - stride * vertex, midV);
+			buffer.putInt(currentElementId - normalOffset - stride * vertex, packedNormal);
+			buffer.putInt(currentElementId - tangentOffset - stride * vertex, tangent);
 		}
 	}
 
@@ -252,8 +243,16 @@ public abstract class MixinBufferBuilder implements BufferVertexConsumer, BlockS
 		this.currentLocalPosZ = 0;
 	}
 
-	@Unique
-	private void putInt(int i, int value) {
-		this.buffer.putInt(this.nextElementByte + i, value);
-	}
+    @Unique
+    private void putInt(int i, int value) {
+        this.buffer.putInt(this.currentElementId + i, value);
+    }
+    @Unique
+    private void putShort(int i, short value) {
+        this.buffer.putShort(this.currentElementId + i, value);
+    }
+    @Unique
+    private void putFloat(int i, float value) {
+        this.buffer.putFloat(this.currentElementId + i, value);
+    }
 }
