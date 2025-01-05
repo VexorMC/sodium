@@ -35,25 +35,27 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBTextureSwizzle;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20C;
 import org.lwjgl.opengl.GL30C;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
 public class ShadowRenderer {
-	public static Matrix4f MODELVIEW;
-	public static Matrix4f PROJECTION;
-	public static List<BlockEntity> visibleBlockEntities;
+    public static Matrix4f MODELVIEW = new Matrix4f();
+    public static FloatBuffer mvBuffer = BufferUtils.createFloatBuffer(16);
+    public static Matrix4f PROJECTION = new Matrix4f();
+    public static List<BlockEntity> visibleBlockEntities;
 	public static boolean ACTIVE = false;
 	private final float halfPlaneLength;
 	private final float renderDistanceMultiplier;
@@ -354,10 +356,17 @@ public class ShadowRenderer {
 
 		profiler.swap("build geometry");
 
+        GL11.glPushMatrix();
+        mvBuffer.clear().rewind();
+        modelView.last().pose().get(mvBuffer);
+        GL11.glLoadMatrixf(mvBuffer);
+
 		for (Entity entity : renderedEntities) {
             dispatcher.renderEntity(entity, tickDelta);
 			shadowEntities++;
 		}
+
+        GL11.glPopMatrix();
 
 		renderedShadowEntities = shadowEntities;
 
@@ -379,12 +388,19 @@ public class ShadowRenderer {
 
 		int shadowEntities = 0;
 
+        GL11.glPushMatrix();
+        mvBuffer.clear().rewind();
+        modelView.last().pose().get(mvBuffer);
+        GL11.glLoadMatrixf(mvBuffer);
+
 		if (player.hasVehicle()) {
             dispatcher.renderEntity(player.vehicle, tickDelta);
 			shadowEntities++;
 		}
 
         dispatcher.renderEntity(player, tickDelta);
+
+        GL11.glPopMatrix();
 
 		shadowEntities++;
 
