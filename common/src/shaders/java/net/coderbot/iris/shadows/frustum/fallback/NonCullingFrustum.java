@@ -1,12 +1,9 @@
 package net.coderbot.iris.shadows.frustum.fallback;
 
-import com.mojang.math.Matrix4f;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.client.render.Frustum;
 
 public class NonCullingFrustum extends Frustum {
 	public NonCullingFrustum() {
-		super(new Matrix4f(), new Matrix4f());
 	}
 
 	// for Sodium
@@ -22,8 +19,8 @@ public class NonCullingFrustum extends Frustum {
 		return false;
 	}
 
-	@Override
-	public boolean isVisible(AABB aabb) {
-		return true;
-	}
+    @Override
+    public boolean isInFrustum(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        return true;
+    }
 }

@@ -11,13 +11,5 @@ import org.spongepowered.asm.mixin.Overwrite;
  */
 @Mixin(GlStateManager.class)
 public class MixinGlStateManager {
-	/**
-	 * @author coderbot16
-	 * @reason Fix mojang copy-paste error
-	 */
-	@Overwrite
-	public static void _disableVertexAttribArray(int index) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-		GL20C.glDisableVertexAttribArray(index);
-	}
+
 }

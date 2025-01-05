@@ -1,22 +1,22 @@
 package net.coderbot.iris.shadows.frustum.fallback;
 
-import com.mojang.math.Matrix4f;
 import net.coderbot.iris.shadows.frustum.BoxCuller;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Frustum;
 
 public class BoxCullingFrustum extends Frustum {
 	private final BoxCuller boxCuller;
 
 	public BoxCullingFrustum(BoxCuller boxCuller) {
-		super(new Matrix4f(), new Matrix4f());
-
 		this.boxCuller = boxCuller;
 	}
 
 	@Override
-	public void prepare(double cameraX, double cameraY, double cameraZ) {
-		boxCuller.setPosition(cameraX, cameraY, cameraZ);
+	public void start() {
+        double cameraX = MinecraftClient.getInstance().getCameraEntity().getPos().x;
+        double cameraY = MinecraftClient.getInstance().getCameraEntity().getPos().y;
+        double cameraZ = MinecraftClient.getInstance().getCameraEntity().getPos().z;
+        boxCuller.setPosition(cameraX, cameraY, cameraZ);
 	}
 
 	// for Sodium
@@ -33,8 +33,8 @@ public class BoxCullingFrustum extends Frustum {
 		return false;
 	}
 
-	@Override
-	public boolean isVisible(AABB aabb) {
-		return !boxCuller.isCulled(aabb);
-	}
+    @Override
+    public boolean isInFrustum(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        return !boxCuller.isCulled((float)minX, (float)minY, (float)minZ, (float)maxX, (float)maxY, (float)maxZ);
+    }
 }

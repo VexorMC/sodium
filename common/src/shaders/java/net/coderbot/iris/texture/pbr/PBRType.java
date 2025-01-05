@@ -1,6 +1,5 @@
 package net.coderbot.iris.texture.pbr;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;

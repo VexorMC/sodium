@@ -1,10 +1,9 @@
 package net.coderbot.iris.postprocess;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.coderbot.iris.gl.IrisRenderSystem;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20C;
 
 /**
@@ -44,18 +43,18 @@ public class FullScreenQuadRenderer {
 
 		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-		GlStateManager._glBindBuffer(GL20C.GL_ARRAY_BUFFER, quadBuffer);
+        GL15.glBindBuffer(GL20C.GL_ARRAY_BUFFER, quadBuffer);
 		DefaultVertexFormat.POSITION_TEX.setupBufferState(0L);
 	}
 
 	public void renderQuad() {
-		GlStateManager._drawArrays(GL20C.GL_TRIANGLE_STRIP, 0, 4);
+		GL11.glDrawArrays(GL20C.GL_TRIANGLE_STRIP, 0, 4);
 	}
 
 	@SuppressWarnings("deprecation")
 	public static void end() {
 		DefaultVertexFormat.POSITION_TEX.clearBufferState();
-		GlStateManager._glBindBuffer(GL20C.GL_ARRAY_BUFFER, 0);
+		GL15.glBindBuffer(GL20C.GL_ARRAY_BUFFER, 0);
 
 		RenderSystem.enableDepthTest();
 

@@ -43,88 +43,71 @@ public class IrisRenderSystem {
 	}
 
 	public static void getIntegerv(int pname, int[] params) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glGetIntegerv(pname, params);
 	}
 
 	public static void getFloatv(int pname, float[] params) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glGetFloatv(pname, params);
 	}
 
 	public static void generateMipmaps(int texture, int mipmapTarget) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		dsaState.generateMipmaps(texture, mipmapTarget);
 	}
 
 	public static void bindAttributeLocation(int program, int index, CharSequence name) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glBindAttribLocation(program, index, name);
 	}
 
 	public static void texImage2D(int texture, int target, int level, int internalformat, int width, int height, int border, int format, int type, @Nullable ByteBuffer pixels) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GlStateManager.bindTexture(texture);
 		GL30C.glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 	}
 
 	public static void uniformMatrix4fv(int location, boolean transpose, FloatBuffer matrix) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glUniformMatrix4fv(location, transpose, matrix);
 	}
 
 	public static void copyTexImage2D(int target, int level, int internalFormat, int x, int y, int width, int height, int border) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glCopyTexImage2D(target, level, internalFormat, x, y, width, height, border);
 	}
 
 	public static void uniform1f(int location, float v0) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glUniform1f(location, v0);
 	}
 
 	public static void uniform1i(int location, int v0) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glUniform1i(location, v0);
 	}
 
 	public static void uniform2f(int location, float v0, float v1) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        GL30C.glUniform2f(location, v0, v1);
+		GL30C.glUniform2f(location, v0, v1);
 	}
 
 	public static void uniform2i(int location, int v0, int v1) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        GL30C.glUniform2i(location, v0, v1);
+		GL30C.glUniform2i(location, v0, v1);
 	}
 
 	public static void uniform3f(int location, float v0, float v1, float v2) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        GL30C.glUniform3f(location, v0, v1, v2);
+		GL30C.glUniform3f(location, v0, v1, v2);
 	}
 
 	public static void uniform4f(int location, float v0, float v1, float v2, float v3) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        GL30C.glUniform4f(location, v0, v1, v2, v3);
+		GL30C.glUniform4f(location, v0, v1, v2, v3);
 	}
 
 	public static void uniform4i(int location, int v0, int v1, int v2, int v3) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glUniform4i(location, v0, v1, v2, v3);
 	}
 
 	public static int getAttribLocation(int programId, String name) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		return GL30C.glGetAttribLocation(programId, name);
 	}
 
 	public static int getUniformLocation(int programId, String name) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		return GL30C.glGetUniformLocation(programId, name);
 	}
 
 	public static void texParameteriv(int texture, int target, int pname, int[] params) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		dsaState.texParameteriv(texture, target, pname, params);
 	}
 
@@ -133,62 +116,50 @@ public class IrisRenderSystem {
 	}
 
 	public static void texParameteri(int texture, int target, int pname, int param) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		dsaState.texParameteri(texture, target, pname, param);
 	}
 
 	public static void texParameterf(int texture, int target, int pname, float param) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		dsaState.texParameterf(texture, target, pname, param);
 	}
 
 	public static String getProgramInfoLog(int program) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		return GL30C.glGetProgramInfoLog(program);
 	}
 
 	public static String getShaderInfoLog(int shader) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		return GL30C.glGetShaderInfoLog(shader);
 	}
 
 	public static void drawBuffers(int framebuffer, int[] buffers) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		dsaState.drawBuffers(framebuffer, buffers);
 	}
 
 	public static void readBuffer(int framebuffer, int buffer) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		dsaState.readBuffer(framebuffer, buffer);
 	}
 
 	public static String getActiveUniform(int program, int index, int size, IntBuffer type, IntBuffer name) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		return GL30C.glGetActiveUniform(program, index, size, type, name);
 	}
 
 	public static void readPixels(int x, int y, int width, int height, int format, int type, float[] pixels) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glReadPixels(x, y, width, height, format, type, pixels);
 	}
 
 	public static void bufferData(int target, float[] data, int usage) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glBufferData(target, data, usage);
 	}
 
 	public static int bufferStorage(int target, float[] data, int usage) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		return dsaState.bufferStorage(target, data, usage);
 	}
 
 	public static void vertexAttrib4f(int index, float v0, float v1, float v2, float v3) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glVertexAttrib4f(index, v0, v1, v2, v3);
 	}
 
 	public static void detachShader(int program, int shader) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glDetachShader(program, shader);
 	}
 
@@ -197,12 +168,10 @@ public class IrisRenderSystem {
 	}
 
 	public static int getTexParameteri(int texture, int target, int pname) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		return dsaState.getTexParameteri(texture, target, pname);
 	}
 
 	public static void bindImageTexture(int unit, int texture, int level, boolean layered, int layer, int access, int format) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		if (GL.getCapabilities().OpenGL42) {
 			GL45C.glBindImageTexture(unit, texture, level, layered, layer, access, format);
 		} else {
@@ -243,17 +212,14 @@ public class IrisRenderSystem {
 	}
 
 	public static void disableBufferBlend(int buffer) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glDisablei(GL30C.GL_BLEND, buffer);
 	}
 
 	public static void enableBufferBlend(int buffer) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL30C.glEnablei(GL30C.GL_BLEND, buffer);
 	}
 
 	public static void blendFuncSeparatei(int buffer, int srcRGB, int dstRGB, int srcAlpha, int dstAlpha) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		GL40C.glBlendFuncSeparatei(buffer, srcRGB, dstRGB, srcAlpha, dstAlpha);
   }
   
@@ -265,7 +231,6 @@ public class IrisRenderSystem {
 
 	@Deprecated
 	public static void setupProjectionMatrix(float[] matrix) {
-		RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
 		RenderSystem.matrixMode(GL11.GL_PROJECTION);
 		RenderSystem.pushMatrix();
 		GL20.glLoadMatrixf(matrix);

@@ -5,11 +5,13 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gl.state.StateUpdateNotifiers;
+import net.coderbot.iris.mixin.GlStateManagerAccessor;
 import net.coderbot.iris.rendertarget.NativeImageBackedSingleColorTexture;
 import net.coderbot.iris.texture.TextureTracker;
 import net.coderbot.iris.texture.pbr.loader.PBRTextureLoader;
 import net.coderbot.iris.texture.pbr.loader.PBRTextureLoader.PBRTextureConsumer;
 import net.coderbot.iris.texture.pbr.loader.PBRTextureLoaderRegistry;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.AbstractTexture;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,10 +79,10 @@ public class PBRTextureManager {
 			Class<? extends AbstractTexture> clazz = texture.getClass();
 			PBRTextureLoader loader = PBRTextureLoaderRegistry.INSTANCE.getLoader(clazz);
 			if (loader != null) {
-				int previousTextureBinding = GlStateManager.getActiveTextureName();
+				int previousTextureBinding = GlStateManagerAccessor.getActiveTexture();
 				consumer.clear();
 				try {
-					loader.load(texture, Minecraft.getInstance().getResourceManager(), consumer);
+					loader.load(texture, MinecraftClient.getInstance().getResourceManager(), consumer);
 					return consumer.toHolder();
 				} catch (Exception e) {
 					Iris.logger.debug("Failed to load PBR textures for texture " + id, e);
@@ -110,8 +112,8 @@ public class PBRTextureManager {
 
 	public void close() {
 		clear();
-		defaultNormalTexture.close();
-		defaultSpecularTexture.close();
+		defaultNormalTexture.clearGlId();
+		defaultSpecularTexture.clearGlId();
 	}
 
 	private void closeHolder(PBRTextureHolder holder) {
@@ -127,11 +129,10 @@ public class PBRTextureManager {
 
 	private static void closeTexture(AbstractTexture texture) {
 		try {
-			texture.close();
+			texture.clearGlId();
 		} catch (Exception e) {
-			//
+			e.printStackTrace();
 		}
-		texture.releaseId();
 	}
 
 	public static void notifyPBRTexturesChanged() {

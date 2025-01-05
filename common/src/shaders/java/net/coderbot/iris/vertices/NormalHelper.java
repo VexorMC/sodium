@@ -17,7 +17,7 @@ package net.coderbot.iris.vertices;
  */
 
 import net.coderbot.iris.vendored.joml.Vector3f;
-import net.minecraft.util.Mth;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class NormalHelper {
@@ -29,10 +29,10 @@ public abstract class NormalHelper {
 	 * The extra value is for use by shaders.
 	 */
 	public static int packNormal(float x, float y, float z, float w) {
-		x = Mth.clamp(x, -1, 1);
-		y = Mth.clamp(y, -1, 1);
-		z = Mth.clamp(z, -1, 1);
-		w = Mth.clamp(w, -1, 1);
+		x = MathHelper.clamp(x, -1, 1);
+		y = MathHelper.clamp(y, -1, 1);
+		z = MathHelper.clamp(z, -1, 1);
+		w = MathHelper.clamp(w, -1, 1);
 
 		return ((int) (x * 127) & 0xFF) | (((int) (y * 127) & 0xFF) << 8) | (((int) (z * 127) & 0xFF) << 16) | (((int) (w * 127) & 0xFF) << 24);
 	}

@@ -5,8 +5,8 @@ import net.coderbot.iris.shadows.frustum.BoxCuller;
 import net.coderbot.iris.vendored.joml.Matrix4f;
 import net.coderbot.iris.vendored.joml.Vector3f;
 import net.coderbot.iris.vendored.joml.Vector4f;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Frustum;
 
 /**
  * A Frustum implementation that derives a tightly-fitted shadow pass frustum based on the player's camera frustum and
@@ -73,8 +73,6 @@ public class AdvancedShadowCullingFrustum extends Frustum {
 	public AdvancedShadowCullingFrustum(Matrix4f playerView, Matrix4f playerProjection, Vector3f shadowLightVectorFromOrigin,
 										BoxCuller boxCuller) {
 		// We're overriding all of the methods, don't pass any matrices down.
-		super(new com.mojang.math.Matrix4f(), new com.mojang.math.Matrix4f());
-
 		this.shadowLightVectorFromOrigin = shadowLightVectorFromOrigin;
 		BaseClippingPlanes baseClippingPlanes = new BaseClippingPlanes(playerView, playerProjection);
 
@@ -268,7 +266,11 @@ public class AdvancedShadowCullingFrustum extends Frustum {
 
 	// Note: These functions are copied & modified from the vanilla Frustum class.
 	@Override
-	public void prepare(double cameraX, double cameraY, double cameraZ) {
+	public void start() {
+        double cameraX = MinecraftClient.getInstance().getCameraEntity().getPos().x;
+        double cameraY = MinecraftClient.getInstance().getCameraEntity().getPos().y;
+        double cameraZ = MinecraftClient.getInstance().getCameraEntity().getPos().z;
+
 		if (this.boxCuller != null) {
 			boxCuller.setPosition(cameraX, cameraY, cameraZ);
 		}
@@ -278,14 +280,14 @@ public class AdvancedShadowCullingFrustum extends Frustum {
 		this.z = cameraZ;
 	}
 
-	@Override
-	public boolean isVisible(AABB aabb) {
-		if (boxCuller != null && boxCuller.isCulled(aabb)) {
-			return false;
-		}
+    @Override
+    public boolean isInFrustum(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        if (boxCuller != null && boxCuller.isCulled((float)minX, (float)minY, (float)minZ, (float)maxX, (float)maxY, (float)maxZ)) {
+            return false;
+        }
 
-		return this.isVisible(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
-	}
+        return isVisible(minX, minY, minZ, maxX, maxY, maxZ);
+    }
 
 	// For Sodium
 	// TODO: change this to respect intersections on 1.18+!

@@ -1,7 +1,6 @@
 package net.coderbot.iris.texture.pbr;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.TextureUtil;
 import net.coderbot.iris.mixin.texture.TextureAtlasSpriteAccessor;
 import net.coderbot.iris.texture.util.TextureExporter;
 import net.coderbot.iris.texture.util.TextureManipulationUtil;
@@ -9,6 +8,7 @@ import net.minecraft.client.resource.AnimationMetadata;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
+import net.minecraft.client.texture.TextureUtil;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
@@ -61,7 +61,7 @@ public class PBRAtlasTexture extends AbstractTexture {
 
 	public void upload(int atlasWidth, int atlasHeight, int mipLevel) {
 		int glId = getGlId();
-		TextureUtil.prepareImage(glId, mipLevel, atlasWidth, atlasHeight);
+		net.minecraft.client.texture.TextureUtil.prepareImage(glId, mipLevel, atlasWidth, atlasHeight);
 		TextureManipulationUtil.fillWithColor(glId, mipLevel, type.getDefaultValue());
 
 		for (Sprite sprite : sprites.values()) {
