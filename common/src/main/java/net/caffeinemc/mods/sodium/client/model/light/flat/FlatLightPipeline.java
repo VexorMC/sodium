@@ -5,6 +5,7 @@ import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
 import net.caffeinemc.mods.sodium.client.model.light.data.QuadLightData;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
+import net.coderbot.iris.block_rendering.BlockRenderingSettings;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
@@ -43,7 +44,11 @@ public class FlatLightPipeline implements LightPipeline {
         }
 
         Arrays.fill(out.lm, lightmap);
-        Arrays.fill(out.br, this.lightCache.getLevel().getBrightness(face, true));
+        if (BlockRenderingSettings.INSTANCE.shouldDisableDirectionalShading()) {
+            Arrays.fill(out.br, 1f);
+        } else {
+            Arrays.fill(out.br, this.lightCache.getLevel().getBrightness(face, true));
+        }
     }
 
     /**

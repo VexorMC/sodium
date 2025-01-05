@@ -1,8 +1,8 @@
 package net.coderbot.iris.shadow;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
+import net.coderbot.iris.vendored.joml.Matrix4f;
+import net.coderbot.iris.vendored.joml.Quaternionf;
 
 import java.nio.FloatBuffer;
 

@@ -46,6 +46,7 @@ import net.caffeinemc.mods.sodium.client.util.MathUtil;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.caffeinemc.mods.sodium.client.world.cloned.ClonedChunkSectionCache;
+import net.coderbot.iris.Iris;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.world.ClientWorld;
@@ -152,7 +153,7 @@ public class RenderSectionManager {
     private float getSearchDistance() {
         float distance;
 
-        if (SodiumClientMod.options().performance.useFogOcclusion) {
+        if (SodiumClientMod.options().performance.useFogOcclusion && Iris.getCurrentPack().isEmpty()) {
             distance = this.getEffectiveRenderDistance();
         } else {
             distance = this.getRenderDistance();

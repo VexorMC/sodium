@@ -21,7 +21,7 @@ public class PartialBinaryExpression extends PartialExpression implements Priori
 
 	@Override
 	public int getPriority() {
-		return this.op.priority();
+		return this.op.getPriority();
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.buffers.BakedChunkModelBuilder;
@@ -12,6 +13,11 @@ import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.builder.ChunkMeshBufferBuilder;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
+import net.coderbot.iris.block_rendering.BlockRenderingSettings;
+import net.coderbot.iris.compat.sodium.impl.block_context.BlockContextHolder;
+import net.coderbot.iris.compat.sodium.impl.block_context.ChunkBuildBuffersExt;
+import net.minecraft.block.BlockState;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -22,8 +28,11 @@ import java.util.List;
  * passes. This makes a best-effort attempt to pick a suitable size for each scratch buffer, but will never try to
  * shrink a buffer.
  */
-public class ChunkBuildBuffers {
+public class ChunkBuildBuffers implements ChunkBuildBuffersExt {
     private final Reference2ReferenceOpenHashMap<TerrainRenderPass, BakedChunkModelBuilder> builders = new Reference2ReferenceOpenHashMap<>();
+
+    @Unique
+    private BlockContextHolder contextHolder;
 
     private final ChunkVertexType vertexType;
 
@@ -38,6 +47,14 @@ public class ChunkBuildBuffers {
             }
 
             this.builders.put(pass, new BakedChunkModelBuilder(vertexBuffers));
+        }
+
+        Object2IntMap<BlockState> blockStateIds = BlockRenderingSettings.INSTANCE.getBlockStateIds();
+
+        if (blockStateIds != null) {
+            this.contextHolder = new BlockContextHolder(blockStateIds);
+        } else {
+            this.contextHolder = new BlockContextHolder();
         }
     }
 
@@ -108,4 +125,20 @@ public class ChunkBuildBuffers {
             builder.destroy();
         }
     }
+
+    @Override
+    public void iris$setLocalPos(int localPosX, int localPosY, int localPosZ) {
+        this.contextHolder.setLocalPos(localPosX, localPosY, localPosZ);
+    }
+
+    @Override
+    public void iris$setMaterialId(BlockState state, short renderType) {
+        this.contextHolder.set(state, renderType);
+    }
+
+    @Override
+    public void iris$resetBlockContext() {
+        this.contextHolder.reset();
+    }
+
 }

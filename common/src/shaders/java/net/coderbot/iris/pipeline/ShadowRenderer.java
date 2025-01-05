@@ -14,7 +14,6 @@ import net.coderbot.iris.shaderpack.PackShadowDirectives;
 import net.coderbot.iris.shaderpack.ProgramSource;
 import net.coderbot.iris.shadow.ShadowMatrices;
 import net.coderbot.iris.shadows.CullingDataCache;
-import net.coderbot.iris.shadows.Matrix4fAccess;
 import net.coderbot.iris.shadows.ShadowRenderTargets;
 import net.coderbot.iris.shadows.frustum.BoxCuller;
 import net.coderbot.iris.shadows.frustum.CullEverythingFrustum;
@@ -298,8 +297,8 @@ public class ShadowRenderer {
 
 			shadowLightVectorFromOrigin.normalize();
 
-			return holder.setInfo(new AdvancedShadowCullingFrustum(((Matrix4fAccess) (Object) CapturedRenderingState.INSTANCE.getGbufferModelView()).convertToJOML(),
-				((Matrix4fAccess) (Object) CapturedRenderingState.INSTANCE.getGbufferProjection()).convertToJOML(), shadowLightVectorFromOrigin, boxCuller), distanceInfo, cullingInfo);
+			return holder.setInfo(new AdvancedShadowCullingFrustum(CapturedRenderingState.INSTANCE.getGbufferModelView(),
+				CapturedRenderingState.INSTANCE.getGbufferProjection(), shadowLightVectorFromOrigin, boxCuller), distanceInfo, cullingInfo);
 
 		}
 
@@ -459,7 +458,6 @@ public class ShadowRenderer {
 		}
 
 		PROJECTION = new Matrix4f();
-		((Matrix4fAccess) (Object) PROJECTION).copyFromArray(projMatrix);
 
 		profiler.push("terrain_setup");
 

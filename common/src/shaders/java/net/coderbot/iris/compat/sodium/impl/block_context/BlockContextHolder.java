@@ -2,7 +2,7 @@ package net.coderbot.iris.compat.sodium.impl.block_context;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
 
 public class BlockContextHolder {
 	private final Object2IntMap<BlockState> blockStateIds;

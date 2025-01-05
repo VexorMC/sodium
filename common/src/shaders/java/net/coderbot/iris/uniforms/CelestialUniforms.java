@@ -2,11 +2,9 @@ package net.coderbot.iris.uniforms;
 
 import net.coderbot.iris.JomlConversions;
 import net.coderbot.iris.gl.uniform.UniformHolder;
+import net.coderbot.iris.vendored.joml.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 
 import java.util.Objects;
 
@@ -73,17 +71,17 @@ public final class CelestialUniforms {
 
 		// TODO: Deduplicate / remove this function.
 		Matrix4f celestial = new Matrix4f();
-		celestial.setIdentity();
+		celestial.identity();
 
 		// This is the same transformation applied by renderSky, however, it's been moved to here.
 		// This is because we need the result of it before it's actually performed in vanilla.
-        celestial.rotate(sunPathRotation, new Vector3f(0.0F, 0.0F, 1.0F));
-        celestial.rotate(-90f, new Vector3f(0.0F, 1.0F, 0.0F));
-        celestial.rotate(getSkyAngle() * 360.0F, new Vector3f(1.0F, 0.0F, 0.0F));
+        celestial.rotateZ(sunPathRotation);
+        celestial.rotateY(-90f);
+        celestial.rotateX(getSkyAngle() * 360.0F);
 
-		Matrix4f.transform(celestial, position, position);
+        position.mul(celestial);
 
-		return JomlConversions.toJoml(position);
+		return position;
 	}
 
 	private net.coderbot.iris.vendored.joml.Vector4f getCelestialPosition(float y) {
@@ -93,7 +91,7 @@ public final class CelestialUniforms {
 
 		// This is the same transformation applied by renderSky, however, it's been moved to here.
 		// This is because we need the result of it before it's actually performed in vanilla.
-        celestial.setIdentity();
+        celestial.identity();
 
         // This is the same transformation applied by renderSky, however, it's been moved to here.
         // This is because we need the result of it before it's actually performed in vanilla.
@@ -101,9 +99,9 @@ public final class CelestialUniforms {
         celestial.rotate(-90f, new Vector3f(0.0F, 1.0F, 0.0F));
         celestial.rotate(getSkyAngle() * 360.0F, new Vector3f(1.0F, 0.0F, 0.0F));
 
-        Matrix4f.transform(celestial, position, position);
+        position.mul(celestial);
 
-		return JomlConversions.toJoml(position);
+        return position;
 	}
 
 	private static net.coderbot.iris.vendored.joml.Vector4f getUpPosition() {
@@ -116,10 +114,7 @@ public final class CelestialUniforms {
 		// But, notably, skip the rotation by the skyAngle.
 		preCelestial.rotate(-90F, new Vector3f(0.0F, 1.0F, 0.0F));
 
-		// Use this matrix to transform the vector.
-        Matrix4f.transform(preCelestial, upVector, upVector);
-
-		return JomlConversions.toJoml(upVector);
+        return upVector.mul(preCelestial);
 	}
 
 	public static boolean isDay() {

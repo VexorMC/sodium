@@ -39,6 +39,7 @@ public class OptionImpl<S, T> implements OptionExtended<T> {
     private boolean highlight;
     private boolean selected;
 
+    private BooleanSupplier iris$dynamicallyEnabled;
 
     private OptionImpl(OptionStorage<S> storage,
                        Text name,
@@ -165,6 +166,7 @@ public class OptionImpl<S, T> implements OptionExtended<T> {
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
+
 
     public static class Builder<S, T> {
         private final OptionStorage<S> storage;

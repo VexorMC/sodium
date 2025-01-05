@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gui;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.data.fingerprint.HashedFingerprint;
@@ -16,6 +17,7 @@ import net.caffeinemc.mods.sodium.client.gui.screen.RenderableScreen;
 import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
+import net.coderbot.iris.gui.screen.ShaderPackScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.BufferBuilder;
@@ -57,13 +59,18 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
     protected boolean hasPendingChanges;
     private @Nullable ScreenPrompt prompt;
 
+    private OptionPage shaderPacks;
+
     public SodiumOptionsGUI(Screen prevScreen) {
         this.prevScreen = prevScreen;
+
+        this.shaderPacks = new OptionPage(new TranslatableText("options.iris.shaderPackSelection"), ImmutableList.of());
 
         this.pages.add(SodiumGameOptionPages.general());
         this.pages.add(SodiumGameOptionPages.quality());
         this.pages.add(SodiumGameOptionPages.performance());
         this.pages.add(SodiumGameOptionPages.advanced());
+        this.pages.add(shaderPacks);
 
         this.checkPromptTimers();
     }
@@ -130,6 +137,11 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
     }
 
     public void setPage(OptionPage page) {
+        if (page == shaderPacks) {
+            client.setScreen(new ShaderPackScreen(this));
+            return;
+        }
+
         this.currentPage = page;
 
         this.rebuildGUI();

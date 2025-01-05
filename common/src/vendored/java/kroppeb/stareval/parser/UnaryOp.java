@@ -1,7 +1,11 @@
 package kroppeb.stareval.parser;
 
-public record UnaryOp(String name) {
+public class UnaryOp {
+	private final String name;
 
+	public UnaryOp(String name) {
+		this.name = name;
+	}
 
 	@Override
 	public String toString() {

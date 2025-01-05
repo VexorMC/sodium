@@ -5,6 +5,7 @@ import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
 import net.caffeinemc.mods.sodium.client.model.light.data.QuadLightData;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFlags;
+import net.coderbot.iris.block_rendering.BlockRenderingSettings;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -216,6 +217,10 @@ public class SmoothLightPipeline implements LightPipeline {
     }
 
     private void applySidedBrightness(QuadLightData out, Direction face, boolean shade) {
+        if (BlockRenderingSettings.INSTANCE.shouldDisableDirectionalShading()) {
+            return;
+        }
+
         float brightness = this.lightCache.getLevel().getBrightness(face, shade);
         float[] br = out.br;
 

@@ -1,6 +1,6 @@
 package net.coderbot.iris.compat.sodium.impl.block_context;
 
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
 
 public interface ChunkBuildBuffersExt {
 	void iris$setLocalPos(int localPosX, int localPosY, int localPosZ);

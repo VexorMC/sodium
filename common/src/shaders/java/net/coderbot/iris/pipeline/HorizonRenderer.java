@@ -159,8 +159,8 @@ public class HorizonRenderer {
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
 
         buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION);
+
         buildHorizon(currentRenderDistance * 16, buffer);
-        buffer.end();
 
         Tessellator.getInstance().draw();
 	}

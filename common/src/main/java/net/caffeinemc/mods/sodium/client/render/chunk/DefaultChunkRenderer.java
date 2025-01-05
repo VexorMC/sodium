@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import org.lwjgl.system.MemoryUtil;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;

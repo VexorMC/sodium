@@ -1,8 +1,6 @@
 package net.coderbot.iris;
 
 import com.google.common.base.Throwables;
-import com.mojang.blaze3d.platform.GlDebug;
-import com.mojang.blaze3d.platform.InputConstants;
 import net.coderbot.iris.compat.sodium.SodiumVersionCheck;
 import net.coderbot.iris.config.IrisConfig;
 import net.coderbot.iris.gl.GLDebug;
@@ -22,18 +20,20 @@ import net.coderbot.iris.shaderpack.option.Profile;
 import net.coderbot.iris.shaderpack.option.values.MutableOptionValues;
 import net.coderbot.iris.shaderpack.option.values.OptionValues;
 import net.coderbot.iris.texture.pbr.PBRTextureManager;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
-import net.minecraft.Formatting;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.network.chat.TranslatableText;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
+import net.minecraft.world.dimension.TheEndDimension;
+import net.minecraft.world.dimension.TheNetherDimension;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,14 +54,14 @@ import java.util.zip.ZipError;
 import java.util.zip.ZipException;
 
 public class Iris {
-	public static final String MODID = "iris";
+	public static final String MODID = "radium";
 
 	/**
 	 * The user-facing name of the mod. Moved into a constant to facilitate
 	 * easy branding changes (for forks). You'll still need to change this
 	 * separately in mixin plugin classes & the language files.
 	 */
-	public static final String MODNAME = "Iris";
+	public static final String MODNAME = "RadiumShaders";
 
 	public static final IrisLogging logger = new IrisLogging(MODNAME);
 
@@ -78,9 +78,9 @@ public class Iris {
 	private static PipelineManager pipelineManager;
 	private static IrisConfig irisConfig;
 	private static FileSystem zipFileSystem;
-	private static KeyMapping reloadKeybind;
-	private static KeyMapping toggleShadersKeybind;
-	private static KeyMapping shaderpackScreenKeybind;
+	private static KeyBinding reloadKeybind;
+	private static KeyBinding toggleShadersKeybind;
+	private static KeyBinding shaderpackScreenKeybind;
 
 	private static final Map<String, String> shaderPackOptionQueue = new HashMap<>();
 	// Flag variable used when reloading
@@ -129,16 +129,16 @@ public class Iris {
 
 		this.updateChecker.checkForUpdates(irisConfig);
 
-		reloadKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping("iris.keybind.reload", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "iris.keybinds"));
-		toggleShadersKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping("iris.keybind.toggleShaders", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, "iris.keybinds"));
-		shaderpackScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping("iris.keybind.shaderPackSelection", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_O, "iris.keybinds"));
+		reloadKeybind = KeyBindingHelper.registerKeyBinding(new KeyBinding("iris.keybind.reload", Keyboard.KEY_R, "iris.keybinds"));
+		toggleShadersKeybind = KeyBindingHelper.registerKeyBinding(new KeyBinding("iris.keybind.toggleShaders", Keyboard.KEY_K, "iris.keybinds"));
+		shaderpackScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyBinding("iris.keybind.shaderPackSelection", Keyboard.KEY_O, "iris.keybinds"));
 
-		setupCommands(Minecraft.getInstance());
+		setupCommands(MinecraftClient.getInstance());
 
 		initialized = true;
 	}
 
-	private void setupCommands(Minecraft instance) {
+	private void setupCommands(MinecraftClient instance) {
 		// TODO: Add back commands when Fabric Maven stops dying
 		/*ClientCommandManager.DISPATCHER.register(ClientCommandManager.literal("iris").then(ClientCommandManager.literal("debug").then(
 			ClientCommandManager.argument("enabled", BoolArgumentType.bool()).executes(context -> {
@@ -207,46 +207,13 @@ public class Iris {
 		Iris.getPipelineManager().preparePipeline(DimensionId.OVERWORLD);
 	}
 
-	public static void handleKeybinds(Minecraft minecraft) {
-		if (reloadKeybind.consumeClick()) {
-			try {
-				reload();
-
-				if (minecraft.player != null) {
-					minecraft.player.displayClientMessage(new TranslatableText("iris.shaders.reloaded"), false);
-				}
-
-			} catch (Exception e) {
-				logger.error("Error while reloading Shaders for Iris!", e);
-
-				if (minecraft.player != null) {
-					minecraft.player.displayClientMessage(new TranslatableText("iris.shaders.reloaded.failure", Throwables.getRootCause(e).getMessage()).withStyle(Formatting.RED), false);
-				}
-			}
-		} else if (toggleShadersKeybind.consumeClick()) {
-			try {
-				toggleShaders(minecraft, !irisConfig.areShadersEnabled());
-			} catch (Exception e) {
-				logger.error("Error while toggling shaders!", e);
-
-				if (minecraft.player != null) {
-					minecraft.player.displayClientMessage(new TranslatableText("iris.shaders.toggled.failure", Throwables.getRootCause(e).getMessage()).withStyle(Formatting.RED), false);
-				}
-				setShadersDisabled();
-				fallback = true;
-			}
-		} else if (shaderpackScreenKeybind.consumeClick()) {
-			minecraft.setScreen(new ShaderPackScreen(null));
-		}
-	}
-
-	public static void toggleShaders(Minecraft minecraft, boolean enabled) throws IOException {
+	public static void toggleShaders(MinecraftClient minecraft, boolean enabled) throws IOException {
 		irisConfig.setShadersEnabled(enabled);
 		irisConfig.save();
 
 		reload();
 		if (minecraft.player != null) {
-			minecraft.player.displayClientMessage(enabled ? new TranslatableText("iris.shaders.toggled", currentPackName) : new TranslatableText("iris.shaders.disabled"), false);
+			minecraft.player.sendMessage(enabled ? new TranslatableText("iris.shaders.toggled", currentPackName) : new TranslatableText("iris.shaders.disabled"));
 		}
 	}
 
@@ -420,17 +387,9 @@ public class Iris {
 		if (enable) {
 			success = GLDebug.setupDebugMessageCallback();
 		} else {
-			GlDebug.enableDebugCallback(Minecraft.getInstance().options.glDebugVerbosity, false);
 			success = 1;
 		}
 
-		logger.info("Debug functionality is " + (enable ? "enabled, logging will be more verbose!" : "disabled."));
-		if (Minecraft.getInstance().player != null) {
-			Minecraft.getInstance().player.displayClientMessage(new TranslatableText(success != 0 ? (enable ? "iris.shaders.debug.enabled" : "iris.shaders.debug.disabled") : "iris.shaders.debug.failure"), false);
-			if (success == 2) {
-				Minecraft.getInstance().player.displayClientMessage(new TranslatableText("iris.shaders.debug.restart"), false);
-			}
-		}
 
 		try {
 			irisConfig.setDebugEnabled(enable);
@@ -576,7 +535,7 @@ public class Iris {
 
 		// Very important - we need to re-create the pipeline straight away.
 		// https://github.com/IrisShaders/Iris/issues/1330
-		if (Minecraft.getInstance().level != null) {
+		if (MinecraftClient.getInstance().world != null) {
 			Iris.getPipelineManager().preparePipeline(Iris.getCurrentDimension());
 		}
 	}
@@ -607,12 +566,12 @@ public class Iris {
 	public static DimensionId lastDimension = null;
 
 	public static DimensionId getCurrentDimension() {
-		ClientLevel level = Minecraft.getInstance().level;
+		ClientWorld level = MinecraftClient.getInstance().world;
 
 		if (level != null) {
-			if (level.dimensionType().effectsLocation().equals(DimensionType.END_EFFECTS) || level.dimension().equals(net.minecraft.world.level.Level.END)) {
+			if (level.dimension instanceof TheEndDimension) {
 				return DimensionId.END;
-			} else if (level.dimensionType().effectsLocation().equals(DimensionType.NETHER_EFFECTS) || level.dimension().equals(net.minecraft.world.level.Level.NETHER)) {
+			} else if (level.dimension instanceof TheNetherDimension) {
 				return DimensionId.NETHER;
 			} else {
 				return DimensionId.OVERWORLD;

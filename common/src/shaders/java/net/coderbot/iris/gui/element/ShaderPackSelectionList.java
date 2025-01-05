@@ -7,8 +7,10 @@ import net.coderbot.iris.mixin.MinecraftClientAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.util.Window;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
+import org.lwjgl.opengl.Display;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -144,6 +146,13 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList {
         return null;
     }
 
+    @Override
+    public void render(int mouseX, int mouseY, float tickDelta) {
+        super.render(mouseX, mouseY, tickDelta);
+        Window w = new Window(client);
+        renderList(w.getWidth() / 2, w.getWidth() / 2, mouseX, mouseY);
+    }
+
     public static abstract class BaseEntry extends DrawableHelper implements Entry {
 		protected BaseEntry() {}
 	}
@@ -177,7 +186,7 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList {
         }
 
         @Override
-		public void render(int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
+		public void render(int index, int x, int y, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
 			int color = 0xFFFFFF;
 			String name = packName;

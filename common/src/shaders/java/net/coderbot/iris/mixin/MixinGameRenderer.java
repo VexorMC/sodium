@@ -19,7 +19,7 @@ import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.entity.Entity;
 import net.minecraft.resource.ResourceManager;
-import org.joml.Matrix4f;
+import net.coderbot.iris.vendored.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -82,7 +82,7 @@ public class MixinGameRenderer {
     // avoid breaking other mods such as Light Overlay: https://github.com/IrisShaders/Iris/issues/1356
     @Inject(method = "renderWorld(IFJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/entity/Entity;DLnet/minecraft/client/render/CameraView;IZ)V"))
     private void iris$renderTerrainShadows(int anaglyphFilter, float tickDelta, long limitTime, CallbackInfo ci) {
-        pipeline.renderShadows((LevelRendererAccessor) this);
+        pipeline.renderShadows((LevelRendererAccessor) MinecraftClient.getInstance().worldRenderer);
     }
 
     @Inject(method = "renderWorld(IFJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderSky(FI)V", shift = At.Shift.BEFORE))

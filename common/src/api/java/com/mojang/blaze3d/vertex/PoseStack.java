@@ -5,9 +5,9 @@ import java.util.Deque;
 
 import dev.vexor.radium.compat.mojang.Util;
 import dev.vexor.radium.compat.mojang.math.Mth;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
+import net.coderbot.iris.vendored.joml.Matrix3f;
+import net.coderbot.iris.vendored.joml.Matrix4f;
+import net.coderbot.iris.vendored.joml.Quaternionf;
 
 public class PoseStack {
     private final Deque<Pose> poseStack = Util.make(Queues.newArrayDeque(), arrayDeque -> {

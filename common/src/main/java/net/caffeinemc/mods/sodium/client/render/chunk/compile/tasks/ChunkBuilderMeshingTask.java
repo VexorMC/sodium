@@ -24,6 +24,8 @@ import net.caffeinemc.mods.sodium.client.util.BlockRenderType;
 import net.caffeinemc.mods.sodium.client.util.task.CancellationToken;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
+import net.coderbot.iris.compat.sodium.impl.block_context.ChunkBuildBuffersExt;
+import net.coderbot.iris.vertices.ExtendedDataHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.material.Material;
@@ -103,7 +105,6 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                         var block = blockState.getBlock();
                         var blockType = block.getBlockType();
 
-
                         if (BlockRenderType.isInvisible(blockType) && block.hasBlockEntity()) {
                             continue;
                         }
@@ -111,6 +112,8 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                         blockState = block.getBlockState(blockState, slice, blockPos);
 
                         modelOffset.setPosition(x & 15, y & 15, z & 15);
+
+                        buffers.iris$setMaterialId(blockState, ExtendedDataHelper.BLOCK_RENDER_TYPE);
 
                         if (BlockRenderType.isModel(blockType)) {
                             BakedModel model = cache.getBlockModels()
@@ -124,6 +127,8 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                         if (BlockRenderType.isLiquid(blockType)) {
                             cache.getFluidRenderer().render(slice, blockState, blockState, blockPos, modelOffset, collector, buffers);
                         }
+
+                        buffers.iris$resetBlockContext();
 
                         if (block.hasBlockEntity()) {
                             BlockEntity entity = slice.getBlockEntity(blockPos);

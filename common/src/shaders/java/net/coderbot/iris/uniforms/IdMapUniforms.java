@@ -5,7 +5,6 @@ import net.coderbot.iris.gl.uniform.DynamicUniformHolder;
 import net.coderbot.iris.gl.uniform.UniformUpdateFrequency;
 import net.coderbot.iris.shaderpack.IdMap;
 import net.coderbot.iris.shaderpack.materialmap.NamespacedId;
-import net.irisshaders.iris.api.v0.item.IrisItemLightProvider;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.ClientPlayerEntity;
 import net.minecraft.item.Item;
@@ -13,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import static net.coderbot.iris.gl.uniform.UniformUpdateFrequency.PER_FRAME;
 
@@ -58,7 +58,7 @@ public final class IdMapUniforms {
 		private void invalidate() {
 			intID = -1;
 			lightValue = 0;
-			lightColor = IrisItemLightProvider.DEFAULT_LIGHT_COLOR;
+			lightColor = new Vector3f(1f, 1f, 1f);
 		}
 
 		public void update() {
@@ -85,12 +85,6 @@ public final class IdMapUniforms {
 			}
 
 			intID = Item.getRawId(heldItem);
-
-			IrisItemLightProvider lightProvider = (IrisItemLightProvider) heldItem;
-			lightValue = lightProvider.getLightEmission(MinecraftClient.getInstance().player, heldStack);
-
-
-			lightColor = lightProvider.getLightColor(MinecraftClient.getInstance().player, heldStack);
 		}
 
 		public int getIntID() {

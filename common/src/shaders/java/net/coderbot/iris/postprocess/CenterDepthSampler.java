@@ -92,7 +92,7 @@ public class CenterDepthSampler {
 		ProgramSamplers.clearActiveSamplers();
 
 		// The API contract of DepthCopyStrategy claims it can only copy depth, however the 2 non-stencil methods used are entirely capable of copying color as of now.
-		DepthCopyStrategy.fastest(false).copy(this.framebuffer, texture, null, altTexture, 1, 1);
+        //DepthCopyStrategy.fastest(false).copy(this.framebuffer, texture, null, altTexture, 1, 1);
 
 		//Reset viewport
 		MinecraftClient.getInstance().getFramebuffer().bind(true);

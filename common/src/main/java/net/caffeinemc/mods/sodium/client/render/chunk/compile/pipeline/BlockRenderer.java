@@ -16,6 +16,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMa
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
+import net.coderbot.iris.block_rendering.BlockRenderingSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -42,12 +43,16 @@ public class BlockRenderer {
 
     private final int[] quadColors = new int[4];
 
+    private boolean useSeparateAo;
+
     public BlockRenderer(ColorProviderRegistry colorRegistry, LightPipelineProvider lighters) {
         this.colorProviderRegistry = colorRegistry;
         this.lighters = lighters;
 
         this.occlusionCache = new BlockOcclusionCache();
         this.useAmbientOcclusion = MinecraftClient.isAmbientOcclusionEnabled();
+
+        this.useSeparateAo = BlockRenderingSettings.INSTANCE.shouldUseSeparateAo();
     }
 
     public void renderModel(BlockRenderContext ctx, ChunkBuildBuffers buffers) {

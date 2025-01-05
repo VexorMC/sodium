@@ -8,6 +8,7 @@ import net.caffeinemc.mods.sodium.client.gui.options.TextProvider;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.caffeinemc.mods.sodium.client.util.FileUtil;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior;
+import net.coderbot.iris.Iris;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -171,6 +172,14 @@ public class SodiumGameOptions {
         }
 
         FileUtil.writeTextRobustly(GSON.toJson(config), path);
+
+        try {
+            if (Iris.getIrisConfig() != null) {
+                Iris.getIrisConfig().save();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isReadOnly() {

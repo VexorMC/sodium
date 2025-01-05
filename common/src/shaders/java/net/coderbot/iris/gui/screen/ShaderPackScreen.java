@@ -87,11 +87,6 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 
 		this.irisTextComponent = new LiteralText(irisName).setStyle(new Style().setFormatting(Formatting.GRAY));
 
-		if (Iris.getUpdateChecker().getUpdateMessage().isPresent()) {
-			this.updateComponent = new LiteralText("New update available!").setStyle(new Style().setFormatting(Formatting.GREEN).setUnderline(true));
-			irisTextComponent.append(new LiteralText(" (outdated)").setStyle(new Style().setFormatting(Formatting.RED)));
-		}
-
 		refreshForChangedPack();
 	}
 
@@ -107,6 +102,7 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 			if (optionMenuOpen && this.shaderOptionList != null) {
 				this.shaderOptionList.render(mouseX, mouseY, delta);
 			} else {
+                System.out.println("ShaderPackListRender");
 				this.shaderPackList.render(mouseX, mouseY, delta);
 			}
 		}
@@ -118,7 +114,7 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 		}
 
 		if (!this.guiHidden) {
-			drawCenteredString(this.textRenderer, "Iris Options", (int) (this.width * 0.5), 8, 0xFFFFFF);
+			drawCenteredString(this.textRenderer, "RadiumShaders", (int) (this.width * 0.5), 8, 0xFFFFFF);
 
 			if (notificationDialog != null && notificationDialogTimer > 0) {
 				drawCenteredString(this.textRenderer, notificationDialog.asFormattedString(), (int) (this.width * 0.5), 21, 0xFFFFFF);
@@ -566,4 +562,13 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 				this.hoveredElementCommentTitle.isPresent() &&
 				!this.hoveredElementCommentBody.isEmpty();
 	}
+
+    @Override
+    protected void buttonClicked(ButtonWidget button) {
+        if (button instanceof IrisButtonWidget ibw) {
+            ibw.click();
+            return;
+        }
+        super.buttonClicked(button);
+    }
 }

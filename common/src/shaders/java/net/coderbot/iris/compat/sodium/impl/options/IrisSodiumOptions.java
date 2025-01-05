@@ -32,10 +32,8 @@ public class IrisSodiumOptions {
 						},
 						options -> IrisVideoSettings.getOverriddenShadowDistance(IrisVideoSettings.shadowDistance))
 				.setImpact(OptionImpact.HIGH)
-				.setEnabled(() -> true)
+				.setEnabled(IrisVideoSettings::isShadowDistanceSliderEnabled)
 				.build();
-
-		((OptionImplExtended) maxShadowDistanceSlider).iris$dynamicallyEnable(IrisVideoSettings::isShadowDistanceSliderEnabled);
 
 		return maxShadowDistanceSlider;
 	}

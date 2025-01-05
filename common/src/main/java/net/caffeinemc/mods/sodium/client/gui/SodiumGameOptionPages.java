@@ -10,6 +10,7 @@ import net.caffeinemc.mods.sodium.client.gui.options.named.ParticleMode;
 import net.caffeinemc.mods.sodium.client.gui.options.storage.MinecraftOptionsStorage;
 import net.caffeinemc.mods.sodium.client.gui.options.storage.SodiumOptionsStorage;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
+import net.coderbot.iris.compat.sodium.impl.options.IrisSodiumOptions;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.TranslatableText;
@@ -44,6 +45,7 @@ public class SodiumGameOptionPages {
                         .setControl(opt -> new SliderControl(opt, 0, 100, 1, ControlValueFormatter.brightness()))
                         .setBinding((opts, value) -> opts.gamma = (value * 0.01f), (opts) -> (int) (opts.gamma / 0.01D))
                         .build())
+                .add(IrisSodiumOptions.createMaxShadowDistanceSlider(vanillaOpts))
                 .build());
 
         groups.add(OptionGroup.createBuilder()
@@ -85,6 +87,7 @@ public class SodiumGameOptionPages {
                                 (opts, value) -> opts.vsync = value,
                                 opts -> opts.vsync)
                         .setImpact(OptionImpact.VARIES)
+                        .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
                         .build())
                 .add(OptionImpl.createBuilder(int.class, vanillaOpts)
                         .setName(new TranslatableText("options.framerateLimit"))
@@ -93,6 +96,7 @@ public class SodiumGameOptionPages {
                         .setBinding((opts, value) -> {
                             opts.maxFramerate = (value);
                         }, opts -> opts.maxFramerate)
+                        .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
                         .build())
                 .build());
 
@@ -114,16 +118,7 @@ public class SodiumGameOptionPages {
         List<OptionGroup> groups = new ArrayList<>();
 
         groups.add(OptionGroup.createBuilder()
-                .add(OptionImpl.createBuilder(GraphicsMode.class, vanillaOpts)
-                        .setName(new TranslatableText("options.graphics"))
-                        .setTooltip(new TranslatableText("sodium.options.graphics_quality.tooltip"))
-                        .setControl(option -> new CyclingControl<>(option, GraphicsMode.class))
-                        .setBinding(
-                                (opts, value) -> opts.fancyGraphics = value.isFancy(),
-                                opts -> GraphicsMode.fromBoolean(opts.fancyGraphics))
-                        .setImpact(OptionImpact.HIGH)
-                        .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
-                        .build())
+                .add(IrisSodiumOptions.createLimitedVideoSettingsButton(vanillaOpts))
                 .build());
 
         groups.add(OptionGroup.createBuilder()

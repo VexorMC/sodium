@@ -7,6 +7,7 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 
 public class HandRenderer {
@@ -41,7 +42,11 @@ public class HandRenderer {
     }
 
 	public boolean isHandTranslucent() {
-		Item item = MinecraftClient.getInstance().player.getMainHandStack().getItem();
+        ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack();
+
+        if (stack == null) return false;
+
+		Item item = stack.getItem();
 
         if (item instanceof BlockItem blockItem) {
             return blockItem.getBlock().getRenderLayerType() == RenderLayer.TRANSLUCENT;

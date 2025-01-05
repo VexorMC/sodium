@@ -37,12 +37,16 @@ dependencies {
     shadow("org.lwjgl:lwjgl-glfw")
     shadow("org.lwjgl:lwjgl-openal")
     shadow("org.lwjgl:lwjgl-opengl")
+    shadow("org.lwjgl:lwjgl-stb")
+    shadow("org.lwjgl:lwjgl-tinyfd")
 
     arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
         shadow("org.lwjgl:lwjgl::natives-$platform")
         shadow("org.lwjgl:lwjgl-glfw::natives-$platform")
         shadow("org.lwjgl:lwjgl-openal::natives-$platform")
         shadow("org.lwjgl:lwjgl-opengl::natives-$platform")
+        shadow("org.lwjgl:lwjgl-stb::natives-$platform")
+        shadow("org.lwjgl:lwjgl-tinyfd::natives-$platform")
     }
 
 }
@@ -66,13 +70,20 @@ dependencies {
     implementation("org.lwjgl:lwjgl-glfw")
     implementation("org.lwjgl:lwjgl-openal")
     implementation("org.lwjgl:lwjgl-opengl")
+    implementation("org.lwjgl:lwjgl-stb")
+    implementation("org.lwjgl:lwjgl-tinyfd")
 
     arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
         runtimeOnly("org.lwjgl:lwjgl::natives-$platform")
         runtimeOnly("org.lwjgl:lwjgl-glfw::natives-$platform")
         runtimeOnly("org.lwjgl:lwjgl-openal::natives-$platform")
         runtimeOnly("org.lwjgl:lwjgl-opengl::natives-$platform")
+        runtimeOnly("org.lwjgl:lwjgl-stb::natives-$platform")
+        runtimeOnly("org.lwjgl:lwjgl-tinyfd::natives-$platform")
     }
+
+    implementation("org.anarres:jcpp:1.4.14")
+    implementation("io.github.douira:glsl-transformer:1.0.1")
 
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
     modImplementation("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")

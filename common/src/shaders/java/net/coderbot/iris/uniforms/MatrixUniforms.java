@@ -4,7 +4,7 @@ import net.coderbot.iris.gl.uniform.UniformHolder;
 import net.coderbot.iris.pipeline.ShadowRenderer;
 import net.coderbot.iris.shaderpack.PackDirectives;
 import net.coderbot.iris.shadow.ShadowMatrices;
-import org.lwjgl.util.vector.Matrix4f;
+import net.coderbot.iris.vendored.joml.Matrix4f;
 
 import java.nio.FloatBuffer;
 import java.util.function.Supplier;
@@ -21,20 +21,20 @@ public final class MatrixUniforms {
 		// We need to audit Mojang's linear algebra.
 		addMatrix(uniforms, "Projection", CapturedRenderingState.INSTANCE::getGbufferProjection);
 		addShadowMatrix(uniforms, "ModelView", () ->
-				ShadowRenderer.createShadowModelView(directives.getSunPathRotation(), directives.getShadowDirectives().getIntervalSize()).last().pose().copy());
+				new Matrix4f(ShadowRenderer.createShadowModelView(directives.getSunPathRotation(), directives.getShadowDirectives().getIntervalSize()).last().pose()));
 		addShadowArrayMatrix(uniforms, "Projection", () -> ShadowMatrices.createOrthoMatrix(directives.getShadowDirectives().getDistance()));
 	}
 
 	private static void addMatrix(UniformHolder uniforms, String name, Supplier<Matrix4f> supplier) {
 		uniforms
-			.uniformMatrix(PER_FRAME, "gbuffer" + name, supplier)
+			.uniformJomlMatrix(PER_FRAME, "gbuffer" + name, supplier)
 			.uniformJomlMatrix(PER_FRAME, "gbuffer" + name + "Inverse", new Inverted(supplier))
-			.uniformMatrix(PER_FRAME, "gbufferPrevious" + name, new Previous(supplier));
+			.uniformJomlMatrix(PER_FRAME, "gbufferPrevious" + name, new Previous(supplier));
 	}
 
 	private static void addShadowMatrix(UniformHolder uniforms, String name, Supplier<Matrix4f> supplier) {
 		uniforms
-				.uniformMatrix(PER_FRAME, "shadow" + name, supplier)
+				.uniformJomlMatrix(PER_FRAME, "shadow" + name, supplier)
 				.uniformJomlMatrix(PER_FRAME, "shadow" + name + "Inverse", new Inverted(supplier));
 	}
 
@@ -57,7 +57,7 @@ public final class MatrixUniforms {
 			Matrix4f copy = new Matrix4f(parent.get());
 
 			FloatBuffer buffer = FloatBuffer.allocate(16);
-			copy.store(buffer);
+			copy.get(buffer);
 			buffer.rewind();
 
 			net.coderbot.iris.vendored.joml.Matrix4f matrix4f = new net.coderbot.iris.vendored.joml.Matrix4f(buffer);
