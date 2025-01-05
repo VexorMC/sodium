@@ -1,5 +1,6 @@
 package net.coderbot.iris.pipeline;
 
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.renderer.RenderType;
 
 public enum WorldRenderingPhase {
@@ -27,6 +28,15 @@ public enum WorldRenderingPhase {
 	RAIN_SNOW,
 	WORLD_BORDER,
 	HAND_TRANSLUCENT;
+
+    public static RenderType fromLayer(RenderLayer layer) {
+        return switch (layer) {
+            case SOLID -> RenderType.solid();
+            case CUTOUT_MIPPED -> RenderType.cutoutMipped();
+            case CUTOUT -> RenderType.cutout();
+            case TRANSLUCENT -> RenderType.translucent();
+        };
+    }
 
 	public static WorldRenderingPhase fromTerrainRenderType(RenderType renderType) {
 		if (renderType == RenderType.solid()) {

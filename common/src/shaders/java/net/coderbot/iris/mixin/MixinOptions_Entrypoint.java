@@ -1,15 +1,14 @@
 package net.coderbot.iris.mixin;
 
 import net.coderbot.iris.Iris;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Options;
+import net.minecraft.client.option.GameOptions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = Options.class, priority = 990)
+@Mixin(value = GameOptions.class, priority = 990)
 public class MixinOptions_Entrypoint {
 	@Unique
 	private static boolean iris$initialized;

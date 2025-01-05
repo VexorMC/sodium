@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import dev.vexor.radium.lwjgl3.DesktopFileInjector;
+import net.coderbot.iris.Iris;
 import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -184,6 +185,11 @@ public final class Display {
 			GLFW.glfwWindowHint(GLFW.GLFW_DEPTH_BITS, pixelFormat.getDepthBits());
 			GLFW.glfwWindowHint(GLFW.GLFW_STENCIL_BITS, pixelFormat.getStencilBits());
 			GLFW.glfwWindowHint(GLFW.GLFW_STEREO, pixelFormat.isStereo() ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
+
+            if (Iris.getIrisConfig().areDebugOptionsEnabled()) {
+                GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
+                Iris.logger.info("OpenGL debug context activated.");
+            }
 
 			GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, 0);
 			GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, resizable ? 1 : 0);
