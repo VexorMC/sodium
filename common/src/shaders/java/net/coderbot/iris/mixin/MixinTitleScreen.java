@@ -3,7 +3,7 @@ package net.coderbot.iris.mixin;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.compat.sodium.SodiumVersionCheck;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.ChatFormatting;
+import net.minecraft.Formatting;
 import net.minecraft.Util;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
@@ -14,7 +14,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.TranslatableText;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -54,10 +54,10 @@ public class MixinTitleScreen extends Screen {
 						Minecraft.getInstance().stop();
 					}
 				},
-				new TranslatableComponent("iris.nec.failure.title", Iris.MODNAME).withStyle(ChatFormatting.BOLD, ChatFormatting.RED),
-				new TranslatableComponent("iris.nec.failure.description"),
-				new TranslatableComponent("options.graphics.warning.accept").withStyle(ChatFormatting.RED),
-				new TranslatableComponent("menu.quit").withStyle(ChatFormatting.BOLD)));
+				new TranslatableText("iris.nec.failure.title", Iris.MODNAME).withStyle(Formatting.BOLD, Formatting.RED),
+				new TranslatableText("iris.nec.failure.description"),
+				new TranslatableText("options.graphics.warning.accept").withStyle(Formatting.RED),
+				new TranslatableText("menu.quit").withStyle(Formatting.BOLD)));
 			return;
 		} else {
 			Iris.onLoadingComplete();
@@ -77,9 +77,9 @@ public class MixinTitleScreen extends Screen {
 						Minecraft.getInstance().stop();
 					}
 				},
-				new TranslatableComponent("iris.sodium.failure.title").withStyle(ChatFormatting.RED),
-				new TranslatableComponent(reason),
-				new TranslatableComponent("iris.sodium.failure.download"),
-				new TranslatableComponent("menu.quit")));
+				new TranslatableText("iris.sodium.failure.title").withStyle(Formatting.RED),
+				new TranslatableText(reason),
+				new TranslatableText("iris.sodium.failure.download"),
+				new TranslatableText("menu.quit")));
 	}
 }

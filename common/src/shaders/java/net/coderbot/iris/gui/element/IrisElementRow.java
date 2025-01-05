@@ -2,9 +2,9 @@ package net.coderbot.iris.gui.element;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.coderbot.iris.gui.GuiUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class IrisElementRow {
 	/**
 	 * Renders the row, with the anchor point being the top left.
 	 */
-	public void render(PoseStack poseStack, int x, int y, int height, int mouseX, int mouseY, float tickDelta, boolean rowHovered) {
+	public void render(int x, int y, int height, int mouseX, int mouseY, float tickDelta, boolean rowHovered) {
 		this.x = x;
 		this.y = y;
 		this.height = height;
@@ -81,7 +81,7 @@ public class IrisElementRow {
 		for (Element element : this.orderedElements) {
 			int currentWidth = this.elements.get(element);
 
-			element.render(poseStack, currentX, y, currentWidth, height, mouseX, mouseY, tickDelta,
+			element.render(currentX, y, currentWidth, height, mouseX, mouseY, tickDelta,
 					rowHovered && sectionHovered(currentX, currentWidth, mouseX, mouseY));
 
 			currentX += currentWidth + this.spacing;
@@ -91,8 +91,8 @@ public class IrisElementRow {
 	/**
 	 * Renders the row, with the anchor point being the top right.
 	 */
-	public void renderRightAligned(PoseStack poseStack, int x, int y, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
-		render(poseStack, x - this.width, y, height, mouseX, mouseY, tickDelta, hovered);
+	public void renderRightAligned(int x, int y, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
+		render(x - this.width, y, height, mouseX, mouseY, tickDelta, hovered);
 	}
 
 	private boolean sectionHovered(int sectionX, int sectionWidth, double mx, double my) {
@@ -128,15 +128,15 @@ public class IrisElementRow {
 		public boolean disabled = false;
 		private boolean hovered = false;
 
-		public void render(PoseStack poseStack, int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
+		public void render(int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
 			GuiUtil.bindIrisWidgetsTexture();
-			GuiUtil.drawButton(poseStack, x, y, width, height, hovered, this.disabled);
+			GuiUtil.drawButton(x, y, width, height, hovered, this.disabled);
 
 			this.hovered = hovered;
-			this.renderLabel(poseStack, x, y, width, height, mouseX, mouseY, tickDelta, hovered);
+			this.renderLabel(x, y, width, height, mouseX, mouseY, tickDelta, hovered);
 		}
 
-		public abstract void renderLabel(PoseStack poseStack, int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered);
+		public abstract void renderLabel(int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered);
 
 		public boolean mouseClicked(double mx, double my, int button) {
 			return false;
@@ -190,15 +190,15 @@ public class IrisElementRow {
 		}
 
 		@Override
-		public void renderLabel(PoseStack poseStack, int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
+		public void renderLabel(int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
 			int iconX = x + (int)((width - this.icon.getWidth()) * 0.5);
 			int iconY = y + (int)((height - this.icon.getHeight()) * 0.5);
 
 			GuiUtil.bindIrisWidgetsTexture();
 			if (!this.disabled && hovered) {
-				this.hoveredIcon.draw(poseStack, iconX, iconY);
+				this.hoveredIcon.draw(iconX, iconY);
 			} else {
-				this.icon.draw(poseStack, iconX, iconY);
+				this.icon.draw(iconX, iconY);
 			}
 		}
 	}
@@ -207,22 +207,22 @@ public class IrisElementRow {
 	 * A clickable button element that uses a text component as its label.
 	 */
 	public static class TextButtonElement extends ButtonElement<TextButtonElement> {
-		protected final Font font;
-		public Component text;
+		protected final TextRenderer font;
+		public Text text;
 
-		public TextButtonElement(Component text, Function<TextButtonElement, Boolean> onClick) {
+		public TextButtonElement(Text text, Function<TextButtonElement, Boolean> onClick) {
 			super(onClick);
 
-			this.font = Minecraft.getInstance().font;
+			this.font = MinecraftClient.getInstance().textRenderer;
 			this.text = text;
 		}
 
 		@Override
-		public void renderLabel(PoseStack poseStack, int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
-			int textX = x + (int)((width - this.font.width(this.text)) * 0.5);
+		public void renderLabel(int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
+			int textX = x + (int)((width - this.font.getStringWidth(this.text.asFormattedString())) * 0.5);
 			int textY = y + (int)((height - 8) * 0.5);
 
-			this.font.drawShadow(poseStack, this.text, textX, textY, 0xFFFFFF);
+			this.font.drawWithShadow(this.text.asFormattedString(), textX, textY, 0xFFFFFF);
 		}
 	}
 }

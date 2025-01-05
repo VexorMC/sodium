@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.features.FeatureFlags;
-import net.coderbot.iris.gui.FeatureMissingErrorScreen;
 import net.coderbot.iris.gui.screen.ShaderPackScreen;
 import net.coderbot.iris.shaderpack.include.AbsolutePackPath;
 import net.coderbot.iris.shaderpack.include.IncludeGraph;
@@ -121,13 +120,6 @@ public class ShaderPack {
 
 		List<FeatureFlags> invalidFlagList = shaderProperties.getRequiredFeatureFlags().stream().filter(FeatureFlags::isInvalid).map(FeatureFlags::getValue).collect(Collectors.toList());
 		List<String> invalidFeatureFlags = invalidFlagList.stream().map(FeatureFlags::getHumanReadableName).collect(Collectors.toList());
-
-		if (!invalidFeatureFlags.isEmpty()) {
-			if (MinecraftClient.getInstance().currentScreen instanceof ShaderPackScreen) {
-                MinecraftClient.getInstance().setScreen(new FeatureMissingErrorScreen(MinecraftClient.getInstance().currentScreen, new TranslatableText("iris.unsupported.pack"), new TranslatableText("iris.unsupported.pack.description", FeatureFlags.getInvalidStatus(invalidFlagList), invalidFeatureFlags.stream()
-					.collect(Collectors.joining(", ", ": ", ".")))));
-			}
-		}
 
 		List<String> optionalFeatureFlags = shaderProperties.getOptionalFeatureFlags().stream().filter(flag -> !FeatureFlags.isInvalid(flag)).collect(Collectors.toList());
 

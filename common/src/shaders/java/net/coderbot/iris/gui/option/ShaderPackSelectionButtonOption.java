@@ -7,7 +7,7 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.OptionButton;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.TranslatableText;
 
 public class ShaderPackSelectionButtonOption extends Option {
 	private final Screen parent;
@@ -24,7 +24,7 @@ public class ShaderPackSelectionButtonOption extends Option {
 		return new OptionButton(
 				x, y, width, 20,
 				this,
-				new TranslatableComponent("options.iris.shaderPackSelection"),
+				new TranslatableText("options.iris.shaderPackSelection"),
 				button -> client.setScreen(new ShaderPackScreen(parent))
 		);
 	}

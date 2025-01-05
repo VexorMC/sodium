@@ -1,7 +1,7 @@
 package net.coderbot.iris.mixin;
 
 import net.coderbot.iris.Iris;
-import net.minecraft.ChatFormatting;
+import net.minecraft.Formatting;
 import net.minecraft.client.gui.components.DebugScreenOverlay;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -66,8 +66,8 @@ public abstract class MixinDebugScreenOverlay {
 		List<String> messages = cir.getReturnValue();
 
 		if (!Iris.isSodiumInstalled() && Iris.getCurrentPack().isPresent()) {
-			messages.add(1, ChatFormatting.YELLOW + "[" + Iris.MODNAME + "] Sodium isn't installed; you will have poor performance.");
-			messages.add(2, ChatFormatting.YELLOW + "[" + Iris.MODNAME + "] Install Sodium if you want to run benchmarks or get higher FPS!");
+			messages.add(1, Formatting.YELLOW + "[" + Iris.MODNAME + "] Sodium isn't installed; you will have poor performance.");
+			messages.add(2, Formatting.YELLOW + "[" + Iris.MODNAME + "] Install Sodium if you want to run benchmarks or get higher FPS!");
 		}
 
 		Iris.getPipelineManager().getPipeline().ifPresent(pipeline -> pipeline.addDebugText(messages));

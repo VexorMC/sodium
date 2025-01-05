@@ -8,10 +8,18 @@ import net.coderbot.iris.gui.NavigationController;
 import net.coderbot.iris.gui.element.widget.AbstractElementWidget;
 import net.coderbot.iris.gui.element.widget.OptionMenuConstructor;
 import net.coderbot.iris.gui.screen.ShaderPackScreen;
+import net.coderbot.iris.mixin.MinecraftClientAccessor;
 import net.coderbot.iris.shaderpack.ShaderPack;
 import net.coderbot.iris.shaderpack.option.menu.OptionMenuContainer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -23,13 +31,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOptionList.BaseEntry> {
+public class ShaderPackOptionList extends IrisObjectSelectionList {
 	private final List<AbstractElementWidget<?>> elementWidgets = new ArrayList<>();
 	private final ShaderPackScreen screen;
 	private final NavigationController navigation;
 	private OptionMenuContainer container;
+    private final List<BaseEntry> entries = new ArrayList<>();
 
-	public ShaderPackOptionList(ShaderPackScreen screen, NavigationController navigation, ShaderPack pack, Minecraft client, int width, int height, int top, int bottom, int left, int right) {
+	public ShaderPackOptionList(ShaderPackScreen screen, NavigationController navigation, ShaderPack pack, MinecraftClient client, int width, int height, int top, int bottom, int left, int right) {
 		super(client, width, height, top, bottom, left, right, 24);
 		this.navigation = navigation;
 		this.screen = screen;
@@ -42,8 +51,8 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 	}
 
 	public void rebuild() {
-		this.clearEntries();
-		this.setScrollAmount(0);
+        this.entries.clear();
+        this.scrollAmount = 0;
 		OptionMenuConstructor.constructAndApplyToScreen(this.container, this.screen, this, navigation);
 	}
 
@@ -51,7 +60,12 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 		this.elementWidgets.forEach(widget -> widget.init(this.screen, this.navigation));
 	}
 
-	@Override
+    @Override
+    protected int getEntryCount() {
+        return 0;
+    }
+
+    @Override
 	public int getRowWidth() {
 		return Math.min(400, width - 12);
 	}
@@ -59,6 +73,10 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 	public void addHeader(Text text, boolean backButton) {
 		this.addEntry(new HeaderEntry(this.screen, this.navigation, text, backButton));
 	}
+
+    protected void addEntry(BaseEntry entry) {
+        this.entries.add(entry);
+    }
 
 	public void addWidgets(int columns, List<AbstractElementWidget<?>> elements) {
 		this.elementWidgets.addAll(elements);
@@ -86,7 +104,12 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 		return navigation;
 	}
 
-	public abstract static class BaseEntry extends ObjectSelectionList.Entry<BaseEntry> {
+    @Override
+    public Entry getEntry(int index) {
+        return entries.get(index);
+    }
+
+    public abstract static class BaseEntry extends DrawableHelper implements Entry {
 		protected final NavigationController navigation;
 
 		protected BaseEntry(NavigationController navigation) {
@@ -95,16 +118,16 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 	}
 
 	public static class HeaderEntry extends BaseEntry {
-		public static final Component BACK_BUTTON_TEXT = new TextComponent("< ").append(new TranslatableComponent("options.iris.back").withStyle(ChatFormatting.ITALIC));
-		public static final MutableComponent RESET_BUTTON_TEXT_INACTIVE = new TranslatableComponent("options.iris.reset").withStyle(ChatFormatting.GRAY);
-		public static final MutableComponent RESET_BUTTON_TEXT_ACTIVE = new TranslatableComponent("options.iris.reset").withStyle(ChatFormatting.YELLOW);
+		public static final Text BACK_BUTTON_TEXT = new LiteralText("< ").append(new TranslatableText("options.iris.back").setStyle(new Style().setFormatting(Formatting.ITALIC)));
+		public static final Text RESET_BUTTON_TEXT_INACTIVE = new TranslatableText("options.iris.reset").setStyle(new Style().setFormatting(Formatting.GRAY));
+            public static final Text RESET_BUTTON_TEXT_ACTIVE = new TranslatableText("options.iris.reset").setStyle(new Style().setFormatting(Formatting.YELLOW));
 
-		public static final MutableComponent RESET_HOLD_SHIFT_TOOLTIP = new TranslatableComponent("options.iris.reset.tooltip.holdShift").withStyle(ChatFormatting.GOLD);
-		public static final MutableComponent RESET_TOOLTIP = new TranslatableComponent("options.iris.reset.tooltip").withStyle(ChatFormatting.RED);
-		public static final MutableComponent IMPORT_TOOLTIP = new TranslatableComponent("options.iris.importSettings.tooltip")
-				.withStyle(style -> style.withColor(TextColor.fromRgb(0x4da6ff)));
-		public static final MutableComponent EXPORT_TOOLTIP = new TranslatableComponent("options.iris.exportSettings.tooltip")
-				.withStyle(style -> style.withColor(TextColor.fromRgb(0xfc7d3d)));
+		public static final Text RESET_HOLD_SHIFT_TOOLTIP = new TranslatableText("options.iris.reset.tooltip.holdShift").setStyle(new Style().setFormatting(Formatting.GOLD));
+		public static final Text RESET_TOOLTIP = new TranslatableText("options.iris.reset.tooltip").setStyle(new Style().setFormatting(Formatting.RED));
+		public static final Text IMPORT_TOOLTIP = new TranslatableText("options.iris.importSettings.tooltip")
+				.setStyle(new Style().setFormatting(Formatting.AQUA));
+		public static final Text EXPORT_TOOLTIP = new TranslatableText("options.iris.exportSettings.tooltip")
+				.setStyle(new Style().setFormatting(Formatting.DARK_AQUA));
 
 		private static final int MIN_SIDE_BUTTON_WIDTH = 42;
 		private static final int BUTTON_HEIGHT = 16;
@@ -115,15 +138,15 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 		private final IrisElementRow.TextButtonElement resetButton;
 		private final IrisElementRow.IconButtonElement importButton;
 		private final IrisElementRow.IconButtonElement exportButton;
-		private final Component text;
+		private final Text text;
 
-		public HeaderEntry(ShaderPackScreen screen, NavigationController navigation, Component text, boolean hasBackButton) {
+		public HeaderEntry(ShaderPackScreen screen, NavigationController navigation, Text text, boolean hasBackButton) {
 			super(navigation);
 
 			if (hasBackButton) {
 				this.backButton = new IrisElementRow().add(
 						new IrisElementRow.TextButtonElement(BACK_BUTTON_TEXT, this::backButtonClicked),
-						Math.max(MIN_SIDE_BUTTON_WIDTH, Minecraft.getInstance().font.width(BACK_BUTTON_TEXT) + 8)
+						Math.max(MIN_SIDE_BUTTON_WIDTH, MinecraftClient.getInstance().textRenderer.getStringWidth(BACK_BUTTON_TEXT.asFormattedString()) + 8)
 				);
 			} else {
 				this.backButton = null;
@@ -139,27 +162,30 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 			this.utilityButtons
 					.add(this.importButton, 15)
 					.add(this.exportButton, 15)
-					.add(this.resetButton, Math.max(MIN_SIDE_BUTTON_WIDTH, Minecraft.getInstance().font.width(RESET_BUTTON_TEXT_INACTIVE) + 8));
+					.add(this.resetButton, Math.max(MIN_SIDE_BUTTON_WIDTH, MinecraftClient.getInstance().textRenderer.getStringWidth(RESET_BUTTON_TEXT_INACTIVE.asFormattedString()) + 8));
 
 			this.screen = screen;
 			this.text = text;
 		}
 
-		@Override
-		public void render(PoseStack poseStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-			// Draw dividing line
-			fill(poseStack, x - 3, (y + entryHeight) - 2, x + entryWidth, (y + entryHeight) - 1, 0x66BEBEBE);
 
-			Font font = Minecraft.getInstance().font;
+        @Override
+		public void render(int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
+			// Draw dividing line
+			DrawableHelper.fill(x - 3, (y + entryHeight) - 2, x + entryWidth, (y + entryHeight) - 1, 0x66BEBEBE);
+
+			TextRenderer font = MinecraftClient.getInstance().textRenderer;
 
 			// Draw header text
-			drawCenteredString(poseStack, font, text, x + (int)(entryWidth * 0.5), y + 5, 0xFFFFFF);
+			drawCenteredString(font, text.asFormattedString(), x + (int)(entryWidth * 0.5), y + 5, 0xFFFFFF);
 
 			GuiUtil.bindIrisWidgetsTexture();
 
+            float tickDelta = ((MinecraftClientAccessor)MinecraftClient.getInstance()).getTicker().tickDelta;
+
 			// Draw back button if present
 			if (this.backButton != null) {
-				backButton.render(poseStack, x, y, BUTTON_HEIGHT, mouseX, mouseY, tickDelta, hovered);
+				backButton.render(x, y, BUTTON_HEIGHT, mouseX, mouseY, tickDelta, hovered);
 			}
 
 			boolean shiftDown = Screen.hasShiftDown();
@@ -169,36 +195,37 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 			this.resetButton.text = shiftDown ? RESET_BUTTON_TEXT_ACTIVE : RESET_BUTTON_TEXT_INACTIVE;
 
 			// Draw the utility buttons
-			this.utilityButtons.renderRightAligned(poseStack, (x + entryWidth) - 3, y, BUTTON_HEIGHT, mouseX, mouseY, tickDelta, hovered);
+			this.utilityButtons.renderRightAligned((x + entryWidth) - 3, y, BUTTON_HEIGHT, mouseX, mouseY, tickDelta, hovered);
 
 			// Draw the reset button's tooltip
 			if (this.resetButton.isHovered()) {
-				Component tooltip = shiftDown ? RESET_TOOLTIP : RESET_HOLD_SHIFT_TOOLTIP;
-				queueBottomRightAnchoredTooltip(poseStack, mouseX, mouseY, font, tooltip);
+				Text tooltip = shiftDown ? RESET_TOOLTIP : RESET_HOLD_SHIFT_TOOLTIP;
+				queueBottomRightAnchoredTooltip(mouseX, mouseY, font, tooltip);
 			}
 			// Draw the import/export button tooltips
 			if (this.importButton.isHovered()) {
-				queueBottomRightAnchoredTooltip(poseStack, mouseX, mouseY, font, IMPORT_TOOLTIP);
+				queueBottomRightAnchoredTooltip(mouseX, mouseY, font, IMPORT_TOOLTIP);
 			}
 			if (this.exportButton.isHovered()) {
-				queueBottomRightAnchoredTooltip(poseStack, mouseX, mouseY, font, EXPORT_TOOLTIP);
+				queueBottomRightAnchoredTooltip(mouseX, mouseY, font, EXPORT_TOOLTIP);
 			}
 		}
 
-		private void queueBottomRightAnchoredTooltip(PoseStack poseStack, int x, int y, Font font, Component text) {
+		private void queueBottomRightAnchoredTooltip(int x, int y, TextRenderer font, Text text) {
 			ShaderPackScreen.TOP_LAYER_RENDER_QUEUE.add(() -> GuiUtil.drawTextPanel(
-					font, poseStack, text,
-					x - (font.width(text) + 10), y - 16
+					font, text,
+					x - (font.getStringWidth(text.asFormattedString()) + 10), y - 16
 			));
 		}
 
-		@Override
-		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-			boolean backButtonResult = backButton != null && backButton.mouseClicked(mouseX, mouseY, button);
-			boolean utilButtonResult = utilityButtons.mouseClicked(mouseX, mouseY, button);
+        @Override
+        public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int x, int y) {
+            boolean backButtonResult = backButton != null && backButton.mouseClicked(mouseX, mouseY, button);
+            boolean utilButtonResult = utilityButtons.mouseClicked(mouseX, mouseY, button);
 
-			return backButtonResult || utilButtonResult;
-		}
+            return backButtonResult || utilButtonResult;
+        }
+
 
 		private boolean backButtonClicked(IrisElementRow.TextButtonElement button) {
 			this.navigation.back();
@@ -229,10 +256,10 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 
 			// Displaying a dialog when the game is full-screened can cause severe issues
 			// https://github.com/IrisShaders/Iris/issues/1258
-			if (Minecraft.getInstance().getWindow().isFullscreen()) {
+			if (MinecraftClient.getInstance().isFullscreen()) {
 				this.screen.displayNotification(
-					new TranslatableComponent("options.iris.mustDisableFullscreen")
-						.withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD));
+					new TranslatableText("options.iris.mustDisableFullscreen")
+						.setStyle(new Style().setFormatting(Formatting.RED).setBold(true)));
 				return false;
 			}
 
@@ -269,8 +296,8 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 			// https://github.com/IrisShaders/Iris/issues/1258
 			if (Minecraft.getInstance().getWindow().isFullscreen()) {
 				this.screen.displayNotification(
-					new TranslatableComponent("options.iris.mustDisableFullscreen")
-						.withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD));
+					new TranslatableText("options.iris.mustDisableFullscreen")
+						.setStyle(Formatting.RED).setStyle(Formatting.BOLD));
 				return false;
 			}
 
@@ -325,7 +352,7 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 		}
 
 		@Override
-		public void render(PoseStack poseStack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+		public void render(int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
 			this.cachedWidth = entryWidth;
 			this.cachedPosX = x;
 
@@ -340,7 +367,7 @@ public class ShaderPackOptionList extends IrisObjectSelectionList<ShaderPackOpti
 			for (int i = 0; i < widgets.size(); i++) {
 				AbstractElementWidget<?> widget = widgets.get(i);
 				boolean widgetHovered = hovered && (getHoveredWidget(mouseX) == i);
-				widget.render(poseStack, x + (int)((singleWidgetWidth + 2) * i), y, (int) singleWidgetWidth, entryHeight + 2, mouseX, mouseY, tickDelta, widgetHovered);
+				widget.render(x + (int)((singleWidgetWidth + 2) * i), y, (int) singleWidgetWidth, entryHeight + 2, mouseX, mouseY, tickDelta, widgetHovered);
 
 				screen.setElementHoveredStatus(widget, widgetHovered);
 			}

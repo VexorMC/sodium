@@ -1,15 +1,15 @@
 package net.coderbot.iris.gui.element.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gui.GuiUtil;
 import net.coderbot.iris.gui.NavigationController;
 import net.coderbot.iris.gui.screen.ShaderPackScreen;
 import net.coderbot.iris.shaderpack.option.StringOption;
 import net.coderbot.iris.shaderpack.option.menu.OptionMenuStringOptionElement;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class StringElementWidget extends BaseOptionElementWidget<OptionMenuStrin
 		// The value currently in use by the shader pack
 		this.appliedValue = this.element.getAppliedOptionValues().getStringValueOrDefault(this.option.getName());
 
-		this.setLabel(GuiUtil.translateOrDefault(new TextComponent(this.option.getName()), "option." + this.option.getName()));
+		this.setLabel(GuiUtil.translateOrDefault(new LiteralText(this.option.getName()), "option." + this.option.getName()));
 
 		List<String> values = this.option.getAllowedValues();
 
@@ -46,11 +46,11 @@ public class StringElementWidget extends BaseOptionElementWidget<OptionMenuStrin
 	}
 
 	@Override
-	public void render(PoseStack poseStack, int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
+	public void render(int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
 		this.updateRenderParams(width, 0);
 
-		this.renderOptionWithValue(poseStack, x, y, width, height, hovered);
-		this.tryRenderTooltip(poseStack, mouseX, mouseY, hovered);
+		this.renderOptionWithValue(x, y, width, height, hovered);
+		this.tryRenderTooltip(mouseX, mouseY, hovered);
 	}
 
 	private void increment(int amount) {
@@ -60,9 +60,9 @@ public class StringElementWidget extends BaseOptionElementWidget<OptionMenuStrin
 	}
 
 	@Override
-	protected Component createValueLabel() {
+	protected Text createValueLabel() {
 		return GuiUtil.translateOrDefault(
-				new TextComponent(getValue()).withStyle(style -> style.withColor(TextColor.fromRgb(0x6688ff))),
+				new LiteralText(getValue()).setStyle(new Style().setFormatting(Formatting.BLUE)),
 				"value." + this.option.getName() + "." + getValue());
 	}
 

@@ -15,8 +15,6 @@ import net.coderbot.iris.shaderpack.option.menu.OptionMenuMainElementScreen;
 import net.coderbot.iris.shaderpack.option.menu.OptionMenuProfileElement;
 import net.coderbot.iris.shaderpack.option.menu.OptionMenuStringOptionElement;
 import net.coderbot.iris.shaderpack.option.menu.OptionMenuSubElementScreen;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;

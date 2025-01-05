@@ -208,7 +208,7 @@ public final class GuiUtil {
 		 * @param x The x position to draw the icon at (left)
 		 * @param y The y position to draw the icon at (top)
 		 */
-		public void draw(PoseStack poseStack, int x, int y) {
+		public void draw(int x, int y) {
 			// Sets RenderSystem to use solid white as the tint color for blend mode, and enables blend mode
 			RenderSystem.blendColor(1.0f, 1.0f, 1.0f, 1.0f);
 			RenderSystem.enableBlend();

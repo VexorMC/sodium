@@ -26,11 +26,11 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
-import net.minecraft.ChatFormatting;
+import net.minecraft.Formatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.TranslatableText;
 import net.minecraft.world.level.dimension.DimensionType;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -161,7 +161,7 @@ public class Iris {
 				reload();
 
 				if (instance.player != null) {
-					instance.player.displayClientMessage(new TranslatableComponent("iris.shaders.reloaded"), false);
+					instance.player.displayClientMessage(new TranslatableText("iris.shaders.reloaded"), false);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -213,14 +213,14 @@ public class Iris {
 				reload();
 
 				if (minecraft.player != null) {
-					minecraft.player.displayClientMessage(new TranslatableComponent("iris.shaders.reloaded"), false);
+					minecraft.player.displayClientMessage(new TranslatableText("iris.shaders.reloaded"), false);
 				}
 
 			} catch (Exception e) {
 				logger.error("Error while reloading Shaders for Iris!", e);
 
 				if (minecraft.player != null) {
-					minecraft.player.displayClientMessage(new TranslatableComponent("iris.shaders.reloaded.failure", Throwables.getRootCause(e).getMessage()).withStyle(ChatFormatting.RED), false);
+					minecraft.player.displayClientMessage(new TranslatableText("iris.shaders.reloaded.failure", Throwables.getRootCause(e).getMessage()).withStyle(Formatting.RED), false);
 				}
 			}
 		} else if (toggleShadersKeybind.consumeClick()) {
@@ -230,7 +230,7 @@ public class Iris {
 				logger.error("Error while toggling shaders!", e);
 
 				if (minecraft.player != null) {
-					minecraft.player.displayClientMessage(new TranslatableComponent("iris.shaders.toggled.failure", Throwables.getRootCause(e).getMessage()).withStyle(ChatFormatting.RED), false);
+					minecraft.player.displayClientMessage(new TranslatableText("iris.shaders.toggled.failure", Throwables.getRootCause(e).getMessage()).withStyle(Formatting.RED), false);
 				}
 				setShadersDisabled();
 				fallback = true;
@@ -246,7 +246,7 @@ public class Iris {
 
 		reload();
 		if (minecraft.player != null) {
-			minecraft.player.displayClientMessage(enabled ? new TranslatableComponent("iris.shaders.toggled", currentPackName) : new TranslatableComponent("iris.shaders.disabled"), false);
+			minecraft.player.displayClientMessage(enabled ? new TranslatableText("iris.shaders.toggled", currentPackName) : new TranslatableText("iris.shaders.disabled"), false);
 		}
 	}
 
@@ -426,9 +426,9 @@ public class Iris {
 
 		logger.info("Debug functionality is " + (enable ? "enabled, logging will be more verbose!" : "disabled."));
 		if (Minecraft.getInstance().player != null) {
-			Minecraft.getInstance().player.displayClientMessage(new TranslatableComponent(success != 0 ? (enable ? "iris.shaders.debug.enabled" : "iris.shaders.debug.disabled") : "iris.shaders.debug.failure"), false);
+			Minecraft.getInstance().player.displayClientMessage(new TranslatableText(success != 0 ? (enable ? "iris.shaders.debug.enabled" : "iris.shaders.debug.disabled") : "iris.shaders.debug.failure"), false);
 			if (success == 2) {
-				Minecraft.getInstance().player.displayClientMessage(new TranslatableComponent("iris.shaders.debug.restart"), false);
+				Minecraft.getInstance().player.displayClientMessage(new TranslatableText("iris.shaders.debug.restart"), false);
 			}
 		}
 
@@ -683,18 +683,18 @@ public class Iris {
 	}
 
 	public static String getFormattedVersion() {
-		ChatFormatting color;
+		Formatting color;
 		String version = getVersion();
 
 		if (version.endsWith("-development-environment")) {
-			color = ChatFormatting.GOLD;
+			color = Formatting.GOLD;
 			version = version.replace("-development-environment", " (Development Environment)");
 		} else if (version.endsWith("-dirty") || version.contains("unknown") || version.endsWith("-nogit")) {
-			color = ChatFormatting.RED;
+			color = Formatting.RED;
 		} else if (version.contains("+rev.")) {
-			color = ChatFormatting.LIGHT_PURPLE;
+			color = Formatting.LIGHT_PURPLE;
 		} else {
-			color = ChatFormatting.GREEN;
+			color = Formatting.GREEN;
 		}
 
 		return color + version;

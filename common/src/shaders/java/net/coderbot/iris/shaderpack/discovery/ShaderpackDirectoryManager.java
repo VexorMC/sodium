@@ -97,7 +97,11 @@ public class ShaderpackDirectoryManager {
 		return new String(cleaned, 0, c);
 	}
 
-	public URI getDirectoryUri() {
+    public Path getRoot() {
+        return root;
+    }
+
+    public URI getDirectoryUri() {
 		return root.toUri();
 	}
 }

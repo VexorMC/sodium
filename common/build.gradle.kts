@@ -57,6 +57,7 @@ dependencies {
     implementation("org.lwjgl:lwjgl-openal")
     implementation("org.lwjgl:lwjgl-opengl")
     implementation("org.lwjgl:lwjgl-stb")
+    implementation("org.lwjgl:lwjgl-tinyfd")
     implementation("io.github.douira:glsl-transformer:1.0.1")
     arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
         runtimeOnly("org.lwjgl:lwjgl::natives-$platform")

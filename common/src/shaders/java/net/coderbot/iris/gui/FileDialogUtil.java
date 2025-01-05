@@ -4,7 +4,6 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
