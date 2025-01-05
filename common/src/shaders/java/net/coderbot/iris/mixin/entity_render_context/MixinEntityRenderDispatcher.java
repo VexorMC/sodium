@@ -3,8 +3,6 @@ package net.coderbot.iris.mixin.entity_render_context;
 import it.unimi.dsi.fastutil.objects.Object2IntFunction;
 import net.coderbot.batchedentityrendering.impl.Groupable;
 import net.coderbot.iris.block_rendering.BlockRenderingSettings;
-import net.coderbot.iris.layer.EntityRenderStateShard;
-import net.coderbot.iris.layer.OuterWrappedRenderType;
 import net.coderbot.iris.shaderpack.materialmap.NamespacedId;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;

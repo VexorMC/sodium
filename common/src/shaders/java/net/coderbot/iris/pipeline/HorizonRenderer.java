@@ -1,12 +1,9 @@
 package net.coderbot.iris.pipeline;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormats;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -40,45 +37,33 @@ public class HorizonRenderer {
 	 * Sine of 22.5 degrees.
 	 */
 	private static final double SIN_22_5 = Math.sin(Math.toRadians(22.5));
-	private VertexBuffer buffer;
+    
+    private static final int RADIUS = 384;
+    
 	private int currentRenderDistance;
 
 	public HorizonRenderer() {
-		currentRenderDistance = Minecraft.getInstance().options.renderDistance;
+		currentRenderDistance = MinecraftClient.getInstance().options.viewDistance;
 
 		rebuildBuffer();
 	}
 
 	private void rebuildBuffer() {
-		if (this.buffer != null) {
-			this.buffer.close();
-		}
 
-		BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-
-		// Build the horizon quads into a buffer
-		buffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION);
-		buildHorizon(currentRenderDistance * 16, buffer);
-		buffer.end();
-
-		this.buffer = new VertexBuffer(DefaultVertexFormat.POSITION);
-		this.buffer.bind();
-		this.buffer.upload(buffer);
-		VertexBuffer.unbind();
 	}
 
-	private void buildQuad(VertexConsumer consumer, double x1, double z1, double x2, double z2) {
+	private void buildQuad(BufferBuilder consumer, double x1, double z1, double x2, double z2) {
 		consumer.vertex(x1, BOTTOM, z1);
-		consumer.endVertex();
+		consumer.next();
 		consumer.vertex(x1, TOP, z1);
-		consumer.endVertex();
+		consumer.next();
 		consumer.vertex(x2, TOP, z2);
-		consumer.endVertex();
+		consumer.next();
 		consumer.vertex(x2, BOTTOM, z2);
-		consumer.endVertex();
+		consumer.next();
 	}
 
-	private void buildHalf(VertexConsumer consumer, double adjacent, double opposite, boolean invert) {
+	private void buildHalf(BufferBuilder consumer, double adjacent, double opposite, boolean invert) {
 		if (invert) {
 			adjacent = -adjacent;
 			opposite = -opposite;
@@ -104,49 +89,49 @@ public class HorizonRenderer {
 	 * @param opposite the opposite side length of the a triangle with a hypotenuse extending from the center of the
 	 *                 octagon to a given vertex on the perimeter.
 	 */
-	private void buildOctagonalPrism(VertexConsumer consumer, double adjacent, double opposite) {
+	private void buildOctagonalPrism(BufferBuilder consumer, double adjacent, double opposite) {
 		buildHalf(consumer, adjacent, opposite, false);
 		buildHalf(consumer, adjacent, opposite, true);
 	}
 
-	private void buildRegularOctagonalPrism(VertexConsumer consumer, double radius) {
+	private void buildRegularOctagonalPrism(BufferBuilder consumer, double radius) {
 		buildOctagonalPrism(consumer, radius * COS_22_5, radius * SIN_22_5);
 	}
 
-	private void buildBottomPlane(VertexConsumer consumer, int radius) {
-		for (int x = -radius; x <= radius; x += 64) {
-			for (int z = -radius; z <= radius; z += 64) {
+	private void buildBottomPlane(BufferBuilder consumer) {
+		for (int x = -RADIUS; x <= RADIUS; x += 64) {
+			for (int z = -RADIUS; z <= RADIUS; z += 64) {
 				consumer.vertex(x + 64, BOTTOM, z);
-				consumer.endVertex();
+				consumer.next();
 				consumer.vertex(x, BOTTOM, z);
-				consumer.endVertex();
+				consumer.next();
 				consumer.vertex(x, BOTTOM, z + 64);
-				consumer.endVertex();
+				consumer.next();
 				consumer.vertex(x + 64, BOTTOM, z + 64);
-				consumer.endVertex();
+				consumer.next();
 			}
 		}
 	}
 
-	private void buildTopPlane(VertexConsumer consumer, int radius) {
+	private void buildTopPlane(BufferBuilder consumer) {
 		// You might be tempted to try to combine this with buildBottomPlane to avoid code duplication,
 		// but that won't work since the winding order has to be reversed or else one of the planes will be
 		// discarded by back face culling.
-		for (int x = -radius; x <= radius; x += 64) {
-			for (int z = -radius; z <= radius; z += 64) {
+		for (int x = -RADIUS; x <= RADIUS; x += 64) {
+			for (int z = -RADIUS; z <= RADIUS; z += 64) {
 				consumer.vertex(x + 64, TOP, z);
-				consumer.endVertex();
+				consumer.next();
 				consumer.vertex(x + 64, TOP, z + 64);
-				consumer.endVertex();
+				consumer.next();
 				consumer.vertex(x, TOP, z + 64);
-				consumer.endVertex();
+				consumer.next();
 				consumer.vertex(x, TOP, z);
-				consumer.endVertex();
+				consumer.next();
 			}
 		}
 	}
 
-	private void buildHorizon(int radius, VertexConsumer consumer) {
+	private void buildHorizon(int radius, BufferBuilder consumer) {
 		if (radius > 256) {
 			// Prevent the prism from getting too large, this causes issues on some shader packs that modify the vanilla
 			// sky if we don't do this.
@@ -157,26 +142,29 @@ public class HorizonRenderer {
 
 		// Replicate the vanilla top plane since we can't assume that it'll be rendered.
 		// TODO: Remove vanilla top plane
-		buildTopPlane(consumer, 384);
+		buildTopPlane(consumer);
 
-		// Always make the bottom plane have a radius of 384, to match the top plane.
-		buildBottomPlane(consumer, 384);
+		// Always make the bottom plane have a radius of RADIUS, to match the top plane.
+		buildBottomPlane(consumer);
 	}
 
-	public void renderHorizon(Matrix4f matrix) {
-		if (currentRenderDistance != Minecraft.getInstance().options.renderDistance) {
-			currentRenderDistance = Minecraft.getInstance().options.renderDistance;
+	public void renderHorizon() {
+		if (currentRenderDistance != MinecraftClient.getInstance().options.viewDistance) {
+			currentRenderDistance = MinecraftClient.getInstance().options.viewDistance;
 			rebuildBuffer();
 		}
 
-		buffer.bind();
-		DefaultVertexFormat.POSITION.setupBufferState(0L);
-		buffer.draw(matrix, GL11.GL_QUADS);
-		DefaultVertexFormat.POSITION.clearBufferState();
-		VertexBuffer.unbind();
+        // TODO: Rather than rebuilding the buffer every frame, build it once at initialization
+        
+        BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+
+        buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION);
+        buildHorizon(currentRenderDistance * 16, buffer);
+        buffer.end();
+
+        Tessellator.getInstance().draw();
 	}
 
 	public void destroy() {
-		buffer.close();
 	}
 }

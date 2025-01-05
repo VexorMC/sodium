@@ -5,8 +5,6 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gl.program.Program;
-import net.coderbot.iris.layer.IsOutlineRenderStateShard;
-import net.coderbot.iris.layer.OuterWrappedRenderType;
 import net.coderbot.iris.pipeline.HandRenderer;
 import net.coderbot.iris.pipeline.WorldRenderingPhase;
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;
