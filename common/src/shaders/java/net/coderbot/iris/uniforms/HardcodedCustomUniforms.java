@@ -5,26 +5,26 @@ import net.coderbot.iris.gl.uniform.UniformUpdateFrequency;
 import net.coderbot.iris.mixin.DimensionTypeAccessor;
 import net.coderbot.iris.uniforms.transforms.SmoothedFloat;
 import net.coderbot.iris.vendored.joml.Math;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.player.ClientPlayerEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 
 // These expressions are copied directly from BSL and Complementary.
 
 // TODO: Remove once custom uniforms are actually supported, this is just a temporary thing to get BSL & Complementary
 // mostly working under Iris.
 public class HardcodedCustomUniforms {
-	private static final Minecraft client = Minecraft.getInstance();
+	private static final MinecraftClient client = MinecraftClient.getInstance();
 	private static Biome storedBiome;
 
 	public static void addHardcodedCustomUniforms(UniformHolder holder, FrameUpdateNotifier updateNotifier) {
 		updateNotifier.addListener(() -> {
-			if (Minecraft.getInstance().level != null) {
-				storedBiome = Minecraft.getInstance().level.getBiome(Minecraft.getInstance().getCameraEntity().blockPosition());
+			if (MinecraftClient.getInstance().world != null) {
+				storedBiome = MinecraftClient.getInstance().world.getBiome(MinecraftClient.getInstance().getCameraEntity().getBlockPos());
 			} else {
 				storedBiome = null;
 			}
@@ -62,14 +62,14 @@ public class HardcodedCustomUniforms {
 			if (storedBiome == null) {
 				return 0;
 			} else {
-				return storedBiome.getBiomeCategory() == Biome.BiomeCategory.SWAMP ? 1 : 0;
+				return storedBiome == Biome.SWAMPLAND ? 1 : 0;
 			}
 		}, updateNotifier));
 		holder.uniform1f(UniformUpdateFrequency.PER_FRAME, "BiomeTemp", () -> {
 			if (storedBiome == null) {
 				return 0;
 			} else {
-				return storedBiome.getTemperature(Minecraft.getInstance().getCameraEntity().blockPosition());
+				return storedBiome.getTemperature(MinecraftClient.getInstance().getCameraEntity().getBlockPos());
 			}
 		});
 
@@ -93,20 +93,20 @@ public class HardcodedCustomUniforms {
 	}
 
 	private static float getBurnFactor() {
-		return Minecraft.getInstance().player.isOnFire() ? 1.0f : 0f;
+		return MinecraftClient.getInstance().player.isOnFire() ? 1.0f : 0f;
 	}
 
 	private static float getSneakFactor() {
-		return Minecraft.getInstance().player.isCrouching() ? 1.0f : 0f;
+		return MinecraftClient.getInstance().player.isSneaking() ? 1.0f : 0f;
 	}
 
 	private static float getHurtFactor() {
-		Player player = Minecraft.getInstance().player;
+		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		return player.hurtTime > 0 || player.deathTime > 0 ? 0.4f : 0f;
 	}
 
 	private static float getEyeInCave() {
-		if (client.getCameraEntity().getEyeY() < 5.0) {
+		if (client.getCameraEntity().getEyeHeight() < 5.0) {
 			return 1.0f - getEyeSkyBrightness() / 240F;
 		}
 		return 0.0f;
@@ -117,15 +117,15 @@ public class HardcodedCustomUniforms {
 	}
 
 	private static float getEyeSkyBrightness() {
-		if (client.cameraEntity == null || client.level == null) {
+		if (client.getCameraEntity() == null || client.world == null) {
 			return 0;
 		}
 
-		Vec3 feet = client.cameraEntity.position();
-		Vec3 eyes = new Vec3(feet.x, client.cameraEntity.getEyeY(), feet.z);
+		Vec3d feet = client.getCameraEntity().getPos();
+        Vec3d eyes = new Vec3d(feet.x, client.getCameraEntity().getEyeHeight(), feet.z);
 		BlockPos eyeBlockPos = new BlockPos(eyes);
 
-		int skyLight = client.level.getBrightness(LightLayer.SKY, eyeBlockPos);
+		int skyLight = client.world.getLightAtPos(LightType.SKY, eyeBlockPos);
 
 		return skyLight * 16;
 	}
@@ -154,9 +154,9 @@ public class HardcodedCustomUniforms {
 	}
 
 	private static int getWorldDayTime() {
-		Level level = Minecraft.getInstance().level;
-		long  timeOfDay = level.getDayTime();
-		long dayTime = ((DimensionTypeAccessor) level.dimensionType()).getFixedTime().orElse(timeOfDay % 24000L);
+		World level = MinecraftClient.getInstance().world;
+		long  timeOfDay = level.getTimeOfDay();
+		long dayTime = timeOfDay % 24000L;
 
 		return (int) dayTime;
 	}
@@ -181,15 +181,7 @@ public class HardcodedCustomUniforms {
 		if (storedBiome == null) {
 			return 0;
 		}
-		Biome.Precipitation precipitation = storedBiome.getPrecipitation();
-		switch (precipitation) {
-			case RAIN:
-				return 1;
-			case SNOW:
-				return 2;
-			default:
-				return 0;
-		}
+		return 0;
 	}
 
 	private static float getBlindFactor() {

@@ -15,7 +15,7 @@ public class FogUniforms {
 		uniforms.uniform1i("fogMode", () -> {
 			GlStateManager.FogState fog = GlStateManagerAccessor.getFOG();
 
-			if (!((BooleanStateAccessor) fog.enable).isEnabled()) {
+			if (!((BooleanStateAccessor) fog.capState).isEnabled()) {
 				return 0;
 			}
 

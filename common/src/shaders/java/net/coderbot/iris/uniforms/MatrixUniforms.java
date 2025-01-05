@@ -1,10 +1,10 @@
 package net.coderbot.iris.uniforms;
 
-import com.mojang.math.Matrix4f;
 import net.coderbot.iris.gl.uniform.UniformHolder;
 import net.coderbot.iris.pipeline.ShadowRenderer;
 import net.coderbot.iris.shaderpack.PackDirectives;
 import net.coderbot.iris.shadow.ShadowMatrices;
+import org.lwjgl.util.vector.Matrix4f;
 
 import java.nio.FloatBuffer;
 import java.util.function.Supplier;
@@ -54,7 +54,7 @@ public final class MatrixUniforms {
 		@Override
 		public net.coderbot.iris.vendored.joml.Matrix4f get() {
 			// PERF: Don't copy + allocate this matrix every time?
-			Matrix4f copy = parent.get().copy();
+			Matrix4f copy = new Matrix4f(parent.get());
 
 			FloatBuffer buffer = FloatBuffer.allocate(16);
 			copy.store(buffer);
@@ -99,8 +99,8 @@ public final class MatrixUniforms {
 		@Override
 		public Matrix4f get() {
 			// PERF: Don't copy + allocate these matrices every time?
-			Matrix4f copy = parent.get().copy();
-			Matrix4f previous = this.previous.copy();
+			Matrix4f copy = new Matrix4f(parent.get());
+			Matrix4f previous = new Matrix4f(this.previous);
 
 			this.previous = copy;
 
