@@ -3,7 +3,7 @@ package net.coderbot.iris.uniforms;
 import net.coderbot.iris.JomlConversions;
 import net.coderbot.iris.gl.uniform.UniformHolder;
 import net.coderbot.iris.vendored.joml.Vector3d;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 
 import static net.coderbot.iris.gl.uniform.UniformUpdateFrequency.ONCE;
 import static net.coderbot.iris.gl.uniform.UniformUpdateFrequency.PER_FRAME;
@@ -12,7 +12,7 @@ import static net.coderbot.iris.gl.uniform.UniformUpdateFrequency.PER_FRAME;
  * @see <a href="https://github.com/IrisShaders/ShaderDoc/blob/master/uniforms.md#camera">Uniforms: Camera</a>
  */
 public class CameraUniforms {
-	private static final Minecraft client = Minecraft.getInstance();
+	private static final MinecraftClient client = MinecraftClient.getInstance();
 
 	private CameraUniforms() {
 	}
@@ -29,11 +29,11 @@ public class CameraUniforms {
 
 	private static int getRenderDistanceInBlocks() {
 		// TODO: Should we ask the game renderer for this?
-		return client.options.renderDistance * 16;
+		return client.options.viewDistance * 16;
 	}
 
 	public static Vector3d getUnshiftedCameraPosition() {
-		return JomlConversions.fromVec3(client.gameRenderer.getMainCamera().getPosition());
+		return JomlConversions.fromVec3(client.getCameraEntity().getPos());
 	}
 
 	static class CameraPositionTracker {
