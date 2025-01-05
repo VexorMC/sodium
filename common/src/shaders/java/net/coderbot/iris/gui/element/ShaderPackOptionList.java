@@ -20,6 +20,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -170,6 +171,11 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
 
 
         @Override
+        public void updatePosition(int index, int x, int y) {
+
+        }
+
+        @Override
 		public void render(int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
 			// Draw dividing line
 			DrawableHelper.fill(x - 3, (y + entryHeight) - 2, x + entryWidth, (y + entryHeight) - 1, 0x66BEBEBE);
@@ -226,8 +232,13 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
             return backButtonResult || utilButtonResult;
         }
 
+        @Override
+        public void mouseReleased(int index, int mouseX, int mouseY, int button, int x, int y) {
 
-		private boolean backButtonClicked(IrisElementRow.TextButtonElement button) {
+        }
+
+
+        private boolean backButtonClicked(IrisElementRow.TextButtonElement button) {
 			this.navigation.back();
 			GuiUtil.playButtonClickSound();
 
@@ -276,7 +287,7 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
 					return;
 				}
 
-				if (Minecraft.getInstance().screen == originalScreen) {
+				if (MinecraftClient.getInstance().currentScreen == originalScreen) {
 					path.ifPresent(originalScreen::importPackOptions);
 				}
 			});
@@ -294,10 +305,10 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
 
 			// Displaying a dialog when the game is full-screened can cause severe issues
 			// https://github.com/IrisShaders/Iris/issues/1258
-			if (Minecraft.getInstance().getWindow().isFullscreen()) {
+			if (MinecraftClient.getInstance().isFullscreen()) {
 				this.screen.displayNotification(
 					new TranslatableText("options.iris.mustDisableFullscreen")
-						.setStyle(Formatting.RED).setStyle(Formatting.BOLD));
+						.setStyle(new Style().setFormatting(Formatting.RED).setBold(true)));
 				return false;
 			}
 
@@ -352,7 +363,7 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
 		}
 
 		@Override
-		public void render(int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+		public void render(int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
 			this.cachedWidth = entryWidth;
 			this.cachedPosX = x;
 
@@ -367,26 +378,32 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
 			for (int i = 0; i < widgets.size(); i++) {
 				AbstractElementWidget<?> widget = widgets.get(i);
 				boolean widgetHovered = hovered && (getHoveredWidget(mouseX) == i);
-				widget.render(x + (int)((singleWidgetWidth + 2) * i), y, (int) singleWidgetWidth, entryHeight + 2, mouseX, mouseY, tickDelta, widgetHovered);
+				widget.render(x + (int)((singleWidgetWidth + 2) * i), y, (int) singleWidgetWidth, entryHeight + 2, mouseX, mouseY, ((MinecraftClientAccessor)MinecraftClient.getInstance()).getTicker().tickDelta, widgetHovered);
 
 				screen.setElementHoveredStatus(widget, widgetHovered);
 			}
 		}
 
 		public int getHoveredWidget(int mouseX) {
-			float positionAcrossWidget = ((float) Mth.clamp(mouseX - cachedPosX, 0, cachedWidth)) / cachedWidth;
+			float positionAcrossWidget = ((float) MathHelper.clamp(mouseX - cachedPosX, 0, cachedWidth)) / cachedWidth;
 
-			return Mth.clamp((int) Math.floor(widgets.size() * positionAcrossWidget), 0, widgets.size() - 1);
+			return MathHelper.clamp((int) Math.floor(widgets.size() * positionAcrossWidget), 0, widgets.size() - 1);
 		}
 
-		@Override
-		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-			return this.widgets.get(getHoveredWidget((int) mouseX)).mouseClicked(mouseX, mouseY, button);
-		}
 
-		@Override
-		public boolean mouseReleased(double mouseX, double mouseY, int button) {
-			return this.widgets.get(getHoveredWidget((int) mouseX)).mouseReleased(mouseX, mouseY, button);
-		}
-	}
+        @Override
+        public void updatePosition(int index, int x, int y) {
+
+        }
+
+        @Override
+        public boolean mouseClicked(int index, int mouseX, int mouseY, int button, int x, int y) {
+            return this.widgets.get(getHoveredWidget((int) mouseX)).mouseClicked(mouseX, mouseY, button);
+        }
+
+        @Override
+        public void mouseReleased(int index, int mouseX, int mouseY, int button, int x, int y) {
+            this.widgets.get(getHoveredWidget((int) mouseX)).mouseReleased(mouseX, mouseY, button);
+        }
+    }
 }

@@ -1,7 +1,5 @@
 package net.coderbot.iris.mixin.gui;
 
-import net.coderbot.iris.gui.option.IrisVideoSettings;
-import net.coderbot.iris.gui.option.ShaderPackSelectionButtonOption;
 import net.minecraft.client.Option;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screens.VideoSettingsScreen;
@@ -28,7 +26,6 @@ public abstract class MixinVideoSettingsScreen extends Screen {
 		Option[] options = new Option[old.length + 2];
 		System.arraycopy(old, 0, options, 0, old.length);
 		options[options.length - 2] = new ShaderPackSelectionButtonOption((VideoSettingsScreen)(Object)this, this.minecraft);
-		options[options.length - 1] = IrisVideoSettings.RENDER_DISTANCE;
 		return options;
 	}
 }
