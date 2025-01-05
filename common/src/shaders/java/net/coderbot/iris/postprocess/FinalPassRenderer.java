@@ -212,10 +212,20 @@ public class FinalPassRenderer {
 			//
 			// We could have used a shader here, but it should be about the same performance either way:
 			// https://stackoverflow.com/a/23994979/18166885
-			this.baseline.bindAsReadBuffer();
+            // Bind the source framebuffer (Iris color render targets)
+            this.baseline.bindAsReadBuffer();
 
-			IrisRenderSystem.copyTexSubImage2D(main.colorAttachment, GL11C.GL_TEXTURE_2D, 0, 0, 0, 0, 0, baseWidth, baseHeight);
-		}
+            System.out.println(baseline.getStatus());
+
+            GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, main.fbo);
+
+            GL30C.glBlitFramebuffer(
+                    0, 0, baseWidth, baseHeight,  // Source bounds
+                    0, 0, baseWidth, baseHeight, // Destination bounds
+                    GL11C.GL_COLOR_BUFFER_BIT,   // Copy color buffer
+                    GL11C.GL_NEAREST             // Filtering method
+            );
+        }
 
 		RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
 

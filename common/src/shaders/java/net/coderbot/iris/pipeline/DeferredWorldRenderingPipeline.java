@@ -168,7 +168,7 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
 
 		Framebuffer mainTarget = MinecraftClient.getInstance().getFramebuffer();
 
-		int depthTextureId = mainTarget.depthAttachment;
+		int depthTextureId = ((Blaze3dRenderTargetExt) mainTarget).getIris$depthTextureId();
 		int internalFormat = TextureInfoCache.INSTANCE.getInfo(depthTextureId).getInternalFormat();
 		DepthBufferFormat depthBufferFormat = DepthBufferFormat.fromGlEnumOrDefault(internalFormat);
 
@@ -906,7 +906,7 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
 		Framebuffer main = MinecraftClient.getInstance().getFramebuffer();
 		Blaze3dRenderTargetExt mainExt = (Blaze3dRenderTargetExt) main;
 
-		int depthTextureId = main.depthAttachment;
+		int depthTextureId = mainExt.getIris$depthTextureId();
 		int internalFormat = TextureInfoCache.INSTANCE.getInfo(depthTextureId).getInternalFormat();
 		DepthBufferFormat depthBufferFormat = DepthBufferFormat.fromGlEnumOrDefault(internalFormat);
 

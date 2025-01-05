@@ -131,9 +131,14 @@ public class IrisRenderSystem {
 		return GL30C.glGetShaderInfoLog(shader);
 	}
 
-	public static void drawBuffers(int framebuffer, int[] buffers) {
-		dsaState.drawBuffers(framebuffer, buffers);
-	}
+    public static void drawBuffers(int framebuffer, int[] buffers) {
+        dsaState.drawBuffers(framebuffer, buffers);
+    }
+    public static void drawBuffers(int framebuffer, IntBuffer buffers) {
+        int[] buffer = new int[buffers.limit()];
+        buffers.get(buffer);
+        dsaState.drawBuffers(framebuffer, buffer);
+    }
 
 	public static void readBuffer(int framebuffer, int buffer) {
 		dsaState.readBuffer(framebuffer, buffer);
@@ -245,7 +250,7 @@ public class IrisRenderSystem {
 	}
 
 	public static void blitFramebuffer(int source, int dest, int offsetX, int offsetY, int width, int height, int offsetX2, int offsetY2, int width2, int height2, int bufferChoice, int filter) {
-		dsaState.blitFramebuffer(source, dest, offsetX, offsetY, width, height, offsetX2, offsetY2, width2, height2, bufferChoice, filter);
+        dsaState.blitFramebuffer(source, dest, offsetX, offsetY, width, height, offsetX2, offsetY2, width2, height2, bufferChoice, filter);
 	}
 
 	public static int createFramebuffer() {

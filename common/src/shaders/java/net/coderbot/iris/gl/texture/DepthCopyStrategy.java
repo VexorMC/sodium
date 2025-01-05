@@ -102,15 +102,15 @@ public interface DepthCopyStrategy {
 		//
 		// Perhaps calling GL43.isAvailable would be a different option, but we only need one
 		// function, so we just check for that function.
-        //if (GL.getCapabilities().glCopyImageSubData != MemoryUtil.NULL) {
-        //	return new Gl43CopyImage();
-        //}
+		if (GL.getCapabilities().glCopyImageSubData != MemoryUtil.NULL) {
+			return new Gl43CopyImage();
+		}
 
-        //if (combinedStencilRequired) {
-        //	return new Gl30BlitFbCombinedDepthStencil();
-        //} else {
+		if (combinedStencilRequired) {
+			return new Gl30BlitFbCombinedDepthStencil();
+		} else {
 			return new Gl20CopyTexture();
-        //}
+		}
 	}
 
 	boolean needsDestFramebuffer();
