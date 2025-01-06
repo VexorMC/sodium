@@ -102,7 +102,6 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 			if (optionMenuOpen && this.shaderOptionList != null) {
 				this.shaderOptionList.render(mouseX, mouseY, delta);
 			} else {
-                System.out.println("ShaderPackListRender");
 				this.shaderPackList.render(mouseX, mouseY, delta);
 			}
 		}
@@ -161,13 +160,29 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int button) {
-        int widthValue = this.textRenderer.getStringWidth("New update available!");
-        if (this.updateComponent != null && mouseX < widthValue && mouseY > (this.height - 10) && mouseY < this.height) {
+        if (!this.guiHidden) {
+            if (optionMenuOpen && this.shaderOptionList != null) {
+                this.shaderOptionList.mouseClicked(mouseX, mouseY, button);
+            } else {
+                this.shaderPackList.mouseClicked(mouseX, mouseY, button);
+            }
         }
         super.mouseClicked(mouseX, mouseY, button);
     }
 
-	@Override
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int button) {
+        if (!this.guiHidden) {
+            if (optionMenuOpen && this.shaderOptionList != null) {
+                this.shaderOptionList.mouseReleased(mouseX, mouseY, button);
+            } else {
+                this.shaderPackList.mouseReleased(mouseX, mouseY, button);
+            }
+        }
+        super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
 	public void init() {
 		super.init();
 		int bottomCenter = this.width / 2 - 50;

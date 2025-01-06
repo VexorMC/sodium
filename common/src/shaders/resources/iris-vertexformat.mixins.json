@@ -3,6 +3,7 @@
   "minVersion": "0.8",
   "package": "net.coderbot.iris.mixin.vertices",
   "compatibilityLevel": "JAVA_8",
+  "verbose": true,
   "client": [
     "MixinBufferBuilder",
     "MixinVertexFormatElement",

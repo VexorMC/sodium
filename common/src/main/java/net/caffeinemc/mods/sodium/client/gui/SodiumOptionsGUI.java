@@ -59,7 +59,7 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
     protected boolean hasPendingChanges;
     private @Nullable ScreenPrompt prompt;
 
-    private OptionPage shaderPacks;
+    public OptionPage shaderPacks;
 
     public SodiumOptionsGUI(Screen prevScreen) {
         this.prevScreen = prevScreen;

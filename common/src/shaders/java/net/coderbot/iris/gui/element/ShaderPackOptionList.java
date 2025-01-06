@@ -63,7 +63,7 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
 
     @Override
     protected int getEntryCount() {
-        return 0;
+        return this.entries.size();
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
 
     @Override
     public Entry getEntry(int index) {
-        return entries.get(index);
+        return this.entries.get(index);
     }
 
     public abstract static class BaseEntry extends DrawableHelper implements Entry {
@@ -117,6 +117,7 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
 			this.navigation = navigation;
 		}
 	}
+
 
 	public static class HeaderEntry extends BaseEntry {
 		public static final Text BACK_BUTTON_TEXT = new LiteralText("< ").append(new TranslatableText("options.iris.back").setStyle(new Style().setFormatting(Formatting.ITALIC)));

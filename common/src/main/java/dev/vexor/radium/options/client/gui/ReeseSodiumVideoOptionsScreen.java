@@ -112,7 +112,6 @@ public class ReeseSodiumVideoOptionsScreen extends SodiumOptionsGUI {
                         .setTabSectionSelectedTab(tabFrameSelectedTab)
                         .addTabs(tabs -> this.pages
                                 .stream()
-                                .filter(page -> !page.getGroups().isEmpty())
                                 .forEach(page -> tabs.add(Tab.createBuilder().from(page, optionPageScrollBarOffset)))
                         )
                         .onSetTab(() -> {

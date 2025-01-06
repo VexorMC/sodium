@@ -63,8 +63,10 @@ import net.coderbot.iris.vendored.joml.Vector3d;
 import net.coderbot.iris.vendored.joml.Vector4f;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.renderer.BlendFactor;
 import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.util.Pair;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.*;
@@ -141,7 +143,7 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
 	private WorldRenderingPhase phase = WorldRenderingPhase.NONE;
 	private boolean isBeforeTranslucent;
 	private boolean isRenderingShadow = false;
-	private InputAvailability inputs = new InputAvailability(false, false, false);
+	private InputAvailability inputs = new InputAvailability(true, false, false);
 	private SpecialCondition special = null;
 
 	private boolean shouldBindPBR;
@@ -1051,15 +1053,15 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
 			isRenderingFullScreenPass = false;
 		}
 
-		if (shadowRenderer != null) {
-			isRenderingShadow = true;
-
-			shadowRenderer.renderShadows(levelRenderer);
-
+        //if (shadowRenderer != null) {
+        //	isRenderingShadow = true;
+//
+        //	shadowRenderer.renderShadows(levelRenderer);
+//
 			// needed to remove blend mode overrides and similar
-			beginPass(null);
-			isRenderingShadow = false;
-		}
+        //	beginPass(null);
+        //	isRenderingShadow = false;
+        //}
 
 		if (!shouldRenderPrepareBeforeShadow) {
 			isRenderingFullScreenPass = true;
@@ -1132,6 +1134,9 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
 
         RenderSystem.depthMask(true);
         RenderSystem.enableTexture();
+
+        MinecraftClient.getInstance().getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
+        DiffuseLighting.disable();
     }
 
 	@Override

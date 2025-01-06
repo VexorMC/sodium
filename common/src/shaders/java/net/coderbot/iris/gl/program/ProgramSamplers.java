@@ -2,6 +2,7 @@ package net.coderbot.iris.gl.program;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.coderbot.iris.gl.IrisRenderSystem;
@@ -53,7 +54,7 @@ public class ProgramSamplers {
 			samplerBinding.update();
 		}
 
-		RenderSystem.activeTexture(GL20C.GL_TEXTURE0 + activeTexture);
+		RenderSystem.activeTexture(GLX.textureUnit + activeTexture);
 	}
 
 	public void removeListeners() {

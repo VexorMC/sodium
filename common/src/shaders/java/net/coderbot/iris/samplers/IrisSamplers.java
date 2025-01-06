@@ -2,6 +2,7 @@ package net.coderbot.iris.samplers;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.coderbot.iris.gbuffer_overrides.matching.InputAvailability;
 import net.coderbot.iris.gl.sampler.SamplerHolder;
 import net.coderbot.iris.gl.state.StateUpdateNotifiers;
@@ -10,7 +11,11 @@ import net.coderbot.iris.rendertarget.RenderTarget;
 import net.coderbot.iris.rendertarget.RenderTargets;
 import net.coderbot.iris.shaderpack.PackRenderTargetDirectives;
 import net.coderbot.iris.shadows.ShadowRenderTargets;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.client.texture.SpriteAtlasTexture;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -126,8 +131,12 @@ public class IrisSamplers {
 
 	public static void addLevelSamplers(SamplerHolder samplers, WorldRenderingPipeline pipeline, AbstractTexture whitePixel, InputAvailability availability) {
 		if (availability.texture) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE0 + ALBEDO_TEXTURE_UNIT);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, MinecraftClient.getInstance().getTextureManager().getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX).getGlId());
+
 			samplers.addExternalSampler(ALBEDO_TEXTURE_UNIT, "tex", "texture", "gtexture");
 		} else {
+            System.out.println("dynamic sampler");
 			// TODO: Rebind unbound sampler IDs instead of hardcoding a list...
 			samplers.addDynamicSampler(whitePixel::getGlId, "tex", "texture", "gtexture",
 					"gcolor", "colortex0");

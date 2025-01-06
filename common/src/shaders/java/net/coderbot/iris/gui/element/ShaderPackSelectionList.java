@@ -45,7 +45,7 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList {
 
     @Override
     protected int getEntryCount() {
-        return 0;
+        return this.entries.size();
     }
 
     @Override
@@ -143,14 +143,7 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList {
 
     @Override
     public Entry getEntry(int index) {
-        return null;
-    }
-
-    @Override
-    public void render(int mouseX, int mouseY, float tickDelta) {
-        super.render(mouseX, mouseY, tickDelta);
-        Window w = new Window(client);
-        renderList(w.getWidth() / 2, w.getWidth() / 2, mouseX, mouseY);
+        return this.entries.get(index);
     }
 
     public static abstract class BaseEntry extends DrawableHelper implements Entry {

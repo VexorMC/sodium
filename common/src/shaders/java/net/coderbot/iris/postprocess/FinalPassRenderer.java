@@ -249,21 +249,21 @@ public class FinalPassRenderer {
             GL30.glCopyTexSubImage2D(GL20C.GL_TEXTURE_2D, 0, 0, 0, 0, 0, swapPass.width, swapPass.height);
 		}
 
-		// Make sure to reset the viewport to how it was before... Otherwise weird issues could occur.
+		// Make sure to reset the viewport to how it was before... Otherwise, weird issues could occur.
 		// Also bind the "main" framebuffer if it isn't already bound.
 		main.bind(true);
 		ProgramUniforms.clearActiveUniforms();
 		ProgramSamplers.clearActiveSamplers();
         GL30.glUseProgram(0);
 
-		for (int i = 0; i < SamplerLimits.get().getMaxTextureUnits(); i++) {
-			// Unbind all textures that we may have used.
-			// NB: This is necessary for shader pack reloading to work properly
-			RenderSystem.activeTexture(GL15C.GL_TEXTURE0 + i);
-			RenderSystem.bindTexture(0);
-		}
+        //for (int i = 0; i < SamplerLimits.get().getMaxTextureUnits(); i++) {
+        //	// Unbind all textures that we may have used.
+        //	// NB: This is necessary for shader pack reloading to work properly
+        //	RenderSystem.activeTexture(GL15C.GL_TEXTURE0 + i);
+        //	RenderSystem.bindTexture(0);
+        //}
 
-		RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
+        //RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
 	}
 
 	public void recalculateSwapPassSize() {

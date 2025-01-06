@@ -38,9 +38,9 @@ public final class MatrixUniforms {
 				.uniformJomlMatrix(PER_FRAME, "shadow" + name + "Inverse", new Inverted(supplier));
 	}
 
-	private static void addShadowArrayMatrix(UniformHolder uniforms, String name, Supplier<float[]> supplier) {
+	private static void addShadowArrayMatrix(UniformHolder uniforms, String name, Supplier<Matrix4f> supplier) {
 		uniforms
-				.uniformMatrixFromArray(PER_FRAME, "shadow" + name, supplier)
+				.uniformJomlMatrix(PER_FRAME, "shadow" + name, supplier)
 				.uniformJomlMatrix(PER_FRAME, "shadow" + name + "Inverse", new InvertedArrayMatrix(supplier));
 	}
 
@@ -68,22 +68,15 @@ public final class MatrixUniforms {
 	}
 
 	private static class InvertedArrayMatrix implements Supplier<net.coderbot.iris.vendored.joml.Matrix4f> {
-		private final Supplier<float[]> parent;
+		private final Supplier<Matrix4f> parent;
 
-		InvertedArrayMatrix(Supplier<float[]> parent) {
+		InvertedArrayMatrix(Supplier<Matrix4f> parent) {
 			this.parent = parent;
 		}
 
 		@Override
 		public net.coderbot.iris.vendored.joml.Matrix4f get() {
-			FloatBuffer buffer = FloatBuffer.allocate(16);
-			buffer.put(parent.get());
-			buffer.rewind();
-
-			net.coderbot.iris.vendored.joml.Matrix4f matrix4f = new net.coderbot.iris.vendored.joml.Matrix4f(buffer);
-			matrix4f.invert();
-
-			return matrix4f;
+			return this.parent.get().invert();
 		}
 	}
 

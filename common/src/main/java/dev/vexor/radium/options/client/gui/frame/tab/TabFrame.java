@@ -5,6 +5,8 @@ import dev.vexor.radium.options.client.gui.frame.components.ScrollBarComponent;
 import net.caffeinemc.mods.sodium.client.gui.widgets.AbstractWidget;
 import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
+import net.coderbot.iris.gui.screen.ShaderPackScreen;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
 
@@ -62,6 +64,12 @@ public class TabFrame extends AbstractFrame {
     }
 
     public void setTab(Tab<?> tab) {
+        if (tab.getTitle().asFormattedString().contains("Shader")) {
+            MinecraftClient.getInstance().setScreen(new ShaderPackScreen(MinecraftClient.getInstance().currentScreen));
+            return;
+        }
+
+
         this.selectedTab = tab;
         this.tabSectionSelectedTab.set(this.selectedTab.getTitle());
         if (this.onSetTab != null) {

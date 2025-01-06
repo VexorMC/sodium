@@ -19,6 +19,11 @@ public class MixinMinecraft_PipelineManagement {
     @Shadow
     public ClientWorld world;
 
+    @Inject(method = "initializeGame", at = @At("RETURN"))
+    public void iris$postInit(CallbackInfo ci) {
+        Iris.onLoadingComplete();
+    }
+
     /**
 	 * Should run before the Minecraft.level field is updated after disconnecting from a server or leaving a singleplayer world
      * Should run before the Minecraft.level field is updated after receiving a login or respawn packet
