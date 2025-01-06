@@ -1,14 +1,15 @@
 {
-	"required": true,
-	"minVersion": "0.8",
-	"package": "dev.vexor.radium.lwjgl3.mixin",
-	"plugin": "dev.vexor.radium.lwjgl3.EarlyRiserLoader",
-	"compatibilityLevel": "JAVA_8",
-	"client": [
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.vexor.radium.lwjgl3.mixin",
+  "plugin": "dev.vexor.radium.lwjgl3.EarlyRiserLoader",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "MixinMinecraftDrawVirtualCursor",
     "MixinMinecraftFixEarlyCrashNoReports",
     "MixinScreenFixClipboard"
-	],
-	"injectors": {
-		"defaultRequire": 1
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }
