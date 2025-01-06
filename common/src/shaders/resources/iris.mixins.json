@@ -29,6 +29,7 @@
     "MixinParticleEngine",
     "MixinRenderSystem",
     "MixinRenderTarget",
+    "MixinTranslationStorage",
     "shadows.MixinLevelRenderer",
     "state_tracking.MixinGlStateManager",
     "state_tracking.MixinRenderTarget",

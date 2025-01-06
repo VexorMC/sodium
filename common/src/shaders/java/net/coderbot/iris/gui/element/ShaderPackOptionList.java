@@ -177,7 +177,7 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
         }
 
         @Override
-		public void render(int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
+		public void render(int index, int x, int y, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
 			// Draw dividing line
 			DrawableHelper.fill(x - 3, (y + entryHeight) - 2, x + entryWidth, (y + entryHeight) - 1, 0x66BEBEBE);
 
@@ -364,7 +364,7 @@ public class ShaderPackOptionList extends IrisObjectSelectionList {
 		}
 
 		@Override
-		public void render(int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
+		public void render(int index, int x, int y, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered) {
 			this.cachedWidth = entryWidth;
 			this.cachedPosX = x;
 

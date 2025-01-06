@@ -41,371 +41,361 @@ import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 public class FinalPassRenderer {
-	private final RenderTargets renderTargets;
+    private final RenderTargets renderTargets;
 
-	@Nullable
-	private final Pass finalPass;
-	private final ImmutableList<SwapPass> swapPasses;
-	private final GlFramebuffer baseline;
-	private final GlFramebuffer colorHolder;
-	private int lastColorTextureId;
-	private int lastColorTextureVersion;
-	private final IntSupplier noiseTexture;
-	private final FrameUpdateNotifier updateNotifier;
-	private final CenterDepthSampler centerDepthSampler;
-	private final Object2ObjectMap<String, IntSupplier> customTextureIds;
+    @Nullable
+    private final Pass finalPass;
+    private final ImmutableList<SwapPass> swapPasses;
+    private final GlFramebuffer baseline;
+    private final GlFramebuffer colorHolder;
+    private int lastColorTextureId;
+    private int lastColorTextureVersion;
+    private final IntSupplier noiseTexture;
+    private final FrameUpdateNotifier updateNotifier;
+    private final CenterDepthSampler centerDepthSampler;
+    private final Object2ObjectMap<String, IntSupplier> customTextureIds;
 
-	// TODO: The length of this argument list is getting a bit ridiculous
-	public FinalPassRenderer(ProgramSet pack, RenderTargets renderTargets, IntSupplier noiseTexture,
-							 FrameUpdateNotifier updateNotifier, ImmutableSet<Integer> flippedBuffers,
-							 CenterDepthSampler centerDepthSampler,
-							 Supplier<ShadowRenderTargets> shadowTargetsSupplier,
-							 Object2ObjectMap<String, IntSupplier> customTextureIds,
-							 ImmutableSet<Integer> flippedAtLeastOnce) {
-		this.updateNotifier = updateNotifier;
-		this.centerDepthSampler = centerDepthSampler;
-		this.customTextureIds = customTextureIds;
+    // TODO: The length of this argument list is getting a bit ridiculous
+    public FinalPassRenderer(ProgramSet pack, RenderTargets renderTargets, IntSupplier noiseTexture,
+                             FrameUpdateNotifier updateNotifier, ImmutableSet<Integer> flippedBuffers,
+                             CenterDepthSampler centerDepthSampler,
+                             Supplier<ShadowRenderTargets> shadowTargetsSupplier,
+                             Object2ObjectMap<String, IntSupplier> customTextureIds,
+                             ImmutableSet<Integer> flippedAtLeastOnce) {
+        this.updateNotifier = updateNotifier;
+        this.centerDepthSampler = centerDepthSampler;
+        this.customTextureIds = customTextureIds;
 
-		final PackRenderTargetDirectives renderTargetDirectives = pack.getPackDirectives().getRenderTargetDirectives();
-		final Map<Integer, PackRenderTargetDirectives.RenderTargetSettings> renderTargetSettings =
-				renderTargetDirectives.getRenderTargetSettings();
+        final PackRenderTargetDirectives renderTargetDirectives = pack.getPackDirectives().getRenderTargetDirectives();
+        final Map<Integer, PackRenderTargetDirectives.RenderTargetSettings> renderTargetSettings =
+                renderTargetDirectives.getRenderTargetSettings();
 
-		this.noiseTexture = noiseTexture;
-		this.renderTargets = renderTargets;
-		this.finalPass = pack.getCompositeFinal().map(source -> {
-			Pass pass = new Pass();
-			ProgramDirectives directives = source.getDirectives();
+        this.noiseTexture = noiseTexture;
+        this.renderTargets = renderTargets;
+        this.finalPass = pack.getCompositeFinal().map(source -> {
+            Pass pass = new Pass();
+            ProgramDirectives directives = source.getDirectives();
 
-			pass.program = createProgram(source, flippedBuffers, flippedAtLeastOnce, shadowTargetsSupplier);
-			pass.computes = createComputes(pack.getFinalCompute(), flippedBuffers, flippedAtLeastOnce, shadowTargetsSupplier);
-			pass.stageReadsFromAlt = flippedBuffers;
-			pass.mipmappedBuffers = directives.getMipmappedBuffers();
+            pass.program = createProgram(source, flippedBuffers, flippedAtLeastOnce, shadowTargetsSupplier);
+            pass.computes = createComputes(pack.getFinalCompute(), flippedBuffers, flippedAtLeastOnce, shadowTargetsSupplier);
+            pass.stageReadsFromAlt = flippedBuffers;
+            pass.mipmappedBuffers = directives.getMipmappedBuffers();
 
-			return pass;
-		}).orElse(null);
+            return pass;
+        }).orElse(null);
 
-		IntList buffersToBeCleared = pack.getPackDirectives().getRenderTargetDirectives().getBuffersToBeCleared();
+        IntList buffersToBeCleared = pack.getPackDirectives().getRenderTargetDirectives().getBuffersToBeCleared();
 
-		// The name of this method might seem a bit odd here, but we want a framebuffer with color attachments that line
-		// up with whatever was written last (since we're reading from these framebuffers) instead of trying to create
-		// a framebuffer with color attachments different from what was written last (as we do with normal composite
-		// passes that write to framebuffers).
-		this.baseline = renderTargets.createGbufferFramebuffer(flippedBuffers, new int[] {0});
-		this.colorHolder = new GlFramebuffer();
-		this.lastColorTextureId = MinecraftClient.getInstance().getFramebuffer().colorAttachment;
-		this.lastColorTextureVersion = ((Blaze3dRenderTargetExt) MinecraftClient.getInstance().getFramebuffer()).iris$getColorBufferVersion();
-		this.colorHolder.addColorAttachment(0, lastColorTextureId);
+        // The name of this method might seem a bit odd here, but we want a framebuffer with color attachments that line
+        // up with whatever was written last (since we're reading from these framebuffers) instead of trying to create
+        // a framebuffer with color attachments different from what was written last (as we do with normal composite
+        // passes that write to framebuffers).
+        this.baseline = renderTargets.createGbufferFramebuffer(flippedBuffers, new int[] {0});
+        this.colorHolder = new GlFramebuffer();
+        this.lastColorTextureId = MinecraftClient.getInstance().getFramebuffer().colorAttachment;
+        this.lastColorTextureVersion = ((Blaze3dRenderTargetExt) MinecraftClient.getInstance().getFramebuffer()).iris$getColorBufferVersion();
+        this.colorHolder.addColorAttachment(0, lastColorTextureId);
 
-		// TODO: We don't actually fully swap the content, we merely copy it from alt to main
-		// This works for the most part, but it's not perfect. A better approach would be creating secondary
-		// framebuffers for every other frame, but that would be a lot more complex...
-		ImmutableList.Builder<SwapPass> swapPasses = ImmutableList.builder();
+        // TODO: We don't actually fully swap the content, we merely copy it from alt to main
+        // This works for the most part, but it's not perfect. A better approach would be creating secondary
+        // framebuffers for every other frame, but that would be a lot more complex...
+        ImmutableList.Builder<SwapPass> swapPasses = ImmutableList.builder();
 
-		flippedBuffers.forEach((i) -> {
-			int target = i;
+        flippedBuffers.forEach((i) -> {
+            int target = i;
 
-			if (buffersToBeCleared.contains(target)) {
-				return;
-			}
+            if (buffersToBeCleared.contains(target)) {
+                return;
+            }
 
-			SwapPass swap = new SwapPass();
-			RenderTarget target1 = renderTargets.get(target);
-			swap.target = target;
-			swap.width = target1.getWidth();
-			swap.height = target1.getHeight();
-			swap.from = renderTargets.createColorFramebuffer(ImmutableSet.of(), new int[] {target});
-			// NB: This is handled in RenderTargets now.
-			//swap.from.readBuffer(target);
-			swap.targetTexture = renderTargets.get(target).getMainTexture();
+            SwapPass swap = new SwapPass();
+            RenderTarget target1 = renderTargets.get(target);
+            swap.target = target;
+            swap.width = target1.getWidth();
+            swap.height = target1.getHeight();
+            swap.from = renderTargets.createColorFramebuffer(ImmutableSet.of(), new int[] {target});
+            // NB: This is handled in RenderTargets now.
+            //swap.from.readBuffer(target);
+            swap.targetTexture = renderTargets.get(target).getMainTexture();
 
-			swapPasses.add(swap);
-		});
+            swapPasses.add(swap);
+        });
 
-		this.swapPasses = swapPasses.build();
+        this.swapPasses = swapPasses.build();
 
-		GL30.glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
-	}
+        GL30.glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
+    }
 
-	private static final class Pass {
-		Program program;
-		ComputeProgram[] computes;
-		ImmutableSet<Integer> stageReadsFromAlt;
-		ImmutableSet<Integer> mipmappedBuffers;
+    private static final class Pass {
+        Program program;
+        ComputeProgram[] computes;
+        ImmutableSet<Integer> stageReadsFromAlt;
+        ImmutableSet<Integer> mipmappedBuffers;
 
-		private void destroy() {
-			this.program.destroy();
-		}
-	}
+        private void destroy() {
+            this.program.destroy();
+        }
+    }
 
-	private static final class SwapPass {
-		public int target;
-		public int width;
-		public int height;
-		GlFramebuffer from;
-		int targetTexture;
-	}
+    private static final class SwapPass {
+        public int target;
+        public int width;
+        public int height;
+        GlFramebuffer from;
+        int targetTexture;
+    }
 
-	public void renderFinalPass() {
-		RenderSystem.disableBlend();
-		RenderSystem.disableAlphaTest();
-		RenderSystem.depthMask(false);
+    public void renderFinalPass() {
+        RenderSystem.disableBlend();
+        RenderSystem.disableAlphaTest();
+        RenderSystem.depthMask(false);
 
-		final Framebuffer main = MinecraftClient.getInstance().getFramebuffer();
-		final int baseWidth = main.viewportWidth;
-		final int baseHeight = main.viewportHeight;
+        final Framebuffer main = MinecraftClient.getInstance().getFramebuffer();
+        final int baseWidth = main.viewportWidth;
+        final int baseHeight = main.viewportHeight;
 
-		// Note that since DeferredWorldRenderingPipeline uses the depth texture of the main Minecraft framebuffer,
-		// we'll be writing to that depth buffer directly automatically and won't need to futz around with copying
-		// depth buffer content.
-		//
-		// Previously, we had our own depth texture and then copied its content to the main Minecraft framebuffer.
-		// This worked with vanilla, but broke with mods that used the stencil buffer.
-		//
-		// This approach is a fairly succinct solution to the issue of having to deal with the main Minecraft
-		// framebuffer potentially having a depth-stencil buffer or similar - we'll automatically enable that to
-		// work properly since we re-use the depth buffer instead of trying to make our own.
-		//
-		// This is not a concern for depthtex1 / depthtex2 since the copy call extracts the depth values, and the
-		// shader pack only ever uses them to read the depth values.
-		if (((Blaze3dRenderTargetExt) main).iris$getColorBufferVersion() != lastColorTextureVersion || main.colorAttachment != lastColorTextureId) {
-			lastColorTextureVersion = ((Blaze3dRenderTargetExt) main).iris$getColorBufferVersion();
-			this.lastColorTextureId = main.colorAttachment;
-			colorHolder.addColorAttachment(0, lastColorTextureId);
-		}
-
-		if (this.finalPass != null) {
-			// If there is a final pass, we use the shader-based full screen quad rendering pathway instead
-			// of just copying the color buffer.
-
-			colorHolder.bind();
-
-			FullScreenQuadRenderer.INSTANCE.begin();
-
-			for (ComputeProgram computeProgram : finalPass.computes) {
-				if (computeProgram != null) {
-					computeProgram.dispatch(baseWidth, baseHeight);
-				}
-			}
-
-			IrisRenderSystem.memoryBarrier(40);
-
-			if (!finalPass.mipmappedBuffers.isEmpty()) {
-				RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
-
-				for (int index : finalPass.mipmappedBuffers) {
-					setupMipmapping(renderTargets.get(index), finalPass.stageReadsFromAlt.contains(index));
-				}
-			}
-
-			finalPass.program.use();
-			FullScreenQuadRenderer.INSTANCE.renderQuad();
-
-			FullScreenQuadRenderer.end();
-		} else {
-			// If there are no passes, we somehow need to transfer the content of the Iris color render targets into
-			// the main Minecraft framebuffer.
-			//
-			// Thus, the following call transfers the content of colortex0 into the main Minecraft framebuffer.
-			//
-			// Note that glCopyTexSubImage2D is not as strict as glBlitFramebuffer, so we don't have to worry about
-			// colortex0 having a weird format. This should just work.
-			//
-			// We could have used a shader here, but it should be about the same performance either way:
-			// https://stackoverflow.com/a/23994979/18166885
-            // Bind the source framebuffer (Iris color render targets)
-            this.baseline.bindAsReadBuffer();
-
-            System.out.println(baseline.getStatus());
-
-            GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, main.fbo);
-
-            GL30C.glBlitFramebuffer(
-                    0, 0, baseWidth, baseHeight,  // Source bounds
-                    0, 0, baseWidth, baseHeight, // Destination bounds
-                    GL11C.GL_COLOR_BUFFER_BIT,   // Copy color buffer
-                    GL11C.GL_NEAREST             // Filtering method
-            );
+        // Note that since DeferredWorldRenderingPipeline uses the depth texture of the main Minecraft framebuffer,
+        // we'll be writing to that depth buffer directly automatically and won't need to futz around with copying
+        // depth buffer content.
+        //
+        // Previously, we had our own depth texture and then copied its content to the main Minecraft framebuffer.
+        // This worked with vanilla, but broke with mods that used the stencil buffer.
+        //
+        // This approach is a fairly succinct solution to the issue of having to deal with the main Minecraft
+        // framebuffer potentially having a depth-stencil buffer or similar - we'll automatically enable that to
+        // work properly since we re-use the depth buffer instead of trying to make our own.
+        //
+        // This is not a concern for depthtex1 / depthtex2 since the copy call extracts the depth values, and the
+        // shader pack only ever uses them to read the depth values.
+        if (((Blaze3dRenderTargetExt) main).iris$getColorBufferVersion() != lastColorTextureVersion || main.colorAttachment != lastColorTextureId) {
+            lastColorTextureVersion = ((Blaze3dRenderTargetExt) main).iris$getColorBufferVersion();
+            this.lastColorTextureId = main.colorAttachment;
+            colorHolder.addColorAttachment(0, lastColorTextureId);
         }
 
-		RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
+        if (this.finalPass != null) {
+            // If there is a final pass, we use the shader-based full screen quad rendering pathway instead
+            // of just copying the color buffer.
 
-		for (int i = 0; i < renderTargets.getRenderTargetCount(); i++) {
-			// Reset mipmapping states at the end of the frame.
-			resetRenderTarget(renderTargets.get(i));
-		}
+            colorHolder.bind();
 
-		for (SwapPass swapPass : swapPasses) {
-			// NB: We need to use bind(), not bindAsReadBuffer()... Previously we used bindAsReadBuffer() here which
-			//     broke TAA on many packs and on many drivers.
-			//
-			// Note that glCopyTexSubImage2D reads from the current GL_READ_BUFFER (given by glReadBuffer()) for the
-			// current framebuffer bound to GL_FRAMEBUFFER, but that is distinct from the current GL_READ_FRAMEBUFFER,
-			// which is what bindAsReadBuffer() binds.
-			//
-			// Also note that RenderTargets already calls readBuffer(0) for us.
-			swapPass.from.bind();
+            FullScreenQuadRenderer.INSTANCE.begin();
 
-			RenderSystem.bindTexture(swapPass.targetTexture);
-            GL30.glCopyTexSubImage2D(GL20C.GL_TEXTURE_2D, 0, 0, 0, 0, 0, swapPass.width, swapPass.height);
-		}
+            for (ComputeProgram computeProgram : finalPass.computes) {
+                if (computeProgram != null) {
+                    computeProgram.dispatch(baseWidth, baseHeight);
+                }
+            }
 
-		// Make sure to reset the viewport to how it was before... Otherwise, weird issues could occur.
-		// Also bind the "main" framebuffer if it isn't already bound.
-		main.bind(true);
-		ProgramUniforms.clearActiveUniforms();
-		ProgramSamplers.clearActiveSamplers();
-        GL30.glUseProgram(0);
+            IrisRenderSystem.memoryBarrier(40);
 
-        //for (int i = 0; i < SamplerLimits.get().getMaxTextureUnits(); i++) {
-        //	// Unbind all textures that we may have used.
-        //	// NB: This is necessary for shader pack reloading to work properly
-        //	RenderSystem.activeTexture(GL15C.GL_TEXTURE0 + i);
-        //	RenderSystem.bindTexture(0);
-        //}
+            if (!finalPass.mipmappedBuffers.isEmpty()) {
+                RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
 
-        //RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
-	}
+                for (int index : finalPass.mipmappedBuffers) {
+                    setupMipmapping(renderTargets.get(index), finalPass.stageReadsFromAlt.contains(index));
+                }
+            }
 
-	public void recalculateSwapPassSize() {
-		for (SwapPass swapPass : swapPasses) {
-			RenderTarget target = renderTargets.get(swapPass.target);
-			renderTargets.destroyFramebuffer(swapPass.from);
-			swapPass.from = renderTargets.createColorFramebuffer(ImmutableSet.of(), new int[] {swapPass.target});
-			swapPass.width = target.getWidth();
-			swapPass.height = target.getHeight();
-			swapPass.targetTexture = target.getMainTexture();
-		}
-	}
+            finalPass.program.use();
+            FullScreenQuadRenderer.INSTANCE.renderQuad();
 
-	private static void setupMipmapping(RenderTarget target, boolean readFromAlt) {
-		int texture = readFromAlt ? target.getAltTexture() : target.getMainTexture();
+            FullScreenQuadRenderer.end();
+        } else {
+            // If there are no passes, we somehow need to transfer the content of the Iris color render targets into
+            // the main Minecraft framebuffer.
+            //
+            // Thus, the following call transfers the content of colortex0 into the main Minecraft framebuffer.
+            //
+            // Note that glCopyTexSubImage2D is not as strict as glBlitFramebuffer, so we don't have to worry about
+            // colortex0 having a weird format. This should just work.
+            //
+            // We could have used a shader here, but it should be about the same performance either way:
+            // https://stackoverflow.com/a/23994979/18166885
+            this.baseline.bindAsReadBuffer();
 
-		// TODO: Only generate the mipmap if a valid mipmap hasn't been generated or if we've written to the buffer
-		// (since the last mipmap was generated)
-		//
-		// NB: We leave mipmapping enabled even if the buffer is written to again, this appears to match the
-		// behavior of ShadersMod/OptiFine, however I'm not sure if it's desired behavior. It's possible that a
-		// program could use mipmapped sampling with a stale mipmap, which probably isn't great. However, the
-		// sampling mode is always reset between frames, so this only persists after the first program to use
-		// mipmapping on this buffer.
-		//
-		// Also note that this only applies to one of the two buffers in a render target buffer pair - making it
-		// unlikely that this issue occurs in practice with most shader packs.
-		IrisRenderSystem.generateMipmaps(texture, GL20C.GL_TEXTURE_2D);
+            IrisRenderSystem.copyTexSubImage2D(main.colorAttachment, GL11C.GL_TEXTURE_2D, 0, 0, 0, 0, 0, baseWidth, baseHeight);
+        }
 
-		int filter = GL20C.GL_LINEAR_MIPMAP_LINEAR;
-		if (target.getInternalFormat().getPixelFormat().isInteger()) {
-			filter = GL20C.GL_NEAREST_MIPMAP_NEAREST;
-		}
+        RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
 
-		IrisRenderSystem.texParameteri(texture, GL20C.GL_TEXTURE_2D, GL20C.GL_TEXTURE_MIN_FILTER, filter);
-	}
+        for (int i = 0; i < renderTargets.getRenderTargetCount(); i++) {
+            // Reset mipmapping states at the end of the frame.
+            resetRenderTarget(renderTargets.get(i));
+        }
 
-	private static void resetRenderTarget(RenderTarget target) {
-		// Resets the sampling mode of the given render target and then unbinds it to prevent accidental sampling of it
-		// elsewhere.
-		int filter = GL20C.GL_LINEAR;
-		if (target.getInternalFormat().getPixelFormat().isInteger()) {
-			filter = GL20C.GL_NEAREST;
-		}
+        for (SwapPass swapPass : swapPasses) {
+            // NB: We need to use bind(), not bindAsReadBuffer()... Previously we used bindAsReadBuffer() here which
+            //     broke TAA on many packs and on many drivers.
+            //
+            // Note that glCopyTexSubImage2D reads from the current GL_READ_BUFFER (given by glReadBuffer()) for the
+            // current framebuffer bound to GL_FRAMEBUFFER, but that is distinct from the current GL_READ_FRAMEBUFFER,
+            // which is what bindAsReadBuffer() binds.
+            //
+            // Also note that RenderTargets already calls readBuffer(0) for us.
+            swapPass.from.bind();
 
-		IrisRenderSystem.texParameteri(target.getMainTexture(), GL20C.GL_TEXTURE_2D, GL20C.GL_TEXTURE_MIN_FILTER, filter);
-		IrisRenderSystem.texParameteri(target.getAltTexture(), GL20C.GL_TEXTURE_2D, GL20C.GL_TEXTURE_MIN_FILTER, filter);
+            RenderSystem.bindTexture(swapPass.targetTexture);
+            GL11.glCopyTexSubImage2D(GL20C.GL_TEXTURE_2D, 0, 0, 0, 0, 0, swapPass.width, swapPass.height);
+        }
 
-		RenderSystem.bindTexture(0);
-	}
+        // Make sure to reset the viewport to how it was before... Otherwise weird issues could occur.
+        // Also bind the "main" framebuffer if it isn't already bound.
+        main.bind(true);
+        ProgramUniforms.clearActiveUniforms();
+        ProgramSamplers.clearActiveSamplers();
+        GL20.glUseProgram(0);
 
-	// TODO: Don't just copy this from DeferredWorldRenderingPipeline
-	private Program createProgram(ProgramSource source, ImmutableSet<Integer> flipped, ImmutableSet<Integer> flippedAtLeastOnceSnapshot,
-								  Supplier<ShadowRenderTargets> shadowTargetsSupplier) {
-		// TODO: Properly handle empty shaders
-		Map<PatchShaderType, String> transformed = TransformPatcher.patchComposite(
-			source.getVertexSource().orElseThrow(NullPointerException::new),
-			source.getGeometrySource().orElse(null),
-			source.getFragmentSource().orElseThrow(NullPointerException::new));
-		String vertex = transformed.get(PatchShaderType.VERTEX);
-		String geometry = transformed.get(PatchShaderType.GEOMETRY);
-		String fragment = transformed.get(PatchShaderType.FRAGMENT);
-		PatchedShaderPrinter.debugPatchedShaders(source.getName(), vertex, geometry, fragment);
+        for (int i = 0; i < SamplerLimits.get().getMaxTextureUnits(); i++) {
+            // Unbind all textures that we may have used.
+            // NB: This is necessary for shader pack reloading to work properly
+            RenderSystem.activeTexture(GL15C.GL_TEXTURE0 + i);
+            RenderSystem.bindTexture(0);
+        }
 
-		Objects.requireNonNull(flipped);
-		ProgramBuilder builder;
+        RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
+    }
 
-		try {
-			builder = ProgramBuilder.begin(source.getName(), vertex, geometry, fragment,
-				IrisSamplers.COMPOSITE_RESERVED_TEXTURE_UNITS);
-		} catch (RuntimeException e) {
-			// TODO: Better error handling
-			throw new RuntimeException("Shader compilation failed!", e);
-		}
+    public void recalculateSwapPassSize() {
+        for (SwapPass swapPass : swapPasses) {
+            RenderTarget target = renderTargets.get(swapPass.target);
+            renderTargets.destroyFramebuffer(swapPass.from);
+            swapPass.from = renderTargets.createColorFramebuffer(ImmutableSet.of(), new int[] {swapPass.target});
+            swapPass.width = target.getWidth();
+            swapPass.height = target.getHeight();
+            swapPass.targetTexture = target.getMainTexture();
+        }
+    }
 
-		ProgramSamplers.CustomTextureSamplerInterceptor customTextureSamplerInterceptor = ProgramSamplers.customTextureSamplerInterceptor(builder, customTextureIds, flippedAtLeastOnceSnapshot);
+    private static void setupMipmapping(RenderTarget target, boolean readFromAlt) {
+        int texture = readFromAlt ? target.getAltTexture() : target.getMainTexture();
 
-		CommonUniforms.addCommonUniforms(builder, source.getParent().getPack().getIdMap(), source.getParent().getPackDirectives(), updateNotifier);
-		IrisSamplers.addRenderTargetSamplers(customTextureSamplerInterceptor, () -> flipped, renderTargets, true);
-		IrisImages.addRenderTargetImages(builder, () -> flipped, renderTargets);
-		IrisSamplers.addNoiseSampler(customTextureSamplerInterceptor, noiseTexture);
-		IrisSamplers.addCompositeSamplers(customTextureSamplerInterceptor, renderTargets);
+        // TODO: Only generate the mipmap if a valid mipmap hasn't been generated or if we've written to the buffer
+        // (since the last mipmap was generated)
+        //
+        // NB: We leave mipmapping enabled even if the buffer is written to again, this appears to match the
+        // behavior of ShadersMod/OptiFine, however I'm not sure if it's desired behavior. It's possible that a
+        // program could use mipmapped sampling with a stale mipmap, which probably isn't great. However, the
+        // sampling mode is always reset between frames, so this only persists after the first program to use
+        // mipmapping on this buffer.
+        //
+        // Also note that this only applies to one of the two buffers in a render target buffer pair - making it
+        // unlikely that this issue occurs in practice with most shader packs.
+        IrisRenderSystem.generateMipmaps(texture, GL20C.GL_TEXTURE_2D);
 
-		if (IrisSamplers.hasShadowSamplers(customTextureSamplerInterceptor)) {
-			IrisSamplers.addShadowSamplers(customTextureSamplerInterceptor, shadowTargetsSupplier.get());
-			IrisImages.addShadowColorImages(builder, shadowTargetsSupplier.get());
-		}
+        int filter = GL20C.GL_LINEAR_MIPMAP_LINEAR;
+        if (target.getInternalFormat().getPixelFormat().isInteger()) {
+            filter = GL20C.GL_NEAREST_MIPMAP_NEAREST;
+        }
 
-		// TODO: Don't duplicate this with CompositeRenderer
-		centerDepthSampler.setUsage(builder.addDynamicSampler(centerDepthSampler::getCenterDepthTexture, "iris_centerDepthSmooth"));
+        IrisRenderSystem.texParameteri(texture, GL20C.GL_TEXTURE_2D, GL20C.GL_TEXTURE_MIN_FILTER, filter);
+    }
 
-		return builder.build();
-	}
+    private static void resetRenderTarget(RenderTarget target) {
+        // Resets the sampling mode of the given render target and then unbinds it to prevent accidental sampling of it
+        // elsewhere.
+        int filter = GL20C.GL_LINEAR;
+        if (target.getInternalFormat().getPixelFormat().isInteger()) {
+            filter = GL20C.GL_NEAREST;
+        }
 
-	private ComputeProgram[] createComputes(ComputeSource[] compute, ImmutableSet<Integer> flipped, ImmutableSet<Integer> flippedAtLeastOnceSnapshot, Supplier<ShadowRenderTargets> shadowTargetsSupplier) {
-		ComputeProgram[] programs = new ComputeProgram[compute.length];
-		for (int i = 0; i < programs.length; i++) {
-			ComputeSource source = compute[i];
-			if (source == null || !source.getSource().isPresent()) {
-				continue;
-			} else {
-				// TODO: Properly handle empty shaders
-				Objects.requireNonNull(flipped);
-				ProgramBuilder builder;
+        IrisRenderSystem.texParameteri(target.getMainTexture(), GL20C.GL_TEXTURE_2D, GL20C.GL_TEXTURE_MIN_FILTER, filter);
+        IrisRenderSystem.texParameteri(target.getAltTexture(), GL20C.GL_TEXTURE_2D, GL20C.GL_TEXTURE_MIN_FILTER, filter);
 
-				try {
-					builder = ProgramBuilder.beginCompute(source.getName(), source.getSource().orElse(null), IrisSamplers.COMPOSITE_RESERVED_TEXTURE_UNITS);
-				} catch (RuntimeException e) {
-					// TODO: Better error handling
-					throw new RuntimeException("Shader compilation failed!", e);
-				}
+        RenderSystem.bindTexture(0);
+    }
 
-				ProgramSamplers.CustomTextureSamplerInterceptor customTextureSamplerInterceptor = ProgramSamplers.customTextureSamplerInterceptor(builder, customTextureIds, flippedAtLeastOnceSnapshot);
+    // TODO: Don't just copy this from DeferredWorldRenderingPipeline
+    private Program createProgram(ProgramSource source, ImmutableSet<Integer> flipped, ImmutableSet<Integer> flippedAtLeastOnceSnapshot,
+                                  Supplier<ShadowRenderTargets> shadowTargetsSupplier) {
+        // TODO: Properly handle empty shaders
+        Map<PatchShaderType, String> transformed = TransformPatcher.patchComposite(
+                source.getVertexSource().orElseThrow(NullPointerException::new),
+                source.getGeometrySource().orElse(null),
+                source.getFragmentSource().orElseThrow(NullPointerException::new));
+        String vertex = transformed.get(PatchShaderType.VERTEX);
+        String geometry = transformed.get(PatchShaderType.GEOMETRY);
+        String fragment = transformed.get(PatchShaderType.FRAGMENT);
+        PatchedShaderPrinter.debugPatchedShaders(source.getName(), vertex, geometry, fragment);
 
-				CommonUniforms.addCommonUniforms(builder, source.getParent().getPack().getIdMap(), source.getParent().getPackDirectives(), updateNotifier);
-				IrisSamplers.addRenderTargetSamplers(customTextureSamplerInterceptor, () -> flipped, renderTargets, true);
-				IrisImages.addRenderTargetImages(builder, () -> flipped, renderTargets);
+        Objects.requireNonNull(flipped);
+        ProgramBuilder builder;
 
-				IrisSamplers.addNoiseSampler(customTextureSamplerInterceptor, noiseTexture);
-				IrisSamplers.addCompositeSamplers(customTextureSamplerInterceptor, renderTargets);
+        try {
+            builder = ProgramBuilder.begin(source.getName(), vertex, geometry, fragment,
+                    IrisSamplers.COMPOSITE_RESERVED_TEXTURE_UNITS);
+        } catch (RuntimeException e) {
+            // TODO: Better error handling
+            throw new RuntimeException("Shader compilation failed!", e);
+        }
 
-				if (IrisSamplers.hasShadowSamplers(customTextureSamplerInterceptor)) {
-					IrisSamplers.addShadowSamplers(customTextureSamplerInterceptor, shadowTargetsSupplier.get());
-					IrisImages.addShadowColorImages(builder, shadowTargetsSupplier.get());
-				}
+        ProgramSamplers.CustomTextureSamplerInterceptor customTextureSamplerInterceptor = ProgramSamplers.customTextureSamplerInterceptor(builder, customTextureIds, flippedAtLeastOnceSnapshot);
 
-				// TODO: Don't duplicate this with FinalPassRenderer
-				centerDepthSampler.setUsage(builder.addDynamicSampler(centerDepthSampler::getCenterDepthTexture, "iris_centerDepthSmooth"));
+        CommonUniforms.addCommonUniforms(builder, source.getParent().getPack().getIdMap(), source.getParent().getPackDirectives(), updateNotifier);
+        IrisSamplers.addRenderTargetSamplers(customTextureSamplerInterceptor, () -> flipped, renderTargets, true);
+        IrisImages.addRenderTargetImages(builder, () -> flipped, renderTargets);
+        IrisSamplers.addNoiseSampler(customTextureSamplerInterceptor, noiseTexture);
+        IrisSamplers.addCompositeSamplers(customTextureSamplerInterceptor, renderTargets);
 
-				programs[i] = builder.buildCompute();
+        if (IrisSamplers.hasShadowSamplers(customTextureSamplerInterceptor)) {
+            IrisSamplers.addShadowSamplers(customTextureSamplerInterceptor, shadowTargetsSupplier.get());
+            IrisImages.addShadowColorImages(builder, shadowTargetsSupplier.get());
+        }
 
-				programs[i].setWorkGroupInfo(source.getWorkGroupRelative(), source.getWorkGroups());
-			}
-		}
+        // TODO: Don't duplicate this with CompositeRenderer
+        centerDepthSampler.setUsage(builder.addDynamicSampler(centerDepthSampler::getCenterDepthTexture, "iris_centerDepthSmooth"));
+
+        return builder.build();
+    }
+
+    private ComputeProgram[] createComputes(ComputeSource[] compute, ImmutableSet<Integer> flipped, ImmutableSet<Integer> flippedAtLeastOnceSnapshot, Supplier<ShadowRenderTargets> shadowTargetsSupplier) {
+        ComputeProgram[] programs = new ComputeProgram[compute.length];
+        for (int i = 0; i < programs.length; i++) {
+            ComputeSource source = compute[i];
+            if (source == null || !source.getSource().isPresent()) {
+                continue;
+            } else {
+                // TODO: Properly handle empty shaders
+                Objects.requireNonNull(flipped);
+                ProgramBuilder builder;
+
+                try {
+                    builder = ProgramBuilder.beginCompute(source.getName(), source.getSource().orElse(null), IrisSamplers.COMPOSITE_RESERVED_TEXTURE_UNITS);
+                } catch (RuntimeException e) {
+                    // TODO: Better error handling
+                    throw new RuntimeException("Shader compilation failed!", e);
+                }
+
+                ProgramSamplers.CustomTextureSamplerInterceptor customTextureSamplerInterceptor = ProgramSamplers.customTextureSamplerInterceptor(builder, customTextureIds, flippedAtLeastOnceSnapshot);
+
+                CommonUniforms.addCommonUniforms(builder, source.getParent().getPack().getIdMap(), source.getParent().getPackDirectives(), updateNotifier);
+                IrisSamplers.addRenderTargetSamplers(customTextureSamplerInterceptor, () -> flipped, renderTargets, true);
+                IrisImages.addRenderTargetImages(builder, () -> flipped, renderTargets);
+
+                IrisSamplers.addNoiseSampler(customTextureSamplerInterceptor, noiseTexture);
+                IrisSamplers.addCompositeSamplers(customTextureSamplerInterceptor, renderTargets);
+
+                if (IrisSamplers.hasShadowSamplers(customTextureSamplerInterceptor)) {
+                    IrisSamplers.addShadowSamplers(customTextureSamplerInterceptor, shadowTargetsSupplier.get());
+                    IrisImages.addShadowColorImages(builder, shadowTargetsSupplier.get());
+                }
+
+                // TODO: Don't duplicate this with FinalPassRenderer
+                centerDepthSampler.setUsage(builder.addDynamicSampler(centerDepthSampler::getCenterDepthTexture, "iris_centerDepthSmooth"));
+
+                programs[i] = builder.buildCompute();
+
+                programs[i].setWorkGroupInfo(source.getWorkGroupRelative(), source.getWorkGroups());
+            }
+        }
 
 
-		return programs;
-	}
+        return programs;
+    }
 
-	public void destroy() {
-		if (finalPass != null) {
-			finalPass.destroy();
-		}
-	}
+    public void destroy() {
+        if (finalPass != null) {
+            finalPass.destroy();
+        }
+    }
 }

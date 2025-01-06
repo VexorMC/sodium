@@ -190,14 +190,23 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList {
 				name = font.trimToWidth(name, this.list.getRowWidth() - 8) + "...";
 			}
 
+            if (hovered && !isApplied()) {
+                name = Formatting.BOLD + name;
+            }
+
 			Text text = new LiteralText(name);
 
 			if (shadersEnabled && this.isApplied()) {
 				color = 0xFFF263;
 			}
 
+            GuiUtil.bindIrisWidgetsTexture();
 
-			drawCenteredString(font, text.asFormattedString(), (x + entryWidth / 2) - 2, y + (entryHeight - 11) / 2, color);
+            if (isSelected()) {
+                GuiUtil.drawButton(x, y, entryWidth, entryHeight, false, true);
+            }
+
+			drawCenteredString(font, text.asFormattedString(), (x + entryWidth / 2) - 2, y + (entryHeight - 8) / 2, color);
 		}
 
         @Override

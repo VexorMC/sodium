@@ -1,77 +1,86 @@
 package net.coderbot.iris.postprocess;
 
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import org.lwjgl.opengl.Display;
+import net.coderbot.iris.gl.IrisRenderSystem;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-
-import static org.lwjgl.opengl.GL11.*;
+import org.lwjgl.opengl.GL15;
 
 /**
  * Renders a full-screen textured quad to the screen. Used in composite / deferred rendering.
  */
 public class FullScreenQuadRenderer {
-	public static final FullScreenQuadRenderer INSTANCE = new FullScreenQuadRenderer();
+    private final int quadBuffer;
 
-	public void render() {
-		begin();
+    public static final FullScreenQuadRenderer INSTANCE = new FullScreenQuadRenderer();
 
-		renderQuad();
-
-		end();
-	}
-
-	public void begin() {
-		RenderSystem.disableDepthTest();
-
-		RenderSystem.matrixMode(GL11.GL_PROJECTION);
-		RenderSystem.pushMatrix();
-		RenderSystem.loadIdentity();
-		// scale the quad from [0, 1] to [-1, 1]
-		RenderSystem.translatef(-1.0F, -1.0F, 0.0F);
-		RenderSystem.scalef(2.0F, 2.0F, 0.0F);
-
-		RenderSystem.matrixMode(GL11.GL_MODELVIEW);
-		RenderSystem.pushMatrix();
-		RenderSystem.loadIdentity();
-
-		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-	}
-
-	public void renderQuad() {
-        GlStateManager.activeTexture(GLX.textureUnit);
-        MinecraftClient.getInstance().getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
-
-        drawQuads();
+    private FullScreenQuadRenderer() {
+        this.quadBuffer = createQuad();
     }
 
-    public static void drawQuads() {
-        float width = (float) Display.getWidth();
-        float height = (float) Display.getHeight();
-        glBegin(GL_QUADS);
-        glTexCoord2f(0, 1);
-        glVertex2f(0, 0);
-        glTexCoord2f(0, 0);
-        glVertex2f(0, height);
-        glTexCoord2f(1, 0);
-        glVertex2f(width, height);
-        glTexCoord2f(1, 1);
-        glVertex2f(width, 0);
-        glEnd();
+    public void render() {
+        begin();
+
+        renderQuad();
+
+        end();
+    }
+
+    public void begin() {
+        GlStateManager.disableDepthTest();
+
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glPushMatrix();
+        GL11.glLoadIdentity();
+        // scale the quad from [0, 1] to [-1, 1]
+        GL11.glTranslatef(-1.0F, -1.0F, 0.0F);
+        GL11.glScalef(2.0F, 2.0F, 0.0F);
+
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glPushMatrix();
+        GL11.glLoadIdentity();
+
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    public void renderQuad() {
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, quadBuffer);
+
+        GL11.glVertexPointer(3, GL11.GL_FLOAT, 5 * Float.BYTES, 0); // 3 floats for position, stride 5 * float size, offset 0
+        GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+
+        GL11.glTexCoordPointer(2, GL11.GL_FLOAT, 5 * Float.BYTES, 3 * Float.BYTES); // 2 floats for texture coords, stride 5 * float size, offset 3 * float size
+        GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+
+        GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
+
+        GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+        GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 
     public static void end() {
-		RenderSystem.enableDepthTest();
+        GlStateManager.enableDepthTest();
 
-		RenderSystem.matrixMode(GL11.GL_PROJECTION);
-		RenderSystem.popMatrix();
-		RenderSystem.matrixMode(GL11.GL_MODELVIEW);
-		RenderSystem.popMatrix();
-	}
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glPopMatrix();
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glPopMatrix();
+    }
+
+    /**
+     * Creates and uploads a vertex buffer containing a single full-screen quad
+     */
+    private static int createQuad() {
+        return IrisRenderSystem.bufferStorage(GL15.GL_ARRAY_BUFFER, new float[]{
+                // Vertex 0: Top right corner
+                1.0F, 1.0F, 0.0F, 1.0F, 1.0F,
+                // Vertex 1: Top left corner
+                0.0F, 1.0F, 0.0F, 0.0F, 1.0F,
+                // Vertex 2: Bottom right corner
+                1.0F, 0.0F, 0.0F, 1.0F, 0.0F,
+                // Vertex 3: Bottom left corner
+                0.0F, 0.0F, 0.0F, 0.0F, 0.0F
+        }, GL15.GL_STATIC_DRAW);
+    }
 }

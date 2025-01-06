@@ -2,6 +2,7 @@ package net.coderbot.iris.gui.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.coderbot.iris.Iris;
+import net.coderbot.iris.config.IrisConfig;
 import net.coderbot.iris.gui.GuiUtil;
 import net.coderbot.iris.gui.NavigationController;
 import net.coderbot.iris.gui.element.ShaderPackOptionList;
@@ -490,35 +491,47 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 	}
 
 	public void applyChanges() {
-		ShaderPackSelectionList.BaseEntry base = this.shaderPackList.getSelected();
+        final ShaderPackSelectionList.ShaderPackEntry entry = (ShaderPackSelectionList.ShaderPackEntry) this.shaderPackList.getSelected();
 
-		if (!(base instanceof ShaderPackSelectionList.ShaderPackEntry)) {
-			return;
-		}
+        if (entry == null) return;
 
-		ShaderPackSelectionList.ShaderPackEntry entry = (ShaderPackSelectionList.ShaderPackEntry)base;
-		this.shaderPackList.setApplied(entry);
+        this.shaderPackList.setApplied(entry);
 
-		String name = entry.getPackName();
+        final String name = entry.getPackName();
 
-		// If the pack is being changed, clear pending options from the previous pack to
-		// avoid possible undefined behavior from applying one pack's options to another pack
-		if (!name.equals(Iris.getCurrentPackName())) {
-			Iris.clearShaderPackOptionQueue();
-		}
+        // If the pack is being changed, clear pending options from the previous pack to
+        // avoid possible undefined behavior from applying one pack's options to another pack
+        if (!name.equals(Iris.getCurrentPackName())) {
+            Iris.clearShaderPackOptionQueue();
+        }
 
-		boolean enabled = this.shaderPackList.getTopButtonRow().shadersEnabled;
+        final boolean enabled = this.shaderPackList.getTopButtonRow().shadersEnabled;
 
-		String previousPackName = Iris.getIrisConfig().getShaderPackName().orElse(null);
-		boolean previousShadersEnabled = Iris.getIrisConfig().areShadersEnabled();
+        final String previousPackName = Iris.getIrisConfig().getShaderPackName().orElse(null);
+        final boolean previousShadersEnabled = Iris.getIrisConfig().areShadersEnabled();
 
-		// Only reload if the pack would be different from before, or shaders were toggled, or options were changed, or if we're about to reset options.
-		if (!name.equals(previousPackName) || enabled != previousShadersEnabled || !Iris.getShaderPackOptionQueue().isEmpty() || Iris.shouldResetShaderPackOptionsOnNextReload()) {
-			Iris.getIrisConfig().setShaderPackName(name);
-		}
+        // Only reload if the pack would be different from before, or shaders were toggled, or options were changed, or if we're about to reset options.
+        if (!name.equals(previousPackName) || enabled != previousShadersEnabled || !Iris.getShaderPackOptionQueue().isEmpty() || Iris.shouldResetShaderPackOptionsOnNextReload()) {
+            Iris.getIrisConfig().setShaderPackName(name);
+            IrisConfig config = Iris.getIrisConfig();
 
-		refreshForChangedPack();
-	}
+            config.setShadersEnabled(enabled);
+
+            try {
+                config.save();
+            } catch (IOException e) {
+                Iris.logger.error("Error saving configuration file!", e);
+            }
+
+            try {
+                Iris.reload();
+            } catch (IOException e) {
+                Iris.logger.error("Error reloading shader pack while applying changes!", e);
+            }
+        }
+
+        refreshForChangedPack();
+    }
 
 	private void discardChanges() {
 		Iris.clearShaderPackOptionQueue();
