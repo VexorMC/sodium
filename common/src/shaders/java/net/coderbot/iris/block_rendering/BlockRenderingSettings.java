@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.coderbot.iris.shaderpack.materialmap.NamespacedId;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +16,7 @@ public class BlockRenderingSettings {
 
 	private boolean reloadRequired;
 	private Object2IntMap<BlockState> blockStateIds;
-	private Map<Block, RenderType> blockTypeIds;
+	private Map<Block, RenderLayer> blockTypeIds;
 	private Object2IntFunction<NamespacedId> entityIds;
 	private float ambientOcclusionLevel;
 	private boolean disableDirectionalShading;
@@ -46,7 +47,7 @@ public class BlockRenderingSettings {
 	}
 
 	@Nullable
-	public Map<Block, RenderType> getBlockTypeIds() {
+	public Map<Block, RenderLayer> getBlockTypeIds() {
 		return blockTypeIds;
 	}
 
@@ -65,7 +66,7 @@ public class BlockRenderingSettings {
 		this.blockStateIds = blockStateIds;
 	}
 
-	public void setBlockTypeIds(Map<Block, RenderType> blockTypeIds) {
+	public void setBlockTypeIds(Map<Block, RenderLayer> blockTypeIds) {
 		if (this.blockTypeIds != null && this.blockTypeIds.equals(blockTypeIds)) {
 			return;
 		}

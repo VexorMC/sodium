@@ -10,6 +10,7 @@ import net.coderbot.iris.shaderpack.materialmap.NamespacedId;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Identifier;
 
@@ -29,8 +30,8 @@ public class BlockMaterialMapping {
         return blockMatches;
     }
 
-    public static Map<Block, RenderType> createBlockTypeMap(Map<NamespacedId, BlockRenderType> blockPropertiesMap) {
-        Map<Block, RenderType> blockTypeIds = new Reference2ReferenceOpenHashMap<>();
+    public static Map<Block, RenderLayer> createBlockTypeMap(Map<NamespacedId, BlockRenderType> blockPropertiesMap) {
+        Map<Block, RenderLayer> blockTypeIds = new Reference2ReferenceOpenHashMap<>();
 
         blockPropertiesMap.forEach((id, blockType) -> {
             Identifier resourceLocation = new Identifier(id.getNamespace(), id.getName());
@@ -43,17 +44,17 @@ public class BlockMaterialMapping {
         return blockTypeIds;
     }
 
-    private static RenderType convertBlockToRenderType(BlockRenderType type) {
+    private static RenderLayer convertBlockToRenderType(BlockRenderType type) {
         if (type == null) {
             return null;
         }
 
         return switch (type) {
             // Everything renders in cutout or translucent in 1.7.10
-            case SOLID, CUTOUT, CUTOUT_MIPPED -> RenderType.cutout();
-            // case SOLID -> RenderType.solid();
-            // case CUTOUT_MIPPED -> RenderType.cutoutMipped();
-            case TRANSLUCENT -> RenderType.translucent();
+            case SOLID -> RenderLayer.SOLID;
+            case CUTOUT -> RenderLayer.CUTOUT;
+            case CUTOUT_MIPPED -> RenderLayer.CUTOUT_MIPPED;
+            case TRANSLUCENT -> RenderLayer.TRANSLUCENT;
             default -> null;
         };
     }

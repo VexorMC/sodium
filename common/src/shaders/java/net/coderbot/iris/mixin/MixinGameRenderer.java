@@ -32,6 +32,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinGameRenderer {
     @Shadow
     private MinecraftClient client;
+    @Shadow
+    public float fogRed;
+    @Shadow
+    public float fogBlue;
+    @Shadow
+    public float fogGreen;
     @Unique
     private WorldRenderingPipeline pipeline;
 
@@ -51,8 +57,8 @@ public class MixinGameRenderer {
     // At this point we've ensured that Minecraft's main framebuffer is cleared.
     // This is important or else very odd issues will happen with shaders that have a final pass that doesn't write to
     // all pixels.
-    @Inject(method = "renderWorld(FJ)V", at = @At("HEAD"))
-    private void iris$beginLevelRender(float tickDelta, long limitTime, CallbackInfo ci) {
+    @Inject(method = "renderWorld(IFJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/CameraView;setPos(DDD)V", shift = At.Shift.AFTER))
+    private void iris$beginLevelRender(int anaglyphFilter, float tickDelta, long limitTime, CallbackInfo ci) {
         if (Iris.isSodiumInvalid()) {
             throw new IllegalStateException("An invalid version of Sodium is installed, and the warning screen somehow" +
                     " didn't work. This is a bug! Please report it to the Iris developers.");
@@ -61,6 +67,7 @@ public class MixinGameRenderer {
         CapturedRenderingState.INSTANCE.setGbufferModelView(new Matrix4f(Camera.MODEL_MATRIX));
         CapturedRenderingState.INSTANCE.setGbufferProjection(new Matrix4f(Camera.PROJECTION_MATRIX));
         CapturedRenderingState.INSTANCE.setTickDelta(tickDelta);
+        CapturedRenderingState.INSTANCE.setFogColor(this.fogRed, this.fogGreen, this.fogBlue);
         SystemTimeUniforms.COUNTER.beginFrame();
         SystemTimeUniforms.TIMER.beginFrame(limitTime);
 
@@ -71,10 +78,11 @@ public class MixinGameRenderer {
         pipeline.beginLevelRendering();
     }
 
-    @Inject(method = "renderWorld(FJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;pop()V"))
-    private void iris$endLevelRender(float partialTicks, long limitTime, CallbackInfo callback) {
+
+    @Inject(method = "renderWorld(IFJ)V", at = @At(value = "RETURN"))
+    private void iris$endLevelRender(int anaglyphFilter, float tickDelta, long limitTime, CallbackInfo ci) {
         // TODO: Iris
-        HandRenderer.INSTANCE.renderTranslucent(partialTicks, this.client.gameRenderer, pipeline);
+        HandRenderer.INSTANCE.renderTranslucent(tickDelta, this.client.gameRenderer, pipeline);
         MinecraftClient.getInstance().profiler.swap("iris_final");
         pipeline.finalizeLevelRendering();
         Program.unbind();

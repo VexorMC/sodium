@@ -1048,7 +1048,7 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
 
     @Override
     public void renderShadows(LevelRendererAccessor levelRenderer) {
-        /*if (shouldRenderPrepareBeforeShadow) {
+        if (shouldRenderPrepareBeforeShadow) {
             isRenderingFullScreenPass = true;
 
             prepareRenderer.renderAll();
@@ -1059,7 +1059,7 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
         if (shadowRenderer != null) {
             isRenderingShadow = true;
 
-            shadowRenderer.renderShadows(levelRenderer, playerCamera);
+            shadowRenderer.renderShadows(levelRenderer);
 
             // needed to remove blend mode overrides and similar
             beginPass(null);
@@ -1072,7 +1072,7 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
             prepareRenderer.renderAll();
 
             isRenderingFullScreenPass = false;
-        }*/
+        }
     }
 
     @Override
@@ -1133,7 +1133,7 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
         Vector3d fogColor = CapturedRenderingState.INSTANCE.getFogColor();
         RenderSystem.color3f((float) fogColor.x, (float) fogColor.y, (float) fogColor.z);
 
-        horizonRenderer.renderHorizon();
+        //horizonRenderer.renderHorizon();
 
         RenderSystem.depthMask(true);
         RenderSystem.enableTexture();
