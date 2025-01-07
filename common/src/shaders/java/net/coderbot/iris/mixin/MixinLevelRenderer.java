@@ -1,11 +1,17 @@
 package net.coderbot.iris.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.coderbot.iris.Iris;
+import net.coderbot.iris.layer.GbufferPrograms;
 import net.coderbot.iris.pipeline.WorldRenderingPhase;
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;
+import net.coderbot.iris.uniforms.CapturedRenderingState;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.entity.Entity;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -57,4 +63,17 @@ public class MixinLevelRenderer {
     private void iris$renderSky$tiltSun(float tickDelta, int anaglyphFilter, CallbackInfo ci) {
         GL11.glRotatef(pipeline.getSunPathRotation(), 0.0F, 0.0F, 1.0F);
     }
+
+    @WrapOperation(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/EntityRenderDispatcher;renderEntity(Lnet/minecraft/entity/Entity;F)Z"))
+    private boolean iris$renderEntities$capture(EntityRenderDispatcher instance, Entity entity, float f, Operation<Boolean> original) {
+        CapturedRenderingState.INSTANCE.setCurrentEntity(entity.getEntityId());
+        GbufferPrograms.beginEntities();
+        try {
+            return original.call(instance, entity, f);
+        } finally {
+            CapturedRenderingState.INSTANCE.setCurrentEntity(-1);
+            GbufferPrograms.endEntities();
+        }
+    }
+
 }

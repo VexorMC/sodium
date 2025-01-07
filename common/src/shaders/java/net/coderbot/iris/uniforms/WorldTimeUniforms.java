@@ -27,24 +27,13 @@ public final class WorldTimeUniforms {
 	}
 
 	static int getWorldDayTime() {
-		long timeOfDay = getWorld().getTimeOfDay();
-
-		if (Iris.getCurrentDimension() == DimensionId.END || Iris.getCurrentDimension() == DimensionId.NETHER) {
-			// If the dimension is the nether or the end, don't override the fixed time.
-			// This was an oversight in versions before and including 1.2.5 causing inconsistencies, such as Complementary's ender beams not moving.
-			return (int) (timeOfDay % 24000L);
-		}
-
-		long dayTime = timeOfDay % 24000L;
-
-		return (int) dayTime;
+		return (int) (getWorld().getTimeOfDay() % 24000L);
 	}
 
 	private static int getWorldDay() {
-		long timeOfDay = getWorld().getTimeOfDay();
-		long day = timeOfDay / 24000L;
+		long time = getWorld().getLevelProperties().getTime();
 
-		return (int) day;
+		return (int) (time / 24000L);
 	}
 
 	private static ClientWorld getWorld() {

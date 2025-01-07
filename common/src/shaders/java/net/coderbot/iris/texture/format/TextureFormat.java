@@ -12,19 +12,19 @@ import java.util.List;
 import java.util.Locale;
 
 public interface TextureFormat {
-	String getName();
+	String name();
 
 	@Nullable
-	String getVersion();
+	String version();
 
 	default List<String> getDefines() {
 		List<String> defines = new ArrayList<>();
 
-		String defineName = getName().toUpperCase(Locale.ROOT).replaceAll("-", "_");
+		String defineName = name().toUpperCase(Locale.ROOT).replaceAll("-", "_");
 		String define = "MC_TEXTURE_FORMAT_" + defineName;
 		defines.add(define);
 
-		String version = getVersion();
+		String version = version();
 		if (version != null) {
 			String defineVersion = version.replaceAll("[.-]", "_");
 			String versionDefine = define + "_" + defineVersion;
