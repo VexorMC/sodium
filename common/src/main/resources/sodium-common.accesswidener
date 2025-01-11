@@ -13,3 +13,14 @@ accessible field net/minecraft/client/render/Camera PROJECTION_MATRIX Ljava/nio/
 accessible field net/minecraft/client/color/world/FoliageColors colorMap [I
 accessible field net/minecraft/client/color/world/GrassColors colorMap [I
 accessible class net/minecraft/client/color/world/BiomeColors$ColorProvider
+accessible class com/mojang/blaze3d/platform/GlStateManager$BlendFuncState
+accessible class com/mojang/blaze3d/platform/GlStateManager$BooleanState
+accessible class com/mojang/blaze3d/platform/GlStateManager$ColorMask
+accessible class com/mojang/blaze3d/platform/GlStateManager$DepthTestState
+accessible class com/mojang/blaze3d/platform/GlStateManager$Texture2DState
+accessible class com/mojang/blaze3d/platform/GlStateManager$AlphaTestState
+accessible method net/minecraft/client/render/GameRenderer getFov (FZ)F
+accessible method net/minecraft/client/render/GameRenderer bobViewWhenHurt (F)V
+accessible method net/minecraft/client/render/GameRenderer bobView (F)V
+accessible field net/minecraft/client/render/GameRenderer viewDistance F
+accessible field net/minecraft/client/render/model/TexturedBakedQuad sprite Lnet/minecraft/client/texture/Sprite;

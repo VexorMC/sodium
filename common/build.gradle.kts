@@ -19,6 +19,11 @@ sourceSets {
     main.apply {
         java {
             srcDirs("src/api/java")
+            srcDirs("src/shaders/java")
+            srcDirs("src/vendored/java")
+        }
+        resources {
+            srcDirs("src/shaders/resources")
         }
     }
 
@@ -45,8 +50,8 @@ dependencies {
     modCompileOnly("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
 
     implementation("org.javassist:javassist:3.29.2-GA")
-    implementation(platform("org.lwjgl:lwjgl-bom:3.3.5"))
 
+    implementation(platform("org.lwjgl:lwjgl-bom:3.3.5"))
     implementation("org.lwjgl:lwjgl")
     implementation("org.lwjgl:lwjgl-glfw")
     implementation("org.lwjgl:lwjgl-openal")

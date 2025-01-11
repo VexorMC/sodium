@@ -10,25 +10,7 @@
     "conformVisibility" : true
   },
   "client" : [
-    "core.access.ABlockRenderManager",
-    "core.access.AFluidRenderer",
-    "core.MinecraftMixin",
-    "core.render.VertexFormatMixin",
-    "core.render.world.LevelRendererMixin",
-    "core.world.biome.ClientLevelMixin",
-    "core.world.map.ClientChunkCacheMixin",
-    "core.world.map.ClientLevelMixin",
-    "features.gui.hooks.console.GameRendererMixin",
-    "features.gui.hooks.debug.DebugScreenOverlayMixin",
-    "features.gui.hooks.settings.OptionsScreenMixin",
-    "features.options.GameOptionsMixin",
-    "features.options.MinecraftClientMixin",
-    "features.options.overlays.GuiMixin",
-    "features.options.render_layers.LeavesBlockMixin",
-    "features.options.weather.LevelRendererMixin",
-    "features.render.immediate.DirectionMixin",
-    "features.textures.animations.SpriteMixin",
-    "features.textures.tracking.SpriteMixin"
+    "features.gui.hooks.settings.OptionsScreenMixin"
   ],
   "mixins" : [
     "features.options.world.DimensionMixin"

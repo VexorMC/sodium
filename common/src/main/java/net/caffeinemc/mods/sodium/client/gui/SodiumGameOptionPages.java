@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gui;
 
 import com.google.common.collect.ImmutableList;
+import dev.vexor.radium.options.client.gui.ReeseSodiumVideoOptionsScreen;
 import net.caffeinemc.mods.sodium.client.gl.arena.staging.MappedStagingBuffer;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
 import net.caffeinemc.mods.sodium.client.gui.options.*;
@@ -56,7 +57,7 @@ public class SodiumGameOptionPages {
 
                             // Resizing our window
                             if(MinecraftClient.getInstance().currentScreen instanceof SodiumOptionsGUI) {
-                                MinecraftClient.getInstance().setScreen(new SodiumOptionsGUI(((SodiumOptionsGUI) MinecraftClient.getInstance().currentScreen).prevScreen));
+                                MinecraftClient.getInstance().setScreen(new ReeseSodiumVideoOptionsScreen(((SodiumOptionsGUI) MinecraftClient.getInstance().currentScreen).prevScreen));
                             }
                         }, opts -> opts.guiScale)
                         .build())

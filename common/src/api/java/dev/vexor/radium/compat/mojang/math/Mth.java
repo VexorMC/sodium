@@ -17,6 +17,15 @@ public class Mth {
         return -java.lang.Math.floorDiv(-n, n2);
     }
 
+    public static float fastInvCubeRoot(float f) {
+        int n = Float.floatToIntBits(f);
+        n = 1419967116 - n / 3;
+        float f2 = Float.intBitsToFloat(n);
+        f2 = 0.6666667f * f2 + 1.0f / (3.0f * f2 * f2 * f);
+        f2 = 0.6666667f * f2 + 1.0f / (3.0f * f2 * f2 * f);
+        return f2;
+    }
+
     public static float lerp(float delta, float start, float end) {
         return start + delta * (end - start);
     }

@@ -2068,8 +2068,8 @@ public class ContextCapabilities {
     long glGetProgramResourceIndex;
     long glGetProgramResourceName;
     long glGetProgramResourceiv;
-    long glGetProgramResourceLocation;
-    long glGetProgramResourceLocationIndex;
+    long glGetProgramIdentifier;
+    long glGetProgramIdentifierIndex;
     long glShaderStorageBlockBinding;
     long glTexBufferRange;
     long glTexStorage2DMultisample;
@@ -3251,8 +3251,8 @@ public class ContextCapabilities {
                         (glGetProgramResourceIndex = GL.getFunctionProvider().getFunctionAddress("glGetProgramResourceIndex")) != 0 &
                         (glGetProgramResourceName = GL.getFunctionProvider().getFunctionAddress("glGetProgramResourceName")) != 0 &
                         (glGetProgramResourceiv = GL.getFunctionProvider().getFunctionAddress("glGetProgramResourceiv")) != 0 &
-                        (glGetProgramResourceLocation = GL.getFunctionProvider().getFunctionAddress("glGetProgramResourceLocation")) != 0 &
-                        (glGetProgramResourceLocationIndex = GL.getFunctionProvider().getFunctionAddress("glGetProgramResourceLocationIndex")) != 0;
+                        (glGetProgramIdentifier = GL.getFunctionProvider().getFunctionAddress("glGetProgramIdentifier")) != 0 &
+                        (glGetProgramIdentifierIndex = GL.getFunctionProvider().getFunctionAddress("glGetProgramIdentifierIndex")) != 0;
     }
 
     private boolean ARB_provoking_vertex_initNativeFunctionAddresses() {
@@ -5169,8 +5169,8 @@ public class ContextCapabilities {
                         (glGetProgramResourceIndex = GL.getFunctionProvider().getFunctionAddress("glGetProgramResourceIndex")) != 0 &
                         (glGetProgramResourceName = GL.getFunctionProvider().getFunctionAddress("glGetProgramResourceName")) != 0 &
                         (glGetProgramResourceiv = GL.getFunctionProvider().getFunctionAddress("glGetProgramResourceiv")) != 0 &
-                        (glGetProgramResourceLocation = GL.getFunctionProvider().getFunctionAddress("glGetProgramResourceLocation")) != 0 &
-                        (glGetProgramResourceLocationIndex = GL.getFunctionProvider().getFunctionAddress("glGetProgramResourceLocationIndex")) != 0 &
+                        (glGetProgramIdentifier = GL.getFunctionProvider().getFunctionAddress("glGetProgramIdentifier")) != 0 &
+                        (glGetProgramIdentifierIndex = GL.getFunctionProvider().getFunctionAddress("glGetProgramIdentifierIndex")) != 0 &
                         (glShaderStorageBlockBinding = GL.getFunctionProvider().getFunctionAddress("glShaderStorageBlockBinding")) != 0 &
                         (glTexBufferRange = GL.getFunctionProvider().getFunctionAddress("glTexBufferRange")) != 0 &
                         (glTexStorage2DMultisample = GL.getFunctionProvider().getFunctionAddress("glTexStorage2DMultisample")) != 0 &
