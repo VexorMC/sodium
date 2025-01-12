@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import dev.vexor.radium.lwjgl3.DesktopFileInjector;
+import dev.vexor.radium.extra.client.SodiumExtraClientMod;
 import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -175,6 +176,10 @@ public final class Display {
 				GLFW.glfwWindowHintString(GLFW.GLFW_WAYLAND_APP_ID, DesktopFileInjector.APP_ID);
 			}
 
+            if (MinecraftClient.IS_MAC && SodiumExtraClientMod.options().extraSettings.reduceResolutionOnMac) {
+                GLFW.glfwWindowHint(GLFW.GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW.GLFW_FALSE);
+            }
+
 			GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_OPENGL_API);
 			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_CREATION_API, GLFW.GLFW_NATIVE_CONTEXT_API);
 			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR,  3);
@@ -291,7 +296,18 @@ public final class Display {
 
 	
 	public static void setVSyncEnabled(boolean enabled) {
-		GLFW.glfwSwapInterval(enabled ? 1 : 0);
+        if (SodiumExtraClientMod.options().extraSettings.useAdaptiveSync) {
+            if (GLFW.glfwExtensionSupported("GLX_EXT_swap_control_tear") || GLFW.glfwExtensionSupported("WGL_EXT_swap_control_tear")) {
+                GLFW.glfwSwapInterval(-1);
+            } else {
+                SodiumExtraClientMod.logger().warn("Adaptive vsync not supported, falling back to vanilla vsync state!");
+                SodiumExtraClientMod.options().extraSettings.useAdaptiveSync = false;
+                SodiumExtraClientMod.options().writeChanges();
+                GLFW.glfwSwapInterval(enabled ? 1 : 0);
+            }
+        } else {
+            GLFW.glfwSwapInterval(enabled ? 1 : 0);
+        }
 	}
 
 	

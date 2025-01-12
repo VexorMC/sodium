@@ -27,18 +27,7 @@ public class EarlyRiserLoader implements IMixinConfigPlugin {
         // meaning it will load LWJGL 3 classes from the knot classpath instead of LWJGL 2 from the system classpath
         //
         // This was such a pain to figure out and caused me so much trouble
-        getPaulscodePath().ifPresent(FabricLauncherBase.getLauncher()::addToClassPath);
-        // taken from https://github.com/Chocohead/Fabric-ASM
-        new EarlyRiser().run();
-    }
 
-    public static Optional<Path> getPaulscodePath() {
-        for (Path path : FabricLauncherBase.getLauncher().getClassPath()) {
-            if (path.toString().contains("librarylwjglopenal")) {
-                return Optional.of(path);
-            }
-        }
-        return Optional.empty();
     }
 
     @Override

@@ -1,6 +1,8 @@
 package net.caffeinemc.mods.sodium.client.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import dev.vexor.radium.extra.client.gui.SodiumExtraGameOptionPages;
+import dev.vexor.radium.extra.client.gui.scrollable_page.OptionPageScrollFrame;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.data.fingerprint.HashedFingerprint;
 import net.caffeinemc.mods.sodium.client.console.Console;
@@ -64,6 +66,11 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
         this.pages.add(SodiumGameOptionPages.quality());
         this.pages.add(SodiumGameOptionPages.performance());
         this.pages.add(SodiumGameOptionPages.advanced());
+        this.pages.add(SodiumExtraGameOptionPages.animation());
+        this.pages.add(SodiumExtraGameOptionPages.particle());
+        this.pages.add(SodiumExtraGameOptionPages.detail());
+        this.pages.add(SodiumExtraGameOptionPages.render());
+        this.pages.add(SodiumExtraGameOptionPages.extra());
 
         this.checkPromptTimers();
     }
@@ -225,6 +232,10 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
                 ControlElement<?> element = control.createElement(new Dim2i(x, y, 240, 18));
 
                 this.addRenderableWidget(element);
+
+                OptionPageScrollFrame optionPageScrollFrame = new OptionPageScrollFrame(new Dim2i(x, y, /*this.width - x * 2*/240, this.height - y - 10 /*- 64*/), this.currentPage);
+                this.addRenderableWidget(optionPageScrollFrame);
+
 
                 this.controls.add(element);
 
