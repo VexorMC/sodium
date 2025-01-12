@@ -5,15 +5,16 @@
   "plugin": "dev.vexor.radium.mixin.RadiumMixinConfigPlugin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "core.MixinFramebuffer",
     "core.MixinMinecraftFixEarlyCrashNoReports",
     "core.MixinScreenFixClipboard",
-    "extra.core.MixinGui",
-    "extra.core.MixinMinecraftClient",
     "extra.animation.MixinSpriteAtlasTexture",
     "extra.biome_colors.MixinBiomeColors",
+    "extra.core.MixinGui",
+    "extra.core.MixinMinecraftClient",
     "extra.gui.MinecraftClientAccessor",
-    "extra.particle.MixinParticleEngine",
     "extra.particle.MixinLevelRenderer",
+    "extra.particle.MixinParticleEngine",
     "extra.prevent_shaders.MixinGameRenderer",
     "extra.render.block.entity.MixinBeaconRenderer",
     "extra.render.block.entity.MixinEnchantingTableBlockEntityRenderer",
@@ -24,9 +25,9 @@
     "extra.sky.MixinSkyRenderer",
     "extra.sky_colors.MixinBiome",
     "extra.steady_debug_hud.MixinDebugScreenOverlay",
+    "sodium.core.MinecraftMixin",
     "sodium.core.access.ABlockRenderManager",
     "sodium.core.access.AFluidRenderer",
-    "sodium.core.MinecraftMixin",
     "sodium.core.render.VertexFormatMixin",
     "sodium.core.render.world.LevelRendererMixin",
     "sodium.core.world.biome.ClientLevelMixin",
@@ -43,7 +44,6 @@
     "sodium.features.render.immediate.DirectionMixin",
     "sodium.features.textures.animations.SpriteMixin",
     "sodium.features.textures.tracking.SpriteMixin"
-
   ],
   "injectors": {
     "defaultRequire": 1
