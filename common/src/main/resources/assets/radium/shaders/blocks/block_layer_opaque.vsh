@@ -1,9 +1,9 @@
 #version 330 core
 
-#import <sodium:include/fog.glsl>
-#import <sodium:include/chunk_vertex.glsl>
-#import <sodium:include/chunk_matrices.glsl>
-#import <sodium:include/chunk_material.glsl>
+#import <radium:include/fog.glsl>
+#import <radium:include/chunk_vertex.glsl>
+#import <radium:include/chunk_matrices.glsl>
+#import <radium:include/chunk_material.glsl>
 
 out vec4 v_Color;
 out vec2 v_TexCoord;

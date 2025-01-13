@@ -20,6 +20,7 @@ val configurationCommonModResources: Configuration = configurations.create("comm
 
 repositories {
     maven("https://jitpack.io/")
+    maven("https://repo.codemc.io/repository/maven-public/")
 }
 
 dependencies {
@@ -31,6 +32,7 @@ dependencies {
     shadow("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-linux")
     shadow("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
     shadow("org.javassist:javassist:3.29.2-GA")
+    shadow("com.logisticscraft:occlusionculling:0.0.5-SNAPSHOT")
     shadow(platform("org.lwjgl:lwjgl-bom:3.3.5"))
 
     shadow("org.lwjgl:lwjgl")
@@ -60,6 +62,7 @@ dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
     mappings("net.legacyfabric:yarn:1.8.9+build.551:v2")
     implementation("org.javassist:javassist:3.29.2-GA")
+    implementation("com.logisticscraft:occlusionculling:0.0.5-SNAPSHOT")
     implementation(platform("org.lwjgl:lwjgl-bom:3.3.5"))
 
     implementation("org.lwjgl:lwjgl")

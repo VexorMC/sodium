@@ -27,6 +27,7 @@ sourceSets {
 
 repositories {
     maven("https://jitpack.io/")
+    maven("https://repo.codemc.io/repository/maven-public/")
 }
 
 dependencies {
@@ -45,6 +46,8 @@ dependencies {
     modCompileOnly("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
 
     implementation("org.javassist:javassist:3.29.2-GA")
+    implementation("com.logisticscraft:occlusionculling:0.0.5-SNAPSHOT")
+
     implementation(platform("org.lwjgl:lwjgl-bom:3.3.5"))
 
     implementation("org.lwjgl:lwjgl")

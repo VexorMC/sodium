@@ -1,7 +1,6 @@
 package dev.vexor.radium.lwjgl3.implementation.glfw;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -402,7 +401,7 @@ public class VirtualGLFWMouseImplementation implements MouseImplementation {
 
             }
 
-            return this.getClass().getResourceAsStream("/assets/virtual_cursor/default");
+            return this.getClass().getResourceAsStream("/assets/radium/lwjgl/virtual_cursor/default");
         }
     }
 

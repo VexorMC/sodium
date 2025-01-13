@@ -39,28 +39,4 @@ public abstract class MixinDebugScreenOverlay {
         }
     }
 
-    @Redirect(method = "renderLeftText", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/DebugHud;getLeftText()Ljava/util/List;"))
-    public List<String> sodiumExtra$redirectRenderLeftText(DebugHud debugHud) {
-        return this.leftTextCache;
-    }
-    @Redirect(method = "renderRightText", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/DebugHud;getRightText()Ljava/util/List;"))
-    public List<String> sodiumExtra$redirectRenderRightText(DebugHud debugHud) {
-        return this.rightTextCache;
-    }
-
-    @Inject(method = "getLeftText", at = @At(value = "RETURN"))
-    public void sodiumExtra$redirectDrawLeftText(CallbackInfoReturnable<List<String>> cir) {
-        if (this.rebuild) {
-            this.leftTextCache.clear();
-            this.leftTextCache.addAll(cir.getReturnValue());
-        }
-    }
-
-    @Inject(method = "getRightText", at = @At(value = "RETURN"))
-    public void sodiumExtra$redirectDrawRightText(CallbackInfoReturnable<List<String>> cir) {
-        if (this.rebuild) {
-            this.rightTextCache.clear();
-            this.rightTextCache.addAll(cir.getReturnValue());
-        }
-    }
 }
