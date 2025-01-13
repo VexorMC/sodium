@@ -76,9 +76,6 @@ public class VirtualGLFWMouseImplementation implements MouseImplementation {
     public void createMouse() {
         this.windowHandle = Display.getHandle();
 
-        if (GLFW.glfwRawMouseMotionSupported() && !Mouse.getPrivilegedBoolean("org.lwjgl.input.Mouse.disableRawInput"))
-            GLFW.glfwSetInputMode(this.windowHandle, GLFW.GLFW_RAW_MOUSE_MOTION, GLFW.GLFW_TRUE);
-
         this.buttonCallback = GLFWMouseButtonCallback.create((window, button, action, mods) -> {
             byte state = action == GLFW.GLFW_PRESS ? (byte) 1 : (byte) 0;
             putMouseEvent((byte) button, state, 0, System.nanoTime());
