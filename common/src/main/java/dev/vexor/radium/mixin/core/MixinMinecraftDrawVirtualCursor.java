@@ -1,4 +1,4 @@
-package dev.vexor.radium.lwjgl3.mixin;
+package dev.vexor.radium.mixin.core;
 
 import dev.vexor.radium.lwjgl3.implementation.glfw.VirtualGLFWMouseImplementation;
 import net.minecraft.client.MinecraftClient;
