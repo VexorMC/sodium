@@ -3,6 +3,7 @@ package net.coderbot.iris.mixin;
 import net.coderbot.iris.Iris;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,13 +16,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(CrashReport.class)
 public abstract class MixinCrashReport {
     @Shadow
-    public abstract CrashReportSection getSystemDetailsSection();
+    @Final
+    private CrashReportSection systemDetailsSection;
 
     @Inject(at = @At("RETURN"), method = "fillSystemDetails")
     private void fillSystemDetails(CallbackInfo info) {
         if (Iris.getCurrentPackName() == null) return; // this also gets called at startup for some reason
 
-        getSystemDetailsSection().add("Loaded Shaderpack", () -> {
+        this.systemDetailsSection.add("Loaded Shaderpack", () -> {
             StringBuilder sb = new StringBuilder(Iris.getCurrentPackName() + (Iris.isFallback() ? " (fallback)" : ""));
             Iris.getCurrentPack().ifPresent(pack -> {
                 sb.append("\n\t\t");
@@ -30,7 +32,7 @@ public abstract class MixinCrashReport {
             return sb.toString();
         });
 
-        getSystemDetailsSection().add("NEC status", () -> {
+        this.systemDetailsSection.add("NEC status", () -> {
 			if (Iris.hasNotEnoughCrashes()) {
 				return "Has NEC: INVALID";
 			} else {

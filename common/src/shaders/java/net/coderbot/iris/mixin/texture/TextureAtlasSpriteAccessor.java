@@ -11,14 +11,14 @@ import java.util.List;
 
 @Mixin(Sprite.class)
 public interface TextureAtlasSpriteAccessor {
-    @Accessor("meta")
+	@Accessor("meta")
     AnimationMetadata getMetadata();
+
+    @Accessor("field_11198")
+    int[][] getMainImage();
 
     @Accessor("frames")
     List<int[][]> getFrames();
-
-    @Accessor("field_11198")
-	int[][] getMainImage();
 
 	@Accessor("x")
 	int getX();
@@ -31,10 +31,4 @@ public interface TextureAtlasSpriteAccessor {
 
 	@Accessor("frameIndex")
 	void setFrame(int frame);
-
-	@Accessor("frameTicks")
-	int getSubFrame();
-
-	@Accessor("frameTicks")
-	void setSubFrame(int subFrame);
 }

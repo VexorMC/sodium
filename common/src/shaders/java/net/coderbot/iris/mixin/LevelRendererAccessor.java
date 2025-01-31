@@ -15,21 +15,21 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(WorldRenderer.class)
 public interface LevelRendererAccessor {
-	@Accessor("entityRenderDispatcher")
+    @Accessor("entityRenderDispatcher")
     EntityRenderDispatcher getEntityRenderDispatcher();
 
-	@Invoker("renderLayer")
+    @Invoker("renderLayer")
     int invokeRenderLayer(RenderLayer renderLayer, double tickDelta, int anaglyphFilter, Entity entity);
 
-	@Invoker("setupTerrain")
-	void invokeSetupRender(Entity entity, double tickDelta, CameraView cameraView, int frame, boolean spectator);
+    @Invoker("setupTerrain")
+    void invokeSetupRender(Entity entity, double tickDelta, CameraView cameraView, int frame, boolean spectator);
 
-	@Accessor("world")
+    @Accessor("world")
     ClientWorld getLevel();
 
-	@Accessor("ticks")
-	int getFrameId();
+    @Accessor("ticks")
+    int getFrameId();
 
-	@Accessor("ticks")
-	void setFrameId(int frame);
+    @Accessor("ticks")
+    void setFrameId(int frame);
 }

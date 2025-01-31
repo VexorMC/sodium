@@ -1,15 +1,16 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "net.coderbot.iris.mixin",
-  "compatibilityLevel": "JAVA_8",
-  "verbose": true,
-  "client": [
+  "required" : true,
+  "minVersion" : "0.8",
+  "package" : "net.coderbot.iris.mixin",
+  "compatibilityLevel" : "JAVA_8",
+  "verbose" : true,
+  "client" : [
     "GameRendererAccessor",
     "GlStateManagerAccessor",
     "LevelRendererAccessor",
     "LightTextureAccessor",
     "MinecraftClientAccessor",
+    "MixinClientLanguage",
     "MixinCrashReport",
     "MixinDebugScreenOverlay",
     "MixinEntityRenderDispatcher",
@@ -29,10 +30,11 @@
     "MixinParticleEngine",
     "MixinRenderSystem",
     "MixinRenderTarget",
-    "MixinTranslationStorage",
     "shadows.MixinLevelRenderer",
+    "state_tracking.MixinBufferRenderer",
     "state_tracking.MixinGlStateManager",
     "state_tracking.MixinRenderTarget",
+    "state_tracking.MixinVertexBuffer",
     "statelisteners.BooleanStateAccessor",
     "statelisteners.MixinGlStateManager",
     "texture.AnimationMetadataSectionAccessor",
@@ -46,8 +48,8 @@
     "texture.pbr.MixinTextureAtlas",
     "texture.pbr.MixinTextureAtlasSprite"
   ],
-  "injectors": {
-    "defaultRequire": 1,
-    "maxShiftBy": 2
+  "injectors" : {
+    "defaultRequire" : 1,
+    "maxShiftBy" : 2
   }
 }

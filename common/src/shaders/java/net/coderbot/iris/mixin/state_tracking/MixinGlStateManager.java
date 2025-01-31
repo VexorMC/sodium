@@ -16,4 +16,30 @@ public class MixinGlStateManager {
 	@Shadow
 	private static int activeTexture;
 
+	@Inject(method = "enableTexture()V", at = @At("HEAD"))
+	private static void iris$onEnableTexture(CallbackInfo ci) {
+		if (activeTexture == IrisSamplers.ALBEDO_TEXTURE_UNIT) {
+			StateTracker.INSTANCE.albedoSampler = true;
+		} else if (activeTexture == IrisSamplers.LIGHTMAP_TEXTURE_UNIT) {
+			StateTracker.INSTANCE.lightmapSampler = true;
+		} else {
+			return;
+		}
+
+		Iris.getPipelineManager().getPipeline().ifPresent(p -> p.setInputs(StateTracker.INSTANCE.getInputs()));
+	}
+
+	@Inject(method = "disableTexture()V", at = @At("HEAD"))
+	private static void iris$onDisableTexture(CallbackInfo ci) {
+		if (activeTexture == IrisSamplers.ALBEDO_TEXTURE_UNIT) {
+			StateTracker.INSTANCE.albedoSampler = false;
+		} else if (activeTexture == IrisSamplers.LIGHTMAP_TEXTURE_UNIT) {
+			StateTracker.INSTANCE.lightmapSampler = false;
+		} else {
+			return;
+		}
+
+		Iris.getPipelineManager().getPipeline().ifPresent(p -> p.setInputs(StateTracker.INSTANCE.getInputs()));
+	}
+
 }

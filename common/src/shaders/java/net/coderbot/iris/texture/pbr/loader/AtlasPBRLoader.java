@@ -221,7 +221,6 @@ public class AtlasPBRLoader implements PBRTextureLoader<SpriteAtlasTexture> {
 		}
 
 		targetAccessor.setFrame(targetFrame);
-		targetAccessor.setSubFrame(ticks + sourceAccessor.getSubFrame());
 	}
 
 	protected static class PBRTextureAtlasSpriteInfo extends SpriteInfo {

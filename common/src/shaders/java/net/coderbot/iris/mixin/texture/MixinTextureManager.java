@@ -18,4 +18,5 @@ public class MixinTextureManager {
 		TextureFormatLoader.reload(resourceManager);
 		PBRTextureManager.INSTANCE.clear();
 	}
+
 }

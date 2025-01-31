@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(GameRenderer.class)
 public interface LightTextureAccessor {
-	@Accessor("lightmapTexture")
+    @Accessor("lightmapTexture")
     NativeImageBackedTexture getLightTexture();
 }

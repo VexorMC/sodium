@@ -14,5 +14,4 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(VertexFormat.class)
 public class MixinVertexFormat {
-
 }

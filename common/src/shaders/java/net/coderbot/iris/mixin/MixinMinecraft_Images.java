@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 @Mixin(MinecraftClient.class)
 public class MixinMinecraft_Images {
-	@Inject(method = "initializeGame", at = @At("RETURN"))
+	@Inject(method = "initializeGame", at = @At("TAIL"))
 	private void iris$setupImages(CallbackInfo ci) {
 		try {
 			MinecraftClient.getInstance().getTextureManager().loadTexture(new Identifier("iris", "textures/gui/widgets.png"), new NativeImageBackedCustomTexture(new CustomTextureData.PngData(new TextureFilteringData(false, false), IOUtils.toByteArray(Iris.class.getResourceAsStream("/assets/iris/textures/gui/widgets.png")))));

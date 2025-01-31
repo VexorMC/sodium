@@ -11,8 +11,5 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(VertexFormatElement.class)
 public class MixinVertexFormatElement {
-	@Inject(method = "isValidType", at = @At("HEAD"), cancellable = true)
-	private void iris$fixGenericAttributes(int index, VertexFormatElement.Type type, CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(true);
-	}
+
 }

@@ -15,7 +15,7 @@ public class MixinAbstractTexture {
 	protected int glId;
 
 	// Inject after the newly-generated texture ID has been stored into the id field
-	@Inject(method = "getGlId()I", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/texture/TextureUtil;getTexLevelParameter()I", shift = Shift.BY, by = 2))
+	@Inject(method = "getGlId", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/texture/TextureUtil;getTexLevelParameter()I", shift = Shift.BY, by = 2))
 	private void iris$afterGenerateId(CallbackInfoReturnable<Integer> cir) {
 		TextureTracker.INSTANCE.trackTexture(glId, (AbstractTexture) (Object) this);
 	}

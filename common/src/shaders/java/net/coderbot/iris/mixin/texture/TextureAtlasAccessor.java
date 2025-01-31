@@ -12,8 +12,8 @@ import java.util.Map;
 @Mixin(SpriteAtlasTexture.class)
 public interface TextureAtlasAccessor {
 	@Accessor("sprites")
-    Map<String, Sprite> getTexturesByName();
+	Map<String, Sprite> getTexturesByName();
 
-	@Invoker("method_7003")
-    Identifier completeResourceLocation(Identifier identifier, int i);
+    @Invoker("method_7003")
+    Identifier completeResourceLocation(Identifier location, int i);
 }

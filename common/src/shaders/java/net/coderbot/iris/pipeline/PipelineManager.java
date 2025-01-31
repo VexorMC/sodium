@@ -48,7 +48,6 @@ public class PipelineManager {
 		return pipeline;
 	}
 
-	@Nullable
 	public WorldRenderingPipeline getPipelineNullable() {
 		return pipeline;
 	}

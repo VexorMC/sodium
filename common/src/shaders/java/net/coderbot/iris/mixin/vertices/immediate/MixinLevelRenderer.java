@@ -1,5 +1,6 @@
 package net.coderbot.iris.mixin.vertices.immediate;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.coderbot.iris.vertices.ImmediateState;
 import net.minecraft.client.render.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;

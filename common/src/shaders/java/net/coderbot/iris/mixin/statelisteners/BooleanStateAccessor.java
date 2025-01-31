@@ -1,10 +1,9 @@
 package net.coderbot.iris.mixin.statelisteners;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(GlStateManager.BooleanState.class)
+@Mixin(targets = "com/mojang/blaze3d/platform/GlStateManager$BooleanState")
 public interface BooleanStateAccessor {
 	@Accessor("cachedState")
 	boolean isEnabled();

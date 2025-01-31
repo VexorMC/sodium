@@ -8,15 +8,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(GameRenderer.class)
 public interface GameRendererAccessor {
-	@Invoker
-	void invokeBobViewWhenHurt(float tickDelta);
-
-	@Invoker
-	void invokeBobView(float tickDelta);
-
     @Accessor
     int getFrameCount();
-
     @Accessor
     void setFrameCount(int frameCount);
 }

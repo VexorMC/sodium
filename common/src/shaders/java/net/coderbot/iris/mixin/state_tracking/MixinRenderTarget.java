@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(Framebuffer.class)
 public class MixinRenderTarget {
-	@Inject(method = "bind(Z)V", at = @At("RETURN"))
+	@Inject(method = "bind", at = @At("RETURN"))
 	private void iris$onBindFramebuffer(boolean bl, CallbackInfo ci) {
 		// IntelliJ is wrong here. It doesn't understand how Mixin works.
 		boolean mainBound = this == (Object) MinecraftClient.getInstance().getFramebuffer();

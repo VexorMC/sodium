@@ -20,9 +20,8 @@ public class MixinGameRenderer_NightVisionCompat {
 	@Inject(method = "getNightVisionStrength", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/entity/effect/StatusEffectInstance;getDuration()I"), cancellable = true,
 			require = 0)
-	private void iris$safecheckNightvisionStrength(LivingEntity livingEntity, float partialTicks,
-                                                   CallbackInfoReturnable<Float> cir){
-		if (livingEntity.getEffectInstance(StatusEffect.NIGHTVISION) == null) {
+	private void iris$safecheckNightvisionStrength(LivingEntity entity, float tickDelta, CallbackInfoReturnable<Float> cir){
+		if (entity.getEffectInstance(StatusEffect.NIGHTVISION) == null) {
 			cir.setReturnValue(0.0f);
 		}
 	}

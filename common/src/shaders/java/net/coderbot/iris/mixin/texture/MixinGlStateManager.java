@@ -26,7 +26,6 @@ public class MixinGlStateManager {
 		iris$onDeleteTexture(id);
 	}
 
-
 	@Unique
 	private static void iris$onDeleteTexture(int id) {
 		TextureTracker.INSTANCE.onDeleteTexture(id);

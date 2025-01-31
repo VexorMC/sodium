@@ -1,14 +1,13 @@
 package net.coderbot.iris.mixin;
 
+import net.caffeinemc.mods.sodium.mixin.features.options.MinecraftClientMixin;
 import net.coderbot.iris.Iris;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.world.ClientWorld;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -16,33 +15,41 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(MinecraftClient.class)
 @Environment(EnvType.CLIENT)
 public class MixinMinecraft_PipelineManagement {
-    @Shadow
-    public ClientWorld world;
-
-    @Inject(method = "initializeGame", at = @At("RETURN"))
-    public void iris$postInit(CallbackInfo ci) {
-        Iris.onLoadingComplete();
-    }
-
-    /**
-	 * Should run before the Minecraft.level field is updated after disconnecting from a server or leaving a singleplayer world
-     * Should run before the Minecraft.level field is updated after receiving a login or respawn packet
-     * NB: Not on leave, another inject is used for that
+	/**
+	 * Should run before the {@link MinecraftClient#world} field is updated after receiving a login or respawn packet
+     * Should run before the {@link MinecraftClient#world} field is updated after disconnecting from a server or leaving a singleplayer world
 	 */
-	@Inject(method = "connect(Lnet/minecraft/client/world/ClientWorld;)V", at = @At("HEAD"))
-	public void iris$trackLastDimensionOnLeave(ClientWorld world, CallbackInfo ci) {
+    @Inject(method = "connect(Lnet/minecraft/client/world/ClientWorld;)V", at = @At("HEAD"))
+	private void iris$trackLastDimensionOnLevelChange(ClientWorld world, CallbackInfo ci) {
 		Iris.lastDimension = Iris.getCurrentDimension();
+	}
 
-        if (Iris.getCurrentDimension() != Iris.lastDimension) {
-            Iris.logger.info("Reloading pipeline on dimension change: " + Iris.lastDimension + " => " + Iris.getCurrentDimension());
-            // Destroy pipelines when changing dimensions.
-            Iris.getPipelineManager().destroyPipeline();
+	/**
+	 * Injects before LevelRenderer receives the new level, or is notified of the level unload.
+	 *
+	 * We destroy any pipelines here to guard against potential memory leaks related to pipelines for
+	 * other dimensions never being unloaded.
+	 *
+	 * This injection point is needed so that we can reload the Iris shader pipeline before Sodium starts trying
+	 * to reload its world renderer. Otherwise, there will be inconsistent state since Sodium might initialize and
+	 * use the non-extended vertex format (since we do it based on whether the pipeline is available,
+	 * then Iris will switch on its pipeline, then code will assume that the extended vertex format
+	 * is used everywhere.
+	 *
+	 * See: https://github.com/IrisShaders/Iris/issues/1330
+	 */
+	@Inject(method = "connect(Lnet/minecraft/client/world/ClientWorld;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setWorld(Lnet/minecraft/client/world/ClientWorld;)V", shift = At.Shift.BEFORE))
+	private void iris$resetPipeline(ClientWorld world, String loadingMessage, CallbackInfo ci) {
+		if (Iris.getCurrentDimension() != Iris.lastDimension) {
+			Iris.logger.info("Reloading pipeline on dimension change: " + Iris.lastDimension + " => " + Iris.getCurrentDimension());
+			// Destroy pipelines when changing dimensions.
+			Iris.getPipelineManager().destroyPipeline();
 
-            // NB: We need create the pipeline immediately, so that it is ready by the time that Sodium starts trying to
-            // initialize its world renderer.
-            if (world != null) {
-                Iris.getPipelineManager().preparePipeline(Iris.getCurrentDimension());
-            }
-        }
+			// NB: We need create the pipeline immediately, so that it is ready by the time that Sodium starts trying to
+			// initialize its world renderer.
+			if (world != null) {
+				Iris.getPipelineManager().preparePipeline(Iris.getCurrentDimension());
+			}
+		}
 	}
 }

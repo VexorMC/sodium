@@ -78,7 +78,6 @@
     "sodium-common.mixins.json",
     "sodium-fabric.mixins.json",
     "iris.mixins.json",
-    "iris-fantastic.mixins.json",
     "iris-vertexformat.mixins.json"
   ],
   "depends" : {

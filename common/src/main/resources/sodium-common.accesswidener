@@ -24,3 +24,4 @@ accessible method net/minecraft/client/render/GameRenderer bobViewWhenHurt (F)V
 accessible method net/minecraft/client/render/GameRenderer bobView (F)V
 accessible field net/minecraft/client/render/GameRenderer viewDistance F
 accessible field net/minecraft/client/render/model/TexturedBakedQuad sprite Lnet/minecraft/client/texture/Sprite;
+accessible class net/minecraft/client/render/WorldRenderer$ChunkInfo
