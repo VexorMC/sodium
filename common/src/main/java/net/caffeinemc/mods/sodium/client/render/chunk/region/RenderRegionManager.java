@@ -18,6 +18,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.SharedIndexSorter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.profiler.Profiler;
 import org.jetbrains.annotations.NotNull;
@@ -76,6 +77,7 @@ public class RenderRegionManager {
 
                     if (storage != null) {
                         storage.removeVertexData(renderSectionIndex);
+                        region.clearCachedBatchFor(pass);
                     }
 
                     BuiltSectionMeshParts mesh = chunkBuildOutput.getMesh(pass);
@@ -88,18 +90,36 @@ public class RenderRegionManager {
             }
 
             if (result instanceof ChunkSortOutput indexDataOutput && !indexDataOutput.isReusingUploadedIndexData()) {
-                var buffer = indexDataOutput.getIndexBuffer();
-
-                // when a non-present TranslucentData is used like NoData, the indexBuffer is null
-                if (buffer == null) {
-                    continue;
-                }
-
-                indexUploads.add(new PendingSectionIndexBufferUpload(result.render, new PendingUpload(buffer)));
-
-                var storage = region.getStorage(DefaultTerrainRenderPasses.TRANSLUCENT);
-                if (storage != null) {
+                var sorter = indexDataOutput.getSorter();
+                if (sorter instanceof SharedIndexSorter sharedIndexSorter) {
+                    var storage = region.createStorage(DefaultTerrainRenderPasses.TRANSLUCENT);
                     storage.removeIndexData(renderSectionIndex);
+
+                    // clear batch cache if it's newly using the shared index buffer and was not previously.
+                    // updates to the shared index buffer which cause the batch cache to be invalidated are handled with needsSharedIndexUpdate
+                    if (storage.setSharedIndexUsage(renderSectionIndex, sharedIndexSorter.quadCount())) {
+                        region.clearCachedBatchFor(DefaultTerrainRenderPasses.TRANSLUCENT);
+                    }
+                } else {
+                    var storage = region.getStorage(DefaultTerrainRenderPasses.TRANSLUCENT);
+                    if (storage != null) {
+                        storage.removeIndexData(renderSectionIndex);
+                        storage.setSharedIndexUsage(renderSectionIndex, 0);
+
+                        // always clear batch cache on uploads of new index data
+                        region.clearCachedBatchFor(DefaultTerrainRenderPasses.TRANSLUCENT);
+                    }
+
+                    if (sorter == null) {
+                        continue;
+                    }
+                    // when a non-present TranslucentData is used like NoData, the indexBuffer is null
+                    var buffer = sorter.getIndexBuffer();
+                    if (buffer == null) {
+                        continue;
+                    }
+
+                    indexUploads.add(new PendingSectionIndexBufferUpload(result.render, new PendingUpload(buffer)));
                 }
             }
         }
@@ -107,7 +127,9 @@ public class RenderRegionManager {
         Profiler profiler = MinecraftClient.getInstance().profiler;
 
         // If we have nothing to upload, abort!
-        if (uploads.isEmpty() && indexUploads.isEmpty()) {
+        var translucentStorage = region.getStorage(DefaultTerrainRenderPasses.TRANSLUCENT);
+        var needsSharedIndexUpdate = translucentStorage != null && translucentStorage.needsSharedIndexUpdate();
+        if (uploads.isEmpty() && indexUploads.isEmpty() && !needsSharedIndexUpdate) {
             return;
         }
 
@@ -124,31 +146,38 @@ public class RenderRegionManager {
             // Once invalidated the tessellation will be re-created on the next attempted use
             if (bufferChanged) {
                 region.refreshTesselation(commandList);
+                region.clearAllCachedBatches();
             }
 
             // Collect the upload results
             for (PendingSectionMeshUpload upload : uploads) {
                 var storage = region.createStorage(upload.pass);
                 storage.setVertexData(upload.section.getSectionIndex(),
-                        upload.vertexUpload.getResult(), upload.meshData.getVertexCounts());
+                        upload.vertexUpload.getResult(), upload.meshData.getVertexSegments());
             }
         }
 
         profiler.swap("upload_indices");
+        var indexBufferChanged = false;
 
         if (!indexUploads.isEmpty()) {
             var arena = resources.getIndexArena();
-            boolean bufferChanged = arena.upload(commandList, indexUploads.stream()
+            indexBufferChanged  = arena.upload(commandList, indexUploads.stream()
                     .map(upload -> upload.indexBufferUpload));
-
-            if (bufferChanged) {
-                region.refreshIndexedTesselation(commandList);
-            }
 
             for (PendingSectionIndexBufferUpload upload : indexUploads) {
                 var storage = region.createStorage(DefaultTerrainRenderPasses.TRANSLUCENT);
                 storage.setIndexData(upload.section.getSectionIndex(), upload.indexBufferUpload.getResult());
             }
+        }
+
+        if (needsSharedIndexUpdate) {
+            indexBufferChanged |= translucentStorage.updateSharedIndexData(commandList, resources.getIndexArena());
+        }
+
+        if (indexBufferChanged) {
+            region.refreshIndexedTesselation(commandList);
+            region.clearCachedBatchFor(DefaultTerrainRenderPasses.TRANSLUCENT);
         }
 
         profiler.pop();

@@ -1,6 +1,5 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
-import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.buffer.GlBuffer;
 import net.caffeinemc.mods.sodium.client.gl.buffer.GlBufferMapFlags;
 import net.caffeinemc.mods.sodium.client.gl.buffer.GlBufferUsage;
@@ -8,6 +7,7 @@ import net.caffeinemc.mods.sodium.client.gl.buffer.GlMutableBuffer;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
 import net.caffeinemc.mods.sodium.client.gl.tessellation.GlIndexType;
 import net.caffeinemc.mods.sodium.client.gl.util.EnumBitField;
+import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -44,23 +44,26 @@ public class SharedQuadIndexBuffer {
     }
 
     private void grow(CommandList commandList, int primitiveCount) {
-        long bufferSize = ((long)primitiveCount) * this.indexType.getBytesPerElement() * ELEMENTS_PER_PRIMITIVE;
+        var bufferSize = primitiveCount * this.indexType.getBytesPerElement() * ELEMENTS_PER_PRIMITIVE;
 
         commandList.allocateStorage(this.buffer, bufferSize, GlBufferUsage.STATIC_DRAW);
 
         var mapped = commandList.mapBuffer(this.buffer, 0, bufferSize, EnumBitField.of(GlBufferMapFlags.INVALIDATE_BUFFER, GlBufferMapFlags.WRITE, GlBufferMapFlags.UNSYNCHRONIZED));
-
-        try {
-            this.indexType.createIndexBuffer(mapped.getMemoryBuffer(), primitiveCount);
-        } catch (Exception e) {
-            SodiumClientMod.logger().warn("Failed to create index buffer", e);
-        }
+        this.indexType.createIndexBuffer(mapped.getMemoryBuffer(), primitiveCount);
 
         commandList.unmap(mapped);
 
         this.maxPrimitives = primitiveCount;
     }
 
+    public static NativeBuffer createIndexBuffer(IndexType indexType, int primitiveCount) {
+        var bufferSize = primitiveCount * indexType.getBytesPerElement() * ELEMENTS_PER_PRIMITIVE;
+        var buffer = new NativeBuffer(bufferSize);
+
+        indexType.createIndexBuffer(buffer.getDirectBuffer(), primitiveCount);
+
+        return buffer;
+    }
 
     public GlBuffer getBufferObject() {
         return this.buffer;
@@ -68,14 +71,6 @@ public class SharedQuadIndexBuffer {
 
     public void delete(CommandList commandList) {
         commandList.deleteBuffer(this.buffer);
-    }
-
-    public GlIndexType getIndexFormat() {
-        return this.indexType.getFormat();
-    }
-
-    public IndexType getIndexType() {
-        return this.indexType;
     }
 
     public enum IndexType {

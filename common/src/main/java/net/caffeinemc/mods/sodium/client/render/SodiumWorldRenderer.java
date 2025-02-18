@@ -369,6 +369,9 @@ public class SodiumWorldRenderer {
                                           BlockEntity entity,
                                           ClientPlayerEntity player) {
         BlockPos pos = entity.getPos();
+        BlockPos offset = pos.add(-x, -y, -z);
+
+        //System.out.println("drawing block entity: " + entity + " at " + pos + " offset pos: " + offset);
 
 //
         //if (entity instanceof ChestBlockEntity) {
@@ -379,7 +382,7 @@ public class SodiumWorldRenderer {
         //GlStateManager.pushMatrix();
         //GlStateManager.translate(pos.getX() - x, pos.getY() - y, pos.getZ() - z);
 
-        int destroyProgress = destroyProgress(blockBreakingProgressions, pos);
+        int destroyProgress = destroyProgress(blockBreakingProgressions, offset);
 
 
         dispatcher.renderEntity(entity, tickDelta, destroyProgress);

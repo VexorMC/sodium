@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data;
 
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TQuad;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.GeometryPlanes;
 import net.caffeinemc.mods.sodium.client.util.sorting.RadixSort;
@@ -43,11 +43,11 @@ public class DynamicTopoData extends DynamicData {
     private boolean pendingTriggerIsDirect;
 
     private final TQuad[] quads;
-    private final Object2ReferenceOpenHashMap<Vector3fc, float[]> distancesByNormal;
+    private final Object2ReferenceMap<Vector3fc, float[]> distancesByNormal;
 
     private DynamicTopoData(SectionPos sectionPos, int vertexCount, TQuad[] quads,
                             GeometryPlanes geometryPlanes, Vector3dc initialCameraPos,
-                            Object2ReferenceOpenHashMap<Vector3fc, float[]> distancesByNormal) {
+                            Object2ReferenceMap<Vector3fc, float[]> distancesByNormal) {
         super(sectionPos, vertexCount, quads.length, geometryPlanes, initialCameraPos);
         this.quads = quads;
         this.distancesByNormal = distancesByNormal;
@@ -221,30 +221,22 @@ public class DynamicTopoData extends DynamicData {
      */
     static void distanceSortDirect(IntBuffer indexBuffer, TQuad[] quads, Vector3fc cameraPos) {
         if (quads.length <= 1) {
+            // Avoid allocations when there is nothing to sort.
             TranslucentData.writeQuadVertexIndexes(indexBuffer, 0);
-        } else if (RadixSort.useRadixSort(quads.length)) {
-            final var keys = new int[quads.length];
-
-            for (int q = 0; q < quads.length; q++) {
-                keys[q] = ~Float.floatToRawIntBits(quads[q].getCenter().distanceSquared(cameraPos));
-            }
-
-            var indices = RadixSort.sort(keys);
-
-            for (int i = 0; i < quads.length; i++) {
-                TranslucentData.writeQuadVertexIndexes(indexBuffer, indices[i]);
-            }
         } else {
-            final var data = new long[quads.length];
-            for (int q = 0; q < quads.length; q++) {
-                float distance = quads[q].getCenter().distanceSquared(cameraPos);
-                data[q] = (long) ~Float.floatToRawIntBits(distance) << 32 | q;
+            final var keys = new int[quads.length];
+            final var perm = new int[quads.length];
+
+            for (int idx = 0; idx < quads.length; idx++) {
+                var centroid = quads[idx].getCenter();
+                keys[idx] = ~Float.floatToRawIntBits(centroid.distanceSquared(cameraPos));
+                perm[idx] = idx;
             }
 
-            Arrays.sort(data);
+            RadixSort.sortIndirect(perm, keys, false);
 
-            for (int i = 0; i < quads.length; i++) {
-                TranslucentData.writeQuadVertexIndexes(indexBuffer, (int) data[i]);
+            for (int idx = 0; idx < quads.length; idx++) {
+                TranslucentData.writeQuadVertexIndexes(indexBuffer, perm[idx]);
             }
         }
     }

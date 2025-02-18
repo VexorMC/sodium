@@ -185,7 +185,7 @@ public final class Display {
 			GLFW.glfwWindowHint(GLFW.GLFW_STENCIL_BITS, pixelFormat.getStencilBits());
 			GLFW.glfwWindowHint(GLFW.GLFW_STEREO, pixelFormat.isStereo() ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
 
-			GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, 0);
+            GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, 0);
 			GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, resizable ? 1 : 0);
 			handle =
 					GLFW.glfwCreateWindow(displayMode.getWidth(), displayMode.getHeight(), title, MemoryUtil.NULL, MemoryUtil.NULL);

@@ -1,12 +1,10 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data;
 
+import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortType;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TQuad;
 import net.caffeinemc.mods.sodium.client.util.MathUtil;
 import net.caffeinemc.mods.sodium.client.util.sorting.RadixSort;
-import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
-
-import java.util.Arrays;
 
 /**
  * Static normal relative sorting orders quads by the dot product of their
@@ -44,31 +42,21 @@ public class StaticNormalRelativeData extends SplitDirectionData {
         var indexBuffer = sorter.getIntBuffer();
 
         if (quads.length <= 1) {
+            // Avoid allocations when there is nothing to sort.
             TranslucentData.writeQuadVertexIndexes(indexBuffer, 0);
-        } else if (RadixSort.useRadixSort(quads.length)) {
+        } else {
             final var keys = new int[quads.length];
+            final var perm = new int[quads.length];
 
             for (int q = 0; q < quads.length; q++) {
                 keys[q] = MathUtil.floatToComparableInt(quads[q].getAccurateDotProduct());
+                perm[q] = q;
             }
 
-            var indices = RadixSort.sort(keys);
+            RadixSort.sortIndirect(perm, keys, false);
 
             for (int i = 0; i < quads.length; i++) {
-                TranslucentData.writeQuadVertexIndexes(indexBuffer, indices[i]);
-            }
-        } else {
-            final var sortData = new long[quads.length];
-
-            for (int q = 0; q < quads.length; q++) {
-                int dotProductComponent = MathUtil.floatToComparableInt(quads[q].getAccurateDotProduct());
-                sortData[q] = (long) dotProductComponent << 32 | q;
-            }
-
-            Arrays.sort(sortData);
-
-            for (int i = 0; i < quads.length; i++) {
-                TranslucentData.writeQuadVertexIndexes(indexBuffer, (int) sortData[i]);
+                TranslucentData.writeQuadVertexIndexes(indexBuffer, perm[i]);
             }
         }
 
@@ -86,20 +74,17 @@ public class StaticNormalRelativeData extends SplitDirectionData {
         var indexBuffer = sorter.getIntBuffer();
 
         var maxQuadCount = 0;
-        boolean anyNeedsSortData = false;
+
         for (var vertexCount : vertexCounts) {
             if (vertexCount != -1) {
                 var quadCount = TranslucentData.vertexCountToQuadCount(vertexCount);
                 maxQuadCount = Math.max(maxQuadCount, quadCount);
-                anyNeedsSortData |= !RadixSort.useRadixSort(quadCount) && quadCount > 1;
             }
         }
 
-        long[] sortData = null;
-        if (anyNeedsSortData) {
-            sortData = new long[maxQuadCount];
-        }
-
+        // The quad index is used to keep track of the position in the quad array.
+        // This is necessary because the emitted quad indexes in each facing start at zero,
+        // but the quads are stored in a single continuously indexed array.
         int quadIndex = 0;
         for (var vertexCount : vertexCounts) {
             if (vertexCount == -1 || vertexCount == 0) {
@@ -111,31 +96,19 @@ public class StaticNormalRelativeData extends SplitDirectionData {
             if (count == 1) {
                 TranslucentData.writeQuadVertexIndexes(indexBuffer, 0);
                 quadIndex++;
-            } else if (RadixSort.useRadixSort(count)) {
-                final var keys = new int[count];
-
-                for (int q = 0; q < count; q++) {
-                    keys[q] = MathUtil.floatToComparableInt(quads[quadIndex++].getAccurateDotProduct());
-                }
-
-                var indices = RadixSort.sort(keys);
-
-                for (int i = 0; i < count; i++) {
-                    TranslucentData.writeQuadVertexIndexes(indexBuffer, indices[i]);
-                }
             } else {
-                for (int i = 0; i < count; i++) {
-                    var quad = quads[quadIndex++];
-                    int dotProductComponent = MathUtil.floatToComparableInt(quad.getAccurateDotProduct());
-                    sortData[i] = (long) dotProductComponent << 32 | i;
+                final var keys = new int[count];
+                final var perm = new int[count];
+
+                for (int idx = 0; idx < count; idx++) {
+                    keys[idx] = MathUtil.floatToComparableInt(quads[quadIndex++].getAccurateDotProduct());
+                    perm[idx] = idx;
                 }
 
-                if (count > 1) {
-                    Arrays.sort(sortData, 0, count);
-                }
+                RadixSort.sortIndirect(perm, keys, false);
 
-                for (int i = 0; i < count; i++) {
-                    TranslucentData.writeQuadVertexIndexes(indexBuffer, (int) sortData[i]);
+                for (int idx = 0; idx < count; idx++) {
+                    TranslucentData.writeQuadVertexIndexes(indexBuffer, perm[idx]);
                 }
             }
         }
@@ -144,7 +117,7 @@ public class StaticNormalRelativeData extends SplitDirectionData {
     }
 
     public static StaticNormalRelativeData fromMesh(int[] vertexCounts,
-            TQuad[] quads, SectionPos sectionPos, boolean isDoubleUnaligned) {
+                                                    TQuad[] quads, SectionPos sectionPos, boolean isDoubleUnaligned) {
         if (isDoubleUnaligned) {
             return fromDoubleUnaligned(vertexCounts, quads, sectionPos);
         } else {

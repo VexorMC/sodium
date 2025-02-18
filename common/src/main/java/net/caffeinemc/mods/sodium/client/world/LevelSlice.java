@@ -221,7 +221,7 @@ public final class LevelSlice implements BlockView {
             for (int x = minBlockX; x <= maxBlockX; x++) {
                 for (int y = minBlockY; y <= maxBlockY; y++) {
                     for (int z = minBlockZ; z <= maxBlockZ; z++) {
-                        int index = ((y & 15) << 8) | ((z & 15) << 4) | (x & 15);
+                        int index = getLocalBlockIndex(x & 15, y & 15, z & 15);
                         blockArray[index] = container[index];
                     }
                 }
@@ -372,18 +372,33 @@ public final class LevelSlice implements BlockView {
 
     @Override
     public BlockEntity getBlockEntity(BlockPos pos) {
+        if (!this.volume.contains(pos)) {
+            return null;
+        }
+
         int relBlockX = pos.getX() - this.originBlockX;
         int relBlockY = pos.getY() - this.originBlockY;
         int relBlockZ = pos.getZ() - this.originBlockZ;
 
-        var section = this.sections[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
+        var blockEntities = this.blockEntityArrays[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
 
-        if (section == null) {
+        if (blockEntities == null) {
             return null;
         }
-        BlockEntity e = section.getChunk().getBlockEntity(pos, Chunk.Status.IMMEDIATE);
 
-        return e;
+        return blockEntities.get(getLocalBlockIndex(relBlockX & 15, relBlockY & 15, relBlockZ & 15));
+        //int relBlockX = pos.getX() - this.originBlockX;
+        //int relBlockY = pos.getY() - this.originBlockY;
+        //int relBlockZ = pos.getZ() - this.originBlockZ;
+//
+        //var section = this.sections[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
+//
+        //if (section == null) {
+        //    return null;
+        //}
+        //BlockEntity e = section.getChunk().getBlockEntity(pos, Chunk.Status.IMMEDIATE);
+//
+        //return e;
     }
 
     public static int getLocalBlockIndex(int blockX, int blockY, int blockZ) {

@@ -23,18 +23,16 @@ import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexT
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.caffeinemc.mods.sodium.client.util.BitwiseMath;
 import net.caffeinemc.mods.sodium.client.util.UInt32;
+import org.lwjgl.system.Pointer;
 
 import java.util.Iterator;
 
 public class DefaultChunkRenderer extends ShaderChunkRenderer {
-    private final MultiDrawBatch batch;
-
     private final SharedQuadIndexBuffer sharedIndexBuffer;
 
     public DefaultChunkRenderer(RenderDevice device, ChunkVertexType vertexType) {
         super(device, vertexType);
 
-        this.batch = new MultiDrawBatch((ModelQuadFacing.COUNT * RenderRegion.REGION_SIZE) + 1);
         this.sharedIndexBuffer = new SharedQuadIndexBuffer(device.createCommandList(), SharedQuadIndexBuffer.IndexType.INTEGER);
     }
 
@@ -70,16 +68,19 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
                 continue;
             }
 
-            fillCommandBuffer(this.batch, region, storage, renderList, camera, renderPass, useBlockFaceCulling);
+            var batch = region.getCachedBatch(renderPass);
+            if (!batch.isFilled) {
+                fillCommandBuffer(batch, region, storage, renderList, camera, renderPass, useBlockFaceCulling, useIndexedTessellation);
+            }
 
-            if (this.batch.isEmpty()) {
+            if (batch.isEmpty()) {
                 continue;
             }
 
             // When the shared index buffer is being used, we must ensure the storage has been allocated *before*
             // the tessellation is prepared.
             if (!useIndexedTessellation) {
-                this.sharedIndexBuffer.ensureCapacity(commandList, this.batch.getIndexBufferSize());
+                this.sharedIndexBuffer.ensureCapacity(commandList, batch.getIndexBufferSize());
             }
 
             GlTessellation tessellation;
@@ -91,7 +92,7 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
             }
 
             setModelMatrixUniforms(shader, region, camera);
-            executeDrawBatch(commandList, tessellation, this.batch);
+            executeDrawBatch(commandList, tessellation, batch);
         }
 
         super.end(renderPass);
@@ -107,8 +108,9 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
                                           ChunkRenderList renderList,
                                           CameraTransform camera,
                                           TerrainRenderPass pass,
-                                          boolean useBlockFaceCulling) {
-        batch.clear();
+                                          boolean useBlockFaceCulling,
+                                          boolean useIndexedTessellation) {
+        batch.isFilled = true;
 
         var iterator = renderList.sectionsWithGeometryIterator(pass.isTranslucent());
 
@@ -147,10 +149,17 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
                 continue;
             }
 
-            if (pass.isTranslucent()) {
-                addIndexedDrawCommands(batch, pMeshData, slices);
+            // it's necessary to sometimes not the locally-indexed command generator even for indexed tessellations since
+            // sometimes the index buffer is shared, but not globally shared. This means that translucent sections that
+            // are sharing an index buffer amongst them need to use the shared index command generator since it sets the
+            // same element offset for each draw command and doesn't increment it. Recall that in each draw command the indexing
+            // of the elements needs to start at 0 and thus starting somewhere further into the shared index buffer is invalid.
+            // there's also the optimization that draw commands can be combined when using a shared index buffer, be it
+            // globally shared or just shared within the region, which isn't possible with the locally-indexed command generator.
+            if (useIndexedTessellation && SectionRenderDataUnsafe.isLocalIndex(pMeshData)) {
+                addLocalIndexedDrawCommands(batch, pMeshData, slices);
             } else {
-                addNonIndexedDrawCommands(batch, pMeshData, slices);
+                addSharedIndexedDrawCommands(batch, pMeshData, slices);
             }
         }
     }
@@ -159,18 +168,28 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
      * Generates the draw commands for a chunk's meshes using the shared index buffer.
      */
     @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
-    private static void addNonIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
+    private static void addLocalIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
         final var pElementPointer = batch.pElementPointer;
         final var pBaseVertex = batch.pBaseVertex;
         final var pElementCount = batch.pElementCount;
 
         int size = batch.size;
 
+        long elementOffset = SectionRenderDataUnsafe.getBaseElement(pMeshData);
+        long baseVertex = SectionRenderDataUnsafe.getBaseVertex(pMeshData);
+
         for (int facing = 0; facing < ModelQuadFacing.COUNT; facing++) {
-            // Uint32 -> Int32 cast is always safe and should be optimized away
-            MemoryUtil.memPutInt(pBaseVertex + (size << 2), (int) SectionRenderDataUnsafe.getVertexOffset(pMeshData, facing));
-            MemoryUtil.memPutInt(pElementCount + (size << 2), (int) SectionRenderDataUnsafe.getElementCount(pMeshData, facing));
-            MemoryUtil.memPutAddress(pElementPointer + (size << 3), 0 /* using a shared index buffer */);
+            final long vertexCount = SectionRenderDataUnsafe.getVertexCount(pMeshData, facing);
+            final long elementCount = (vertexCount >> 2) * 6;
+
+            MemoryUtil.memPutInt(pElementCount + (size << 2), UInt32.uncheckedDowncast(elementCount));
+            MemoryUtil.memPutInt(pBaseVertex + (size << 2), UInt32.uncheckedDowncast(baseVertex));
+
+            // * 4 to convert to bytes (the index buffer contains integers)
+            MemoryUtil.memPutAddress(pElementPointer + (size << Pointer.POINTER_SHIFT), elementOffset << 2);
+
+            baseVertex += vertexCount;
+            elementOffset += elementCount;
 
             size += (mask >> facing) & 1;
         }
@@ -183,30 +202,54 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
      * when rendering translucent geometry, as each geometry set needs a sorted index buffer.
      */
     @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
-    private static void addIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
+    private static void addSharedIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
         final var pElementPointer = batch.pElementPointer;
         final var pBaseVertex = batch.pBaseVertex;
         final var pElementCount = batch.pElementCount;
 
+        // this is either zero (global shared index buffer) or the offset to the location of the shared element buffer (region shared index buffer)
+        final var elementOffsetBytes = SectionRenderDataUnsafe.getBaseElement(pMeshData) << 2;
+        final var facingList = SectionRenderDataUnsafe.getFacingList(pMeshData);
+
         int size = batch.size;
+        long groupVertexCount = 0;
+        long baseVertex = SectionRenderDataUnsafe.getBaseVertex(pMeshData);
+        int lastMaskBit = 0;
 
-        long elementOffset = SectionRenderDataUnsafe.getBaseElement(pMeshData);
+        for (int i = 0; i <= ModelQuadFacing.COUNT; i++) {
+            var maskBit = 0;
+            long vertexCount = 0;
+            if (i < ModelQuadFacing.COUNT) {
+                vertexCount = SectionRenderDataUnsafe.getVertexCount(pMeshData, i);
 
-        for (int facing = 0; facing < ModelQuadFacing.COUNT; facing++) {
-            final long vertexOffset = SectionRenderDataUnsafe.getVertexOffset(pMeshData, facing);
-            final long elementCount = SectionRenderDataUnsafe.getElementCount(pMeshData, facing);
+                // if there's no vertexes, the mask bit is just 0
+                if (vertexCount != 0) {
+                    var facing = (facingList >>> (i * 8)) & 0xFF;
+                    maskBit = (mask >>> facing) & 1;
+                }
+            }
 
-            // Uint32 -> Int32 cast is always safe and should be optimized away
-            MemoryUtil.memPutInt(pBaseVertex + (size << 2), UInt32.uncheckedDowncast(vertexOffset));
-            MemoryUtil.memPutInt(pElementCount + (size << 2), UInt32.uncheckedDowncast(elementCount));
+            if (maskBit == 0) {
+                if (lastMaskBit == 1) {
+                    // delay writing out draw command if there's a zero-size group
+                    if (i < ModelQuadFacing.COUNT && vertexCount == 0) {
+                        continue;
+                    }
 
-            // * 4 to convert to bytes (the index buffer contains integers)
-            // the section render data storage for the indices stores the offset in indices (also called elements)
-            MemoryUtil.memPutAddress(pElementPointer + (size << 3), elementOffset << 2);
+                    MemoryUtil.memPutInt(pElementCount + (size << 2), UInt32.uncheckedDowncast((groupVertexCount >> 2) * 6));
+                    MemoryUtil.memPutInt(pBaseVertex + (size << 2), UInt32.uncheckedDowncast(baseVertex));
+                    MemoryUtil.memPutAddress(pElementPointer + (size << Pointer.POINTER_SHIFT), elementOffsetBytes);
+                    size++;
+                    baseVertex += groupVertexCount;
+                    groupVertexCount = 0;
+                }
 
-            // adding the number of elements works because the index data has one index per element (which are the indices)
-            elementOffset += elementCount;
-            size += (mask >> facing) & 1;
+                baseVertex += vertexCount;
+            } else {
+                groupVertexCount += vertexCount;
+            }
+
+            lastMaskBit = maskBit;
         }
 
         batch.size = size;
@@ -221,7 +264,7 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
     private static final int MODEL_NEG_Y      = ModelQuadFacing.NEG_Y.ordinal();
     private static final int MODEL_NEG_Z      = ModelQuadFacing.NEG_Z.ordinal();
 
-    private static int getVisibleFaces(int originX, int originY, int originZ, int chunkX, int chunkY, int chunkZ) {
+    public static int getVisibleFaces(int originX, int originY, int originZ, int chunkX, int chunkY, int chunkZ) {
         // This is carefully written so that we can keep everything branch-less.
         //
         // Normally, this would be a ridiculous way to handle the problem. But the Hotspot VM's
@@ -319,6 +362,5 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
         super.delete(commandList);
 
         this.sharedIndexBuffer.delete(commandList);
-        this.batch.delete();
     }
 }

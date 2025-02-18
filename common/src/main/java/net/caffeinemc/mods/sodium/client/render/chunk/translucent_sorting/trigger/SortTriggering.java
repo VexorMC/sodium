@@ -9,11 +9,11 @@ import org.joml.Vector3dc;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
-import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.AlignableNormal;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortType;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.DynamicTopoData;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.TranslucentData;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
+import org.joml.Vector3fc;
 
 /**
  * This class is a central point in translucency sorting. It counts the number
@@ -49,7 +49,7 @@ public class SortTriggering {
      */
     private int gfniTriggerCount = 0;
     private int directTriggerCount = 0;
-    private final ObjectOpenHashSet<AlignableNormal> triggeredNormals = new ObjectOpenHashSet<>();
+    private final ObjectOpenHashSet<Vector3fc> triggeredNormals = new ObjectOpenHashSet<>();
     private int triggeredNormalCount = 0;
 
     /**
@@ -99,7 +99,7 @@ public class SortTriggering {
         return this.catchupData != null;
     }
 
-    void triggerSectionGFNI(long sectionPos, AlignableNormal normal) {
+    void triggerSectionGFNI(long sectionPos, Vector3fc normal) {
         if (this.isCatchingUp()) {
             this.triggerSectionCatchup(sectionPos, false);
             return;

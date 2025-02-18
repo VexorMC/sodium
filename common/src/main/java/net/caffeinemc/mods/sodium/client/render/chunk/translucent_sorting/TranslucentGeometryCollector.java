@@ -52,6 +52,7 @@ public class TranslucentGeometryCollector {
 
     // true if there are any unaligned quads
     private boolean hasUnaligned = false;
+    private int untrackedUnalignedNormalCount = 0;
 
     // a bitmap of the aligned facings present in the section
     private int alignedFacingBitmap = 0;
@@ -273,6 +274,8 @@ public class TranslucentGeometryCollector {
             } else if (this.unalignedBNormal == -1) {
                 this.unalignedBNormal = packedNormal;
                 this.unalignedBDistance1 = distance;
+            } else {
+                this.untrackedUnalignedNormalCount++;
             }
         }
     }
@@ -356,7 +359,7 @@ public class TranslucentGeometryCollector {
         int alignedNormalCount = Integer.bitCount(this.alignedFacingBitmap);
         int planeCount = getPlaneCount(alignedNormalCount);
 
-        int unalignedNormalCount = 0;
+        int unalignedNormalCount = this.untrackedUnalignedNormalCount;
         if (this.unalignedANormal != -1) {
             unalignedNormalCount++;
         }
@@ -561,7 +564,7 @@ public class TranslucentGeometryCollector {
             return NoData.forNoTranslucent(this.sectionPos);
         }
 
-        var vertexCounts = translucentMesh.getVertexCounts();
+        var vertexCounts = translucentMesh.computeVertexCounts();
 
         // re-use the original translucent data if it's the same. This reduces the
         // amount of generated and uploaded index data when sections are rebuilt without

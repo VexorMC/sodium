@@ -1,18 +1,19 @@
 {
-  "package" : "net.caffeinemc.mods.sodium.mixin",
-  "required" : true,
-  "compatibilityLevel" : "JAVA_17",
-  "plugin" : "net.caffeinemc.mods.sodium.mixin.SodiumMixinPlugin",
-  "injectors" : {
-    "defaultRequire" : 1
+  "package": "net.caffeinemc.mods.sodium.mixin",
+  "required": true,
+  "compatibilityLevel": "JAVA_17",
+  "plugin": "net.caffeinemc.mods.sodium.mixin.SodiumMixinPlugin",
+  "injectors": {
+    "defaultRequire": 1
   },
-  "overwrites" : {
-    "conformVisibility" : true
+  "overwrites": {
+    "conformVisibility": true
   },
-  "client" : [
+  "client": [
+    "core.ChunkBuilderMixin",
+    "core.MinecraftMixin",
     "core.access.ABlockRenderManager",
     "core.access.AFluidRenderer",
-    "core.MinecraftMixin",
     "core.render.VertexFormatMixin",
     "core.render.world.LevelRendererMixin",
     "core.world.biome.ClientLevelMixin",
@@ -30,7 +31,8 @@
     "features.textures.animations.SpriteMixin",
     "features.textures.tracking.SpriteMixin"
   ],
-  "mixins" : [
+  "mixins": [
+    "core.ProfilerMixin",
     "features.options.world.DimensionMixin"
   ]
 }
