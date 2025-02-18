@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+import java.util.Arrays;
+
 /**
  * A compiled OpenGL shader object.
  */
@@ -17,17 +19,18 @@ public class GlShader extends GlObject {
 
     private final Identifier name;
 
-    public GlShader(ShaderType type, Identifier name, String src) {
+    public GlShader(ShaderType type, Identifier name, ShaderParser.ParsedShader parsedShader) {
         this.name = name;
 
         int handle = GL20.glCreateShader(type.id);
-        GL20.glShaderSource(handle, src);
+        ShaderWorkarounds.safeShaderSource(handle, parsedShader.src());
         GL20.glCompileShader(handle);
 
         String log = GL20.glGetShaderInfoLog(handle, 1000);
 
         if (!log.isEmpty()) {
-            LOGGER.warn("Shader compilation log for " + this.name + ": " + log);
+            LOGGER.warn("Shader compilation log for {}: {}", this.name, log);
+            LOGGER.warn("Include table: {}", Arrays.toString(parsedShader.includeIds()));
         }
 
         int result = GLX.gl20GetShaderi(handle, GL20.GL_COMPILE_STATUS);

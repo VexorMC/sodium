@@ -6,8 +6,13 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ShaderLoader {
+    private static final Logger LOGGER = LogManager.getLogger("Sodium-ShaderLoader");
+
     /**
      * Creates an OpenGL shader from GLSL sources. The GLSL source file should be made available on the classpath at the
      * path of `/assets/{namespace}/shaders/{path}`. User defines can be used to declare variables in the shader source
@@ -19,7 +24,12 @@ public class ShaderLoader {
      * @return An OpenGL shader object compiled with the given user defines
      */
     public static GlShader loadShader(ShaderType type, Identifier name, ShaderConstants constants) {
-        return new GlShader(type, name, ShaderParser.parseShader(getShaderSource(name), constants));
+        var parsedShader = ShaderParser.parseShader(getShaderSource(name), constants);
+        if (PlatformRuntimeInformation.INSTANCE.isDevelopmentEnvironment()) {
+            LOGGER.info("Loaded shader {} with constants {}", name, constants);
+            LOGGER.info(parsedShader.src());
+        }
+        return new GlShader(type, name, parsedShader);
     }
 
     public static String getShaderSource(Identifier name) {

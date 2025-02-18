@@ -14,6 +14,7 @@ accessible field net/minecraft/client/render/Camera PROJECTION_MATRIX Ljava/nio/
 accessible field net/minecraft/client/color/world/FoliageColors colorMap [I
 accessible field net/minecraft/client/color/world/GrassColors colorMap [I
 accessible class net/minecraft/client/color/world/BiomeColors$ColorProvider
+accessible field net/minecraft/client/MinecraftClient running Z
 
 accessible field net/minecraft/client/render/block/BlockRenderManager fluidRenderer Lnet/minecraft/client/render/block/FluidRenderer;
 accessible field net/minecraft/client/render/model/TexturedBakedQuad sprite Lnet/minecraft/client/texture/Sprite;

@@ -1,7 +1,6 @@
 package dev.vexor.radium.lwjgl3.implementation.glfw;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -76,9 +75,6 @@ public class VirtualGLFWMouseImplementation implements MouseImplementation {
     @Override
     public void createMouse() {
         this.windowHandle = Display.getHandle();
-
-        if (GLFW.glfwRawMouseMotionSupported() && !Mouse.getPrivilegedBoolean("org.lwjgl.input.Mouse.disableRawInput"))
-            GLFW.glfwSetInputMode(this.windowHandle, GLFW.GLFW_RAW_MOUSE_MOTION, GLFW.GLFW_TRUE);
 
         this.buttonCallback = GLFWMouseButtonCallback.create((window, button, action, mods) -> {
             byte state = action == GLFW.GLFW_PRESS ? (byte) 1 : (byte) 0;
@@ -402,7 +398,7 @@ public class VirtualGLFWMouseImplementation implements MouseImplementation {
 
             }
 
-            return this.getClass().getResourceAsStream("/assets/virtual_cursor/default");
+            return this.getClass().getResourceAsStream("/assets/radium/lwjgl/virtual_cursor/default");
         }
     }
 

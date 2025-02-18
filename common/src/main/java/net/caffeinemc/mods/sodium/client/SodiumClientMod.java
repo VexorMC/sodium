@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client;
 
+import dev.vexor.radium.culling.RadiumEntityCulling;
 import net.caffeinemc.mods.sodium.client.console.Console;
 import net.caffeinemc.mods.sodium.client.console.message.MessageLevel;
 import net.caffeinemc.mods.sodium.client.data.fingerprint.FingerprintMeasure;
@@ -26,6 +27,8 @@ public class SodiumClientMod {
         } catch (Throwable t) {
             LOGGER.error("Failed to update fingerprint", t);
         }
+
+        RadiumEntityCulling.INSTANCE.onInitialize();
     }
 
     public static SodiumGameOptions options() {

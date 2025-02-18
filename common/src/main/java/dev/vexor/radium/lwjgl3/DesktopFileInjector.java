@@ -22,7 +22,7 @@ public class DesktopFileInjector {
 	public static final String APP_ID = "com.mojang.minecraft";
 	private static final String ICON_NAME = "minecraft.png";
 	private static final String FILE_NAME = APP_ID + ".desktop";
-	private static final String RESOURCE_LOCATION = "/assets/legacy-lwjgl3/" + FILE_NAME;
+	private static final String RESOURCE_LOCATION = "/assets/radium/lwjgl/" + FILE_NAME;
 	private static final List<Path> injectedLocations = new ArrayList<>();
 
 	public static void inject() {

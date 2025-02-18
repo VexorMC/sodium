@@ -74,8 +74,7 @@
   },
   "accessWidener" : "sodium-fabric.accesswidener",
   "mixins" : [
-    "legacy-lwjgl3.mixins.json",
-    "sodium-common.mixins.json",
+    "radium.mixins.json",
     "sodium-fabric.mixins.json"
   ],
   "depends" : {

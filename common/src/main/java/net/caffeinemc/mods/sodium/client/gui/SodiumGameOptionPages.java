@@ -12,6 +12,7 @@ import net.caffeinemc.mods.sodium.client.gui.options.storage.SodiumOptionsStorag
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GLContext;
@@ -345,5 +346,40 @@ public class SodiumGameOptionPages {
                 .build());
 
         return new OptionPage(new TranslatableText("sodium.options.pages.advanced"), ImmutableList.copyOf(groups));
+    }
+
+    public static OptionPage culling() {
+        List<OptionGroup> groups = new ArrayList<>();
+
+        groups.add(OptionGroup.createBuilder()
+                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
+                        .setName(new LiteralText("Skip Armor Stands with Nametag"))
+                        .setTooltip(new LiteralText("Skips culling of armor stands with nametags"))
+                        .setControl(TickBoxControl::new)
+                        .setImpact(OptionImpact.MEDIUM)
+                        .setBinding((opts, value) -> opts.culling.skipMarkerArmorStands = value, opts -> opts.culling.skipMarkerArmorStands)
+                        .build()
+                )
+                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
+                        .setName(new LiteralText("Render nametags through walls"))
+                        .setTooltip(new LiteralText("Self-explanatory"))
+                        .setControl(TickBoxControl::new)
+                        .setImpact(OptionImpact.MEDIUM)
+                        .setBinding((opts, value) -> opts.culling.renderNametagsThroughWalls = value, opts -> opts.culling.renderNametagsThroughWalls)
+                        .build()
+                )
+                .build());
+
+        groups.add(OptionGroup.createBuilder()
+                .add(OptionImpl.createBuilder(int.class, sodiumOpts)
+                        .setName(new LiteralText("Tracing Distance"))
+                        .setTooltip(new LiteralText("The maximum range of the occluder"))
+                        .setControl(option -> new SliderControl(option, 32, 2048, 1, ControlValueFormatter.number()))
+                        .setBinding((opts, value) -> opts.culling.tracingDistance = value, opts -> opts.quality.cloudHeight)
+                        .setImpact(OptionImpact.MEDIUM)
+                        .build())
+                .build());
+
+        return new OptionPage(new LiteralText("Culling"), ImmutableList.copyOf(groups));
     }
 }
