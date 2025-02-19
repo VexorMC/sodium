@@ -38,7 +38,7 @@ public abstract class BakedQuadMixin implements BakedQuadView {
     @Unique
     private ModelQuadFacing normalFace = null;
 
-    @Shadow @Override
+    @Shadow
     public abstract boolean hasColor();
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -129,6 +129,7 @@ public abstract class BakedQuadMixin implements BakedQuadView {
     }
 
     @Override
+    @Unique(silent = true) // The target class has a function with the same name in a remapped environment
     public boolean hasShade() {
         return this.hasColor();
     }

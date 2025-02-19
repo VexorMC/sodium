@@ -169,11 +169,7 @@ public final class LevelSlice implements BlockView {
         for (int x = 0; x < SECTION_ARRAY_LENGTH; x++) {
             for (int y = 0; y < SECTION_ARRAY_LENGTH; y++) {
                 for (int z = 0; z < SECTION_ARRAY_LENGTH; z++) {
-                    int idx = getLocalSectionIndex(x, y, z);
-                    final ClonedChunkSection section = context.sections()[idx];
-                    this.copySectionData(context, idx);
-                    lightArrays[idx][LightType.BLOCK.ordinal()] = section.getLightArray(LightType.BLOCK);
-                    lightArrays[idx][LightType.SKY.ordinal()] = section.getLightArray(LightType.SKY);
+                    this.copySectionData(context, getLocalSectionIndex(x, y, z));
                 }
             }
         }

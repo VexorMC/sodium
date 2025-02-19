@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.client.model.light.smooth;
 
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 
 /**
  * The neighbor information for each face of a block, used when performing smooth lighting in order to calculate
@@ -10,8 +11,8 @@ enum AoNeighborInfo {
     DOWN(new Direction[] { Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH }, 0.5F) {
         @Override
         public void calculateCornerWeights(float x, float y, float z, float[] out) {
-            final float u = z;
-            final float v = 1.0f - x;
+            final float u = MathHelper.clamp(z, 0.0f, 1.0f);
+            final float v = MathHelper.clamp(1.0f - x, 0.0f, 1.0f);
 
             out[0] = v * u;
             out[1] = v * (1.0f - u);
@@ -34,14 +35,14 @@ enum AoNeighborInfo {
 
         @Override
         public float getDepth(float x, float y, float z) {
-            return y;
+            return MathHelper.clamp(y, 0.0F, 1.0F);
         }
     },
     UP(new Direction[] { Direction.EAST, Direction.WEST, Direction.NORTH, Direction.SOUTH }, 1.0F) {
         @Override
         public void calculateCornerWeights(float x, float y, float z, float[] out) {
-            final float u = z;
-            final float v = x;
+            final float u = MathHelper.clamp(z, 0.0f, 1.0f);
+            final float v = MathHelper.clamp(x, 0.0f, 1.0f);
 
             out[0] = v * u;
             out[1] = v * (1.0f - u);
@@ -64,14 +65,14 @@ enum AoNeighborInfo {
 
         @Override
         public float getDepth(float x, float y, float z) {
-            return 1.0f - y;
+            return 1.0f - MathHelper.clamp(y, 0.0F, 1.0F);
         }
     },
     NORTH(new Direction[] { Direction.UP, Direction.DOWN, Direction.EAST, Direction.WEST }, 0.8F) {
         @Override
         public void calculateCornerWeights(float x, float y, float z, float[] out) {
-            final float u = 1.0f - x;
-            final float v = y;
+            final float u = MathHelper.clamp(1.0f - x, 0.0f, 1.0f);
+            final float v = MathHelper.clamp(y, 0.0f, 1.0f);
 
             out[0] = v * u;
             out[1] = v * (1.0f - u);
@@ -94,14 +95,14 @@ enum AoNeighborInfo {
 
         @Override
         public float getDepth(float x, float y, float z) {
-            return z;
+            return MathHelper.clamp(z, 0.0F, 1.0F);
         }
     },
     SOUTH(new Direction[] { Direction.WEST, Direction.EAST, Direction.DOWN, Direction.UP }, 0.8F) {
         @Override
         public void calculateCornerWeights(float x, float y, float z, float[] out) {
-            final float u = y;
-            final float v = 1.0f - x;
+            final float u = MathHelper.clamp(y, 0.0f, 1.0f);
+            final float v = MathHelper.clamp(1.0f - x, 0.0f, 1.0f);
 
             out[0] = u * v;
             out[1] = (1.0f - u) * v;
@@ -124,14 +125,14 @@ enum AoNeighborInfo {
 
         @Override
         public float getDepth(float x, float y, float z) {
-            return 1.0f - z;
+            return 1.0f - MathHelper.clamp(z, 0.0F, 1.0F);
         }
     },
     WEST(new Direction[] { Direction.UP, Direction.DOWN, Direction.NORTH, Direction.SOUTH }, 0.6F) {
         @Override
         public void calculateCornerWeights(float x, float y, float z, float[] out) {
-            final float u = z;
-            final float v = y;
+            final float u = MathHelper.clamp(z, 0.0f, 1.0f);
+            final float v = MathHelper.clamp(y, 0.0f, 1.0f);
 
             out[0] = v * u;
             out[1] = v * (1.0f - u);
@@ -154,14 +155,14 @@ enum AoNeighborInfo {
 
         @Override
         public float getDepth(float x, float y, float z) {
-            return x;
+            return MathHelper.clamp(x, 0.0F, 1.0F);
         }
     },
     EAST(new Direction[] { Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH }, 0.6F) {
         @Override
         public void calculateCornerWeights(float x, float y, float z, float[] out) {
-            final float u = z;
-            final float v = 1.0f - y;
+            final float u = MathHelper.clamp(z, 0.0f, 1.0f);
+            final float v = MathHelper.clamp(1.0f - y, 0.0f, 1.0f);
 
             out[0] = v * u;
             out[1] = v * (1.0f - u);
@@ -184,7 +185,7 @@ enum AoNeighborInfo {
 
         @Override
         public float getDepth(float x, float y, float z) {
-            return 1.0f - x;
+            return 1.0f - MathHelper.clamp(x, 0.0F, 1.0F);
         }
     };
 
@@ -244,6 +245,6 @@ enum AoNeighborInfo {
      * @return Returns the {@link AoNeighborInfo} which corresponds with the specified direction
      */
     public static AoNeighborInfo get(Direction direction) {
-        return VALUES[direction.ordinal()];
+        return VALUES[direction.getId()];
     }
 }

@@ -1,23 +1,31 @@
 package net.caffeinemc.mods.sodium.client.model.light.data;
 
+import dev.vexor.radium.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.MushroomBlock;
+import net.minecraft.block.MushroomPlantBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.LightType;
 
 /**
  * The light data cache is used to make accessing the light data and occlusion properties of blocks cheaper. The data
- * for each block is stored as a long integer with packed fields in order to work around the lack of value types in Java.
+ * for each block is stored as an integer with packed fields in order to work around the lack of value types in Java.
  *
  * This code is not very pretty, but it does perform significantly faster than the vanilla implementation and has
  * good cache locality.
  *
- * Each long integer contains the following fields:
+ * Each integer contains the following fields:
+ * - BL: World block light, encoded as a 4-bit unsigned integer
+ * - SL: World sky light, encoded as a 4-bit unsigned integer
+ * - LU: Block luminance, encoded as a 4-bit unsigned integer
+ * - AO: Ambient occlusion, floating point value in the range of 0.0..1.0 encoded as a 16-bit unsigned integer with 12-bit precision
+ * - EM: Emissive test, true if block uses emissive lighting
  * - OP: Block opacity test, true if opaque
- * - FO: Full block opaque test, true if opaque
- * - AO: Ambient occlusion, floating point value in the range of 0.0..1.0 encoded as an 12-bit unsigned integer
- * - LM: Light map texture coordinates, two packed UV shorts in an integer
+ * - FO: Full cube opacity test, true if opaque full cube
+ * - FC: Full cube test, true if full cube
  *
  * You can use the various static pack/unpack methods to extract these values in a usable format.
  */
@@ -25,23 +33,23 @@ public abstract class LightDataAccess {
     private final BlockPos.Mutable pos = new BlockPos.Mutable();
     protected LevelSlice level;
 
-    public long get(int x, int y, int z, Direction d1, Direction d2) {
+    public int get(int x, int y, int z, Direction d1, Direction d2) {
         return this.get(x + d1.getOffsetX() + d2.getOffsetX(),
                 y + d1.getOffsetY() + d2.getOffsetY(),
                 z + d1.getOffsetZ() + d2.getOffsetZ());
     }
 
-    public long get(int x, int y, int z, Direction dir) {
+    public int get(int x, int y, int z, Direction dir) {
         return this.get(x + dir.getOffsetX(),
                 y + dir.getOffsetY(),
                 z + dir.getOffsetZ());
     }
 
-    public long get(BlockPos pos, Direction dir) {
+    public int get(BlockPos pos, Direction dir) {
         return this.get(pos.getX(), pos.getY(), pos.getZ(), dir);
     }
 
-    public long get(BlockPos pos) {
+    public int get(BlockPos pos) {
         return this.get(pos.getX(), pos.getY(), pos.getZ());
     }
 
@@ -49,80 +57,138 @@ public abstract class LightDataAccess {
      * Returns the light data for the block at the given position. The property fields can then be accessed using
      * the various unpack methods below.
      */
-    public abstract long get(int x, int y, int z);
+    public abstract int get(int x, int y, int z);
 
-    protected long compute(int x, int y, int z) {
+    protected int compute(int x, int y, int z) {
         BlockPos pos = this.pos.setPosition(x, y, z);
-        LevelSlice world = this.level;
+        LevelSlice level = this.level;
 
-        BlockState state = world.getBlockState(pos);
+        BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
 
-        float ao;
-        boolean em;
-
-        if (block.getLightLevel() == 0) {
-            ao = block.getAmbientOcclusionLightLevel();
-            em = false;/*state.hasEmissiveLighting(world, pos);*/
-        } else {
-            ao = 1.0f;
-            em = true;
-        }
-
-        boolean op = !block.hasTransparency() || block.getOpacity() == 0;
-        boolean fo = block.hasTransparency();
+        boolean em = block.getLightLevel() != 0;
+        boolean op = block.hasTransparency() || block.getOpacity() != 0;
+        boolean fo = block.isFullBlock();
         boolean fc = block.renderAsNormalBlock();
 
-        // OPTIMIZE: Do not calculate lightmap data if the block is full and opaque.
-        // FIX: Calculate lightmap data for light-emitting or emissive blocks, even though they are full and opaque.
-        int lm = (fo && !em) ? 0 : block.getBrightness(world, pos);
+        int lu = state.getBlock().getLightLevel();
 
-        return packAO(ao) | packLM(lm) | packOP(op) | packFO(fo) | packFC(fc) | (1L << 60);
+        // OPTIMIZE: Do not calculate light data if the block is full and opaque and does not emit light.
+        int bl;
+        int sl;
+        if (fo && lu == 0) {
+            bl = 0;
+            sl = 0;
+        } else {
+            if (em) {
+                bl = level.getLight(LightType.BLOCK, pos);
+                sl = level.getLight(LightType.SKY, pos);
+            } else {
+                int light = getLightColor(state, pos);
+                bl = LightTexture.block(light);
+                sl = LightTexture.sky(light);
+            }
+        }
+
+        float ao = block.getAmbientOcclusionLightLevel();
+
+        return packFC(fc) | packFO(fo) | packOP(op) | packEM(em) | packAO(ao) | packLU(lu) | packSL(sl) | packBL(bl);
     }
 
-    public static long packOP(boolean opaque) {
-        return (opaque ? 1L : 0L) << 56;
+    public int getLightColor(BlockState state, BlockPos pos) {
+        int em = state.getBlock().getLightLevel();
+        if (em != 0) {
+            return LightTexture.FULL_BRIGHT;
+        }
+
+        int sky = level.getLight(LightType.SKY, pos);
+        int block = level.getLight(LightType.BLOCK, pos);
+        if (block < em) {
+            block = em;
+        }
+
+        return sky << 20 | block << 4;
     }
 
-    public static boolean unpackOP(long word) {
-        return ((word >>> 56) & 0b1) != 0;
+    public static int packBL(int blockLight) {
+        return blockLight & 0xF;
     }
 
-    public static long packFO(boolean opaque) {
-        return (opaque ? 1L : 0L) << 57;
+    public static int unpackBL(int word) {
+        return word & 0xF;
     }
 
-    public static boolean unpackFO(long word) {
-        return ((word >>> 57) & 0b1) != 0;
+    public static int packSL(int skyLight) {
+        return (skyLight & 0xF) << 4;
     }
 
-    public static long packFC(boolean fullCube) {
-        return (fullCube ? 1L : 0L) << 58;
+    public static int unpackSL(int word) {
+        return (word >>> 4) & 0xF;
     }
 
-    public static boolean unpackFC(long word) {
-        return ((word >>> 58) & 0b1) != 0;
-    }
-    
-    public static long packLM(int lm) {
-        return (long) lm & 0xFFFFFFFFL;
+    public static int packLU(int luminance) {
+        return (luminance & 0xF) << 8;
     }
 
-    public static int unpackLM(long word) {
-        return (int) (word & 0xFFFFFFFFL);
+    public static int unpackLU(int word) {
+        return (word >>> 8) & 0xF;
     }
 
-    public static long packAO(float ao) {
+    public static int packAO(float ao) {
         int aoi = (int) (ao * 4096.0f);
-        return ((long) aoi & 0xFFFFL) << 32;
+        return (aoi & 0xFFFF) << 12;
     }
 
-    public static float unpackAO(long word) {
-        int aoi = (int) (word >>> 32 & 0xFFFFL);
+    public static float unpackAO(int word) {
+        int aoi = (word >>> 12) & 0xFFFF;
         return aoi * (1.0f / 4096.0f);
     }
 
+    public static int packEM(boolean emissive) {
+        return (emissive ? 1 : 0) << 28;
+    }
+
+    public static boolean unpackEM(int word) {
+        return ((word >>> 28) & 0b1) != 0;
+    }
+
+    public static int packOP(boolean opaque) {
+        return (opaque ? 1 : 0) << 29;
+    }
+
+    public static boolean unpackOP(int word) {
+        return ((word >>> 29) & 0b1) != 0;
+    }
+
+    public static int packFO(boolean opaque) {
+        return (opaque ? 1 : 0) << 30;
+    }
+
+    public static boolean unpackFO(int word) {
+        return ((word >>> 30) & 0b1) != 0;
+    }
+
+    public static int packFC(boolean fullCube) {
+        return (fullCube ? 1 : 0) << 31;
+    }
+
+    public static boolean unpackFC(int word) {
+        return ((word >>> 31) & 0b1) != 0;
+    }
+
+    public static int getLightmap(int word) {
+        return LightTexture.pack(Math.max(unpackBL(word), unpackLU(word)), unpackSL(word));
+    }
+
+    public static int getEmissiveLightmap(int word) {
+        if (unpackEM(word)) {
+            return LightTexture.FULL_BRIGHT;
+        } else {
+            return getLightmap(word);
+        }
+    }
+
     public LevelSlice getLevel() {
-        return level;
+        return this.level;
     }
 }
