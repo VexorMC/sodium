@@ -103,7 +103,7 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                         var block = blockState.getBlock();
                         var blockType = block.getBlockType();
 
-                        if (BlockRenderType.isInvisible(blockType) && block.hasBlockEntity()) {
+                        if (BlockRenderType.isInvisible(blockType) && !block.hasBlockEntity()) {
                             continue;
                         }
 
