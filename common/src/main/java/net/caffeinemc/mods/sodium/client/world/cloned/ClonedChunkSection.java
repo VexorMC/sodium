@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.world.cloned;
 
+import dev.vexor.radium.compat.mojang.minecraft.ChunkNibbleArrayExt;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 public class ClonedChunkSection {
-    private static final ChunkNibbleArray DEFAULT_SKY_LIGHT_ARRAY = new ChunkNibbleArray();
+    private static final ChunkNibbleArray DEFAULT_SKY_LIGHT_ARRAY = new ChunkNibbleArrayExt(15);
     private static final ChunkNibbleArray DEFAULT_BLOCK_LIGHT_ARRAY = new ChunkNibbleArray();
 
     private final SectionPos pos;
@@ -86,6 +87,7 @@ public class ClonedChunkSection {
     @NotNull
     private static ChunkNibbleArray[] copyLightData(World level, ChunkSection section) {
         var arrays = new ChunkNibbleArray[2];
+
         arrays[LightType.BLOCK.ordinal()] = copyLightArray(section, LightType.BLOCK);
 
         // Dimensions without sky-light should not have a default-initialized array
@@ -123,40 +125,42 @@ public class ClonedChunkSection {
         return array;
     }
 
-    private static final BlockPos.Mutable scratchPos = new BlockPos.Mutable();
+    private static BlockPos.Mutable scratchPos = new BlockPos.Mutable();
 
     @Nullable
     private static Int2ReferenceMap<BlockEntity> copyBlockEntities(Chunk chunk, SectionPos pos) {
         BlockBox box = new BlockBox(pos.minBlockX(), pos.minBlockY(), pos.minBlockZ(),
                 pos.maxBlockX(), pos.maxBlockY(), pos.maxBlockZ());
 
+        //level.getBlockEntity()
+//
         Int2ReferenceOpenHashMap<BlockEntity> blockEntities = new Int2ReferenceOpenHashMap<>();
-
-        for (Map.Entry<BlockPos, BlockEntity> entry : chunk.getBlockEntities().entrySet()) {
-            BlockPos entityPos = entry.getKey();
-
-            if (box.contains(entityPos)) {
-                var x = entityPos.getX();
-                var y = entityPos.getY();
-                var z = entityPos.getZ();
-                blockEntities.put(LevelSlice.getLocalBlockIndex(x & 15, y & 15, z & 15), entry.getValue());
-            }
-        }
-
-        //for (int y = pos.minBlockY(); y <= pos.maxBlockY(); y++) {
-        //    for (int z = pos.minBlockZ(); z <= pos.maxBlockZ(); z++) {
-        //        for (int x = pos.minBlockX(); x <= pos.maxBlockX(); x++) {
-        //            scratchPos.setPosition(x, y, z);
-        //            Block block = chunk.getBlockAtPos(scratchPos);
-        //            if (block.hasBlockEntity()) {
-        //                BlockEntity blockEntity = chunk.getBlockEntity(scratchPos, Chunk.Status.IMMEDIATE);
-        //                if (blockEntity != null) {
-        //                    blockEntities.put(LevelSlice.getLocalBlockIndex(x & 15, y & 15, z & 15), blockEntity);
-        //                }
-        //            }
-        //        }
+//
+        //for (Map.Entry<BlockPos, BlockEntity> entry : chunk.getBlockEntities().entrySet()) {
+        //    BlockPos entityPos = entry.getKey();
+//
+        //    if (box.contains(entityPos)) {
+        //        var x = entityPos.getX();
+        //        var y = entityPos.getY();
+        //        var z = entityPos.getZ();
+        //        blockEntities.put(LevelSlice.getLocalBlockIndex(x & 15, y & 15, z & 15), entry.getValue());
         //    }
         //}
+
+        for (int y = pos.minBlockY(); y <= pos.maxBlockY(); y++) {
+            for (int z = pos.minBlockZ(); z <= pos.maxBlockZ(); z++) {
+                for (int x = pos.minBlockX(); x <= pos.maxBlockX(); x++) {
+                    scratchPos.setPosition(x, y, z);
+                    Block block = chunk.getBlockAtPos(scratchPos);
+                    if (block.hasBlockEntity()) {
+                        BlockEntity blockEntity = chunk.getBlockEntity(scratchPos, Chunk.Status.IMMEDIATE);
+                        if (blockEntity != null) {
+                            blockEntities.put(LevelSlice.getLocalBlockIndex(x & 15, y & 15, z & 15), blockEntity);
+                        }
+                    }
+                }
+            }
+        }
 
         return blockEntities;
     }
