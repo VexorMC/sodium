@@ -37,14 +37,6 @@ public class BakedModelEncoder {
                 float y = quad.getY(i);
                 float z = quad.getZ(i);
 
-                int newLight = mergeLighting(quad.getMaxLightQuad(i), light);
-
-                int newColor = color;
-
-                if (colorize) {
-                    newColor = ColorMixer.mulComponentWise(newColor, quad.getColor(i));
-                }
-
                 // The packed transformed normal vector
                 int normal = MatrixHelper.transformNormal(matNormal, matrices.trustedNormals, quad.getAccurateNormal(i));
 
@@ -53,7 +45,7 @@ public class BakedModelEncoder {
                 float yt = MatrixHelper.transformPositionY(matPosition, x, y, z);
                 float zt = MatrixHelper.transformPositionZ(matPosition, x, y, z);
 
-                EntityVertex.write(ptr, xt, yt, zt, newColor, quad.getTexU(i), quad.getTexV(i), overlay, newLight, normal);
+                EntityVertex.write(ptr, xt, yt, zt, quad.getTexU(i), quad.getTexV(i), normal);
                 ptr += EntityVertex.STRIDE;
             }
 
@@ -80,42 +72,9 @@ public class BakedModelEncoder {
                 float yt = MatrixHelper.transformPositionY(matPosition, x, y, z);
                 float zt = MatrixHelper.transformPositionZ(matPosition, x, y, z);
 
-                float fR;
-                float fG;
-                float fB;
-                float fA;
-
                 var normal = MatrixHelper.transformNormal(matNormal, matrices.trustedNormals, quad.getAccurateNormal(i));
 
-                float brightness = brightnessTable[i];
-
-                if (colorize) {
-                    int color = quad.getColor(i);
-
-                    float oR = ColorU8.byteToNormalizedFloat(ColorABGR.unpackRed(color));
-                    float oG = ColorU8.byteToNormalizedFloat(ColorABGR.unpackGreen(color));
-                    float oB = ColorU8.byteToNormalizedFloat(ColorABGR.unpackBlue(color));
-
-                    fR = oR * brightness * r;
-                    fG = oG * brightness * g;
-                    fB = oB * brightness * b;
-
-                    if (MULTIPLY_ALPHA) {
-                        float oA = ColorU8.byteToNormalizedFloat(ColorABGR.unpackAlpha(color));
-                        fA = oA * a;
-                    } else {
-                        fA = a;
-                    }
-                } else {
-                    fR = brightness * r;
-                    fG = brightness * g;
-                    fB = brightness * b;
-                    fA = a;
-                }
-
-                int color = ColorABGR.pack(fR, fG, fB, fA);
-
-                EntityVertex.write(ptr, xt, yt, zt, color, quad.getTexU(i), quad.getTexV(i), overlay, light[i], normal);
+                EntityVertex.write(ptr, xt, yt, zt, quad.getTexU(i), quad.getTexV(i), normal);
                 ptr += EntityVertex.STRIDE;
             }
 

@@ -38,8 +38,8 @@ public class CubeMixin {
 
     // Inject at the start of the function, so we don't capture modified locals
     @Redirect(method = "<init>(Lnet/minecraft/client/render/model/ModelPart;IIFFFIIIFZ)V", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/render/ModelBox;minX:F", ordinal = 0))
-    private void onInit(ModelBox instance, float value, ModelPart modelPart, int i, int j, float f, float g, float h, int k, int l, int m, float n, boolean bl) {
-        this.sodium$cuboid = new ModelCuboid(i, j, f, g, h, k, l, m, n, n, n, bl, modelPart.textureWidth, modelPart.textureHeight, Set.of(DirectionUtil.ALL_DIRECTIONS));
+    private void onInit(ModelBox instance, float value, ModelPart modelPart, int u, int v, float x1, float y1, float z1, int dx, int dy, int dz, float delta, boolean mirrored) {
+        this.sodium$cuboid = new ModelCuboid(u, v, x1, y1, z1, dx, dy, dz, delta, delta, delta, mirrored, modelPart.textureWidth, modelPart.textureHeight, Set.of(DirectionUtil.ALL_DIRECTIONS));
 
         this.minX = value;
     }
@@ -65,6 +65,6 @@ public class CubeMixin {
 
         var pose = new PoseStack.Pose(modelViewMatrix, normalMatrix);
 
-        EntityRenderer.renderCuboid(pose, writer, this.sodium$cuboid, LightTexture.FULL_BRIGHT, 0, ColorARGB.toABGR(-1));
+        EntityRenderer.renderCuboid(pose, writer, this.sodium$cuboid);
     }
 }
