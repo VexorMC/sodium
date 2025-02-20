@@ -71,6 +71,15 @@ public class MatrixHelper {
     }
 
     /**
+     * @param mat The transformation matrix to apply to the normal
+     * @param norm The normal vector to transform (in packed format)
+     * @return The transformed normal vector (in packed format)
+     */
+    public static int transformNormal(Matrix3f mat, boolean skipNormalization, Direction norm) {
+        return transformNormal(mat, skipNormalization, norm.getVector().getX(), norm.getVector().getY(), norm.getVector().getZ());
+    }
+
+    /**
      * @param mat The transformation matrix to apply to the normal vector
      * @param x The X-coordinate of the normal vector
      * @param y The Y-coordinate of the normal vector
