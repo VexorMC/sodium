@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gl.shader;
 
+import com.google.common.base.Objects;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 
@@ -13,6 +14,9 @@ import org.apache.logging.log4j.Logger;
 public class ShaderLoader {
     private static final Logger LOGGER = LogManager.getLogger("Sodium-ShaderLoader");
 
+    private static final boolean OPTION_DEBUG_SHADERS =
+            Objects.equal(System.getProperty("sodium.debug.shaders.dump", "false"), "true");
+
     /**
      * Creates an OpenGL shader from GLSL sources. The GLSL source file should be made available on the classpath at the
      * path of `/assets/{namespace}/shaders/{path}`. User defines can be used to declare variables in the shader source
@@ -25,10 +29,12 @@ public class ShaderLoader {
      */
     public static GlShader loadShader(ShaderType type, Identifier name, ShaderConstants constants) {
         var parsedShader = ShaderParser.parseShader(getShaderSource(name), constants);
-        if (PlatformRuntimeInformation.INSTANCE.isDevelopmentEnvironment()) {
+
+        if (OPTION_DEBUG_SHADERS) {
             LOGGER.info("Loaded shader {} with constants {}", name, constants);
             LOGGER.info(parsedShader.src());
         }
+
         return new GlShader(type, name, parsedShader);
     }
 
