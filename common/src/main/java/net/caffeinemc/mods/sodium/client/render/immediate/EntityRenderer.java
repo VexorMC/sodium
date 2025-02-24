@@ -8,6 +8,7 @@ import net.caffeinemc.mods.sodium.api.vertex.attributes.common.TextureAttribute;
 import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
 import net.caffeinemc.mods.sodium.api.vertex.format.common.EntityVertex;
 import net.caffeinemc.mods.sodium.client.util.Int2;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.math.Direction;
 import org.joml.Matrix3f;
 import org.lwjgl.system.MemoryStack;

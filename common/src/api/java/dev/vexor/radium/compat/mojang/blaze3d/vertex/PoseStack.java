@@ -47,14 +47,14 @@ public class PoseStack {
 
     public void mulPose(Quaternionf quaternionf) {
         Pose pose = this.poseStack.getLast();
-        pose.pose.rotate((Quaternionfc)quaternionf);
-        pose.normal.rotate((Quaternionfc)quaternionf);
+        pose.pose.rotate(quaternionf);
+        pose.normal.rotate(quaternionf);
     }
 
     public void rotateAround(Quaternionf quaternionf, float f, float f2, float f3) {
         Pose pose = this.poseStack.getLast();
-        pose.pose.rotateAround((Quaternionfc)quaternionf, f, f2, f3);
-        pose.normal.rotate((Quaternionfc)quaternionf);
+        pose.pose.rotateAround(quaternionf, f, f2, f3);
+        pose.normal.rotate(quaternionf);
     }
 
     public void pushPose() {
@@ -96,10 +96,10 @@ public class PoseStack {
 
     public void mulPose(Matrix4f matrix4f) {
         Pose pose = this.poseStack.getLast();
-        pose.pose.mul((Matrix4fc)matrix4f);
+        pose.pose.mul(matrix4f);
         if (!MatrixUtil.isPureTranslation(matrix4f)) {
             if (MatrixUtil.isOrthonormal(matrix4f)) {
-                pose.normal.mul((Matrix3fc)new Matrix3f((Matrix4fc)matrix4f));
+                pose.normal.mul(new Matrix3f(matrix4f));
             } else {
                 pose.computeNormalMatrix();
             }
@@ -117,13 +117,13 @@ public class PoseStack {
         }
 
         Pose(Pose pose) {
-            this.pose = new Matrix4f((Matrix4fc)pose.pose);
-            this.normal = new Matrix3f((Matrix3fc)pose.normal);
+            this.pose = new Matrix4f(pose.pose);
+            this.normal = new Matrix3f(pose.normal);
             this.trustedNormals = pose.trustedNormals;
         }
 
         void computeNormalMatrix() {
-            this.normal.set((Matrix4fc)this.pose).invert().transpose();
+            this.normal.set(this.pose).invert().transpose();
             this.trustedNormals = false;
         }
 

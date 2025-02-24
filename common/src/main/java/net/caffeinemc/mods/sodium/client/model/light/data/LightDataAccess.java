@@ -67,7 +67,7 @@ public abstract class LightDataAccess {
         Block block = state.getBlock();
 
         boolean em = block.getLightLevel() != 0;
-        boolean op = block.hasTransparency() || block.getOpacity() != 0;
+        boolean op = block.hasTransparency() && block.getOpacity() != 0;
         boolean fo = block.isFullBlock();
         boolean fc = block.renderAsNormalBlock();
 
@@ -76,19 +76,28 @@ public abstract class LightDataAccess {
         // OPTIMIZE: Do not calculate light data if the block is full and opaque and does not emit light.
         int bl;
         int sl;
-        if (fo && lu == 0) {
-            bl = 0;
-            sl = 0;
+        if (em) {
+            bl = level.getLight(LightType.BLOCK, pos);
+            sl = level.getLight(LightType.SKY, pos);
         } else {
-            if (em) {
-                bl = level.getLight(LightType.BLOCK, pos);
-                sl = level.getLight(LightType.SKY, pos);
-            } else {
-                int light = getLightColor(state, pos);
-                bl = LightTexture.block(light);
-                sl = LightTexture.sky(light);
-            }
+            int light = getLightColor(state, pos);
+            bl = LightTexture.block(light);
+            sl = LightTexture.sky(light);
         }
+
+        //if (fo && lu == 0) {
+        //    bl = 0;
+        //    sl = 0;
+        //} else {
+        //    if (em) {
+        //        bl = level.getLight(LightType.BLOCK, pos);
+        //        sl = level.getLight(LightType.SKY, pos);
+        //    } else {
+        //        int light = getLightColor(state, pos);
+        //        bl = LightTexture.block(light);
+        //        sl = LightTexture.sky(light);
+        //    }
+        //}
 
         float ao = block.getAmbientOcclusionLightLevel();
 
