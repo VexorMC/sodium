@@ -1,8 +1,8 @@
 package dev.vexor.radium.culling;
 
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
+import dev.vexor.radium.Hooks;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
-import net.legacyfabric.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 public class RadiumEntityCulling {
 
@@ -30,8 +30,8 @@ public class RadiumEntityCulling {
 
 		cullThread.start();
 
-        ClientTickEvents.START_CLIENT_TICK.register(client -> this.clientTick());
-        ClientTickEvents.START_WORLD_TICK.register(world -> this.worldTick());
+        Hooks.CLIENT_TICK.add(this::clientTick);
+        Hooks.WORLD_TICK.add(this::worldTick);
 	}
     
     public void worldTick() {

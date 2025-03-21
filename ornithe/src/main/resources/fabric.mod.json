@@ -1,0 +1,90 @@
+{
+  "schemaVersion" : 1,
+  "id" : "radium",
+  "version" : "${version}",
+  "name" : "Radium",
+  "description" : "Radium is a powerful rendering engine for Minecraft which greatly improves frame rates and micro-stutter, while fixing many graphical issues",
+  "authors" : [
+    {
+      "name" : "JellySquid (jellysquid3)",
+      "contact" : {
+        "email" : "jellysquid@pm.me",
+        "homepage" : "https://jellysquid.me"
+      }
+    },
+    {
+      "name" : "Lunasa (lunasa0x01)",
+      "contact" : {
+        "email" : "me@lunasa.dev",
+        "homepage" : "https://lunasa.dev"
+      }
+    }
+  ],
+  "contributors" : [
+    "IMS212",
+    "bytzo",
+    "PepperCode1",
+    "FlashyReese",
+    "altrisi",
+    "Grayray75",
+    "Madis0",
+    "Johni0702",
+    "comp500",
+    "coderbot16",
+    "Moulberry",
+    "MCRcortex",
+    "Altirix",
+    "embeddedt",
+    "pajicadvance",
+    "Kroppeb",
+    "douira",
+    "burgerindividual",
+    "TwistedZero",
+    "Leo40Git",
+    "haykam821",
+    "muzikbike",
+    "Safixoo"
+  ],
+  "contact" : {
+    "homepage" : "https://github.com/CaffeineMC/sodium",
+    "sources" : "https://github.com/CaffeineMC/sodium",
+    "issues" : "https://github.com/CaffeineMC/sodium/issues"
+  },
+  "license" : "Polyform-Shield-1.0.0",
+  "icon" : "radium-icon.png",
+  "environment" : "client",
+  "entrypoints" : {
+    "client" : [
+      "net.caffeinemc.mods.sodium.fabric.SodiumFabricMod"
+    ],
+    "preLaunch" : [
+      "net.caffeinemc.mods.sodium.fabric.SodiumPreLaunch"
+    ]
+  },
+  "custom" : {
+    "modmenu" : {
+      "links" : {
+        "modmenu.donate" : "https://caffeinemc.net/donate",
+        "modmenu.discord" : "https://caffeinemc.net/discord",
+        "modmenu.github_releases" : "https://github.com/CaffeineMC/sodium/releases",
+        "modmenu.kofi" : "https://caffeinemc.net/donate",
+        "modmenu.modrinth" : "https://modrinth.com/mod/sodium"
+      }
+    }
+  },
+  "accessWidener" : "sodium-fabric.accesswidener",
+  "mixins" : [
+    "radium.mixins.json",
+    "sodium-fabric.mixins.json"
+  ],
+  "depends" : {
+    "minecraft": ["1.8.9"],
+    "fabricloader" : ">=0.16.0"
+  },
+  "breaks" : {
+  },
+  "provides" : [
+    "indium",
+    "legacy-lwjgl3"
+  ]
+}

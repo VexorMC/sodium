@@ -5,7 +5,8 @@ import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.legacyfabric.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.ornithemc.osl.lifecycle.api.client.ClientWorldEvents;
+import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
 
 public class SodiumFabricMod implements ClientModInitializer {
     @Override
@@ -16,7 +17,7 @@ public class SodiumFabricMod implements ClientModInitializer {
 
         SodiumClientMod.onInitialization(mod.getMetadata().getVersion().getFriendlyString());
 
-        ClientTickEvents.START_CLIENT_TICK.register(c -> Hooks.CLIENT_TICK.forEach(Runnable::run));
-        ClientTickEvents.START_WORLD_TICK.register(c -> Hooks.WORLD_TICK.forEach(Runnable::run));
+        MinecraftClientEvents.TICK_START.register(c -> Hooks.CLIENT_TICK.forEach(Runnable::run));
+        ClientWorldEvents.TICK_START.register(c -> Hooks.WORLD_TICK.forEach(Runnable::run));
     }
 }

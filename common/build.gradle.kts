@@ -43,8 +43,6 @@ dependencies {
     compileOnly("net.fabricmc:sponge-mixin:0.13.2+mixin.0.8.5")
     compileOnly("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
 
-    modCompileOnly("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
-
     implementation("org.javassist:javassist:3.29.2-GA")
     implementation("com.logisticscraft:occlusionculling:0.0.5-SNAPSHOT")
 
