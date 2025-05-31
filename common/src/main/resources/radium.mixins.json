@@ -1,10 +1,11 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "dev.vexor.radium.mixin",
-  "plugin": "dev.vexor.radium.mixin.RadiumMixinConfigPlugin",
-  "compatibilityLevel": "JAVA_17",
-  "client": [
+  "required" : true,
+  "minVersion" : "0.8",
+  "package" : "dev.vexor.radium.mixin",
+  "plugin" : "dev.vexor.radium.mixin.RadiumMixinConfigPlugin",
+  "compatibilityLevel" : "JAVA_17",
+  "client" : [
+    "core.MixinBufferBuilder",
     "core.MixinFramebuffer",
     "core.MixinMinecraftDrawVirtualCursor",
     "core.MixinMinecraftFixEarlyCrashNoReports",
@@ -46,7 +47,7 @@
     "sodium.features.textures.animations.SpriteMixin",
     "sodium.features.textures.tracking.SpriteMixin"
   ],
-  "injectors": {
-    "defaultRequire": 1
+  "injectors" : {
+    "defaultRequire" : 1
   }
 }

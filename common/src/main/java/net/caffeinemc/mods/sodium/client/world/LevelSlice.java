@@ -155,16 +155,12 @@ public final class LevelSlice implements BlockView {
         }
     }
 
-    private ClonedChunkSection[] sections;
-
     public void copyData(ChunkRenderContext context) {
         this.originBlockX = SectionPos.sectionToBlockCoord(context.origin().getX() - NEIGHBOR_CHUNK_RADIUS);
         this.originBlockY = SectionPos.sectionToBlockCoord(context.origin().getY() - NEIGHBOR_CHUNK_RADIUS);
         this.originBlockZ = SectionPos.sectionToBlockCoord(context.origin().getZ() - NEIGHBOR_CHUNK_RADIUS);
 
         this.volume = context.volume();
-
-        this.sections = context.sections();
 
         for (int x = 0; x < SECTION_ARRAY_LENGTH; x++) {
             for (int y = 0; y < SECTION_ARRAY_LENGTH; y++) {
