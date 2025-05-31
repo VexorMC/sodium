@@ -126,7 +126,7 @@ public class BlockRenderer {
 
     private QuadLightData getVertexLight(BlockRenderContext ctx, LightPipeline lighter, Direction cullFace, BakedQuadView quad) {
         QuadLightData light = this.quadLightData;
-        lighter.calculate(quad, ctx.pos(), light, cullFace, quad.getLightFace(), quad.hasShade(), false);
+        lighter.calculate(quad, ctx.pos(), light, cullFace, quad.getLightFace(), quad.hasShade(), true);
 
         return light;
     }
