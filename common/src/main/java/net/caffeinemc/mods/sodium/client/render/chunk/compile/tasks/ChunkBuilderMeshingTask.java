@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.estimation.MeshTaskSizeEstimator;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildContext;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildOutput;
@@ -51,10 +52,11 @@ import java.util.Map;
  */
 public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> {
     private final ChunkRenderContext renderContext;
+    private final boolean forceSort;
 
-    public ChunkBuilderMeshingTask(RenderSection render, int buildTime, Vector3dc absoluteCameraPos, ChunkRenderContext renderContext) {
-        super(render, buildTime, absoluteCameraPos);
+    public ChunkBuilderMeshingTask(RenderSection render, int buildTime, Vector3dc absoluteCameraPos, ChunkRenderContext renderContext, boolean forceSort) {        super(render, buildTime, absoluteCameraPos);
         this.renderContext = renderContext;
+        this.forceSort = forceSort;
     }
 
     @Override
@@ -193,7 +195,7 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
             var oldData = this.render.getTranslucentData();
             translucentData = collector.getTranslucentData(
                     oldData, meshes.get(DefaultTerrainRenderPasses.TRANSLUCENT), this);
-            reuseUploadedData = translucentData == oldData;
+            reuseUploadedData = !this.forceSort && translucentData == oldData;
         }
 
         var output = new ChunkBuildOutput(this.render, this.submitTime, translucentData, renderData.build(), meshes);
@@ -225,7 +227,7 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
     }
 
     @Override
-    public int getEffort() {
-        return ChunkBuilder.HIGH_EFFORT;
+    public long estimateTaskSizeWith(MeshTaskSizeEstimator estimator) {
+        return estimator.estimateSize(this.render);
     }
 }

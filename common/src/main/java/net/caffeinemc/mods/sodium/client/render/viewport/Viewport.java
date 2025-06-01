@@ -6,6 +6,7 @@ import net.caffeinemc.mods.sodium.client.render.viewport.frustum.Frustum;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.joml.FrustumIntersection;
 import org.joml.Vector3d;
 
 public final class Viewport {
@@ -30,6 +31,30 @@ public final class Viewport {
                 MathHelper.floor(position.y),
                 MathHelper.floor(position.z)
         );
+    }
+
+    public boolean isBoxVisibleDirect(float floatOriginX, float floatOriginY, float floatOriginZ, float floatSize) {
+        return this.frustum.testAab(
+                floatOriginX - floatSize,
+                floatOriginY - floatSize,
+                floatOriginZ - floatSize,
+
+                floatOriginX + floatSize,
+                floatOriginY + floatSize,
+                floatOriginZ + floatSize
+        );
+    }
+
+    public int getBoxIntersectionDirect(float floatOriginX, float floatOriginY, float floatOriginZ, float floatSize) {
+        return this.frustum.testAab(
+                floatOriginX - floatSize,
+                floatOriginY - floatSize,
+                floatOriginZ - floatSize,
+
+                floatOriginX + floatSize,
+                floatOriginY + floatSize,
+                floatOriginZ + floatSize
+        ) ? FrustumIntersection.INSIDE : FrustumIntersection.OUTSIDE;
     }
 
     public boolean isBoxVisible(int intOriginX, int intOriginY, int intOriginZ, float floatSizeX, float floatSizeY, float floatSizeZ) {

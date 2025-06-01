@@ -203,6 +203,12 @@ public class RenderRegionManager {
         this.stagingBuffer.delete(commandList);
     }
 
+    public RenderRegion getForChunk(int chunkX, int chunkY, int chunkZ) {
+        return this.regions.get(RenderRegion.key(chunkX >> RenderRegion.REGION_WIDTH_SH,
+                chunkY >> RenderRegion.REGION_HEIGHT_SH,
+                chunkZ >> RenderRegion.REGION_LENGTH_SH));
+    }
+
     public Collection<RenderRegion> getLoadedRegions() {
         return this.regions.values();
     }

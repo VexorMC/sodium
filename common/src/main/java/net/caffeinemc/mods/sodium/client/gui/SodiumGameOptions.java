@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import net.caffeinemc.mods.sodium.client.render.chunk.DeferMode;
 
 // TODO: Rename in Sodium 0.6
 public class SodiumGameOptions {
@@ -42,9 +43,8 @@ public class SodiumGameOptions {
 
     public static class PerformanceSettings {
         public int chunkBuilderThreads = 0;
-        @SerializedName("always_defer_chunk_updates_v2") // this will reset the option in older configs
-        public boolean alwaysDeferChunkUpdates = true;
-
+        public DeferMode chunkBuildDeferMode = DeferMode.ALWAYS;
+        
         public boolean animateOnlyVisibleTextures = true;
         public boolean useEntityCulling = true;
         public boolean useFogOcclusion = true;

@@ -181,7 +181,7 @@ public class SodiumWorldRenderer {
         float fogDistance = FogHelper.getFogEnd();
 
         if (this.lastCameraPos == null) {
-            this.lastCameraPos = new Vector3d(pos);
+            this.lastCameraPos = pos;
         }
         if (this.lastProjectionMatrix == null) {
             this.lastProjectionMatrix = new Matrix4f(projectionMatrix);
@@ -196,12 +196,12 @@ public class SodiumWorldRenderer {
         this.lastCameraYaw = yaw;
 
         if (cameraLocationChanged || cameraAngleChanged || cameraProjectionChanged) {
-            this.renderSectionManager.markGraphDirty();
+            this.renderSectionManager.notifyChangedCamera();
         }
 
         this.lastFogDistance = fogDistance;
 
-        this.renderSectionManager.updateCameraState(pos);
+        this.renderSectionManager.prepareFrame(pos);
 
         if (cameraLocationChanged) {
             profiler.swap("translucent_triggering");
@@ -213,16 +213,13 @@ public class SodiumWorldRenderer {
         int maxChunkUpdates = updateChunksImmediately ? this.renderDistance : 1;
 
         for (int i = 0; i < maxChunkUpdates; i++) {
-            if (this.renderSectionManager.needsUpdate()) {
-                profiler.swap("chunk_render_lists");
-
-                this.renderSectionManager.update(viewport, spectator);
-            }
+            profiler.swap("chunk_render_lists");
+            this.renderSectionManager.updateRenderLists(viewport, spectator, updateChunksImmediately);
 
             profiler.swap("chunk_update");
 
             this.renderSectionManager.cleanupAndFlip();
-            this.renderSectionManager.updateChunks(updateChunksImmediately);
+            this.renderSectionManager.updateChunks(viewport, updateChunksImmediately);
 
             profiler.swap("chunk_upload");
 
@@ -241,6 +238,7 @@ public class SodiumWorldRenderer {
     }
 
     private void processChunkEvents() {
+        this.renderSectionManager.beforeSectionUpdates();
         var tracker = ChunkTrackerHolder.get(this.level);
         tracker.forEachEvent(this.renderSectionManager::onChunkAdded, this.renderSectionManager::onChunkRemoved);
     }
