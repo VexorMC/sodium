@@ -35,12 +35,12 @@ The latest nightly build for each current branch of development can be downloade
 
 Currently, Radium **does not** support Forge, and it is likely that will remain the case for some time. Legacy Fabric is a much more lightweight and performant mod loader, and we recommend you use it.
 
-To get the latest updates on this matter, please join our [official Discord server](https://caffeinemc.net/discord). 
+To get the latest updates on this matter, please join our [official Discord server](https://discord.gg/eg7HsN67). 
 
 ### 🙇 Getting Help
 
 For technical support (including help with mod installation problems and game crashes), please use our
-[official Discord server](https://caffeinemc.net/discord). Do NOT ask for support in the CaffeineMC discord server.
+[official Discord server](https://discord.gg/eg7HsN67). Do NOT ask for support in the CaffeineMC discord server.
 
 ### 📬 Reporting Issues
 
