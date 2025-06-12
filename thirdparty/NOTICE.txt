@@ -35,3 +35,19 @@ The complete text for each software license can be found in the directory "third
     * https://github.com/moehreag/legacy-lwjgl3/tree/ornithe/src/main
   * Files:
     * https://github.com/VexorMC/sodium/blob/dev/common/src/main/java/dev/vexor/radium/lwjgl3
+
+* FlashyReese's reeses-sodium-options
+  * Copyright (C) 2025 FlashyReese
+  * License: MIT
+  * Original Source:
+    * https://github.com/FlashyReese/reeses-sodium-options/tree/1.16.x/dev/src/main
+  * Files:
+    * https://github.com/VexorMC/sodium/blob/dev/common/src/main/java/dev/vexor/radium/options
+
+* FlashyReese's sodium-extra
+  * Copyright (C) 2025 FlashyReese
+  * License: GNU Lesser General Public License v3.0 (SPDX: LGPL-3.0)
+  * Original Source:
+    * https://github.com/FlashyReese/sodium-extra/tree/1.21/dev/common/src/main
+  * Files:
+    * https://github.com/VexorMC/sodium/blob/dev/common/src/main/java/dev/vexor/radium/extra
