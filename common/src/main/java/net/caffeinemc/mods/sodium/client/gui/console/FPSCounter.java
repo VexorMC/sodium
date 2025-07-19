@@ -26,8 +26,7 @@ public class FPSCounter {
     public void render() {
         MinecraftClient minecraft = MinecraftClient.getInstance();
 
-        if (!SodiumClientMod.options().advanced.fpsOverlay)
-            return;
+        if (!SodiumClientMod.options().advanced.fpsOverlay) return;
 
         long currentTime = System.nanoTime();
         long deltaTime = currentTime - lastFrameTime;
@@ -53,12 +52,12 @@ public class FPSCounter {
             avgFrameCounter = 0;
         }
 
-        String finalstr = String.format(
+        String finalStr = String.format(
                 "%.1f/%.1f FPS | %.2f/%.2f ms",
                 (float) currentFps, avgFps, deltaTime / 1_000_000.0, avgFrameTime / 1_000_000.0
         );
 
-        minecraft.textRenderer.drawWithShadow(finalstr, 10, 10, 0xFFFFFF);
+        minecraft.textRenderer.drawWithShadow(finalStr, 10, 10, 0xFFFFFF);
     }
 
     private double getAvgFt() {

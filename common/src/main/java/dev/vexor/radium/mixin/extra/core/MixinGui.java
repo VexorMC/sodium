@@ -11,6 +11,5 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinGui {
     @Inject(method = "render", at = @At("TAIL"))
     private void onRender(float tickDelta, CallbackInfo ci) {
-        SodiumExtraClientMod.onHudRender();
     }
 }
