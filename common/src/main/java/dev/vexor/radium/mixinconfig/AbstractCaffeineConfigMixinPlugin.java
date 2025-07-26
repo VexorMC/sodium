@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import dev.vexor.radium.lwjgl3.EarlyRiser;
 import net.caffeinemc.mods.sodium.client.data.config.MixinConfig;
 import dev.vexor.radium.mixin.MixinOption;
 import net.fabricmc.loader.impl.launch.FabricLauncherBase;
@@ -32,9 +31,6 @@ public abstract class AbstractCaffeineConfigMixinPlugin implements IMixinConfigP
 
         logger().info("Loaded configuration file for Radium: {} options available, {} override(s) found",
                 this.config.getOptionCount(), this.config.getOptionOverrideCount());
-
-        getPaulscodePath().ifPresent(FabricLauncherBase.getLauncher()::addToClassPath);
-        new EarlyRiser().run();
     }
 
     public static Optional<Path> getPaulscodePath() {

@@ -11,10 +11,12 @@ import net.caffeinemc.mods.sodium.client.gui.options.storage.MinecraftOptionsSto
 import net.caffeinemc.mods.sodium.client.gui.options.storage.SodiumOptionsStorage;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import org.lwjgl.opengl.ContextCapabilities;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GLContext;
 
 import java.util.ArrayList;
@@ -83,7 +85,10 @@ public class SodiumGameOptionPages {
                         .setTooltip(new TranslatableText("sodium.options.v_sync.tooltip"))
                         .setControl(TickBoxControl::new)
                         .setBinding(
-                                (opts, value) -> opts.vsync = value,
+                                (opts, value) -> {
+                                    opts.vsync = value;
+                                    Display.setVSyncEnabled(value);
+                                },
                                 opts -> opts.vsync)
                         .setImpact(OptionImpact.VARIES)
                         .build())

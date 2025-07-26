@@ -45,22 +45,7 @@ dependencies {
 
     modCompileOnly("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
 
-    implementation("org.javassist:javassist:3.29.2-GA")
-    implementation("com.logisticscraft:occlusionculling:0.0.5-SNAPSHOT")
-
-    implementation(platform("org.lwjgl:lwjgl-bom:3.3.5"))
-
-    implementation("org.lwjgl:lwjgl")
-    implementation("org.lwjgl:lwjgl-glfw")
-    implementation("org.lwjgl:lwjgl-openal")
-    implementation("org.lwjgl:lwjgl-opengl")
-
-    arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
-        runtimeOnly("org.lwjgl:lwjgl::natives-$platform")
-        runtimeOnly("org.lwjgl:lwjgl-glfw::natives-$platform")
-        runtimeOnly("org.lwjgl:lwjgl-openal::natives-$platform")
-        runtimeOnly("org.lwjgl:lwjgl-opengl::natives-$platform")
-    }
+    implementation(project(":lwjgl3", configuration = "default"))
 
     // We need to be careful during pre-launch that we don't touch any Minecraft classes, since other mods
     // will not yet have an opportunity to apply transformations.
