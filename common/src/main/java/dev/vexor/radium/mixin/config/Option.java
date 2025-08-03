@@ -1,4 +1,4 @@
-package dev.vexor.radium.mixinconfig;
+package dev.vexor.radium.mixin.config;
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;

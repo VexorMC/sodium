@@ -1,4 +1,4 @@
-package dev.vexor.radium.mixinconfig;
+package dev.vexor.radium.mixin.config;
 
 public interface CaffeineConfigPlatform {
     void applyModOverrides(CaffeineConfig config, String jsonKey);

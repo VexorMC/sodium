@@ -1,4 +1,4 @@
-package dev.vexor.radium.mixinconfig;
+package dev.vexor.radium.mixin.config;
 
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;

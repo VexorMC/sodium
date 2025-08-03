@@ -1,4 +1,4 @@
-package dev.vexor.radium.mixinconfig;
+package dev.vexor.radium.mixin.config;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;

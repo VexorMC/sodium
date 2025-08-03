@@ -1,4 +1,4 @@
-package dev.vexor.radium.mixinconfig;
+package dev.vexor.radium.mixin.config;
 
 import java.io.File;
 import java.nio.file.Path;

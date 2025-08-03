@@ -1,8 +1,8 @@
 package dev.vexor.radium.mixin;
 
 import dev.vexor.radium.extra.client.SodiumExtraClientMod;
-import dev.vexor.radium.mixinconfig.AbstractCaffeineConfigMixinPlugin;
-import dev.vexor.radium.mixinconfig.CaffeineConfig;
+import dev.vexor.radium.mixin.config.AbstractCaffeineConfigMixinPlugin;
+import dev.vexor.radium.mixin.config.CaffeineConfig;
 
 public class RadiumMixinConfigPlugin extends AbstractCaffeineConfigMixinPlugin {
     @Override

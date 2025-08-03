@@ -66,7 +66,8 @@ public class SodiumOptionsGUI extends RenderableScreen implements ScreenPromptab
         this.pages.add(SodiumGameOptionPages.quality());
         this.pages.add(SodiumGameOptionPages.performance());
         this.pages.add(SodiumGameOptionPages.advanced());
-//        this.pages.add(SodiumGameOptionPages.culling());
+        this.pages.add(SodiumGameOptionPages.particleCulling());
+
         this.pages.add(SodiumExtraGameOptionPages.animation());
         this.pages.add(SodiumExtraGameOptionPages.particle());
         this.pages.add(SodiumExtraGameOptionPages.detail());
