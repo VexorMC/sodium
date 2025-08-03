@@ -28,9 +28,6 @@ public abstract class AbstractCaffeineConfigMixinPlugin implements IMixinConfigP
         } catch (Exception e) {
             throw new RuntimeException("Could not load configuration file for Radium", e);
         }
-
-        logger().info("Loaded configuration file for Radium: {} options available, {} override(s) found",
-                this.config.getOptionCount(), this.config.getOptionOverrideCount());
     }
 
     public static Optional<Path> getPaulscodePath() {
