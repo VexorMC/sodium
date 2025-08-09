@@ -1,6 +1,5 @@
 package net.caffeinemc.mods.sodium.client;
 
-import dev.vexor.radium.features.pc.ParticleCullTask;
 import net.caffeinemc.mods.sodium.client.console.Console;
 import net.caffeinemc.mods.sodium.client.console.message.MessageLevel;
 import net.caffeinemc.mods.sodium.client.data.fingerprint.FingerprintMeasure;
