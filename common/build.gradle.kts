@@ -47,6 +47,13 @@ dependencies {
 
     implementation(project(":lwjgl3", configuration = "default"))
 
+    implementation(platform("org.lwjgl:lwjgl-bom:3.3.6"))
+
+    compileOnly("org.lwjgl:lwjgl")
+    compileOnly("org.lwjgl:lwjgl-glfw")
+    compileOnly("org.lwjgl:lwjgl-openal")
+    compileOnly("org.lwjgl:lwjgl-opengl")
+
     // We need to be careful during pre-launch that we don't touch any Minecraft classes, since other mods
     // will not yet have an opportunity to apply transformations.
     configurationPreLaunch("net.java.dev.jna:jna:5.14.0")

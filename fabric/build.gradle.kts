@@ -30,6 +30,23 @@ dependencies {
     shadow("org.joml:joml:1.10.8")
     shadow("it.unimi.dsi:fastutil:8.5.15")
     shadow("org.jetbrains:annotations:26.0.2")
+
+    shadow(platform("org.lwjgl:lwjgl-bom:3.3.6"))
+
+    shadow(project(":lwjgl3", configuration = "default"))
+
+    shadow("org.lwjgl:lwjgl")
+    shadow("org.lwjgl:lwjgl-glfw")
+    shadow("org.lwjgl:lwjgl-opengl")
+    shadow("org.lwjgl:lwjgl-openal")
+
+    arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
+        shadow("org.lwjgl:lwjgl::natives-$platform")
+        shadow("org.lwjgl:lwjgl-glfw::natives-$platform")
+        shadow("org.lwjgl:lwjgl-openal::natives-$platform")
+        shadow("org.lwjgl:lwjgl-opengl::natives-$platform")
+    }
+
 }
 
 sourceSets.apply {
@@ -78,6 +95,8 @@ tasks {
         from(configurationCommonModJava)
 
         shadow.forEach { from(zipTree(it)) { exclude("META-INF", "META-INF/**") } }
+
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     remapJar {

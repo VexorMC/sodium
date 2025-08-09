@@ -24,10 +24,10 @@ dependencies {
     implementation(platform("org.lwjgl:lwjgl-bom:3.3.6"))
     implementation("org.jetbrains:annotations:26.0.2")
 
-    api("org.lwjgl:lwjgl")
-    api("org.lwjgl:lwjgl-glfw")
-    api("org.lwjgl:lwjgl-openal")
-    api("org.lwjgl:lwjgl-opengl")
+    compileOnly("org.lwjgl:lwjgl")
+    compileOnly("org.lwjgl:lwjgl-glfw")
+    compileOnly("org.lwjgl:lwjgl-openal")
+    compileOnly("org.lwjgl:lwjgl-opengl")
 
     arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
         runtimeOnly("org.lwjgl:lwjgl::natives-$platform")
