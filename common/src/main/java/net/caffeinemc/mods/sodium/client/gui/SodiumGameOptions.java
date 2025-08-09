@@ -16,9 +16,6 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 // TODO: Rename in Sodium 0.6
 public class SodiumGameOptions {
@@ -28,7 +25,7 @@ public class SodiumGameOptions {
     public final AdvancedSettings advanced = new AdvancedSettings();
     public final PerformanceSettings performance = new PerformanceSettings();
     public final NotificationSettings notifications = new NotificationSettings();
-    public final CullingSettings culling = new CullingSettings();
+    public final ParticleCullingSettings particleCulling = new ParticleCullingSettings();
 
     private boolean readOnly;
 
@@ -88,13 +85,12 @@ public class SodiumGameOptions {
         public boolean hasSeenDonationPrompt = false;
     }
 
-    public static class CullingSettings {
-        public Set<String> blockEntityWhitelist = new HashSet<>(Arrays.asList("tile.beacon"));
-        public int tracingDistance = 128;
-        public int sleepDelay = 10;
-        public int hitboxLimit = 50;
-        public boolean skipMarkerArmorStands = true;
-        public boolean renderNametagsThroughWalls = true;
+    public static class ParticleCullingSettings {
+        public boolean cullingEnabled = true;
+        public boolean cullBehindBlocks = true;
+        public boolean cullBehindGlass = false;
+        public boolean cullInSpectator = false;
+        public int blockBuffer = 1;
     }
 
     public enum LightingQuality implements TextProvider {

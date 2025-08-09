@@ -7,7 +7,6 @@
   "client" : [
     "core.MixinBufferBuilder",
     "core.MixinFramebuffer",
-    "core.MixinMinecraftDrawVirtualCursor",
     "core.MixinMinecraftFixEarlyCrashNoReports",
     "core.MixinScreenFixClipboard",
     "extra.animation.MixinSpriteAtlasTexture",

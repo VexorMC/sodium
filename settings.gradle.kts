@@ -9,5 +9,6 @@ pluginManagement {
     }
 }
 
+include("lwjgl3")
 include("common")
 include("fabric")

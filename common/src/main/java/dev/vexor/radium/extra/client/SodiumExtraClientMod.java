@@ -2,7 +2,7 @@ package dev.vexor.radium.extra.client;
 
 import dev.vexor.radium.extra.client.gui.SodiumExtraGameOptions;
 import dev.vexor.radium.extra.client.gui.SodiumExtraHud;
-import dev.vexor.radium.mixinconfig.CaffeineConfig;
+import dev.vexor.radium.mixin.config.CaffeineConfig;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;

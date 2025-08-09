@@ -14,12 +14,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
-import org.lwjgl.opengl.ContextCapabilities;
-import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.Display;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 // TODO: Rename in Sodium 0.6
 public class SodiumGameOptionPages {
@@ -83,7 +81,10 @@ public class SodiumGameOptionPages {
                         .setTooltip(new TranslatableText("sodium.options.v_sync.tooltip"))
                         .setControl(TickBoxControl::new)
                         .setBinding(
-                                (opts, value) -> opts.vsync = value,
+                                (opts, value) -> {
+                                    opts.vsync = value;
+                                    Display.setVSyncEnabled(value);
+                                },
                                 opts -> opts.vsync)
                         .setImpact(OptionImpact.VARIES)
                         .build())
@@ -348,34 +349,47 @@ public class SodiumGameOptionPages {
         return new OptionPage(new TranslatableText("sodium.options.pages.advanced"), ImmutableList.copyOf(groups));
     }
 
-    public static OptionPage culling() {
+    public static OptionPage particleCulling() {
         List<OptionGroup> groups = new ArrayList<>();
 
         groups.add(OptionGroup.createBuilder()
                 .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
-                        .setName(new LiteralText("Skip Armor Stands with Nametag"))
-                        .setTooltip(new LiteralText("Skips culling of armor stands with nametags"))
+                        .setName(new LiteralText("Particle Culling"))
+                        .setTooltip(new LiteralText("Enable particle culling to improve performance by skipping rendering of particles that are not visible."))
                         .setControl(TickBoxControl::new)
-                        .setImpact(OptionImpact.MEDIUM)
-                        .setBinding((opts, value) -> opts.culling.skipMarkerArmorStands = value, opts -> opts.culling.skipMarkerArmorStands)
-                        .build()
-                )
-                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
-                        .setName(new LiteralText("Render nametags through walls"))
-                        .setTooltip(new LiteralText("Self-explanatory"))
-                        .setControl(TickBoxControl::new)
-                        .setImpact(OptionImpact.MEDIUM)
-                        .setBinding((opts, value) -> opts.culling.renderNametagsThroughWalls = value, opts -> opts.culling.renderNametagsThroughWalls)
+                        .setImpact(OptionImpact.HIGH)
+                        .setBinding((opts, value) -> opts.particleCulling.cullingEnabled = value, opts -> opts.particleCulling.cullingEnabled)
                         .build()
                 )
                 .build());
 
         groups.add(OptionGroup.createBuilder()
+                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
+                        .setName(new LiteralText("Cull Behind Blocks"))
+                        .setTooltip(new LiteralText("Enable culling of particles that are behind blocks. This can improve performance in some situations."))
+                        .setControl(TickBoxControl::new)
+                        .setBinding((opts, value) -> opts.particleCulling.cullBehindBlocks = value, opts -> opts.particleCulling.cullBehindBlocks)
+                        .setImpact(OptionImpact.MEDIUM)
+                        .build())
+                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
+                        .setName(new LiteralText("Cull Behind Glass"))
+                        .setTooltip(new LiteralText("Enable culling of particles that are behind glass blocks. This can improve performance in some situations."))
+                        .setControl(TickBoxControl::new)
+                        .setBinding((opts, value) -> opts.particleCulling.cullBehindGlass = value, opts -> opts.particleCulling.cullBehindGlass)
+                        .setImpact(OptionImpact.MEDIUM)
+                        .build())
+                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
+                        .setName(new LiteralText("Cull In Spectator Mode"))
+                        .setTooltip(new LiteralText("Enable culling of particles when in spectator mode. This can improve performance in spectator mode."))
+                        .setControl(TickBoxControl::new)
+                        .setBinding((opts, value) -> opts.particleCulling.cullInSpectator = value, opts -> opts.particleCulling.cullInSpectator)
+                        .setImpact(OptionImpact.MEDIUM)
+                        .build())
                 .add(OptionImpl.createBuilder(int.class, sodiumOpts)
-                        .setName(new LiteralText("Tracing Distance"))
-                        .setTooltip(new LiteralText("The maximum range of the occluder"))
-                        .setControl(option -> new SliderControl(option, 32, 2048, 1, ControlValueFormatter.number()))
-                        .setBinding((opts, value) -> opts.culling.tracingDistance = value, opts -> opts.quality.cloudHeight)
+                        .setName(new LiteralText("Block Buffer"))
+                        .setTooltip(new LiteralText("The minimum amount of blocks around the player that will be checked for culling. A higher value may improve performance but can also increase the chance of culling particles that are actually visible."))
+                        .setControl(option -> new SliderControl(option, 0, 50, 1, ControlValueFormatter.number()))
+                        .setBinding((opts, value) -> opts.particleCulling.blockBuffer = value, opts -> opts.particleCulling.blockBuffer)
                         .setImpact(OptionImpact.MEDIUM)
                         .build())
                 .build());

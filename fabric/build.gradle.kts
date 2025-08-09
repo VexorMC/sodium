@@ -29,16 +29,16 @@ dependencies {
 
     shadow("org.joml:joml:1.10.8")
     shadow("it.unimi.dsi:fastutil:8.5.15")
-    shadow("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-linux")
-    shadow("org.lwjgl", "lwjgl", version = "3.3.2", classifier = "natives-windows")
-    shadow("org.javassist:javassist:3.29.2-GA")
-    shadow("com.logisticscraft:occlusionculling:0.0.5-SNAPSHOT")
-    shadow(platform("org.lwjgl:lwjgl-bom:3.3.5"))
+    shadow("org.jetbrains:annotations:26.0.2")
+
+    shadow(platform("org.lwjgl:lwjgl-bom:3.3.6"))
+
+    shadow(project(":lwjgl3", configuration = "default"))
 
     shadow("org.lwjgl:lwjgl")
     shadow("org.lwjgl:lwjgl-glfw")
-    shadow("org.lwjgl:lwjgl-openal")
     shadow("org.lwjgl:lwjgl-opengl")
+    shadow("org.lwjgl:lwjgl-openal")
 
     arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
         shadow("org.lwjgl:lwjgl::natives-$platform")
@@ -61,21 +61,8 @@ sourceSets.apply {
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
     mappings("net.legacyfabric:yarn:1.8.9+build.551:v2")
-    implementation("org.javassist:javassist:3.29.2-GA")
-    implementation("com.logisticscraft:occlusionculling:0.0.5-SNAPSHOT")
-    implementation(platform("org.lwjgl:lwjgl-bom:3.3.5"))
 
-    implementation("org.lwjgl:lwjgl")
-    implementation("org.lwjgl:lwjgl-glfw")
-    implementation("org.lwjgl:lwjgl-openal")
-    implementation("org.lwjgl:lwjgl-opengl")
-
-    arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
-        runtimeOnly("org.lwjgl:lwjgl::natives-$platform")
-        runtimeOnly("org.lwjgl:lwjgl-glfw::natives-$platform")
-        runtimeOnly("org.lwjgl:lwjgl-openal::natives-$platform")
-        runtimeOnly("org.lwjgl:lwjgl-opengl::natives-$platform")
-    }
+    implementation(project(":lwjgl3", configuration = "default"))
 
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
     modImplementation("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
@@ -108,6 +95,8 @@ tasks {
         from(configurationCommonModJava)
 
         shadow.forEach { from(zipTree(it)) { exclude("META-INF", "META-INF/**") } }
+
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     remapJar {
