@@ -91,7 +91,7 @@ public class SodiumGameOptionPages {
                 .add(OptionImpl.createBuilder(int.class, vanillaOpts)
                         .setName(new TranslatableText("options.framerateLimit"))
                         .setTooltip(new TranslatableText("sodium.options.fps_limit.tooltip"))
-                        .setControl(option -> new SliderControl(option, 10, 260, 10, ControlValueFormatter.fpsLimit()))
+                        .setControl(option -> new SliderControl(option, 0, 260, 10, ControlValueFormatter.fpsLimit()))
                         .setBinding((opts, value) -> {
                             opts.maxFramerate = (value);
                         }, opts -> opts.maxFramerate)
@@ -179,7 +179,7 @@ public class SodiumGameOptionPages {
                 .add(OptionImpl.createBuilder(int.class, sodiumOpts)
                         .setName(new TranslatableText("sodium.options.biome_blend.name"))
                         .setTooltip(new TranslatableText("sodium.options.biome_blend.tooltip"))
-                        .setControl(option -> new SliderControl(option, 1, 7, 1, ControlValueFormatter.biomeBlend()))
+                        .setControl(option -> new SliderControl(option, 0, 7, 1, ControlValueFormatter.biomeBlend()))
                         .setBinding((opts, value) -> opts.quality.biomeBlendRadius = (value), opts -> opts.quality.biomeBlendRadius)
                         .setImpact(OptionImpact.LOW)
                         .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)

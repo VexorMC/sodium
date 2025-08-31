@@ -38,7 +38,16 @@ public interface ControlValueFormatter {
     }
 
     static ControlValueFormatter biomeBlend() {
-        return (v) -> (v == 0) ? new TranslatableText("gui.none") : new TranslatableText("sodium.options.biome_blend.value", v);
+        return (v) -> {
+            if (v < 0 || v > 7) {
+                return new TranslatableText("parsing.int.invalid", v);
+            } else if (v == 0) {
+                return new TranslatableText("gui.none");
+            } else {
+                int sv = 2 * v + 1;
+                return new TranslatableText("sodium.options.biome_blend.value", sv, sv);
+            }
+        };
     }
 
     Text format(int value);
