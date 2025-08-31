@@ -45,12 +45,10 @@ import net.caffeinemc.mods.sodium.client.util.MathUtil;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.caffeinemc.mods.sodium.client.world.cloned.ClonedChunkSectionCache;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import org.apache.commons.lang3.ArrayUtils;
@@ -104,7 +102,7 @@ public class RenderSectionManager {
     private long lastFrameAtTime = System.nanoTime();
     private static final float FRAME_DURATION_UPDATE_RATIO = 0.05f;
 
-    private boolean needsGraphUpdate;
+    private boolean needsGraphUpdate = true;
     private int lastUpdatedFrame;
 
     private @Nullable Vector3dc cameraPosition;
@@ -117,7 +115,6 @@ public class RenderSectionManager {
         this.level = level;
         this.builder = new ChunkBuilder(level, ChunkMeshFormats.COMPACT);
 
-        this.needsGraphUpdate = true;
         this.renderDistance = renderDistance;
 
         this.sortTriggering = new SortTriggering();
@@ -697,7 +694,7 @@ public class RenderSectionManager {
             if (playerChanged && this.shouldPrioritizeTask(section, NEARBY_REBUILD_DISTANCE)) {
                 pendingUpdate = ChunkUpdateTypes.join(ChunkUpdateTypes.REBUILD, ChunkUpdateTypes.IMPORTANT);
             } else {
-                pendingUpdate = ChunkUpdateTypes.REBUILD;
+                pendingUpdate = ChunkUpdateTypes.join(ChunkUpdateTypes.REBUILD, ChunkUpdateTypes.IMPORTANT);
             }
 
             this.upgradePendingUpdate(section, pendingUpdate);
