@@ -413,5 +413,9 @@
   "sodium-extra.suggestRSO.header": "Suggestion: Install Reese's Sodium Options",
   "sodium-extra.suggestRSO.message": "It is highly recommended you install Reese's Sodium Options alongside Sodium Extra. Due to the growing amount of features, it no longer fits properly on Sodium's video options.",
   "sodium-extra.units.ticks": "%s tick(s)",
-  "gui.socialInteractions.tab_all": "Animations"
+  "gui.socialInteractions.tab_all": "Animations",
+  "sodium.options.quad_splitting.name": "Perfect Translucency",
+  "sodium.options.quad_splitting.tooltip": "Uses quad splitting to make translucent blocks (not entities or items) look correct through translucency sorting even if they are intersecting or have weird shapes, such as waterlogged stained glass panes. In \"Safe\" mode there's a limit on how much geometry can be generated in extreme cases to prevent crashes or performance degradation. This limit is disabled in \"Unlimited\" mode.",
+  "sodium.options.quad_splitting.safe": "Safe",
+  "sodium.options.quad_splitting.unlimited": "Unlimited"
 }

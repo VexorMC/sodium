@@ -173,8 +173,11 @@ public class BlockRenderer {
             out.light = light.lm[srcIndex];
         }
 
-        if (material.isTranslucent() && ctx.collector != null) {
-            ctx.collector.appendQuad(quad.getFaceNormal(), vertices, normalFace);
+        // collect all translucent quads into the translucency sorting system if enabled,
+        // and discard the quad if it's invalid (i.e. not visible)
+        if (material.isTranslucent() && ctx.collector != null &&
+                ctx.collector.appendQuad(vertices, normalFace, quad.getFaceNormal())) {
+            return;
         }
 
         var vertexBuffer = builder.getVertexBuffer(normalFace);

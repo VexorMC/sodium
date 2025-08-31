@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gui;
 
 import com.google.common.collect.ImmutableList;
+import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.arena.staging.MappedStagingBuffer;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
 import net.caffeinemc.mods.sodium.client.gui.options.*;
@@ -9,6 +10,7 @@ import net.caffeinemc.mods.sodium.client.gui.options.named.GraphicsMode;
 import net.caffeinemc.mods.sodium.client.gui.options.named.ParticleMode;
 import net.caffeinemc.mods.sodium.client.gui.options.storage.MinecraftOptionsStorage;
 import net.caffeinemc.mods.sodium.client.gui.options.storage.SodiumOptionsStorage;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.QuadSplittingMode;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
@@ -284,6 +286,17 @@ public class SodiumGameOptionPages {
                         .build()
                 )
                 .build());
+
+        groups.add(OptionGroup.createBuilder()
+                .add(OptionImpl.createBuilder(QuadSplittingMode.class, sodiumOpts)
+                        .setName(new TranslatableText("sodium.options.quad_splitting.name"))
+                        .setTooltip(new TranslatableText("sodium.options.quad_splitting.tooltip"))
+                        .setControl(option -> new CyclingControl<>(option, QuadSplittingMode.class))
+                        .setBinding((opts, value) -> opts.performance.quadSplittingMode = value, opts -> opts.performance.quadSplittingMode)
+                        .setImpact(OptionImpact.MEDIUM)
+                        .setEnabled(() -> SodiumClientMod.options().debug.terrainSortingEnabled)
+                        .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
+                        .build()).build());
 
         if (PlatformRuntimeInformation.getInstance().isDevelopmentEnvironment()) {
             groups.add(OptionGroup.createBuilder()

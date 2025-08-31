@@ -5,11 +5,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import net.caffeinemc.mods.sodium.client.gui.options.TextProvider;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.QuadSplittingMode;
 import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.caffeinemc.mods.sodium.client.util.FileUtil;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -26,6 +28,7 @@ public class SodiumGameOptions {
     public final PerformanceSettings performance = new PerformanceSettings();
     public final NotificationSettings notifications = new NotificationSettings();
     public final ParticleCullingSettings particleCulling = new ParticleCullingSettings();
+    public @NotNull DebugSettings debug = new DebugSettings();
 
     private boolean readOnly;
 
@@ -35,6 +38,20 @@ public class SodiumGameOptions {
 
     public static SodiumGameOptions defaults() {
         return new SodiumGameOptions();
+    }
+
+    public static class DebugSettings {
+        public boolean terrainSortingEnabled = true;
+
+        @Deprecated(forRemoval = true)
+        public SortBehavior getSortBehavior() {
+            // TODO: This logic should not exist here, we need to move it into renderer initialization
+            if (PlatformRuntimeInformation.getInstance().isDevelopmentEnvironment()) {
+                return this.terrainSortingEnabled ? SortBehavior.DYNAMIC_DEFER_NEARBY_ZERO_FRAMES : SortBehavior.OFF;
+            }
+
+            return SortBehavior.DYNAMIC_DEFER_NEARBY_ZERO_FRAMES;
+        }
     }
 
     public static class PerformanceSettings {
@@ -51,6 +68,8 @@ public class SodiumGameOptions {
 
         @SerializedName("sorting_enabled_v2") // reset the older option in configs before we started hiding it
         public boolean sortingEnabled = true;
+
+        public QuadSplittingMode quadSplittingMode = QuadSplittingMode.SAFE;
 
         public SortBehavior getSortBehavior() {
             return this.sortingEnabled ? SortBehavior.DYNAMIC_DEFER_NEARBY_ZERO_FRAMES : SortBehavior.OFF;

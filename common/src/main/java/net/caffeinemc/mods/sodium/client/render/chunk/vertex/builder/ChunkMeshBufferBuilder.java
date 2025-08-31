@@ -44,6 +44,12 @@ public class ChunkMeshBufferBuilder {
         this.vertexCount += 4;
     }
 
+
+    public void writeExternal(ByteBuffer buffer, int position, ChunkVertexEncoder.Vertex[] vertices, Material material) {
+        this.encoder.write(MemoryUtil.memAddress(buffer, position * this.stride),
+                material.bits(), vertices, this.sectionIndex);
+    }
+
     private void ensureCapacity(int vertexCount) {
         if (this.vertexCount + vertexCount >= this.vertexCapacity) {
             this.grow(vertexCount);

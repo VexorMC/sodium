@@ -10,6 +10,8 @@ import org.joml.Vector3fc;
 
 import java.util.Arrays;
 
+import static net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.fluid.DefaultFluidRenderer.EPSILON;
+
 public enum ModelQuadFacing {
     POS_X,
     POS_Y,
@@ -104,14 +106,21 @@ public enum ModelQuadFacing {
         return PACKED_ALIGNED_NORMALS[this.ordinal()];
     }
 
-    public static ModelQuadFacing fromNormal(float x, float y, float z) {
-        if (!(Math.isFinite(x) && Math.isFinite(y) && Math.isFinite(z))) {
-            return ModelQuadFacing.UNASSIGNED;
-        }
-
+    public static ModelQuadFacing fromNormal(Vector3fc normal) {
         for (Direction face : DirectionUtil.ALL_DIRECTIONS) {
             var step = face.getVector();
-            if (Mth.equal(Math.fma(x, step.getX(), Math.fma(y, step.getY(), z * step.getZ())), 1.0f)) {
+            if (Mth.equal(normal.x(), step.getX()) && Mth.equal(normal.y(), step.getY()) && Mth.equal(normal.z(), step.getZ())) {
+                return ModelQuadFacing.fromDirection(face);
+            }
+        }
+        return ModelQuadFacing.UNASSIGNED;
+    }
+
+
+    public static ModelQuadFacing fromNormal(float x, float y, float z) {
+        for (Direction face : DirectionUtil.ALL_DIRECTIONS) {
+            var step = face.getVector();
+            if (Mth.equal(x, step.getX()) && Mth.equal(y, step.getY()) && Mth.equal(z, step.getZ())) {
                 return ModelQuadFacing.fromDirection(face);
             }
         }

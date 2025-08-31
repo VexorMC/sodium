@@ -2,6 +2,8 @@ package net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortType;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.quad.TQuad;
 
 /**
  * This class means there is no translucent data and is used to signal that the
@@ -29,5 +31,10 @@ public class NoData extends TranslucentData {
 
     public static NoData forNoTranslucent(SectionPos sectionPos) {
         return new NoData(sectionPos, SortType.NO_TRANSLUCENT);
+    }
+
+    @Override
+    public boolean oldDataMatches(TranslucentGeometryCollector collector, SortType sortType, TQuad[] quads) {
+        return false;
     }
 }
