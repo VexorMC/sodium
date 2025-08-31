@@ -12,6 +12,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBe
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.NotNull;
+import net.caffeinemc.mods.sodium.client.render.chunk.DeferMode;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -56,8 +57,7 @@ public class SodiumGameOptions {
 
     public static class PerformanceSettings {
         public int chunkBuilderThreads = 0;
-        @SerializedName("always_defer_chunk_updates_v2") // this will reset the option in older configs
-        public boolean alwaysDeferChunkUpdates = true;
+        public DeferMode chunkBuildDeferMode = DeferMode.ALWAYS;
 
         public boolean animateOnlyVisibleTextures = true;
         public boolean useEntityCulling = true;

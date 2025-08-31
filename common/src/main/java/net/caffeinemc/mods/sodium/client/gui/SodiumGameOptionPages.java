@@ -17,6 +17,7 @@ import net.minecraft.client.util.Window;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import org.lwjgl.opengl.Display;
+import net.caffeinemc.mods.sodium.client.render.chunk.DeferMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -230,12 +231,12 @@ public class SodiumGameOptionPages {
                         .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
                         .build()
                 )
-                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
-                        .setName(new TranslatableText("sodium.options.always_defer_chunk_updates.name"))
-                        .setTooltip(new TranslatableText("sodium.options.always_defer_chunk_updates.tooltip"))
-                        .setControl(TickBoxControl::new)
+                .add(OptionImpl.createBuilder(DeferMode.class, sodiumOpts)
+                        .setName(new TranslatableText("sodium.options.defer_chunk_updates.name"))
+                        .setTooltip(new TranslatableText("sodium.options.defer_chunk_updates.tooltip"))
+                        .setControl(option -> new CyclingControl<>(option, DeferMode.class))
                         .setImpact(OptionImpact.HIGH)
-                        .setBinding((opts, value) -> opts.performance.alwaysDeferChunkUpdates = value, opts -> opts.performance.alwaysDeferChunkUpdates)
+                        .setBinding((opts, value) -> opts.performance.chunkBuildDeferMode = value, opts -> opts.performance.chunkBuildDeferMode)
                         .setFlags(OptionFlag.REQUIRES_RENDERER_UPDATE)
                         .build())
                 .build()

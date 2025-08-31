@@ -131,7 +131,7 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
      */
     @Overwrite
     public void updateBlock(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-        this.renderer.scheduleRebuildForBlockArea(minX, minY, minZ, maxX, maxY, maxZ, false);
+        this.renderer.scheduleRebuildForBlockArea(minX, minY, minZ, maxX, maxY, maxZ, true);
     }
 
     /**

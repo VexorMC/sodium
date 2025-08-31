@@ -13,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.estimation.MeshResultSize;
 
 /**
  * The render state object for a chunk section. This contains all the graphics state for each render pass along with
@@ -54,9 +55,10 @@ public class RenderSection {
     // Pending Update State
     @Nullable
     private CancellationToken taskCancellationToken = null;
+    private long lastMeshResultSize = MeshResultSize.NO_DATA;
 
-    @Nullable
-    private ChunkUpdateType pendingUpdateType;
+    private int pendingUpdateType;
+    private long pendingUpdateSince;
 
     private int lastUploadFrame = -1;
     private int lastSubmittedFrame = -1;
@@ -177,6 +179,14 @@ public class RenderSection {
 
         // changes to data if it moves from built to not built don't matter, so only build state changes matter
         return wasBuilt;
+    }
+
+    public void setLastMeshResultSize(long size) {
+        this.lastMeshResultSize = size;
+    }
+
+    public long getLastMeshResultSize() {
+        return this.lastMeshResultSize;
     }
 
     /**
@@ -347,12 +357,21 @@ public class RenderSection {
         this.taskCancellationToken = token;
     }
 
-    public @Nullable ChunkUpdateType getPendingUpdate() {
+    public int getPendingUpdate() {
         return this.pendingUpdateType;
     }
 
-    public void setPendingUpdate(@Nullable ChunkUpdateType type) {
+    public long getPendingUpdateSince() {
+        return this.pendingUpdateSince;
+    }
+
+    public void setPendingUpdate(int type, long now) {
         this.pendingUpdateType = type;
+        this.pendingUpdateSince = now;
+    }
+
+    public void clearPendingUpdate() {
+        this.pendingUpdateType = 0;
     }
 
     public void prepareTrigger(boolean isDirectTrigger) {

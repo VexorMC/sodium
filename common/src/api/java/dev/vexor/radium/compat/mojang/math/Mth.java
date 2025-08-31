@@ -20,4 +20,12 @@ public class Mth {
     public static float lerp(float delta, float start, float end) {
         return start + delta * (end - start);
     }
+
+    public static long clamp(long value, long min, long max) {
+        if (value < min) {
+            return min;
+        } else {
+            return Math.min(value, max);
+        }
+    }
 }
