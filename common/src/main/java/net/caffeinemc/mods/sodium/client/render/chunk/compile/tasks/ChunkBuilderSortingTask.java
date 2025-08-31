@@ -45,6 +45,6 @@ public class ChunkBuilderSortingTask extends ChunkBuilderTask<ChunkSortOutput> {
     }
 
     public long estimateTaskSizeWith(MeshTaskSizeEstimator estimator) {
-        return this.sorter.getQuadCount();
+        return this.sorter.getResultSize();
     }
 }
