@@ -5,7 +5,9 @@
   "plugin" : "dev.vexor.radium.mixin.RadiumMixinConfigPlugin",
   "compatibilityLevel" : "JAVA_17",
   "client" : [
+    "core.MixinBaseFrustum",
     "core.MixinBufferBuilder",
+    "core.MixinCullingCameraView",
     "core.MixinFramebuffer",
     "core.MixinMinecraftFixEarlyCrashNoReports",
     "core.MixinScreenFixClipboard",
