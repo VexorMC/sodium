@@ -75,15 +75,13 @@
   "accessWidener" : "sodium-fabric.accesswidener",
   "mixins" : [
     "radium.mixins.json",
-    "sodium-fabric.mixins.json"
+    "sodium-fabric.mixins.json",
+    "radium-frapi.mixins.json"
   ],
   "depends" : {
     "minecraft": ["1.8.9"],
     "fabricloader" : ">=0.16.0"
   },
-  "breaks" : {
-  },
-  "provides" : [
-    "indium"
-  ]
+  "breaks" : {},
+  "provides" : []
 }
