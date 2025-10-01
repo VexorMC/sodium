@@ -65,6 +65,19 @@ class GFNITriggers implements SectionTriggers<DynamicData> {
         long sectionPos = pos.asLong();
         var geometryPlanes = data.getGeometryPlanes();
 
+        // If there are no geometry planes available (e.g., already discarded),
+        // skip integration but still allow catch-up triggering for existing entries.
+        if (geometryPlanes == null) {
+            if (movement.hasChanged()) {
+                for (var normalList : this.normalLists.values()) {
+                    if (normalList.hasSection(sectionPos)) {
+                        normalList.processCatchup(ts, movement, sectionPos);
+                    }
+                }
+            }
+            return;
+        }
+
         // go through all normal lists and check against the normals that the group
         // builder has. if the normal list has data for the section, but the group
         // builder doesn't, the group is removed. otherwise, the group is updated.
