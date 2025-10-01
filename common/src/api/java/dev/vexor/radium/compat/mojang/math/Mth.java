@@ -4,6 +4,9 @@ public class Mth {
     public static float square(float f) {
         return f * f;
     }
+    public static double square(double f) {
+        return f * f;
+    }
 
     public static boolean equal(float f, float f2) {
         return java.lang.Math.abs(f2 - f) < 1.0E-5f;
