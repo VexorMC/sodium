@@ -42,6 +42,8 @@ public class BlockRenderer {
 
     private final int[] quadColors = new int[4];
 
+    private ChunkBuildBuffers buffers;
+
     public BlockRenderer(ColorProviderRegistry colorRegistry, LightPipelineProvider lighters) {
         this.colorProviderRegistry = colorRegistry;
         this.lighters = lighters;
@@ -50,7 +52,11 @@ public class BlockRenderer {
         this.useAmbientOcclusion = MinecraftClient.isAmbientOcclusionEnabled();
     }
 
-    public void renderModel(BlockRenderContext ctx, ChunkBuildBuffers buffers) {
+    public void prepare(ChunkBuildBuffers buffers) {
+        this.buffers = buffers;
+    }
+
+    public void renderModel(BlockRenderContext ctx) {
         var material = DefaultMaterials.forBlockState(ctx.state());
         var meshBuilder = buffers.get(material);
 

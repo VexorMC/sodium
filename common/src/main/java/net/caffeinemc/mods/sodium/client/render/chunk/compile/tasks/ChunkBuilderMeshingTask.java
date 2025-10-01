@@ -117,13 +117,15 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
 
                         modelOffset.setPosition(x & 15, y & 15, z & 15);
 
+                        cache.getBlockRenderer().prepare(buffers);
+
                         if (BlockRenderType.isModel(blockType)) {
                             BakedModel model = cache.getBlockModels()
                                     .getBakedModel(blockState);
 
                             context.update(blockPos, modelOffset, blockState, model);
-                            cache.getBlockRenderer()
-                                    .renderModel(context, buffers);
+
+                            cache.getBlockRenderer().renderModel(context);
                         }
 
                         if (BlockRenderType.isLiquid(blockType)) {
