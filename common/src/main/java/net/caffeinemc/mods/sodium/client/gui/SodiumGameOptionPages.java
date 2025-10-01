@@ -299,19 +299,6 @@ public class SodiumGameOptionPages {
                         .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
                         .build()).build());
 
-        if (PlatformRuntimeInformation.getInstance().isDevelopmentEnvironment()) {
-            groups.add(OptionGroup.createBuilder()
-                    .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
-                            .setName(new TranslatableText("sodium.options.sort_behavior.name"))
-                            .setTooltip(new TranslatableText("sodium.options.sort_behavior.tooltip"))
-                            .setControl(TickBoxControl::new)
-                            .setBinding((opts, value) -> opts.performance.sortingEnabled = value, opts -> opts.performance.sortingEnabled)
-                            .setImpact(OptionImpact.LOW)
-                            .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
-                            .build())
-                    .build());
-        }
-
         return new OptionPage(new TranslatableText("sodium.options.pages.performance"), ImmutableList.copyOf(groups));
     }
 

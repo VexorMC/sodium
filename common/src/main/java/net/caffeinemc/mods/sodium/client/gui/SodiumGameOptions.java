@@ -43,16 +43,6 @@ public class SodiumGameOptions {
 
     public static class DebugSettings {
         public boolean terrainSortingEnabled = true;
-
-        @Deprecated(forRemoval = true)
-        public SortBehavior getSortBehavior() {
-            // TODO: This logic should not exist here, we need to move it into renderer initialization
-            if (PlatformRuntimeInformation.getInstance().isDevelopmentEnvironment()) {
-                return this.terrainSortingEnabled ? SortBehavior.DYNAMIC_DEFER_NEARBY_ZERO_FRAMES : SortBehavior.OFF;
-            }
-
-            return SortBehavior.DYNAMIC_DEFER_NEARBY_ZERO_FRAMES;
-        }
     }
 
     public static class PerformanceSettings {
@@ -66,14 +56,7 @@ public class SodiumGameOptions {
 
         public boolean smartCull = false;
 
-        @SerializedName("sorting_enabled_v2") // reset the older option in configs before we started hiding it
-        public boolean sortingEnabled = true;
-
         public QuadSplittingMode quadSplittingMode = QuadSplittingMode.SAFE;
-
-        public SortBehavior getSortBehavior() {
-            return this.sortingEnabled ? SortBehavior.DYNAMIC_DEFER_NEARBY_ZERO_FRAMES : SortBehavior.OFF;
-        }
     }
 
     public static class AdvancedSettings {

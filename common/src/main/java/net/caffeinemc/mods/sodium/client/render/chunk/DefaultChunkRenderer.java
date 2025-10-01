@@ -46,11 +46,12 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
                        CommandList commandList,
                        ChunkRenderListIterable renderLists,
                        TerrainRenderPass renderPass,
-                       CameraTransform camera) {
+                       CameraTransform camera,
+                       boolean indexedRenderingEnabled) {
         super.begin(renderPass);
 
         final boolean useBlockFaceCulling = SodiumClientMod.options().performance.useBlockFaceCulling;
-        final boolean useIndexedTessellation = isTranslucentRenderPass(renderPass);
+        final boolean useIndexedTessellation = renderPass.isTranslucent() && indexedRenderingEnabled;
 
         ChunkShaderInterface shader = this.activeProgram.getInterface();
         shader.setProjectionMatrix(matrices.projection());
@@ -96,10 +97,6 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
         }
 
         super.end(renderPass);
-    }
-
-    private static boolean isTranslucentRenderPass(TerrainRenderPass renderPass) {
-        return renderPass.isTranslucent() && SodiumClientMod.options().performance.getSortBehavior() != SortBehavior.OFF;
     }
 
     private static void fillCommandBuffer(MultiDrawBatch batch,

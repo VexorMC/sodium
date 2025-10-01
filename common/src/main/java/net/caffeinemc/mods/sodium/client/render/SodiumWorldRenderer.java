@@ -12,9 +12,11 @@ import net.caffeinemc.mods.sodium.client.render.chunk.lists.SortedRenderLists;
 import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkTracker;
 import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkTrackerHolder;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.CameraMovement;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
+import net.caffeinemc.mods.sodium.client.services.PlatformRuntimeInformation;
 import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
 import net.caffeinemc.mods.sodium.client.world.LevelRendererExtension;
 import net.minecraft.block.entity.BlockEntity;
@@ -268,9 +270,17 @@ public class SodiumWorldRenderer {
             this.renderSectionManager = null;
         }
 
+        // translucency sorting can be disabled in development environments by setting the debug option in the config file
+        var sortBehavior = SortBehavior.DYNAMIC_DEFER_NEARBY_ZERO_FRAMES;
+
+        if (PlatformRuntimeInformation.getInstance().isDevelopmentEnvironment()
+                && !SodiumClientMod.options().debug.terrainSortingEnabled) {
+            sortBehavior = SortBehavior.OFF;
+        }
+
         this.renderDistance = this.client.options.viewDistance;
 
-        this.renderSectionManager = new RenderSectionManager(this.level, this.renderDistance, commandList);
+        this.renderSectionManager = new RenderSectionManager(this.level, this.renderDistance, sortBehavior, commandList);
 
         var tracker = ChunkTrackerHolder.get(this.level);
         ChunkTracker.forEachChunk(tracker.getReadyChunks(), this.renderSectionManager::onChunkAdded);
