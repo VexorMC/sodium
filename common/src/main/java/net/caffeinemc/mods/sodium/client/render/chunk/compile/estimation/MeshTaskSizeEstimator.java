@@ -2,6 +2,7 @@ package net.caffeinemc.mods.sodium.client.render.chunk.compile.estimation;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
+import net.minecraft.client.world.ClientWorld;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -9,8 +10,11 @@ import java.util.Map;
 public class MeshTaskSizeEstimator extends Average1DEstimator<MeshResultSize.SectionCategory> {
     public static final float NEW_DATA_RATIO = 0.02f;
 
-    public MeshTaskSizeEstimator() {
+    private final int seaLevelChunk;
+
+    public MeshTaskSizeEstimator(ClientWorld level) {
         super(NEW_DATA_RATIO, RenderRegion.SECTION_BUFFER_ESTIMATE);
+        this.seaLevelChunk = level.getSeaLevel() >> 4;
     }
 
     public long estimateSize(RenderSection section) {
@@ -18,7 +22,11 @@ public class MeshTaskSizeEstimator extends Average1DEstimator<MeshResultSize.Sec
         if (lastResultSize != MeshResultSize.NO_DATA) {
             return lastResultSize;
         }
-        return this.predict(MeshResultSize.SectionCategory.forSection(section));
+        return this.predict(MeshResultSize.SectionCategory.forSection(section, this.seaLevelChunk));
+    }
+
+    public MeshResultSize resultForSection(RenderSection section, long resultSize) {
+        return new MeshResultSize(MeshResultSize.SectionCategory.forSection(section, this.seaLevelChunk), resultSize);
     }
 
     @Override
