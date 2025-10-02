@@ -14,106 +14,53 @@
  * limitations under the License.
  */
 
-package dev.vexor.radium.frapi.impl.renderer;
+package net.fabricmc.fabric.impl.renderer;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import net.legacyfabric.fabric.api.util.TriState;
-import net.minecraft.block.*;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.util.math.Direction;
+import java.util.function.Supplier;
 
 import dev.vexor.radium.frapi.api.renderer.v1.Renderer;
 import dev.vexor.radium.frapi.api.renderer.v1.material.RenderMaterial;
 import dev.vexor.radium.frapi.api.renderer.v1.material.ShadeMode;
 import dev.vexor.radium.frapi.api.renderer.v1.mesh.QuadEmitter;
 import dev.vexor.radium.frapi.api.renderer.v1.model.ModelHelper;
+import net.legacyfabric.fabric.api.util.TriState;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.util.math.Direction;
 
 /**
  * Routines for adaptation of vanilla {@link BakedModel}s to FRAPI pipelines.
  */
 public class VanillaModelEncoder {
-	private static final RenderMaterial STANDARD_MATERIAL = Renderer.get().materialFinder().shadeMode(ShadeMode.VANILLA).find();
-	private static final RenderMaterial NO_AO_MATERIAL = Renderer.get().materialFinder().shadeMode(ShadeMode.VANILLA).ambientOcclusion(TriState.FALSE).find();
+    private static final RenderMaterial STANDARD_MATERIAL = Renderer.get().materialFinder().shadeMode(ShadeMode.VANILLA).find();
+    private static final RenderMaterial NO_AO_MATERIAL = Renderer.get().materialFinder().shadeMode(ShadeMode.VANILLA).ambientOcclusion(TriState.FALSE).find();
 
-    public static void emitBlockQuads(QuadEmitter emitter, BakedModel model, @Nullable BlockState state, Predicate<@Nullable Direction> cullTest) {
+    public static void emitBlockQuads(QuadEmitter emitter, BakedModel model, Predicate<@Nullable Direction> cullTest) {
         final RenderMaterial defaultMaterial = model.useAmbientOcclusion() ? STANDARD_MATERIAL : NO_AO_MATERIAL;
 
         for (int i = 0; i <= ModelHelper.NULL_FACE_ID; i++) {
             final Direction cullFace = ModelHelper.faceFromIndex(i);
 
             if (cullTest.test(cullFace)) {
+                // Skip entire quad list if possible.
                 continue;
             }
 
-            final List<BakedQuad> quads;
+            final List<BakedQuad> quads = cullFace == null ? model.getQuads() : model.getByDirection(cullFace);
+            final int count = quads.size();
 
-            if (cullFace != null) {
-                quads = model.getByDirection(cullFace);
-            } else {
-                quads = model.getQuads();
-            }
-
-            Set<Direction> allowedFaces = Arrays.stream(Direction.values()).collect(Collectors.toSet());
-
-            for (Class<?> clazz : FILTER) {
-                if (clazz.isInstance(state.getBlock())) {
-                    allowedFaces = findAllowedFaces(quads);
-                    break;
-                }
-            }
-
-            if (cullFace != null) {
-                for (final BakedQuad quad : quads) {
-                    emitter.fromVanilla(quad, defaultMaterial, cullFace);
-                    emitter.emit();
-                }
-            } else {
-                for (final BakedQuad quad : quads) {
-                    if (allowedFaces.contains(quad.getFace())) {
-                        emitter.fromVanilla(quad, defaultMaterial, cullFace);
-                        emitter.emit();
-                    }
-                }
+            // This is a very hot allocation, iterate over it manually
+            // noinspection ForLoopReplaceableByForEach
+            for (int j = 0; j < count; j++) {
+                final BakedQuad q = quads.get(j);
+                emitter.fromVanilla(q, defaultMaterial, cullFace);
+                emitter.emit();
             }
         }
     }
-
-    /**
-     * Finds allowed faces from a list of baked quads
-     *
-     * @param quads quads to find the allowed faces from
-     * @return the allowed faces
-     */
-    private static Set<Direction> findAllowedFaces(List<BakedQuad> quads) {
-        Set<Direction> allowedFaces = new HashSet<>();
-
-        for (BakedQuad quad : quads) {
-            Direction faceDirection = quad.getFace();
-
-            if (faceDirection == Direction.NORTH || faceDirection == Direction.SOUTH) {
-                if (!allowedFaces.contains(Direction.NORTH)) {
-                    allowedFaces.add(Direction.NORTH);
-                }
-            } else if (faceDirection == Direction.WEST || faceDirection == Direction.EAST) {
-                if (!allowedFaces.contains(Direction.EAST)) {
-                    allowedFaces.add(Direction.EAST);
-                }
-            } else {
-                allowedFaces.add(faceDirection);
-            }
-        }
-
-        return allowedFaces;
-    }
-
-    private static final Class<?>[] FILTER = { PlantBlock.class, Growable.class, GrassBlock.class };
 }

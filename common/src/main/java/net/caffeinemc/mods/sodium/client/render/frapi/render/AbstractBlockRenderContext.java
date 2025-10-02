@@ -1,22 +1,15 @@
 package net.caffeinemc.mods.sodium.client.render.frapi.render;
 
-import dev.vexor.radium.compat.mojang.minecraft.random.RandomSource;
-import dev.vexor.radium.compat.mojang.minecraft.render.LightTexture;
-import dev.vexor.radium.frapi.api.renderer.v1.material.BlendMode;
 import net.caffeinemc.mods.sodium.client.model.light.LightMode;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipeline;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
 import net.caffeinemc.mods.sodium.client.model.light.data.QuadLightData;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockOcclusionCache;
-import net.caffeinemc.mods.sodium.client.render.frapi.SodiumRenderer;
-import net.caffeinemc.mods.sodium.client.render.frapi.helper.ColorHelper;
 import net.caffeinemc.mods.sodium.client.render.frapi.mesh.EncodingFormat;
 import net.caffeinemc.mods.sodium.client.render.frapi.mesh.MutableQuadViewImpl;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import dev.vexor.radium.frapi.api.renderer.v1.material.RenderMaterial;
 import dev.vexor.radium.frapi.api.renderer.v1.material.ShadeMode;
 import dev.vexor.radium.frapi.api.renderer.v1.mesh.QuadEmitter;
-import net.legacyfabric.fabric.api.util.TriState;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
@@ -46,8 +39,6 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
             renderQuad(this);
         }
     }
-
-
 
     private final BlockEmitter editorQuad = new BlockEmitter();
 
@@ -79,9 +70,6 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
     // Cull cache (as it's checked per-quad instead of once per side like in vanilla)
     private int cullCompletionFlags;
     private int cullResultFlags;
-
-    protected RandomSource random;
-    protected long randomSeed;
 
     /**
      * Must be set by the subclass constructor.
@@ -144,7 +132,6 @@ public abstract class AbstractBlockRenderContext extends AbstractRenderContext {
 
     protected void prepareAoInfo(boolean modelAo) {
         this.useAmbientOcclusion = MinecraftClient.isAmbientOcclusionEnabled();
-        // was .getLightLevel
         var emission = state.getBlock().getLightLevel();
         this.defaultLightMode = this.useAmbientOcclusion && modelAo && emission == 0 ? LightMode.SMOOTH : LightMode.FLAT;
     }
