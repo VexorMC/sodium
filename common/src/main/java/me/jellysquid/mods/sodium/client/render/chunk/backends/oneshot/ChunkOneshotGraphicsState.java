@@ -78,16 +78,22 @@ public class ChunkOneshotGraphicsState extends ChunkGraphicsState {
         this.vertexFormat = vertexFormat;
 
         this.tessellation = commandList.createTessellation(GlPrimitiveType.QUADS, new TessellationBinding[] {
-                BlockRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat() ? ArrayUtils.addAll(base,
-                        new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.BLOCK_ID,
-                                vertexFormat.getAttribute(IrisChunkMeshAttributes.BLOCK_ID)),
-                        new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.MID_TEX_COORD,
-                                vertexFormat.getAttribute(IrisChunkMeshAttributes.MID_TEX_COORD)),
-                        new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.TANGENT,
-                                vertexFormat.getAttribute(IrisChunkMeshAttributes.TANGENT)),
-                        new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.NORMAL,
-                                vertexFormat.getAttribute(IrisChunkMeshAttributes.NORMAL))
-                ) : new TessellationBinding(this.vertexBuffer, new GlVertexAttributeBinding[] {
+                BlockRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat() ? new TessellationBinding(this.vertexBuffer,
+                        ArrayUtils.addAll(new GlVertexAttributeBinding[] {
+                                        new GlVertexAttributeBinding(ChunkShaderBindingPoints.POSITION, vertexFormat.getAttribute(ChunkMeshAttribute.POSITION)),
+                                        new GlVertexAttributeBinding(ChunkShaderBindingPoints.COLOR, vertexFormat.getAttribute(ChunkMeshAttribute.COLOR)),
+                                        new GlVertexAttributeBinding(ChunkShaderBindingPoints.TEX_COORD, vertexFormat.getAttribute(ChunkMeshAttribute.TEXTURE)),
+                                        new GlVertexAttributeBinding(ChunkShaderBindingPoints.LIGHT_COORD, vertexFormat.getAttribute(ChunkMeshAttribute.LIGHT))
+                                },
+                                new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.BLOCK_ID,
+                                        vertexFormat.getAttribute(IrisChunkMeshAttributes.BLOCK_ID)),
+                                new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.MID_TEX_COORD,
+                                        vertexFormat.getAttribute(IrisChunkMeshAttributes.MID_TEX_COORD)),
+                                new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.TANGENT,
+                                        vertexFormat.getAttribute(IrisChunkMeshAttributes.TANGENT)),
+                                new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.NORMAL,
+                                        vertexFormat.getAttribute(IrisChunkMeshAttributes.NORMAL))
+                        ), false) : new TessellationBinding(this.vertexBuffer, new GlVertexAttributeBinding[] {
                         new GlVertexAttributeBinding(ChunkShaderBindingPoints.POSITION, vertexFormat.getAttribute(ChunkMeshAttribute.POSITION)),
                         new GlVertexAttributeBinding(ChunkShaderBindingPoints.COLOR, vertexFormat.getAttribute(ChunkMeshAttribute.COLOR)),
                         new GlVertexAttributeBinding(ChunkShaderBindingPoints.TEX_COORD, vertexFormat.getAttribute(ChunkMeshAttribute.TEXTURE)),

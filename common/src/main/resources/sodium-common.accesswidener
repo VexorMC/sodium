@@ -9,11 +9,11 @@ accessible field net/minecraft/client/resources/model/WeightedBakedModel$MyWeigh
 accessible field net/minecraft/client/render/BufferBuilder offsetX D
 accessible field net/minecraft/client/render/BufferBuilder offsetY D
 accessible field net/minecraft/client/render/BufferBuilder offsetZ D
-accessible field net/minecraft/client/render/BufferBuilder drawMode I
-accessible field net/minecraft/client/render/BufferBuilder building Z
 accessible field net/minecraft/client/render/BufferBuilder vertexCount I
 
 accessible field net/minecraft/client/Minecraft renderEngine Lnet/minecraft/client/renderer/texture/TextureManager;
+accessible field net/minecraft/client/render/BufferBuilder drawMode I
+accessible field net/minecraft/client/render/BufferBuilder building Z
 
 accessible class com/mojang/blaze3d/platform/GlStateManager$BooleanState
 accessible field com/mojang/blaze3d/platform/GlStateManager$BooleanState cachedState Z

@@ -3,7 +3,7 @@ package me.jellysquid.mods.sodium.client.render.chunk.backends.multidraw;
 import me.jellysquid.mods.sodium.client.SodiumClientMod;
 import me.jellysquid.mods.sodium.client.util.CompatMemoryUtil;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.MemoryUtil;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -67,7 +67,7 @@ public abstract class ChunkDrawCallBatcher extends StructBuffer {
         public UnsafeChunkDrawCallBatcher(int capacity) {
             super(capacity);
 
-            this.basePointer = MemoryUtil.getAddress(this.buffer);
+            this.basePointer = MemoryUtil.memAddress(this.buffer);
         }
 
         @Override

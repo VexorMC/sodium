@@ -48,7 +48,8 @@ dependencies {
         shadow("org.lwjgl:lwjgl-stb::natives-$platform")
         shadow("org.lwjgl:lwjgl-tinyfd::natives-$platform")
     }
-
+    implementation("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
 }
 
 sourceSets.apply {

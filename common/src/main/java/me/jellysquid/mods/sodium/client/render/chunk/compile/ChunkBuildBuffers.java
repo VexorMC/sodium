@@ -14,6 +14,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelV
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkMeshData;
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ChunkModelOffset;
+import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPass;
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPassManager;
 import me.jellysquid.mods.sodium.client.util.BufferSizeUtil;
@@ -33,7 +34,7 @@ import java.util.Map;
  * passes. This makes a best-effort attempt to pick a suitable size for each scratch buffer, but will never try to
  * shrink a buffer.
  */
-public class ChunkBuildBuffers extends ChunkBuildBuffersExt {
+public class ChunkBuildBuffers implements ChunkBuildBuffersExt {
     private final ChunkModelBuffers[] delegates;
     private final VertexBufferBuilder[][] buffersByLayer;
     private final ChunkVertexType vertexType;
@@ -76,7 +77,7 @@ public class ChunkBuildBuffers extends ChunkBuildBuffersExt {
             ChunkModelVertexTransformer[] writers = new ChunkModelVertexTransformer[ModelQuadFacing.COUNT];
 
             for (ModelQuadFacing facing : ModelQuadFacing.VALUES) {
-                VertexSink sink = vertexType.createBufferWriter(this.buffersByLayer[i][facing.ordinal()], SodiumClientMod.isDirectMemoryAccessEnabled());
+                ModelVertexSink sink = vertexType.createBufferWriter(this.buffersByLayer[i][facing.ordinal()], SodiumClientMod.isDirectMemoryAccessEnabled());
 
                 if (sink instanceof ContextAwareVertexWriter) {
                     ((ContextAwareVertexWriter) sink).iris$setContextHolder(contextHolder);

@@ -190,7 +190,16 @@ public class MultidrawChunkRenderBackend extends ChunkRenderShaderBackend<Multid
 
     private GlTessellation createRegionTessellation(CommandList commandList, GlBuffer buffer) {
         return commandList.createTessellation(GlPrimitiveType.QUADS, new TessellationBinding[] {
-                BlockRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat() ? ArrayUtils.addAll(base,
+                BlockRenderingSettings.INSTANCE.shouldUseExtendedVertexFormat() ? new TessellationBinding(buffer, ArrayUtils.addAll(new GlVertexAttributeBinding[] {
+                                new GlVertexAttributeBinding(ChunkShaderBindingPoints.POSITION,
+                                        this.vertexFormat.getAttribute(ChunkMeshAttribute.POSITION)),
+                                new GlVertexAttributeBinding(ChunkShaderBindingPoints.COLOR,
+                                        this.vertexFormat.getAttribute(ChunkMeshAttribute.COLOR)),
+                                new GlVertexAttributeBinding(ChunkShaderBindingPoints.TEX_COORD,
+                                        this.vertexFormat.getAttribute(ChunkMeshAttribute.TEXTURE)),
+                                new GlVertexAttributeBinding(ChunkShaderBindingPoints.LIGHT_COORD,
+                                        this.vertexFormat.getAttribute(ChunkMeshAttribute.LIGHT))
+                        },
                         new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.NORMAL,
                                 vertexFormat.getAttribute(IrisChunkMeshAttributes.NORMAL)),
                         new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.TANGENT,
@@ -200,8 +209,7 @@ public class MultidrawChunkRenderBackend extends ChunkRenderShaderBackend<Multid
                         new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.BLOCK_ID,
                                 vertexFormat.getAttribute(IrisChunkMeshAttributes.BLOCK_ID)),
                         new GlVertexAttributeBinding(IrisChunkShaderBindingPoints.MID_BLOCK,
-                                vertexFormat.getAttribute(IrisChunkMeshAttributes.MID_BLOCK))
-                ) : new TessellationBinding(buffer, new GlVertexAttributeBinding[] {
+                                vertexFormat.getAttribute(IrisChunkMeshAttributes.MID_BLOCK))), false) : new TessellationBinding(buffer, new GlVertexAttributeBinding[] {
                         new GlVertexAttributeBinding(ChunkShaderBindingPoints.POSITION,
                                 this.vertexFormat.getAttribute(ChunkMeshAttribute.POSITION)),
                         new GlVertexAttributeBinding(ChunkShaderBindingPoints.COLOR,

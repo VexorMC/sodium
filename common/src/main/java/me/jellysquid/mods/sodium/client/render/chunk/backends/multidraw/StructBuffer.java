@@ -2,7 +2,7 @@ package me.jellysquid.mods.sodium.client.render.chunk.backends.multidraw;
 
 import org.lwjgl.BufferUtils;
 
-import org.lwjgl.MemoryUtil;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
@@ -25,6 +25,6 @@ public abstract class StructBuffer {
     }
 
     public long getBufferAddress() {
-        return MemoryUtil.getAddress(this.buffer);
+        return MemoryUtil.memAddress(this.buffer);
     }
 }
