@@ -1,6 +1,5 @@
 package net.coderbot.iris.mixin;
 
-import net.caffeinemc.mods.sodium.mixin.features.options.MinecraftClientMixin;
 import net.coderbot.iris.Iris;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

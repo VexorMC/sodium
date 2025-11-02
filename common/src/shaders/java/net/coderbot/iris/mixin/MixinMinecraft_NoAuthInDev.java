@@ -1,7 +1,6 @@
 package net.coderbot.iris.mixin;
 
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import net.caffeinemc.mods.sodium.mixin.features.options.MinecraftClientMixin;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.Logger;

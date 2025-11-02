@@ -36,6 +36,7 @@ repositories {
 
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
+    modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
     mappings("net.legacyfabric:yarn:1.8.9+build.551:v2")
 
     implementation("org.joml:joml:1.10.8")
@@ -48,7 +49,8 @@ dependencies {
     compileOnly("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
 
     modCompileOnly("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
-
+    implementation("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
     implementation("org.javassist:javassist:3.29.2-GA")
     implementation(platform("org.lwjgl:lwjgl-bom:3.3.5"))
     implementation("org.anarres:jcpp:1.4.14")

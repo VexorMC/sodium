@@ -1,6 +1,6 @@
 package dev.vexor.radium.compat.mojang.minecraft;
 
-import net.caffeinemc.mods.sodium.client.util.DirectionUtil;
+import me.jellysquid.mods.sodium.common.util.DirectionUtil;
 import net.minecraft.block.AbstractFluidBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

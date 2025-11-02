@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 
 import dev.vexor.radium.lwjgl3.util.XDGPathResolver;
-import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.IOUtils;
 
@@ -39,7 +38,7 @@ public class DesktopFileInjector {
 			injectFile(location, String.format(IOUtils.toString(Objects.requireNonNull(stream)),
 					version, ICON_NAME.substring(0, ICON_NAME.lastIndexOf("."))).getBytes(StandardCharsets.UTF_8));
 		} catch (IOException e) {
-			SodiumClientMod.logger().error("Failed to inject icon: ", e);
+            e.printStackTrace();
 		}
 
 	}
@@ -73,7 +72,7 @@ public class DesktopFileInjector {
 			Files.write(target, data);
 			injectedLocations.add(target);
 		} catch (IOException e) {
-			SodiumClientMod.logger().error("Failed to inject file: ", e);
+            e.printStackTrace();
 		}
 	}
 

@@ -55,10 +55,7 @@
   "environment" : "client",
   "entrypoints" : {
     "client" : [
-      "net.caffeinemc.mods.sodium.fabric.SodiumFabricMod"
-    ],
-    "preLaunch" : [
-      "net.caffeinemc.mods.sodium.fabric.SodiumPreLaunch"
+      "me.jellysquid.mods.sodium.client.SodiumClientMod"
     ]
   },
   "custom" : {
@@ -75,8 +72,7 @@
   "accessWidener" : "sodium-fabric.accesswidener",
   "mixins" : [
     "legacy-lwjgl3.mixins.json",
-    "sodium-common.mixins.json",
-    "sodium-fabric.mixins.json",
+    "oldium.mixins.json",
     "iris.mixins.json",
     "iris-vertexformat.mixins.json"
   ],

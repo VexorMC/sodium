@@ -5,9 +5,10 @@ import java.util.List;
 
 import javassist.*;
 import javassist.util.proxy.DefineClassHelper;
-import net.caffeinemc.mods.sodium.client.SodiumClientMod;
+import me.jellysquid.mods.sodium.client.SodiumClientMod;
 import net.fabricmc.loader.impl.launch.FabricLauncherBase;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.opengl.GL;
 
@@ -19,7 +20,6 @@ import org.lwjgl.opengl.GL;
  * @author Zarzelcow
  */
 public class EarlyRiser implements Runnable {
-
     // list of legacy methods that we need to add to GL11. moved out of method for readability
     private final List<Triple<String, String, String>> gl11Translations = List.of(
             Triple.of("glGetFloat", "glGetFloatv", "(ILjava/nio/FloatBuffer;)V"),

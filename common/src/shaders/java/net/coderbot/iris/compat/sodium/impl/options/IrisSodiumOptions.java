@@ -1,12 +1,12 @@
 package net.coderbot.iris.compat.sodium.impl.options;
 
-import net.caffeinemc.mods.sodium.client.gui.options.OptionFlag;
-import net.caffeinemc.mods.sodium.client.gui.options.OptionImpact;
-import net.caffeinemc.mods.sodium.client.gui.options.OptionImpl;
-import net.caffeinemc.mods.sodium.client.gui.options.control.ControlValueFormatter;
-import net.caffeinemc.mods.sodium.client.gui.options.control.CyclingControl;
-import net.caffeinemc.mods.sodium.client.gui.options.control.SliderControl;
-import net.caffeinemc.mods.sodium.client.gui.options.storage.MinecraftOptionsStorage;
+import me.jellysquid.mods.sodium.client.gui.options.OptionFlag;
+import me.jellysquid.mods.sodium.client.gui.options.OptionImpact;
+import me.jellysquid.mods.sodium.client.gui.options.OptionImpl;
+import me.jellysquid.mods.sodium.client.gui.options.control.ControlValueFormatter;
+import me.jellysquid.mods.sodium.client.gui.options.control.CyclingControl;
+import me.jellysquid.mods.sodium.client.gui.options.control.SliderControl;
+import me.jellysquid.mods.sodium.client.gui.options.storage.MinecraftOptionsStorage;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gui.option.IrisVideoSettings;
 import net.minecraft.client.option.GameOptions;
@@ -32,7 +32,7 @@ public class IrisSodiumOptions {
 						},
 						options -> IrisVideoSettings.getOverriddenShadowDistance(IrisVideoSettings.shadowDistance))
 				.setImpact(OptionImpact.HIGH)
-				.setEnabled(IrisVideoSettings::isShadowDistanceSliderEnabled)
+				.setEnabled(IrisVideoSettings.isShadowDistanceSliderEnabled())
 				.build();
 
 		return maxShadowDistanceSlider;
