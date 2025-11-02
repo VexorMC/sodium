@@ -81,7 +81,7 @@ configurations.configureEach {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/sodium-common.accesswidener")
+    accessWidenerPath.set(file("src/main/resources/oldium.accesswidener"))
 
     mixin {
         useLegacyMixinAp = false

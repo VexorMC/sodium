@@ -1,6 +1,7 @@
 package net.coderbot.iris.mixin;
 
 import com.mojang.blaze3d.platform.GLX;
+import me.jellysquid.mods.sodium.mixin.features.chunk_rendering.AccessorActiveRenderInfo;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gl.program.Program;
 import net.coderbot.iris.pipeline.HandRenderer;
@@ -55,8 +56,8 @@ public class MixinGameRenderer {
 					" didn't work. This is a bug! Please report it to the Iris developers.");
 		}
 
-		CapturedRenderingState.INSTANCE.setGbufferModelView(new Matrix4f(Camera.MODEL_MATRIX));
-		CapturedRenderingState.INSTANCE.setGbufferProjection(new Matrix4f(Camera.PROJECTION_MATRIX));
+		CapturedRenderingState.INSTANCE.setGbufferModelView(new Matrix4f(AccessorActiveRenderInfo.getModelMatrix()));
+		CapturedRenderingState.INSTANCE.setGbufferProjection(new Matrix4f(AccessorActiveRenderInfo.getProjectionMatrix()));
 		CapturedRenderingState.INSTANCE.setTickDelta(tickDelta);
 		SystemTimeUniforms.COUNTER.beginFrame();
 		SystemTimeUniforms.TIMER.beginFrame(limitTime);
@@ -70,7 +71,7 @@ public class MixinGameRenderer {
 
 	// Inject a bit early so that we can end our rendering before mods like VoxelMap (which inject at RETURN)
 	// render their waypoint beams.
-	@Inject(method = "renderWorld(IFJ)V", at = @At(value = "RETURN", shift = At.Shift.BEFORE))
+	@Inject(method = "renderWorld(IFJ)V", at = @At(value = "RETURN"))
 	private void iris$endLevelRender(int anaglyphFilter, float tickDelta, long limitTime, CallbackInfo ci) {
 		HandRenderer.INSTANCE.renderTranslucent(tickDelta, (GameRenderer) (Object) this, pipeline);
 		MinecraftClient.getInstance().profiler.swap("iris_final");

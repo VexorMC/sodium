@@ -122,6 +122,6 @@ public abstract class MixinBufferBuilder implements VertexBufferView, VertexDrai
             return blittable.createBufferWriter(this, SodiumClientMod.isDirectMemoryAccessEnabled());
         }
 
-        return factory.createFallbackWriter((BufferBuilder) (Object) this);
+        return (T) factory.createFallbackWriter((BufferBuilder) (Object) this);
     }
 }

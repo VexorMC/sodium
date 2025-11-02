@@ -1137,10 +1137,14 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
 
         RenderSystem.depthMask(true);
         RenderSystem.enableTexture();
+
+        System.out.println("begun!");
     }
 
     @Override
     public void finalizeLevelRendering() {
+        System.out.println("finalized!");
+
         checkWorld();
 
         if (!isRenderingWorld) {

@@ -55,7 +55,7 @@ public class SodiumOptionsGUI extends ScrollableGuiScreen {
         this.pages.add(SodiumGameOptionPages.performance());
 
         shaderPacks = new OptionPage(new TranslatableText("options.iris.shaderPackSelection"), ImmutableList.of());
-        pages.add(shaderPacks);
+        this.pages.add(shaderPacks);
     }
 
     public void setPage(OptionPage page) {

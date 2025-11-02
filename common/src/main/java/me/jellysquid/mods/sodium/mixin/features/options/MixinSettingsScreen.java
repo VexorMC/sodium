@@ -1,6 +1,7 @@
 package me.jellysquid.mods.sodium.mixin.features.options;
 
 import me.flashyreese.mods.reeses_sodium_options.client.gui.ReeseSodiumVideoOptionsScreen;
+import me.jellysquid.mods.sodium.client.gui.SodiumOptionsGUI;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.SettingsScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -14,7 +15,7 @@ public class MixinSettingsScreen extends Screen {
     @Inject(method = "buttonClicked", at = @At("HEAD"), cancellable = true)
     private void open(ButtonWidget button, CallbackInfo ci) {
         if(button.active && button.id == 101) {
-            this.client.setScreen(new ReeseSodiumVideoOptionsScreen(this));
+            this.client.setScreen(new SodiumOptionsGUI(this));
 
             ci.cancel();
         }

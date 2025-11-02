@@ -14,6 +14,7 @@ import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import me.jellysquid.mods.sodium.mixin.features.chunk_rendering.AccessorActiveRenderInfo;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gl.IrisRenderSystem;
 import net.coderbot.iris.mixin.GameRendererAccessor;
@@ -308,7 +309,7 @@ public class ShadowRenderer {
 
             shadowLightVectorFromOrigin.normalize();
 
-            return holder.setInfo(new AdvancedShadowCullingFrustum(new Matrix4f(Camera.PROJECTION_MATRIX), new Matrix4f(Camera.PROJECTION_MATRIX),
+            return holder.setInfo(new AdvancedShadowCullingFrustum(new Matrix4f(AccessorActiveRenderInfo.getModelMatrix()), new Matrix4f(AccessorActiveRenderInfo.getProjectionMatrix()),
                     shadowLightVectorFromOrigin, boxCuller), distanceInfo, cullingInfo);
 
         }

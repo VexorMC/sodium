@@ -405,7 +405,7 @@ public class SearchTextFieldComponent extends AbstractWidget {
                 return true;
             } else {
                 switch (keyCode) {
-                    case Keyboard.KEY_RETURN: // GLFW.GLFW_KEY_ENTER
+                    case 28: // GLFW.GLFW_KEY_ENTER
                         if (this.editable) {
                             int count = 0;
                             for (OptionPage page : this.pages) {
@@ -442,21 +442,21 @@ public class SearchTextFieldComponent extends AbstractWidget {
                             }
                         }
                         return true;
-                    case Keyboard.KEY_BACK: // GLFW.GLFW_KEY_BACKSPACE
+                    case 14: // GLFW.GLFW_KEY_BACKSPACE
                         if (this.editable) {
                             this.selecting = false;
                             this.erase(-1);
                             this.selecting = Screen.hasShiftDown();
                         }
                         return true;
-                    case Keyboard.KEY_DELETE: // GLFW.GLFW_KEY_DELETE
+                    case 211: // GLFW.GLFW_KEY_DELETE
                         if (this.editable) {
                             this.selecting = false;
                             this.erase(1);
                             this.selecting = Screen.hasShiftDown();
                         }
                         return true;
-                    case Keyboard.KEY_RIGHT: // GLFW.GLFW_KEY_RIGHT
+                    case 205: // GLFW.GLFW_KEY_RIGHT
                         if (Screen.hasControlDown()) {
                             this.setCursor(this.getWordSkipPosition(1));
                         } else {
@@ -465,7 +465,7 @@ public class SearchTextFieldComponent extends AbstractWidget {
                         final boolean state = this.getCursor() != this.lastCursorPosition && this.getCursor() != this.text.length() + 1;
                         this.lastCursorPosition = this.getCursor();
                         return state;
-                    case Keyboard.KEY_LEFT: // GLFW.GLFW_KEY_LEFT
+                    case 203: // GLFW.GLFW_KEY_LEFT
                         if (Screen.hasControlDown()) {
                             this.setCursor(this.getWordSkipPosition(-1));
                         } else {
@@ -474,10 +474,10 @@ public class SearchTextFieldComponent extends AbstractWidget {
                         final boolean state2 = this.getCursor() != this.lastCursorPosition && this.getCursor() != 0;
                         this.lastCursorPosition = this.getCursor();
                         return state2;
-                    case Keyboard.KEY_HOME: // GLFW.GLFW_KEY_HOME
+                    case 199: // GLFW.GLFW_KEY_HOME
                         this.setCursorToStart();
                         return true;
-                    case Keyboard.KEY_END: // GLFW.GLFW_KEY_END
+                    case 207: // GLFW.GLFW_KEY_END
                         this.setCursorToEnd();
                         return true;
                     default:
