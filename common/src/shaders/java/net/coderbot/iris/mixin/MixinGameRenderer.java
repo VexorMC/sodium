@@ -1,6 +1,7 @@
 package net.coderbot.iris.mixin;
 
 import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
 import me.jellysquid.mods.sodium.mixin.features.chunk_rendering.AccessorActiveRenderInfo;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gl.program.Program;
@@ -18,13 +19,23 @@ import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.resource.ResourceManager;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
-public class MixinGameRenderer {
-	@Inject(method = "<init>", at = @At("TAIL"))
+public abstract class MixinGameRenderer {
+    @Shadow
+    protected abstract void renderDebugCrosshair(float tickDelta);
+
+    @Shadow
+    private boolean renderHand;
+
+    @Shadow
+    protected abstract void renderHand(float tickDelta, int anaglyphOffset);
+
+    @Inject(method = "<init>", at = @At("TAIL"))
 	private void iris$logSystem(MinecraftClient minecraftClient, ResourceManager resourceManager, CallbackInfo ci) {
 		Iris.logger.info("Hardware information:");
 		Iris.logger.info("CPU: " + GLX.getProcessor());
@@ -71,13 +82,20 @@ public class MixinGameRenderer {
 
 	// Inject a bit early so that we can end our rendering before mods like VoxelMap (which inject at RETURN)
 	// render their waypoint beams.
-	@Inject(method = "renderWorld(IFJ)V", at = @At(value = "RETURN"))
+	@Inject(method = "renderWorld(IFJ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V", ordinal = 18), cancellable = true)
 	private void iris$endLevelRender(int anaglyphFilter, float tickDelta, long limitTime, CallbackInfo ci) {
-		HandRenderer.INSTANCE.renderTranslucent(tickDelta, (GameRenderer) (Object) this, pipeline);
+        if (this.renderHand) {
+            GlStateManager.clear(256);
+            this.renderHand(tickDelta, anaglyphFilter);
+            this.renderDebugCrosshair(tickDelta);
+        }
+
+        HandRenderer.INSTANCE.renderTranslucent(tickDelta, (GameRenderer) (Object) this, pipeline);
 		MinecraftClient.getInstance().profiler.swap("iris_final");
 		pipeline.finalizeLevelRendering();
 		pipeline = null;
 		Program.unbind();
+        ci.cancel();
 	}
 
 	// Setup shadow terrain & render shadows before the main terrain setup. We need to do things in this order to
