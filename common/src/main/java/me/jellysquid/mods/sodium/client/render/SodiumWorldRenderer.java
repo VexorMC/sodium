@@ -28,8 +28,11 @@ import me.jellysquid.mods.sodium.common.util.ListUtil;
 import net.coderbot.iris.block_rendering.BlockRenderingSettings;
 import net.coderbot.iris.compat.sodium.impl.shadow_map.SwappableChunkRenderManager;
 import net.coderbot.iris.compat.sodium.impl.vertex_format.IrisModelVertexFormats;
+import net.coderbot.iris.layer.GbufferPrograms;
 import net.coderbot.iris.pipeline.ShadowRenderer;
 import net.coderbot.iris.shadows.ShadowRenderingState;
+import net.coderbot.iris.uniforms.CapturedRenderingState;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.ChestBlockEntity;
@@ -387,6 +390,9 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         // (damageProgress < 0 && !tileEntity.shouldRenderInPass(pass))
         if (!checkBEVisibility(tileEntity))
             return;
+        final Block block = tileEntity.getEntityWorld().getBlockAt(tileEntity.getPos());
+        CapturedRenderingState.INSTANCE.setCurrentBlockEntity(Block.getIdByBlock(block));
+        GbufferPrograms.beginBlockEntities();
 
         try {
             BlockEntityRenderDispatcher.INSTANCE.renderEntity(tileEntity, partialTicks, damageProgress);
@@ -396,6 +402,9 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
             } else {
                 throw e;
             }
+        } finally {
+            CapturedRenderingState.INSTANCE.setCurrentBlockEntity(-1);
+            GbufferPrograms.endBlockEntities();
         }
     }
 

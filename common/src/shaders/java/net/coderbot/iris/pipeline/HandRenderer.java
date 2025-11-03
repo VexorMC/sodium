@@ -9,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -45,12 +46,9 @@ public class HandRenderer {
     }
 
     private boolean canRender() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-
-        return mc.options.perspective == 0 &&
-                !mc.player.isSleeping() &&
-                !mc.options.hudHidden &&
-                !mc.player.isSpectator();
+        MinecraftClient client = MinecraftClient.getInstance();
+        boolean bl = client.getCameraEntity() instanceof LivingEntity && ((LivingEntity)client.getCameraEntity()).isSleeping();
+        return client.options.perspective == 0 && !bl && !client.options.hudHidden && !client.interactionManager.isSpectator();
     }
 
     public boolean isHandTranslucent() {
@@ -73,7 +71,7 @@ public class HandRenderer {
     }
 
     public void renderSolid(float tickDelta, GameRenderer gameRenderer, WorldRenderingPipeline pipeline) {
-        if (canRender() || Iris.getCurrentPack().isEmpty()) {
+        if (!canRender() || Iris.getCurrentPack().isEmpty()) {
             return;
         }
         MinecraftClient client = MinecraftClient.getInstance();
@@ -112,7 +110,7 @@ public class HandRenderer {
 
 
     public void renderTranslucent(float tickDelta, GameRenderer gameRenderer, WorldRenderingPipeline pipeline) {
-        if (canRender() || !isAnyHandTranslucent() || Iris.getCurrentPack().isEmpty()) {
+        if (!canRender() || !isAnyHandTranslucent() || Iris.getCurrentPack().isEmpty()) {
             return;
         }
         MinecraftClient client = MinecraftClient.getInstance();

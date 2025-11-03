@@ -5,11 +5,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gl.IrisRenderSystem;
-import net.coderbot.iris.gl.program.ComputeProgram;
-import net.coderbot.iris.gl.texture.DepthCopyStrategy;
 import net.coderbot.iris.gui.option.IrisVideoSettings;
 import net.coderbot.iris.mixin.LevelRendererAccessor;
-import net.coderbot.iris.shaderpack.ComputeSource;
 import net.coderbot.iris.shaderpack.OptionalBoolean;
 import net.coderbot.iris.shaderpack.PackDirectives;
 import net.coderbot.iris.shaderpack.PackShadowDirectives;
@@ -28,7 +25,6 @@ import net.coderbot.iris.uniforms.CapturedRenderingState;
 import net.coderbot.iris.uniforms.CelestialUniforms;
 import net.coderbot.iris.vendored.joml.Matrix4f;
 import net.coderbot.iris.vendored.joml.Vector3d;
-import net.coderbot.iris.vendored.joml.Vector3i;
 import net.coderbot.iris.vendored.joml.Vector4f;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -44,9 +40,9 @@ import org.lwjgl.opengl.*;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ShadowRenderer {
     public static Matrix4f MODELVIEW;
@@ -334,9 +330,11 @@ public class ShadowRenderer {
     private void renderEntities(LevelRendererAccessor levelRenderer, CameraView frustum, PoseStack modelView, double cameraX, double cameraY, double cameraZ, float tickDelta) {
         EntityRenderDispatcher dispatcher = levelRenderer.getEntityRenderDispatcher();
 
-        int shadowEntities = 0;
+        AtomicInteger shadowEntities = new AtomicInteger();
 
         profiler.push("cull");
+
+        dispatcher.updateCamera(cameraX, cameraY, cameraZ);
 
         List<Entity> renderedEntities = new ArrayList<>(32);
 
@@ -351,17 +349,14 @@ public class ShadowRenderer {
 
         profiler.swap("build geometry");
 
-        GL11.glPushMatrix();
-        MODELVIEW_BUFFER.clear().rewind();
-        modelView.last().pose().get(MODELVIEW_BUFFER);
-        GL11.glLoadMatrixf(MODELVIEW_BUFFER);
-        for (Entity entity : renderedEntities) {
-            dispatcher.renderEntity(entity, tickDelta);
-            shadowEntities++;
-        }
-        GL11.glPopMatrix();
+//        modelView.with(() -> {
+            for (Entity entity : renderedEntities) {
+                dispatcher.renderEntity(entity, tickDelta);
+                shadowEntities.getAndIncrement();
+            }
+//        });
 
-        renderedShadowEntities = shadowEntities;
+        renderedShadowEntities = shadowEntities.get();
 
         profiler.pop();
     }
@@ -379,28 +374,25 @@ public class ShadowRenderer {
 
         profiler.swap("build geometry");
 
-        int shadowEntities = 0;
+        AtomicInteger shadowEntities = new AtomicInteger();
 
-        GL11.glPushMatrix();
-        MODELVIEW_BUFFER.clear().rewind();
-        modelView.last().pose().get(MODELVIEW_BUFFER);
-        GL11.glLoadMatrixf(MODELVIEW_BUFFER);
-        if (player.rider != null) {
-            dispatcher.renderEntity(player.rider, tickDelta);
-            shadowEntities++;
-        }
+//        modelView.with(() -> {
+            if (player.rider != null) {
+                dispatcher.renderEntity(player.rider, tickDelta);
+                shadowEntities.getAndIncrement();
+            }
 
-        if (player.vehicle != null) {
-            dispatcher.renderEntity(player.vehicle, tickDelta);
-            shadowEntities++;
-        }
+            if (player.vehicle != null) {
+                dispatcher.renderEntity(player.vehicle, tickDelta);
+                shadowEntities.getAndIncrement();
+            }
 
-        dispatcher.renderEntity(player, tickDelta);
-        GL11.glPopMatrix();
+            dispatcher.renderEntity(player, tickDelta);
+//        });
 
-        shadowEntities++;
+        shadowEntities.getAndIncrement();
 
-        renderedShadowEntities = shadowEntities;
+        renderedShadowEntities = shadowEntities.get();
 
         profiler.pop();
     }
@@ -422,14 +414,12 @@ public class ShadowRenderer {
                     continue;
                 }
             }
+
             modelView.pushPose();
             modelView.translate(pos.getX() - cameraX, pos.getY() - cameraY, pos.getZ() - cameraZ);
-            GL11.glPushMatrix();
-            MODELVIEW_BUFFER.clear().rewind();
-            modelView.last().pose().get(MODELVIEW_BUFFER);
-            GL11.glLoadMatrixf(MODELVIEW_BUFFER);
-            BlockEntityRenderDispatcher.INSTANCE.renderEntity(entity, tickDelta, -1);
-            GL11.glPopMatrix();
+//            modelView.with(() ->
+                    BlockEntityRenderDispatcher.INSTANCE.renderEntity(entity, tickDelta, -1);
+//        );
             modelView.popPose();
 
             shadowBlockEntities++;
@@ -517,14 +507,9 @@ public class ShadowRenderer {
 
         // Render all opaque terrain unless pack requests not to
         if (shouldRenderTerrain) {
-            GL11.glPushMatrix();
-            MODELVIEW_BUFFER.clear().rewind();
-            modelView.last().pose().get(MODELVIEW_BUFFER);
-            GL11.glLoadMatrixf(MODELVIEW_BUFFER);
             levelRenderer.invokeRenderLayer(RenderLayer.SOLID, tickDelta, 2, client.player);
             levelRenderer.invokeRenderLayer(RenderLayer.CUTOUT, tickDelta, 2, client.player);
             levelRenderer.invokeRenderLayer(RenderLayer.CUTOUT_MIPPED, tickDelta, 2, client.player);
-            GL11.glPopMatrix();
         }
 
         profiler.swap("entities");
@@ -565,12 +550,7 @@ public class ShadowRenderer {
         // It doesn't matter a ton, since this just means that they won't be sorted in the normal rendering pass.
         // Just something to watch out for, however...
         if (shouldRenderTranslucent) {
-            GL11.glPushMatrix();
-            MODELVIEW_BUFFER.clear().rewind();
-            modelView.last().pose().get(MODELVIEW_BUFFER);
-            GL11.glLoadMatrixf(MODELVIEW_BUFFER);
             levelRenderer.invokeRenderLayer(RenderLayer.TRANSLUCENT, tickDelta, 2, client.player);
-            GL11.glPopMatrix();
         }
 
         debugStringTerrain = ((WorldRenderer)levelRenderer).getChunksDebugString();

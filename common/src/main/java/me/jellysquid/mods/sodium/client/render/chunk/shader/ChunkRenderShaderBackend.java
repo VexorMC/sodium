@@ -34,7 +34,7 @@ import java.util.List;
 
 public abstract class ChunkRenderShaderBackend<T extends ChunkGraphicsState>
         implements ChunkRenderBackend<T> {
-    private IrisChunkProgramOverrides irisChunkProgramOverrides;
+    private final IrisChunkProgramOverrides irisChunkProgramOverrides;
     private RenderDevice device;
     private ChunkProgram override;
 

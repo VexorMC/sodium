@@ -12,8 +12,7 @@ public class GameRendererContext {
     private static final FloatBuffer bufModelViewProjection = BufferUtils.createFloatBuffer(16);
 
     /**
-     * Obtains a model-view-projection matrix by multiplying the projection matrix with the model-view matrix
-     * from {@param matrices}.
+     * Obtains a model-view-projection matrix by multiplying the projection matrix with the model-view matrix.
      *
      * The returned buffer is only valid for the lifetime of {@param stack}.
      *

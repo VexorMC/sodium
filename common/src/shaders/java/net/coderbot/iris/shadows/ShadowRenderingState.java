@@ -11,4 +11,8 @@ public class ShadowRenderingState {
 	public static Matrix4f getShadowOrthoMatrix() {
 		return ShadowRenderer.ACTIVE ? new Matrix4f(ShadowRenderer.PROJECTION) : null;
 	}
+
+    public static Matrix4f getShadowModelViewMatrix() {
+        return ShadowRenderer.ACTIVE ? new Matrix4f(ShadowRenderer.MODELVIEW) : null;
+    }
 }

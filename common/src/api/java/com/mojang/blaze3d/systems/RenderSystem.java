@@ -3,6 +3,10 @@ package com.mojang.blaze3d.systems;
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.renderer.BlendFactor;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+
+import java.nio.FloatBuffer;
 
 public class RenderSystem {
     public static void disableAlphaTest() {
@@ -115,6 +119,20 @@ public class RenderSystem {
 
     public static void defaultBlendFunc() {
         RenderSystem.blendFuncSeparate(BlendFactor.SourceFactor.SRC_ALPHA, BlendFactor.DestFactor.ONE_MINUS_SRC_ALPHA, BlendFactor.SourceFactor.ONE, BlendFactor.DestFactor.ZERO);
+    }
+
+    /**
+     * Get a 4x4 matrix as a flat float array based on the type.
+     * @param type The GL matrix type, e.g. GL_MODELVIEW_MATRIX or GL_PROJECTION_MATRIX
+     * @return A float buffer of length 16 representing the matrix.
+     */
+    public static FloatBuffer getMatrix(int type) {
+        float[] matrix = new float[16];
+        GL11.glGetFloatv(type, matrix);
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+        buffer.put(matrix);
+        buffer.flip();
+        return buffer;
     }
 }
 

@@ -2,24 +2,26 @@ package me.jellysquid.mods.sodium.mixin.features.chunk_rendering;
 
 import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
+import net.coderbot.iris.Iris;
+import net.coderbot.iris.layer.GbufferPrograms;
+import net.coderbot.iris.pipeline.HandRenderer;
+import net.coderbot.iris.pipeline.ShadowRenderer;
+import net.coderbot.iris.pipeline.WorldRenderingPhase;
+import net.coderbot.iris.pipeline.WorldRenderingPipeline;
+import net.coderbot.iris.uniforms.CapturedRenderingState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BlockBreakingInfo;
-import net.minecraft.client.render.CameraView;
-import net.minecraft.client.render.CullingCameraView;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.texture.SpriteAtlasTexture;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.lwjgl.opengl.GL11;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -109,12 +111,35 @@ public abstract class MixinWorldRenderer {
     public void updateChunks(long p) {
     }
 
+    @Unique
+    private void iris$beginTranslucents(WorldRenderingPipeline pipeline, float tickDelta) {
+        Iris.getPipelineManager().getPipelineNullable().beginHand();
+        HandRenderer.INSTANCE.renderSolid(tickDelta, MinecraftClient.getInstance().gameRenderer, pipeline);
+        MinecraftClient.getInstance().profiler.swap("iris_pre_translucent");
+        Iris.getPipelineManager().getPipelineNullable().beginTranslucents();
+    }
+
     /**
      * @reason Redirect the chunk layer render passes to our renderer
      * @author JellySquid
      */
     @Overwrite
     public int renderLayer(RenderLayer blockLayerIn, double partialTicks, int pass, Entity entityIn) {
+        WorldRenderingPipeline pipeline = null;
+        if (Iris.getCurrentPack().isPresent()) {
+            pipeline = Iris.getPipelineManager().getPipelineNullable();
+            if (blockLayerIn == RenderLayer.CUTOUT) {
+                pipeline.setPhase(WorldRenderingPhase.TERRAIN_CUTOUT);
+            } else if (blockLayerIn == RenderLayer.TRANSLUCENT) {
+                if (!ShadowRenderer.ACTIVE) {
+                    iris$beginTranslucents(pipeline, (float)partialTicks);
+                }
+
+                pipeline.setPhase(WorldRenderingPhase.TERRAIN_TRANSLUCENT);
+                this.textureManager.bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
+            }
+        }
+
         RenderDevice.enterManagedCode();
 
         DiffuseLighting.disable();
@@ -135,6 +160,8 @@ public abstract class MixinWorldRenderer {
             RenderDevice.exitManagedCode();
         }
         this.client.gameRenderer.disableLightmap();
+
+        if(pipeline != null)  pipeline.setPhase(WorldRenderingPhase.NONE);
 
         return 0;
     }
@@ -179,6 +206,10 @@ public abstract class MixinWorldRenderer {
     @Shadow
     private int renderDistance;
 
+    @Shadow
+    @Final
+    private TextureManager textureManager;
+
     /**
      * @author Sodium
      * @reason Redirect to our renderer
@@ -205,6 +236,12 @@ public abstract class MixinWorldRenderer {
      */
     @Overwrite
     public void renderEntities(Entity player, CameraView camera, float partialTicks) {
+        var projection = AccessorActiveRenderInfo.getProjectionMatrix();
+
+        GL11.glPushMatrix();
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glLoadMatrixf(projection);
+
         this.world.profiler.push("prepare");
         Entity renderView = client.getCameraEntity();
 
@@ -227,11 +264,14 @@ public abstract class MixinWorldRenderer {
         List<Entity> list = this.world.getLoadedEntities();
         totalEntityCount = list.size();
 
+        GbufferPrograms.beginEntities();
         Entity effect;
         for(int j = 0; j < world.entities.size(); ++j) {
             effect = world.entities.get(j);
             if (effect.shouldRender(renderX, renderY, renderZ)) {
+                CapturedRenderingState.INSTANCE.setCurrentEntity(effect.getEntityId());
                 entityRenderDispatcher.renderEntity(effect, partialTicks);
+                CapturedRenderingState.INSTANCE.setCurrentEntity(-1);
             }
         }
 
@@ -261,17 +301,22 @@ public abstract class MixinWorldRenderer {
 
             entityBlockPos.setPosition((int) entity.x, (int) entity.y, (int) entity.z);
 
+            CapturedRenderingState.INSTANCE.setCurrentEntity(entity.getEntityId());
             if (entity.y < 0.0D || entity.y >= 256.0D || this.world.blockExists(entityBlockPos))
             {
                 ++this.renderedEntityCount;
                 this.entityRenderDispatcher.method_6915(entity, partialTicks, false);
             }
+            CapturedRenderingState.INSTANCE.setCurrentEntity(-1);
         }
+        GbufferPrograms.endEntities();
 
         renderer.renderTileEntities(partialTicks, blockBreakingInfos);
 
         client.gameRenderer.disableLightmap();
         client.profiler.pop();
+
+        GL11.glPopMatrix();
     }
 
 

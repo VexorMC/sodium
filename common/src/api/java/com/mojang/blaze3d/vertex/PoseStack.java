@@ -1,15 +1,23 @@
 package com.mojang.blaze3d.vertex;
 
 import com.google.common.collect.Queues;
-import java.util.Deque;
 
+import java.nio.FloatBuffer;
+import java.util.Deque;
+import java.util.function.Consumer;
+
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.vexor.radium.compat.mojang.Util;
 import dev.vexor.radium.compat.mojang.math.Mth;
 import net.coderbot.iris.vendored.joml.Matrix3f;
 import net.coderbot.iris.vendored.joml.Matrix4f;
 import net.coderbot.iris.vendored.joml.Quaternionf;
+import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
 
 public class PoseStack {
+    public static final FloatBuffer MODELVIEW_BUFFER = BufferUtils.createFloatBuffer(16);
     private final Deque<Pose> poseStack = Util.make(Queues.newArrayDeque(), arrayDeque -> {
         Matrix4f matrix4f = new Matrix4f();
         matrix4f.identity();
@@ -60,6 +68,16 @@ public class PoseStack {
 
     public boolean clear() {
         return this.poseStack.size() == 1;
+    }
+
+    public void with(Runnable runnable) {
+        RenderSystem.pushMatrix();
+        MODELVIEW_BUFFER.clear().rewind();
+        last().pose().get(MODELVIEW_BUFFER);
+        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+        GL11.glLoadMatrixf(MODELVIEW_BUFFER);
+        runnable.run();
+        RenderSystem.popMatrix();
     }
 
     public static final class Pose {

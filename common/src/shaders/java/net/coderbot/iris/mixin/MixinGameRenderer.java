@@ -2,6 +2,7 @@ package net.coderbot.iris.mixin;
 
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.jellysquid.mods.sodium.mixin.features.chunk_rendering.AccessorActiveRenderInfo;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gl.program.Program;
@@ -62,8 +63,8 @@ public abstract class MixinGameRenderer {
 	// all pixels.
 	@Inject(method = "renderWorld(IFJ)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;clear(I)V", shift = At.Shift.AFTER))
 	private void iris$beginLevelRender(int anaglyphFilter, float tickDelta, long limitTime, CallbackInfo ci) {
-		CapturedRenderingState.INSTANCE.setGbufferModelView(new Matrix4f(AccessorActiveRenderInfo.getModelMatrix()));
-		CapturedRenderingState.INSTANCE.setGbufferProjection(new Matrix4f(AccessorActiveRenderInfo.getProjectionMatrix()));
+        CapturedRenderingState.INSTANCE.setGbufferModelView(new Matrix4f(AccessorActiveRenderInfo.getModelMatrix()));
+        CapturedRenderingState.INSTANCE.setGbufferProjection(new Matrix4f(AccessorActiveRenderInfo.getProjectionMatrix()));
 		CapturedRenderingState.INSTANCE.setTickDelta(tickDelta);
 		SystemTimeUniforms.COUNTER.beginFrame();
 		SystemTimeUniforms.TIMER.beginFrame(limitTime);
@@ -131,11 +132,11 @@ public abstract class MixinGameRenderer {
 		Iris.getPipelineManager().getPipelineNullable().setPhase(WorldRenderingPhase.NONE);
 	}
 
-	@Inject(method = "renderWorld(IFJ)V", at = @At(value = "CONSTANT", args = "stringValue=translucent"))
-	private void iris$beginTranslucents(int anaglyphFilter, float tickDelta, long limitTime, CallbackInfo ci) {
-		Iris.getPipelineManager().getPipelineNullable().beginHand();
-		HandRenderer.INSTANCE.renderSolid(tickDelta, (GameRenderer) (Object) this, pipeline);
-		MinecraftClient.getInstance().profiler.swap("iris_pre_translucent");
-		Iris.getPipelineManager().getPipelineNullable().beginTranslucents();
-	}
+//	@Inject(method = "renderWorld(IFJ)V", at = @At(value = "CONSTANT", args = "stringValue=translucent"))
+//	private void iris$beginTranslucents(int anaglyphFilter, float tickDelta, long limitTime, CallbackInfo ci) {
+//		Iris.getPipelineManager().getPipelineNullable().beginHand();
+//		HandRenderer.INSTANCE.renderSolid(tickDelta, (GameRenderer) (Object) this, pipeline);
+//		MinecraftClient.getInstance().profiler.swap("iris_pre_translucent");
+//		Iris.getPipelineManager().getPipelineNullable().beginTranslucents();
+//	}
 }

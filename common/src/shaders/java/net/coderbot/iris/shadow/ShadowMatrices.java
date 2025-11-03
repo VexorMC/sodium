@@ -53,7 +53,7 @@ public class ShadowMatrices {
         target.last().pose().translate(0.0f, 0.0f, -100.0f);
         Quaternionf quat = new Quaternionf();
         quat.rotateX((float)Math.toRadians(90F));
-        quat.rotateZ((float)Math.toRadians(skyAngle * -360.0f));
+        quat.rotateZ((float)Math.toRadians(skyAngle * 360.0f));
         quat.rotateX((float)Math.toRadians(sunPathRotation));
         target.mulPose(quat);
     }
@@ -86,7 +86,7 @@ public class ShadowMatrices {
         offsetY -= halfIntervalSize;
         offsetZ -= halfIntervalSize;
 
-        target.last().pose().translate(offsetX, offsetY, offsetZ);
+        target.last().pose().translate(-offsetX, -offsetY, -offsetZ);
     }
 
     public static void createModelViewMatrix(PoseStack target, float shadowAngle, float shadowIntervalSize, float sunPathRotation, double cameraX, double cameraY, double cameraZ) {
