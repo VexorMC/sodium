@@ -74,5 +74,6 @@ public class MinecraftMixin {
      */
     @Overwrite
     private void setGlErrorMessage(String message) {
+        //System.out.println(message);
     }
 }

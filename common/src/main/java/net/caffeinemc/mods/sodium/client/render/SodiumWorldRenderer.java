@@ -383,69 +383,12 @@ public class SodiumWorldRenderer {
                                           BlockEntityRenderDispatcher dispatcher,
                                           BlockEntity entity,
                                           ClientPlayerEntity player) {
-        BlockPos pos = entity.getPos();
-        BlockPos offset = pos.add(-x, -y, -z);
+        dispatcher.renderEntity(entity, tickDelta, -1);
 
-        //System.out.println("drawing block entity: " + entity + " at " + pos + " offset pos: " + offset);
+        int destroyProgress = destroyProgress(blockBreakingProgressions, entity.getPos());
 
-//
-        //if (entity instanceof ChestBlockEntity) {
-        //    pos = pos.offset(Direction.WEST);
-        //    entity = entity.getEntityWorld().getBlockEntity(pos);
-        //}
-
-        //GlStateManager.pushMatrix();
-        //GlStateManager.translate(pos.getX() - x, pos.getY() - y, pos.getZ() - z);
-
-        int destroyProgress = destroyProgress(blockBreakingProgressions, offset);
-
-
-        dispatcher.renderEntity(entity, tickDelta, destroyProgress);
-
-        //GlStateManager.popMatrix();
-    }
-
-    public void iterateVisibleBlockEntities(Consumer<BlockEntity> blockEntityConsumer) {
-        SortedRenderLists renderLists = this.renderSectionManager.getRenderLists();
-        Iterator<ChunkRenderList> renderListIterator = renderLists.iterator();
-
-        while (renderListIterator.hasNext()) {
-            var renderList = renderListIterator.next();
-
-            var renderRegion = renderList.getRegion();
-            var renderSectionIterator = renderList.sectionsWithEntitiesIterator();
-
-            if (renderSectionIterator == null) {
-                continue;
-            }
-
-            while (renderSectionIterator.hasNext()) {
-                var renderSectionId = renderSectionIterator.nextByteAsInt();
-                var renderSection = renderRegion.getSection(renderSectionId);
-
-                var blockEntities = renderSection.getCulledBlockEntities();
-
-                if (blockEntities == null) {
-                    continue;
-                }
-
-                for (BlockEntity blockEntity : blockEntities) {
-                    blockEntityConsumer.accept(blockEntity);
-                }
-            }
-        }
-
-        for (var renderSection : this.renderSectionManager.getSectionsWithGlobalEntities()) {
-            var blockEntities = renderSection.getGlobalBlockEntities();
-
-            if (blockEntities == null) {
-                continue;
-            }
-
-            for (BlockEntity blockEntity : blockEntities) {
-                blockEntityConsumer.accept(blockEntity);
-            }
-        }
+        if (destroyProgress != -1)
+            dispatcher.renderEntity(entity, tickDelta, destroyProgress);
     }
 
     // the volume of a section multiplied by the number of sections to be checked at most

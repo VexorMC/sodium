@@ -62,7 +62,7 @@ public class ClonedChunkSectionCache {
         @Nullable ChunkSection section = null;
 
         if (!withinBuildHeight(SectionPos.sectionToBlockCoord(y))) {
-            section = chunk.getBlockStorage()[SectionPos.blockToSectionCoord(SectionPos.sectionToBlockCoord(y))];
+            section = chunk.getBlockStorage()[y];
         }
 
         return new ClonedChunkSection(this.level, chunk, section, SectionPos.of(x, y, z));

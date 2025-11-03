@@ -379,18 +379,6 @@ public final class LevelSlice implements BlockView {
         }
 
         return blockEntities.get(getLocalBlockIndex(relBlockX & 15, relBlockY & 15, relBlockZ & 15));
-        //int relBlockX = pos.getX() - this.originBlockX;
-        //int relBlockY = pos.getY() - this.originBlockY;
-        //int relBlockZ = pos.getZ() - this.originBlockZ;
-//
-        //var section = this.sections[getLocalSectionIndex(relBlockX >> 4, relBlockY >> 4, relBlockZ >> 4)];
-//
-        //if (section == null) {
-        //    return null;
-        //}
-        //BlockEntity e = section.getChunk().getBlockEntity(pos, Chunk.Status.IMMEDIATE);
-//
-        //return e;
     }
 
     public static int getLocalBlockIndex(int blockX, int blockY, int blockZ) {

@@ -1,6 +1,5 @@
 package dev.vexor.radium.mixin.sodium.core.world.map;
 
-import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkStatus;
 import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkTracker;
 import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkTrackerHolder;
 import net.minecraft.client.world.ClientWorld;
@@ -11,9 +10,6 @@ import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.level.LevelProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Objects;
 
@@ -29,14 +25,5 @@ public abstract class ClientLevelMixin extends World implements ChunkTrackerHold
     @Override
     public ChunkTracker sodium$getTracker() {
         return Objects.requireNonNull(this.chunkTracker);
-    }
-
-    @Inject(method = "handleChunk", at = @At("HEAD"))
-    private void sodium$trackChunkUnload(int x, int z, boolean load, CallbackInfo ci) {
-        if (load) {
-            this.chunkTracker.onChunkStatusAdded(x, z, ChunkStatus.FLAG_ALL);
-        } else {
-            this.chunkTracker.onChunkStatusRemoved(x, z, ChunkStatus.FLAG_ALL);
-        }
     }
 }

@@ -8,7 +8,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.world.LightType;
@@ -20,11 +19,11 @@ import net.minecraft.world.chunk.ChunkSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-
 public class ClonedChunkSection {
     private static final ChunkNibbleArray DEFAULT_SKY_LIGHT_ARRAY = new ChunkNibbleArrayExt(15);
     private static final ChunkNibbleArray DEFAULT_BLOCK_LIGHT_ARRAY = new ChunkNibbleArray();
+
+    private static final BlockState EMPTY_BLOCK_STATE = Blocks.AIR.getDefaultState();
 
     private final SectionPos pos;
 
@@ -125,35 +124,17 @@ public class ClonedChunkSection {
         return array;
     }
 
-    private static BlockPos.Mutable scratchPos = new BlockPos.Mutable();
-
     @Nullable
     private static Int2ReferenceMap<BlockEntity> copyBlockEntities(Chunk chunk, SectionPos pos) {
-        BlockBox box = new BlockBox(pos.minBlockX(), pos.minBlockY(), pos.minBlockZ(),
-                pos.maxBlockX(), pos.maxBlockY(), pos.maxBlockZ());
-
-        //level.getBlockEntity()
-//
         Int2ReferenceOpenHashMap<BlockEntity> blockEntities = new Int2ReferenceOpenHashMap<>();
-//
-        //for (Map.Entry<BlockPos, BlockEntity> entry : chunk.getBlockEntities().entrySet()) {
-        //    BlockPos entityPos = entry.getKey();
-//
-        //    if (box.contains(entityPos)) {
-        //        var x = entityPos.getX();
-        //        var y = entityPos.getY();
-        //        var z = entityPos.getZ();
-        //        blockEntities.put(LevelSlice.getLocalBlockIndex(x & 15, y & 15, z & 15), entry.getValue());
-        //    }
-        //}
 
         for (int y = pos.minBlockY(); y <= pos.maxBlockY(); y++) {
             for (int z = pos.minBlockZ(); z <= pos.maxBlockZ(); z++) {
                 for (int x = pos.minBlockX(); x <= pos.maxBlockX(); x++) {
-                    scratchPos.setPosition(x, y, z);
-                    Block block = chunk.getBlockAtPos(scratchPos);
+                    BlockPos blockPos = new BlockPos(x, y, z);
+                    Block block = chunk.getBlockAtPos(blockPos);
                     if (block.hasBlockEntity()) {
-                        BlockEntity blockEntity = chunk.getBlockEntity(scratchPos, Chunk.Status.IMMEDIATE);
+                        BlockEntity blockEntity = chunk.getBlockEntity(blockPos, Chunk.Status.IMMEDIATE);
                         if (blockEntity != null) {
                             blockEntities.put(LevelSlice.getLocalBlockIndex(x & 15, y & 15, z & 15), blockEntity);
                         }
@@ -175,9 +156,9 @@ public class ClonedChunkSection {
 
         BlockState[] blockData = new BlockState[4096];
 
-        for (int i = 0; i < this.section.getBlockStates().length; i++) {
-            var state = Block.BLOCK_STATES.fromId(this.section.getBlockStates()[i]);
-            blockData[i] = state == null ? Blocks.AIR.getDefaultState() : state;
+        for (int i = 0; i < this.blockData.length; i++) {
+            var state = Block.BLOCK_STATES.fromId(this.blockData[i]);
+            blockData[i] = state == null ? EMPTY_BLOCK_STATE : state;
         }
 
         return blockData;

@@ -140,7 +140,6 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                                 var renderer = BlockEntityRenderDispatcher.INSTANCE.getRenderer(entity);
 
                                 if (renderer != null) {
-                                    entity.setPos(new BlockPos(x, y, z));
                                     renderData.addBlockEntity(entity, false);
                                 }
                             }
