@@ -43,11 +43,8 @@ public class DefaultFluidRenderer {
     public static final float EPSILON = 0.001f;
     private static final float ALIGNED_EQUALS_EPSILON = 0.011f;
 
-    private final BlockPos.Mutable scratchPos = new BlockPos.Mutable();
     private final MutableFloat scratchHeight = new MutableFloat(0);
     private final MutableInt scratchSamples = new MutableInt();
-
-    private final BlockOcclusionCache occlusionCache = new BlockOcclusionCache();
 
     private final ModelQuadViewMutable quad = new ModelQuad();
 
@@ -67,53 +64,15 @@ public class DefaultFluidRenderer {
 
 
     private boolean isFluidOccluded(BlockView world, BlockPos blockPos, Direction dir, AbstractFluidBlock fluid) {
-        int x = blockPos.getX();
-        int y = blockPos.getY();
-        int z = blockPos.getZ();
-
-        BlockPos pos = scratchPos.setPosition(x, y, z);
-        BlockState blockState = world.getBlockState(pos);
-        BlockPos adjPos = scratchPos.offset(dir);
-        AbstractFluidBlock adjFluid = WorldUtil.getFluid(world.getBlockState(adjPos));
-        boolean temp = fluid == adjFluid;
-
-        if (blockState.getBlock().getMaterial().isOpaque()) {
-            return temp || blockState.getBlock().isSideInvisible(world, pos, dir);
-            // fluidlogged or next to water, occlude sides that are solid or the same liquid
-        }
-        return temp;
-    }
-
-    private boolean isSideExposed(BlockView world, int x, int y, int z, Direction dir) {
-        BlockPos pos = scratchPos.setPosition(x + dir.getOffsetX(), y + dir.getOffsetY(), z + dir.getOffsetZ());
-        BlockState blockState = world.getBlockState(pos);
-        Block block = blockState.getBlock();
-
-        if (block.getMaterial().isOpaque()) {
-            final boolean renderAsFullCube = block.renderAsNormalBlock();
-
-            // Hoist these checks to avoid allocating the shape below
-            if (renderAsFullCube) {
-                // The top face always be inset, so if the shape above is a full cube it can't possibly occlude
-                return dir == Direction.UP;
-            } else {
-                return true;
-            }
-        }
-
-        return true;
+        return !fluid.isSideInvisible(world, blockPos.offset(dir), dir);
     }
 
     public void render(LevelSlice level, BlockState fluidState, BlockPos blockPos, BlockPos offset, TranslucentGeometryCollector collector, ChunkModelBuilder meshBuilder, Material material, ColorProvider colorProvider, Sprite[] sprites) {
-        int posX = blockPos.getX();
-        int posY = blockPos.getY();
-        int posZ = blockPos.getZ();
 
         AbstractFluidBlock fluid = (AbstractFluidBlock) fluidState.getBlock();
 
         boolean cullUp = this.isFluidOccluded(level, blockPos, Direction.UP, fluid);
-        boolean cullDown = this.isFluidOccluded(level, blockPos, Direction.DOWN, fluid) ||
-                !this.isSideExposed(level, posX, posY, posZ, Direction.DOWN);
+        boolean cullDown = this.isFluidOccluded(level, blockPos, Direction.DOWN, fluid);
         boolean cullNorth = this.isFluidOccluded(level, blockPos, Direction.NORTH, fluid);
         boolean cullSouth = this.isFluidOccluded(level, blockPos, Direction.SOUTH, fluid);
         boolean cullWest = this.isFluidOccluded(level, blockPos, Direction.WEST, fluid);
@@ -162,7 +121,7 @@ public class DefaultFluidRenderer {
 
         var flow = AbstractFluidBlock.getFlowingFluidByMaterial(fluid.getMaterial());
 
-        if (!cullUp && this.isSideExposed(level, posX, posY, posZ, Direction.UP)) {
+        if (!cullUp /*&& this.isSideExposed(level, posX, posY, posZ, Direction.UP) */) {
             northWestHeight -= EPSILON;
             southWestHeight -= EPSILON;
             southEastHeight -= EPSILON;
@@ -244,7 +203,7 @@ public class DefaultFluidRenderer {
             this.updateQuad(quad, level, blockPos, lighter, Direction.UP, ModelQuadFacing.POS_Y, 1.0F, colorProvider, fluidState);
             this.writeQuad(meshBuilder, collector, material, offset, quad, aligned ? ModelQuadFacing.POS_Y : ModelQuadFacing.UNASSIGNED, false);
 
-            if (WorldUtil.method_15756(level, this.scratchPos.setPosition(posX, posY + 1, posZ), fluid)) {
+            if (fluid.shouldDisableCullingSides(level, blockPos.up())) {
                 this.writeQuad(meshBuilder, collector, material, offset, quad,
                         aligned ? ModelQuadFacing.NEG_Y : ModelQuadFacing.UNASSIGNED, true);
             }
@@ -328,7 +287,7 @@ public class DefaultFluidRenderer {
                 }
             }
 
-            if (this.isSideExposed(level, posX, posY, posZ, dir)) {
+            if (!fluid.isSideInvisible(level, blockPos, dir)) {
                 Sprite sprite = sprites[1];
 
                 float u1 = sprite.getFrameU(0.0F);
