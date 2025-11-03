@@ -109,7 +109,7 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                         var block = blockState.getBlock();
                         var blockType = block.getBlockType();
 
-                        if (BlockRenderType.isInvisible(blockType) && !block.hasBlockEntity()) {
+                        if (blockType == BlockRenderType.INVISIBLE && !block.hasBlockEntity()) {
                             continue;
                         }
 
@@ -119,7 +119,7 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
 
                         cache.getBlockRenderer().prepare(buffers);
 
-                        if (BlockRenderType.isModel(blockType)) {
+                        if (blockType == BlockRenderType.MODEL) {
                             BakedModel model = cache.getBlockModels()
                                     .getBakedModel(blockState);
 
@@ -128,12 +128,13 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                             cache.getBlockRenderer().renderModel(context);
                         }
 
-                        if (BlockRenderType.isLiquid(blockType)) {
+                        if (blockType == BlockRenderType.LIQUID) {
                             cache.getFluidRenderer().render(slice, blockState, blockState, blockPos, modelOffset, collector, buffers);
                         }
 
                         if (block.hasBlockEntity()) {
                             BlockEntity entity = slice.getBlockEntity(blockPos);
+
                             if (entity != null) {
                                 var renderer = BlockEntityRenderDispatcher.INSTANCE.getRenderer(entity);
 
