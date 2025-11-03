@@ -152,7 +152,7 @@ public class ClonedChunkSection {
 
     public @Nullable BlockState[] getBlockData() {
         if (this.section == null) return null;
-        if (this.section.getBlockStates() == null) return null;
+        if (this.blockData == null) return null;
 
         BlockState[] blockData = new BlockState[4096];
 
