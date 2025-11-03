@@ -302,11 +302,8 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         profiler.pop();
 
         if (ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
-            ShadowRenderer.visibleTileEntities.addAll(this.chunkRenderManager.getVisibleBlockEntities());
+            ShadowRenderer.visibleBlockEntities.addAll(this.chunkRenderManager.getVisibleBlockEntities());
         }
-
-        // TODO distance checking option
-        //Entity.setRenderDistanceWeight(MathHelper.clamp_double((double) this.client.gameSettings.renderDistanceChunks / 8.0D, 1.0D, 2.5D) * 2000);
     }
 
     /**
@@ -316,7 +313,6 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         iris$ensureStateSwapped();
         BlockRenderPass pass = this.renderPassManager.getRenderPassForLayer(renderLayer);
 
-        // TODO startDrawing/endDrawing are handled by 1.12 already
         this.chunkRenderManager.renderLayer(pass, x, y, z);
 
         GlStateManager.clearColor();

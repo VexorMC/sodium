@@ -154,8 +154,6 @@ public class HorizonRenderer {
 			rebuildBuffer();
 		}
 
-        // TODO: Rather than rebuilding the buffer every frame, build it once at initialization
-        
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
 
         buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION);

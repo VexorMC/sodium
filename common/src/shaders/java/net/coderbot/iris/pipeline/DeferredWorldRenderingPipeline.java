@@ -1133,10 +1133,9 @@ public class DeferredWorldRenderingPipeline implements WorldRenderingPipeline, R
         Vector3d fogColor = CapturedRenderingState.INSTANCE.getFogColor();
         RenderSystem.color3f((float) fogColor.x, (float) fogColor.y, (float) fogColor.z);
 
-        //horizonRenderer.renderHorizon();
+        horizonRenderer.renderHorizon();
 
         RenderSystem.depthMask(true);
-        System.out.println("begun!");
     }
 
     @Override

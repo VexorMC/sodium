@@ -31,13 +31,5 @@ public abstract class MixinCrashReport {
             });
             return sb.toString();
         });
-
-        this.systemDetailsSection.add("NEC status", () -> {
-			if (Iris.hasNotEnoughCrashes()) {
-				return "Has NEC: INVALID";
-			} else {
-				return "No NEC detected";
-			}
-		});
     }
 }

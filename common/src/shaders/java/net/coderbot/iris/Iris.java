@@ -1,5 +1,6 @@
 package net.coderbot.iris;
 
+import me.jellysquid.mods.sodium.client.util.GLDebugLogger;
 import net.coderbot.iris.config.IrisConfig;
 import net.coderbot.iris.gl.GLDebug;
 import net.coderbot.iris.gl.shader.StandardMacros;
@@ -57,7 +58,7 @@ public class Iris {
 	 * easy branding changes (for forks). You'll still need to change this
 	 * separately in mixin plugin classes & the language files.
 	 */
-	public static final String MODNAME = "RadiumShaders";
+	public static final String MODNAME = "Photon";
 
 	public static final IrisLogging logger = new IrisLogging(MODNAME);
 
@@ -66,9 +67,6 @@ public class Iris {
 
 	private static ShaderPack currentPack;
 	private static String currentPackName;
-	private static boolean sodiumInvalid;
-	private static boolean hasNEC;
-	private static boolean sodiumInstalled;
 	private static boolean initialized;
 
 	private static PipelineManager pipelineManager;
@@ -178,7 +176,7 @@ public class Iris {
 			return;
 		}
 
-		setDebug(irisConfig.areDebugOptionsEnabled());
+//		GLDebugLogger.init();
 
 		PBRTextureManager.INSTANCE.init();
 
@@ -653,18 +651,6 @@ public class Iris {
 		}
 
 		return color + version;
-	}
-
-	public static boolean isSodiumInvalid() {
-		return sodiumInvalid;
-  }
-
-	public static boolean isSodiumInstalled() {
-		return sodiumInstalled;
-	}
-
-	public static boolean hasNotEnoughCrashes() {
-		return hasNEC;
 	}
 
 	public static Path getShaderpacksDirectory() {

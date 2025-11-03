@@ -62,11 +62,6 @@ public abstract class MixinGameRenderer {
 	// all pixels.
 	@Inject(method = "renderWorld(IFJ)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;clear(I)V", shift = At.Shift.AFTER))
 	private void iris$beginLevelRender(int anaglyphFilter, float tickDelta, long limitTime, CallbackInfo ci) {
-		if (Iris.isSodiumInvalid()) {
-			throw new IllegalStateException("An invalid version of Sodium is installed, and the warning screen somehow" +
-					" didn't work. This is a bug! Please report it to the Iris developers.");
-		}
-
 		CapturedRenderingState.INSTANCE.setGbufferModelView(new Matrix4f(AccessorActiveRenderInfo.getModelMatrix()));
 		CapturedRenderingState.INSTANCE.setGbufferProjection(new Matrix4f(AccessorActiveRenderInfo.getProjectionMatrix()));
 		CapturedRenderingState.INSTANCE.setTickDelta(tickDelta);

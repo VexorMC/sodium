@@ -4,13 +4,11 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.block_rendering.BlockRenderingSettings;
-import net.coderbot.iris.mixin.LevelRendererAccessor;
 import net.coderbot.iris.uniforms.CapturedRenderingState;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -31,7 +29,6 @@ public class HandRenderer {
 
         GlStateManager.matrixMode(5889);
         GlStateManager.loadIdentity();
-        float f = 0.07F;
 
         Project.gluPerspective(gameRenderer.getFov(tickDelta, false), (float)client.width / (float)client.height, 0.05F, gameRenderer.viewDistance * 2.0F);
         GlStateManager.matrixMode(5888);
@@ -47,13 +44,13 @@ public class HandRenderer {
         GlStateManager.popMatrix();
     }
 
-    private boolean canNotRender() {
+    private boolean canRender() {
         MinecraftClient mc = MinecraftClient.getInstance();
 
-        return mc.options.perspective != 0 ||
-                mc.player.isSleeping() ||
-                mc.options.hudHidden ||
-                mc.player.isSpectator();
+        return mc.options.perspective == 0 &&
+                !mc.player.isSleeping() &&
+                !mc.options.hudHidden &&
+                !mc.player.isSpectator();
     }
 
     public boolean isHandTranslucent() {
@@ -76,7 +73,7 @@ public class HandRenderer {
     }
 
     public void renderSolid(float tickDelta, GameRenderer gameRenderer, WorldRenderingPipeline pipeline) {
-        if (!canNotRender() || Iris.getCurrentPack().isEmpty()) {
+        if (canRender() || Iris.getCurrentPack().isEmpty()) {
             return;
         }
         MinecraftClient client = MinecraftClient.getInstance();
@@ -114,9 +111,8 @@ public class HandRenderer {
     }
 
 
-    // TODO: RenderType
     public void renderTranslucent(float tickDelta, GameRenderer gameRenderer, WorldRenderingPipeline pipeline) {
-        if (!canNotRender() || !isAnyHandTranslucent() || Iris.getCurrentPack().isEmpty()) {
+        if (canRender() || !isAnyHandTranslucent() || Iris.getCurrentPack().isEmpty()) {
             return;
         }
         MinecraftClient client = MinecraftClient.getInstance();
