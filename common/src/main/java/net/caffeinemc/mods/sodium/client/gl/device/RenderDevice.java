@@ -22,4 +22,5 @@ public interface RenderDevice {
     ContextCapabilities getCapabilities();
 
     DeviceFunctions getDeviceFunctions();
+    int getMaxTextureLodBias();
 }

@@ -39,7 +39,7 @@ public abstract class ShaderChunkRenderer implements ChunkRenderer {
     }
 
     private GlProgram<ChunkShaderInterface> createShader(String path, ChunkShaderOptions options) {
-        ShaderConstants constants = options.constants();
+        ShaderConstants constants = createShaderConstants(options);
 
         GlShader vertShader = ShaderLoader.loadShader(ShaderType.VERTEX,
                 new Identifier("radium", path + ".vsh"), constants);
@@ -61,6 +61,20 @@ public abstract class ShaderChunkRenderer implements ChunkRenderer {
             vertShader.delete();
             fragShader.delete();
         }
+    }
+
+    private static ShaderConstants createShaderConstants(ChunkShaderOptions options) {
+        ShaderConstants.Builder builder = ShaderConstants.builder();
+        builder.addAll(options.fog().getDefines());
+
+        if (options.pass().supportsFragmentDiscard()) {
+            builder.add("USE_FRAGMENT_DISCARD");
+        }
+
+        builder.add("USE_VERTEX_COMPRESSION"); // TODO: allow compact vertex format to be disabled
+        builder.add("MAX_TEXTURE_LOD_BIAS", String.valueOf(RenderDevice.INSTANCE.getMaxTextureLodBias()));
+
+        return builder.build();
     }
 
     protected void begin(TerrainRenderPass pass) {

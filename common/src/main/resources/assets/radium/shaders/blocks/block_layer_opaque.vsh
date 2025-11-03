@@ -3,15 +3,11 @@
 #import <radium:include/fog.glsl>
 #import <radium:include/chunk_vertex.glsl>
 #import <radium:include/chunk_matrices.glsl>
-#import <radium:include/chunk_material.glsl>
 
 out vec4 v_Color;
 out vec2 v_TexCoord;
 
-out float v_MaterialMipBias;
-#ifdef USE_FRAGMENT_DISCARD
-out float v_MaterialAlphaCutoff;
-#endif
+flat out uint v_Material;
 
 #ifdef USE_FOG
 out float v_FragDistance;
@@ -49,8 +45,5 @@ void main() {
     v_Color = _vert_color * texture(u_LightTex, _vert_tex_light_coord);
     v_TexCoord = _vert_tex_diffuse_coord;
 
-    v_MaterialMipBias = _material_mip_bias(_material_params);
-#ifdef USE_FRAGMENT_DISCARD
-    v_MaterialAlphaCutoff = _material_alpha_cutoff(_material_params);
-#endif
+    v_Material = _material_params;
 }
