@@ -7,9 +7,11 @@
   "client" : [
     "core.MixinBaseFrustum",
     "core.MixinBufferBuilder",
+    "core.MixinBufferBuilder_VertexBufferWriter",
     "core.MixinCullingCameraView",
     "core.MixinFramebuffer",
     "core.MixinMinecraftFixEarlyCrashNoReports",
+    "core.MixinModelBox",
     "core.MixinScreenFixClipboard",
     "extra.animation.MixinSpriteAtlasTexture",
     "extra.biome_colors.MixinBiomeColors",
