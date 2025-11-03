@@ -2,13 +2,9 @@ package net.caffeinemc.mods.sodium.client.model.light.data;
 
 import dev.vexor.radium.compat.mojang.minecraft.render.LightTexture;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.MushroomBlock;
-import net.minecraft.block.MushroomPlantBlock;
+import net.minecraft.block.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.LightType;
 
 /**
  * The light data cache is used to make accessing the light data and occlusion properties of blocks cheaper. The data
@@ -61,53 +57,34 @@ public abstract class LightDataAccess {
 
     protected int compute(int x, int y, int z) {
         BlockPos pos = this.pos.setPosition(x, y, z);
-        LevelSlice level = this.level;
+        LevelSlice world = this.level;
 
-        BlockState state = level.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
 
-        boolean em = block.getLightLevel() != 0;
-        boolean op = block.hasTransparency() || block.getOpacity() != 0;
-        boolean fo = block.isFullBlock();
+        float ao;
+        boolean em;
+
+        if (block.getLightLevel() == 0) {
+            ao = block.getAmbientOcclusionLightLevel();
+            em = false;
+        } else {
+            ao = 1.0f;
+            em = true;
+        }
+
+        boolean op = !block.hasTransparency() || block.getOpacity() == 0;
+        boolean fo = block.hasTransparency();
         boolean fc = block.renderAsNormalBlock();
 
-        int lu = state.getBlock().getLightLevel();
+        // OPTIMIZE: Do not calculate lightmap data if the block is full and opaque.
+        // FIX: Calculate lightmap data for light-emitting or emissive blocks, even though they are full and opaque.
+        int lm = (fo && !em) ? 0 : block.getBrightness(world, pos);
 
-        // OPTIMIZE: Do not calculate light data if the block is full and opaque and does not emit light.
-        int bl;
-        int sl;
-        if (fo && lu == 0) {
-            bl = 0;
-            sl = 0;
-        } else {
-            if (em) {
-                bl = level.getLight(LightType.BLOCK, pos);
-                sl = level.getLight(LightType.SKY, pos);
-            } else {
-                int light = getLightColor(state, pos);
-                bl = LightTexture.block(light);
-                sl = LightTexture.sky(light);
-            }
-        }
+        int sl = LightTexture.sky(lm);
+        int bl = LightTexture.block(lm);
 
-        float ao = block.getAmbientOcclusionLightLevel();
-
-        return packFC(fc) | packFO(fo) | packOP(op) | packEM(em) | packAO(ao) | packLU(lu) | packSL(sl) | packBL(bl);
-    }
-
-    public int getLightColor(BlockState state, BlockPos pos) {
-        int em = state.getBlock().getLightLevel();
-        if (em != 0) {
-            return LightTexture.FULL_BRIGHT;
-        }
-
-        int sky = level.getLight(LightType.SKY, pos);
-        int block = level.getLight(LightType.BLOCK, pos);
-        if (block < em) {
-            block = em;
-        }
-
-        return sky << 20 | block << 4;
+        return packFC(fc) | packFO(fo) | packOP(op) | packEM(false) | packAO(ao) | packLU(0) | packSL(sl) | packBL(bl);
     }
 
     public static int packBL(int blockLight) {
