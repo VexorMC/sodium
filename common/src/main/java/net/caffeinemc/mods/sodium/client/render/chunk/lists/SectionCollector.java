@@ -16,12 +16,15 @@ public abstract class SectionCollector implements RenderListProvider, RenderSect
     private final TaskQueueType importantRebuildQueueType;
     private final ObjectArrayList<ChunkRenderList> renderLists;
     private final EnumMap<TaskQueueType, ArrayDeque<RenderSection>> sortedTaskLists;
+    private final TaskQueueType importantSortQueueType;
+    private boolean needsRevisitForPendingUpdates = false;
 
     private static int[] sortItems = new int[RenderRegion.REGION_SIZE];
 
-    public SectionCollector(int frame, TaskQueueType importantRebuildQueueType) {
+    public SectionCollector(int frame, TaskQueueType importantRebuildQueueType, TaskQueueType importantSortQueueType) {
         this.frame = frame;
         this.importantRebuildQueueType = importantRebuildQueueType;
+        this.importantSortQueueType = importantSortQueueType;
 
         this.renderLists = new ObjectArrayList<>();
         this.sortedTaskLists = new EnumMap<>(TaskQueueType.class);
@@ -51,13 +54,25 @@ public abstract class SectionCollector implements RenderListProvider, RenderSect
         var pendingUpdate = section.getPendingUpdate();
 
         if (pendingUpdate != 0) {
-            var queueType = ChunkUpdateTypes.getQueueType(pendingUpdate, this.importantRebuildQueueType);
+            // if the section has a pending update but a task is already running for it,
+            // don't add it to the task list again because starting a new task when there's already one running is invalid.
+            // (for example, it would become impossible to cancel the earlier task)
+            if (section.getRunningJob() != null) {
+                this.needsRevisitForPendingUpdates = true;
+                return;
+            }
+            var queueType = ChunkUpdateTypes.getQueueType(pendingUpdate, this.importantRebuildQueueType, this.importantSortQueueType);
             Queue<RenderSection> queue = this.sortedTaskLists.get(queueType);
 
             if (queue.size() < queueType.queueSizeLimit()) {
                 queue.add(section);
             }
         }
+    }
+
+    @Override
+    public boolean needsRevisitForPendingUpdates() {
+        return this.needsRevisitForPendingUpdates;
     }
 
     @Override

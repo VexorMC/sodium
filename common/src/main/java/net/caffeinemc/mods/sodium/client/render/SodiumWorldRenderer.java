@@ -235,6 +235,10 @@ public class SodiumWorldRenderer {
             }
         }
 
+        profiler.swap("chunk_render_lists");
+
+        this.renderSectionManager.finalizeRenderLists(viewport);
+
         profiler.swap("chunk_render_tick");
 
         this.renderSectionManager.tickVisibleRenders();

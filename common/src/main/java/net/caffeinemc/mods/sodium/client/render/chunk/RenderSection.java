@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.executor.ChunkJob;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
 import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.GraphDirection;
 import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.GraphDirectionSet;
@@ -54,7 +55,7 @@ public class RenderSection {
 
     // Pending Update State
     @Nullable
-    private CancellationToken taskCancellationToken = null;
+    private ChunkJob runningJob = null;
     private long lastMeshResultSize = MeshResultSize.NO_DATA;
 
     private int pendingUpdateType;
@@ -132,9 +133,9 @@ public class RenderSection {
      * be used.
      */
     public void delete() {
-        if (this.taskCancellationToken != null) {
-            this.taskCancellationToken.setCancelled();
-            this.taskCancellationToken = null;
+        if (this.runningJob != null) {
+            this.runningJob.setCancelled();
+            this.runningJob = null;
         }
 
         this.clearRenderState();
@@ -349,12 +350,12 @@ public class RenderSection {
         return this.globalBlockEntities;
     }
 
-    public @Nullable CancellationToken getTaskCancellationToken() {
-        return this.taskCancellationToken;
+    public @Nullable ChunkJob getRunningJob() {
+        return this.runningJob;
     }
 
-    public void setTaskCancellationToken(@Nullable CancellationToken token) {
-        this.taskCancellationToken = token;
+    public void setRunningJob(@Nullable ChunkJob token) {
+        this.runningJob = token;
     }
 
     public int getPendingUpdate() {

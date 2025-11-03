@@ -12,13 +12,15 @@ public class ChunkJobTyped<TASK extends ChunkBuilderTask<OUTPUT>, OUTPUT extends
 {
     private final TASK task;
     private final Consumer<ChunkJobResult<OUTPUT>> consumer;
+    private final boolean blocking;
 
     private volatile boolean cancelled;
     private volatile boolean started;
 
-    ChunkJobTyped(TASK task, Consumer<ChunkJobResult<OUTPUT>> consumer) {
+    ChunkJobTyped(TASK task, Consumer<ChunkJobResult<OUTPUT>> consumer, boolean blocking) {
         this.task = task;
         this.consumer = consumer;
+        this.blocking = blocking;
     }
 
     @Override
@@ -62,6 +64,11 @@ public class ChunkJobTyped<TASK extends ChunkBuilderTask<OUTPUT>, OUTPUT extends
         } catch (Throwable throwable) {
             throw new RuntimeException("Exception while consuming result", throwable);
         }
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return this.blocking;
     }
 
     @Override

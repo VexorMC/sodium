@@ -60,6 +60,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class RenderSectionManager {
     private static final float NEARBY_REBUILD_DISTANCE = Mth.square(16.0f);
+    private static final float IMMEDIATE_PRESENT_DISTANCE = Mth.square(64.0f);
     private static final float NEARBY_SORT_DISTANCE = Mth.square(25.0f);
 
     private static final float FRAME_DURATION_UPLOAD_FRACTION = 0.1f;
@@ -96,6 +97,8 @@ public class RenderSectionManager {
 
     @NotNull
     private SortedRenderLists renderLists;
+    private SectionCollector sectionCollector;
+    private SectionCollector lastSectionCollector;
 
     @NotNull
     private Map<TaskQueueType, ArrayDeque<RenderSection>> taskLists;
@@ -163,34 +166,42 @@ public class RenderSectionManager {
     public void update(Viewport viewport, boolean spectator) {
         this.lastUpdatedFrame += 1;
 
-        this.createTerrainRenderList(viewport, this.lastUpdatedFrame, spectator);
-
-        this.needsGraphUpdate = false;
+        this.needsGraphUpdate = this.createTerrainRenderList(viewport, this.lastUpdatedFrame, spectator);
     }
 
-    private void createTerrainRenderList(Viewport viewport, int frame, boolean spectator) {
+    private boolean createTerrainRenderList(Viewport viewport, int frame, boolean spectator) {
         this.resetRenderLists();
 
         final var searchDistance = this.getSearchDistance();
         final var useOcclusionCulling = this.shouldUseOcclusionCulling(spectator);
 
-        RenderListProvider renderListProvider;
         var importantRebuildQueueType = SodiumClientMod.options().performance.chunkBuildDeferMode.getImportantRebuildQueueType();
+        var importantSortQueueType = this.sortBehavior.getDeferMode().getImportantRebuildQueueType();
         if (this.isOutOfGraph(viewport.getChunkCoord())) {
-            var visitor = new TreeSectionCollector(frame, importantRebuildQueueType, this.sectionByPosition);
+            var visitor = new TreeSectionCollector(frame, importantRebuildQueueType, importantSortQueueType, this.sectionByPosition);
             this.renderableSectionTree.prepareForTraversal();
             this.renderableSectionTree.traverse(visitor, viewport, searchDistance);
 
-            renderListProvider = visitor;
+            this.sectionCollector = visitor;
         } else {
-            var visitor = new OcclusionSectionCollector(frame, importantRebuildQueueType);
+            var visitor = new OcclusionSectionCollector(frame, importantRebuildQueueType, importantSortQueueType);
             this.occlusionCuller.findVisible(visitor, viewport, searchDistance, useOcclusionCulling, frame);
 
-            renderListProvider = visitor;
+            this.sectionCollector = visitor;
         }
+        this.lastSectionCollector = null;
 
-        this.renderLists = renderListProvider.createRenderLists(viewport);
-        this.taskLists = renderListProvider.getTaskLists();
+        this.taskLists = this.sectionCollector.getTaskLists();
+
+        return this.sectionCollector.needsRevisitForPendingUpdates();
+    }
+
+    public void finalizeRenderLists(Viewport viewport) {
+        if (this.sectionCollector != null) {
+            this.renderLists = this.sectionCollector.createRenderLists(viewport);
+            this.lastSectionCollector = this.sectionCollector;
+            this.sectionCollector = null;
+        }
     }
 
     private boolean isOutOfGraph(SectionPos pos) {
@@ -394,12 +405,12 @@ public class RenderSectionManager {
                 this.sortTriggering.applyTriggerChanges(data, sortOutput.getDynamicSorter(), result.render.getPosition(), this.cameraPosition);
             }
 
-            var job = result.render.getTaskCancellationToken();
+            var job = result.render.getRunningJob();
 
             // clear the cancellation token (thereby marking the section as not having an
             // active task) if this job is the most recent submitted job for this section
             if (job != null && result.submitTime >= result.render.getLastSubmittedFrame()) {
-                result.render.setTaskCancellationToken(null);
+                result.render.setRunningJob(null);
             }
 
             result.render.setLastUploadFrame(result.submitTime);
@@ -553,12 +564,12 @@ public class RenderSectionManager {
             // sections for which there's a currently running task.
             var pendingUpdate = section.getPendingUpdate();
             if (pendingUpdate != 0) {
-                submitSectionTask(collector, section, pendingUpdate, uploadBudget);
+                submitSectionTask(collector, section, pendingUpdate, uploadBudget, queueType == TaskQueueType.ZERO_FRAME_DEFER);
             }
         }
     }
 
-    private void submitSectionTask(ChunkJobCollector collector, @NotNull RenderSection section, int type, UploadResourceBudget uploadBudget) {
+    private void submitSectionTask(ChunkJobCollector collector, @NotNull RenderSection section, int type, UploadResourceBudget uploadBudget, boolean blocking) {
         if (section.isDisposed()) {
             return;
         }
@@ -566,6 +577,7 @@ public class RenderSectionManager {
         ChunkBuilderTask<? extends BuilderTaskOutput> task;
         if (ChunkUpdateTypes.isInitialBuild(type) || ChunkUpdateTypes.isRebuild(type)) {
             task = this.createRebuildTask(section, this.frame);
+
             if (task == null) {
                 // if the section is empty or doesn't exist submit this null-task to set the
                 // built flag on the render section.
@@ -585,10 +597,11 @@ public class RenderSectionManager {
                         BuiltSectionInfo.EMPTY, Collections.emptyMap()));
                 this.buildResults.add(result);
 
-                section.setTaskCancellationToken(null);
+                section.setRunningJob(null);
             }
         } else { // implies it's a type of sort task
             task = this.createSortTask(section, this.frame);
+
             if (task == null) {
                 // when a sort task is null it means the render section has no dynamic data and
                 // doesn't need to be sorted. Nothing needs to be done.
@@ -598,13 +611,13 @@ public class RenderSectionManager {
         }
 
         if (task != null) {
-            var job = this.builder.scheduleTask(task, ChunkUpdateTypes.isImportant(type), collector::onJobFinished);
+            var job = this.builder.scheduleTask(task, ChunkUpdateTypes.isImportant(type), collector::onJobFinished, blocking);
             collector.addSubmittedJob(job);
 
             // consume upload budget in size and duration using estimates
             uploadBudget.consume(job.getEstimatedUploadDuration(), job.getEstimatedSize());
 
-            section.setTaskCancellationToken(job);
+            section.setRunningJob(job);
         }
 
         section.setLastSubmittedFrame(this.frame);

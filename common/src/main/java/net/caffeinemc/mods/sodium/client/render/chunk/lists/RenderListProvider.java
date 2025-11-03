@@ -17,6 +17,8 @@ public interface RenderListProvider extends SortItemsProvider {
 
     boolean orderIsSorted();
 
+    boolean needsRevisitForPendingUpdates();
+
     default SortedRenderLists createRenderLists(Viewport viewport) {
         var sectionPos = viewport.getChunkCoord();
         var unsorted = this.getUnsortedRenderLists();
