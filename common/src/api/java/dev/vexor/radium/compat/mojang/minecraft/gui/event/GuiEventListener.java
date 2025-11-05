@@ -1,27 +1,25 @@
 package dev.vexor.radium.compat.mojang.minecraft.gui.event;
 
 public interface GuiEventListener {
-    public static final long DOUBLE_CLICK_THRESHOLD_MS = 250L;
-
-    default public boolean mouseClicked(double d, double d2, int n) {
+    default boolean mouseClicked(double mouseX, double mouseY, int button) {
         return false;
     }
 
-    default public boolean mouseReleased(double d, double d2, int n) {
+    default boolean mouseReleased(double mouseX, double mouseY, int button) {
         return false;
     }
 
-    default public boolean mouseDragged(double d, double d2, int n) {
+    default boolean mouseDragged(double mouseX, double mouseY, int button) {
         return false;
     }
 
-    default public boolean keyPressed(int code, char character) {
+    default boolean keyPressed(int code, char character) {
         return false;
     }
 
     default boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) { return false; }
 
-    default public boolean isMouseOver(double d, double d2) {
+    default boolean isMouseOver(double mouseX, double mouseY) {
         return false;
     }
 
@@ -29,7 +27,7 @@ public interface GuiEventListener {
         return false;
     }
 
-    public void setFocused(boolean var1);
+    void setFocused(boolean lookForwards);
 
-    public boolean isFocused();
+    boolean isFocused();
 }

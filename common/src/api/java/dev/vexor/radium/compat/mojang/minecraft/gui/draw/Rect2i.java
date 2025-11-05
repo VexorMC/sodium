@@ -13,22 +13,6 @@ public class Rect2i {
         this.height = n4;
     }
 
-    public Rect2i intersect(Rect2i rect2i) {
-        int n = this.xPos;
-        int n2 = this.yPos;
-        int n3 = this.xPos + this.width;
-        int n4 = this.yPos + this.height;
-        int n5 = rect2i.getX();
-        int n6 = rect2i.getY();
-        int n7 = n5 + rect2i.getWidth();
-        int n8 = n6 + rect2i.getHeight();
-        this.xPos = Math.max(n, n5);
-        this.yPos = Math.max(n2, n6);
-        this.width = Math.max(0, Math.min(n3, n7) - this.xPos);
-        this.height = Math.max(0, Math.min(n4, n8) - this.yPos);
-        return this;
-    }
-
     public int getX() {
         return this.xPos;
     }
@@ -59,11 +43,6 @@ public class Rect2i {
 
     public void setHeight(int n) {
         this.height = n;
-    }
-
-    public void setPosition(int n, int n2) {
-        this.xPos = n;
-        this.yPos = n2;
     }
 
     public boolean contains(int n, int n2) {

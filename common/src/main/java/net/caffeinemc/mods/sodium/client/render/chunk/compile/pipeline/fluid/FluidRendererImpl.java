@@ -1,8 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.fluid;
 
-import dev.vexor.radium.compat.mojang.minecraft.WorldUtil;
 import dev.vexor.radium.util.FluidSprites;
-import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
@@ -28,7 +26,7 @@ public class FluidRendererImpl extends FluidRenderer {
     public void render(LevelSlice level, BlockState blockState, BlockState fluidState, BlockPos blockPos, BlockPos offset, TranslucentGeometryCollector collector, ChunkBuildBuffers buffers) {
         var material = DefaultMaterials.forFluidState(fluidState);
         var meshBuilder = buffers.get(material);
-        var fluid = WorldUtil.getFluid(fluidState);
+        var fluid = (AbstractFluidBlock) fluidState.getBlock();
 
         defaultRenderer.render(level, blockState, blockPos, offset, collector, meshBuilder, material, colorProviderRegistry.getColorProvider(fluid), sprites.forFluid(fluid));
     }

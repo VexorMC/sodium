@@ -2,136 +2,123 @@ package dev.vexor.radium.compat.mojang.minecraft.math;
 
 import net.minecraft.util.math.*;
 
-public class SectionPos
-        extends Vec3i {
+public class SectionPos extends Vec3i {
     public static final int SECTION_BITS = 4;
-    public static final int SECTION_SIZE = 16;
-    public static final int SECTION_MASK = 15;
-    public static final int SECTION_HALF_SIZE = 8;
     public static final int SECTION_MAX_INDEX = 15;
-    private static final int PACKED_X_LENGTH = 22;
-    private static final int PACKED_Y_LENGTH = 20;
-    private static final int PACKED_Z_LENGTH = 22;
     private static final long PACKED_X_MASK = 0x3FFFFFL;
-    private static final long PACKED_Y_MASK = 1048575L;
+    private static final long PACKED_Y_MASK = 0xFFFFFL;
     private static final long PACKED_Z_MASK = 0x3FFFFFL;
     private static final int Y_OFFSET = 0;
     private static final int Z_OFFSET = 20;
     private static final int X_OFFSET = 42;
-    private static final int RELATIVE_X_SHIFT = 8;
-    private static final int RELATIVE_Y_SHIFT = 0;
-    private static final int RELATIVE_Z_SHIFT = 4;
 
-    SectionPos(int n, int n2, int n3) {
-        super(n, n2, n3);
+    SectionPos(int x, int y, int z) {
+        super(x, y, z);
     }
 
-    public static SectionPos of(int n, int n2, int n3) {
-        return new SectionPos(n, n2, n3);
+    public static SectionPos of(int x, int y, int z) {
+        return new SectionPos(x, y, z);
     }
 
-    public static SectionPos of(BlockPos blockPos) {
-        return new SectionPos(SectionPos.blockToSectionCoord(blockPos.getX()), SectionPos.blockToSectionCoord(blockPos.getY()), SectionPos.blockToSectionCoord(blockPos.getZ()));
+    public static SectionPos of(BlockPos pos) {
+        var x = blockToSectionCoord(pos.getX());
+        var y = blockToSectionCoord(pos.getY());
+        var z = blockToSectionCoord(pos.getZ());
+        return new SectionPos(x, y, z);
     }
 
-    public static SectionPos of(ChunkPos chunkPos, int n) {
-        return new SectionPos(chunkPos.x, n, chunkPos.z);
+    public static SectionPos of(ChunkPos pos, int y) {
+        return new SectionPos(pos.x, y, pos.z);
     }
 
-    public static SectionPos of(long l) {
-        return new SectionPos(SectionPos.x(l), SectionPos.y(l), SectionPos.z(l));
-    }
-
-    public static long offset(long l, Direction direction) {
-        return SectionPos.offset(l, direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ());
-    }
-
-    public static long offset(long l, int n, int n2, int n3) {
-        return SectionPos.asLong(SectionPos.x(l) + n, SectionPos.y(l) + n2, SectionPos.z(l) + n3);
+    public static SectionPos of(long packed) {
+        return new SectionPos(x(packed), y(packed), z(packed));
     }
 
     public static int posToSectionCoord(double d) {
-        return SectionPos.blockToSectionCoord(MathHelper.floor(d));
+        return blockToSectionCoord(MathHelper.floor(d));
     }
 
     public static int blockToSectionCoord(int n) {
-        return n >> 4;
+        return n >> SECTION_BITS;
     }
 
     public static int sectionToBlockCoord(int n) {
-        return n << 4;
+        return n << SECTION_BITS;
     }
 
     public static int sectionToBlockCoord(int n, int n2) {
-        return SectionPos.sectionToBlockCoord(n) + n2;
+        return sectionToBlockCoord(n) + n2;
     }
 
-    public static int x(long l) {
-        return (int)(l << 0 >> 42);
+    public static int x(long packed) {
+        return (int) ((packed >> X_OFFSET) & PACKED_X_MASK);
     }
 
-    public static int y(long l) {
-        return (int)(l << 44 >> 44);
+    public static int y(long packed) {
+        return (int) (packed & PACKED_Y_MASK);
     }
 
-    public static int z(long l) {
-        return (int)(l << 22 >> 42);
+    public static int z(long packed) {
+        return (int) ((packed >> Z_OFFSET) & PACKED_Z_MASK);
     }
 
     public int x() {
-        return this.getX();
+        return getX();
     }
 
     public int y() {
-        return this.getY();
+        return getY();
     }
 
     public int z() {
-        return this.getZ();
+        return getZ();
     }
 
     public int minBlockX() {
-        return SectionPos.sectionToBlockCoord(this.x());
+        return sectionToBlockCoord(x());
     }
 
     public int minBlockY() {
-        return SectionPos.sectionToBlockCoord(this.y());
+        return sectionToBlockCoord(y());
     }
 
     public int minBlockZ() {
-        return SectionPos.sectionToBlockCoord(this.z());
+        return sectionToBlockCoord(z());
     }
 
     public int maxBlockX() {
-        return SectionPos.sectionToBlockCoord(this.x(), 15);
+        return sectionToBlockCoord(x(), SECTION_MAX_INDEX);
     }
 
     public int maxBlockY() {
-        return SectionPos.sectionToBlockCoord(this.y(), 15);
+        return sectionToBlockCoord(y(), SECTION_MAX_INDEX);
     }
 
     public int maxBlockZ() {
-        return SectionPos.sectionToBlockCoord(this.z(), 15);
+        return sectionToBlockCoord(z(), SECTION_MAX_INDEX);
     }
 
-
     public BlockPos origin() {
-        return new BlockPos(SectionPos.sectionToBlockCoord(this.x()), SectionPos.sectionToBlockCoord(this.y()), SectionPos.sectionToBlockCoord(this.z()));
+        var x = sectionToBlockCoord(x());
+        var y = sectionToBlockCoord(y());
+        var z = sectionToBlockCoord(z());
+        return new BlockPos(x, y, z);
     }
 
     public ChunkPos chunk() {
-        return new ChunkPos(this.x(), this.z());
+        return new ChunkPos(x(), z());
     }
 
-
-    public static long asLong(int n, int n2, int n3) {
-        long l = 0L;
-        l |= ((long)n & 0x3FFFFFL) << 42;
-        l |= ((long)n2 & 0xFFFFFL) << 0;
-        return l |= ((long)n3 & 0x3FFFFFL) << 20;
+    public static long asLong(int x, int y, int z) {
+        long packed = 0L;
+        packed |= ((long)x & PACKED_X_MASK) << X_OFFSET;
+        packed |= ((long)y & PACKED_Y_MASK) << Y_OFFSET;
+        packed |= ((long)z & PACKED_Z_MASK) << Z_OFFSET;
+        return packed;
     }
 
     public long asLong() {
-        return SectionPos.asLong(this.x(), this.y(), this.z());
+        return asLong(x(), y(), z());
     }
 }
