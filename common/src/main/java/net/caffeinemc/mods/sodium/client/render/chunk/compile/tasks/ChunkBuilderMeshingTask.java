@@ -1,18 +1,14 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks;
 
-import dev.vexor.radium.compat.mojang.minecraft.WorldUtil;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildContext;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildOutput;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.estimation.MeshTaskSizeEstimator;
-import net.caffeinemc.mods.sodium.client.render.chunk.compile.executor.ChunkBuilder;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderCache;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
-import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses;
@@ -27,12 +23,9 @@ import net.caffeinemc.mods.sodium.client.util.BlockRenderType;
 import net.caffeinemc.mods.sodium.client.util.task.CancellationToken;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.chunk.ChunkOcclusionDataBuilder;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.util.crash.CrashException;
@@ -40,6 +33,7 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.world.level.LevelGeneratorType;
 import org.joml.Vector3dc;
 
 import java.util.Map;
@@ -114,19 +108,25 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                             continue;
                         }
 
-                        blockState = block.getBlockState(blockState, slice, blockPos);
+                        // required for doors, fences, tripwires, etc.
+                        // see: BlockRenderManager#getModel
+                        if (slice.getGeneratorType() != LevelGeneratorType.DEBUG) {
+                            blockState = block.getBlockState(blockState, slice, blockPos);
+                        }
 
                         modelOffset.setPosition(x & 15, y & 15, z & 15);
 
-                        cache.getBlockRenderer().prepare(buffers);
-
                         if (blockType == BlockRenderType.MODEL) {
+                            var renderer = cache.getBlockRenderer();
+
+                            renderer.prepare(buffers);
+
                             BakedModel model = cache.getBlockModels()
                                     .getBakedModel(blockState);
 
                             context.update(blockPos, modelOffset, blockState, model);
 
-                            cache.getBlockRenderer().renderModel(context);
+                            renderer.renderModel(context);
                         }
 
                         if (blockType == BlockRenderType.LIQUID) {
@@ -140,7 +140,7 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
                                 var renderer = BlockEntityRenderDispatcher.INSTANCE.getRenderer(entity);
 
                                 if (renderer != null) {
-                                    renderData.addBlockEntity(entity, false);
+                                    renderData.addBlockEntity(entity, !renderer.rendersOutsideBoundingBox());
                                 }
                             }
                         }
