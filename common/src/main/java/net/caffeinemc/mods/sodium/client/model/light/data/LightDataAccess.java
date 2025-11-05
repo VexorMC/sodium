@@ -66,8 +66,8 @@ public abstract class LightDataAccess {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
 
-        boolean em = block.getLightLevel() > 1;
-        boolean op = block.hasTransparency() || block.getOpacity() != 0;
+        boolean em = false;//block.getLightLevel() > 1;
+        boolean op = block.isFullBlock() && block.getOpacity() != 0;
         boolean fo = block.isFullBlock();
         boolean fc = block.renderAsNormalBlock();
 
