@@ -14,7 +14,6 @@ public abstract class MixinBaseFrustum implements ExtendedFrustum {
     @Shadow
     protected abstract double multiply(float[] frustum, double x, double y, double z);
 
-    @Override
     /**
      * Tests an AABB (axis-aligned bounding box) against this frustum.
      *
@@ -24,10 +23,11 @@ public abstract class MixinBaseFrustum implements ExtendedFrustum {
      * @param maxX maximum x of the box
      * @param maxY maximum y of the box
      * @param maxZ maximum z of the box
-     * @return {@link FrustumIntersection.OUTSIDE} if the box is completely outside,
-     *         {@link FrustumIntersection.INTERSECT} if it intersects,
-     *         {@link FrustumIntersection.INSIDE} if it is completely inside
+     * @return {@link FrustumIntersection#OUTSIDE} if the box is completely outside,
+     *         {@link FrustumIntersection#INTERSECT} if it intersects,
+     *         {@link FrustumIntersection#INSIDE} if it is completely inside
      */
+    @Override
     public int radium$intersect(double minX, double minY, double minZ,
                                 double maxX, double maxY, double maxZ) {
         boolean intersects = false;
