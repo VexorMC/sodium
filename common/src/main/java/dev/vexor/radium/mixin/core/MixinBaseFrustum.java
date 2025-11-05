@@ -2,6 +2,7 @@ package dev.vexor.radium.mixin.core;
 
 import net.caffeinemc.mods.sodium.client.util.frustum.ExtendedFrustum;
 import net.minecraft.client.render.BaseFrustum;
+import org.joml.FrustumIntersection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -23,9 +24,9 @@ public abstract class MixinBaseFrustum implements ExtendedFrustum {
      * @param maxX maximum x of the box
      * @param maxY maximum y of the box
      * @param maxZ maximum z of the box
-     * @return 0 if the box is completely outside,
-     *         1 if it intersects,
-     *         2 if it is completely inside
+     * @return {@link FrustumIntersection.OUTSIDE} if the box is completely outside,
+     *         {@link FrustumIntersection.INTERSECT} if it intersects,
+     *         {@link FrustumIntersection.INSIDE} if it is completely inside
      */
     public int radium$intersect(double minX, double minY, double minZ,
                                 double maxX, double maxY, double maxZ) {
@@ -46,13 +47,13 @@ public abstract class MixinBaseFrustum implements ExtendedFrustum {
             if (this.multiply(plane, maxX, maxY, maxZ) > 0.0) inCount++;
 
             if (inCount == 0) {
-                return 0;
+                return FrustumIntersection.OUTSIDE;
             } else if (inCount < 8) {
                 intersects = true;
             }
         }
 
-        return intersects ? 1 : 2;
+        return intersects ? FrustumIntersection.INTERSECT : FrustumIntersection.INSIDE;
     }
 
 }
