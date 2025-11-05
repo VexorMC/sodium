@@ -66,7 +66,7 @@ public abstract class LightDataAccess {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
 
-        boolean em = block.getLightLevel() != 0;
+        boolean em = block.getLightLevel() > 1;
         boolean op = block.hasTransparency() || block.getOpacity() != 0;
         boolean fo = block.isFullBlock();
         boolean fc = block.renderAsNormalBlock();
@@ -80,34 +80,13 @@ public abstract class LightDataAccess {
             bl = 0;
             sl = 0;
         } else {
-            if (em) {
-                bl = level.getLight(LightType.BLOCK, pos);
-                sl = level.getLight(LightType.SKY, pos);
-            } else {
-                int light = getLightColor(state, pos);
-                bl = LightTexture.block(light);
-                sl = LightTexture.sky(light);
-            }
+            bl = level.getLight(LightType.BLOCK, pos);
+            sl = level.getLight(LightType.SKY, pos);
         }
 
         float ao = block.getAmbientOcclusionLightLevel();
 
         return packFC(fc) | packFO(fo) | packOP(op) | packEM(em) | packAO(ao) | packLU(lu) | packSL(sl) | packBL(bl);
-    }
-
-    public int getLightColor(BlockState state, BlockPos pos) {
-        int em = state.getBlock().getLightLevel();
-        if (em != 0) {
-            return LightTexture.FULL_BRIGHT;
-        }
-
-        int sky = level.getLight(LightType.SKY, pos);
-        int block = level.getLight(LightType.BLOCK, pos);
-        if (block < em) {
-            block = em;
-        }
-
-        return sky << 20 | block << 4;
     }
 
     public static int packBL(int blockLight) {

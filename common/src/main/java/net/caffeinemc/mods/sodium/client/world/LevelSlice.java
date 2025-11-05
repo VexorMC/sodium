@@ -393,11 +393,12 @@ public final class LevelSlice implements BlockView {
         if (!shaded) {
             return level.dimension.hasNoSkylight() ? 0.9f : 1.0f;
         }
+        // todo(investigate): the directions differ from vanilla
         return switch (direction) {
             case DOWN -> .5f;
             case UP -> 1f;
             case NORTH, SOUTH -> .8f;
-            default -> .7f;
+            default -> .6f;
         };
     }
 
