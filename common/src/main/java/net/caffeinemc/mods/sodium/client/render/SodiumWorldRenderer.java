@@ -290,32 +290,16 @@ public class SodiumWorldRenderer {
         ChunkTracker.forEachChunk(tracker.getReadyChunks(), this.renderSectionManager::onChunkAdded);
     }
 
-    public void renderBlockEntities(Map<Integer, BlockBreakingInfo> blockBreakingProgressions,
-                                    float tickDelta) {
-        var cameraPos = lastCameraPos;//Camera.getPosition();
-        double x = cameraPos.x;
-        double y = cameraPos.y;
-        double z = cameraPos.z;
+    public void renderBlockEntities(Map<Integer, BlockBreakingInfo> blockBreakingProgressions, float tickDelta) {
+        var dispatcher = BlockEntityRenderDispatcher.INSTANCE;
 
-        ClientPlayerEntity player = this.client.player;
-
-        if (player == null) {
-            throw new IllegalStateException("Client instance has no active player entity");
-        }
-
-        BlockEntityRenderDispatcher blockEntityRenderer = BlockEntityRenderDispatcher.INSTANCE;
-
-        this.renderBlockEntities(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, player);
-        this.renderGlobalBlockEntities(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, player);
+        this.renderGlobalBlockEntities(tickDelta, dispatcher);
+        this.renderBlockEntities(blockBreakingProgressions, tickDelta, dispatcher);
     }
 
     private void renderBlockEntities(Map<Integer, BlockBreakingInfo> blockBreakingProgressions,
                                      float tickDelta,
-                                     double x,
-                                     double y,
-                                     double z,
-                                     BlockEntityRenderDispatcher blockEntityRenderer,
-                                     ClientPlayerEntity player) {
+                                     BlockEntityRenderDispatcher dispatcher) {
         SortedRenderLists renderLists = this.renderSectionManager.getRenderLists();
         Iterator<ChunkRenderList> renderListIterator = renderLists.iterator();
 
@@ -340,19 +324,34 @@ public class SodiumWorldRenderer {
                 }
 
                 for (BlockEntity blockEntity : blockEntities) {
-                    renderBlockEntity(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, blockEntity, player);
+                    dispatcher.renderEntity(blockEntity, tickDelta, -1);
                 }
+            }
+
+            for (BlockBreakingInfo info : blockBreakingProgressions.values()) {
+                var blockPos = info.getPos();
+                var blockEntity = this.level.getBlockEntity(blockPos);
+
+                if (blockEntity instanceof ChestBlockEntity chest) {
+                    if (chest.neighborChestWest != null) {
+                        blockPos = blockPos.offset(Direction.WEST);
+                        blockEntity = this.level.getBlockEntity(blockPos);
+                    } else if (chest.neighborChestNorth != null) {
+                        blockPos = blockPos.offset(Direction.NORTH);
+                        blockEntity = this.level.getBlockEntity(blockPos);
+                    }
+                }
+
+                if (blockEntity == null) {
+                    continue;
+                }
+
+                dispatcher.renderEntity(blockEntity, tickDelta, info.getStage());
             }
         }
     }
 
-    private void renderGlobalBlockEntities(Map<Integer, BlockBreakingInfo> blockBreakingProgressions,
-                                           float tickDelta,
-                                           double x,
-                                           double y,
-                                           double z,
-                                           BlockEntityRenderDispatcher blockEntityRenderer,
-                                           ClientPlayerEntity player) {
+    private void renderGlobalBlockEntities(float tickDelta, BlockEntityRenderDispatcher dispatcher) {
         for (var renderSection : this.renderSectionManager.getSectionsWithGlobalEntities()) {
             var blockEntities = renderSection.getGlobalBlockEntities();
 
@@ -361,34 +360,9 @@ public class SodiumWorldRenderer {
             }
 
             for (var blockEntity : blockEntities) {
-                renderBlockEntity(blockBreakingProgressions, tickDelta, x, y, z, blockEntityRenderer, blockEntity, player);
+                dispatcher.renderEntity(blockEntity, tickDelta, -1);
             }
         }
-    }
-
-    private static int destroyProgress(Map<Integer, BlockBreakingInfo> progressions, BlockPos pos) {
-        for (BlockBreakingInfo value : progressions.values()) {
-            if (value.getPos().equals(pos))
-                return value.getStage();
-        }
-
-        return -1;
-    }
-
-    private static void renderBlockEntity(Map<Integer, BlockBreakingInfo> blockBreakingProgressions,
-                                          float tickDelta,
-                                          double x,
-                                          double y,
-                                          double z,
-                                          BlockEntityRenderDispatcher dispatcher,
-                                          BlockEntity entity,
-                                          ClientPlayerEntity player) {
-        dispatcher.renderEntity(entity, tickDelta, -1);
-
-        int destroyProgress = destroyProgress(blockBreakingProgressions, entity.getPos());
-
-        if (destroyProgress != -1)
-            dispatcher.renderEntity(entity, tickDelta, destroyProgress);
     }
 
     // the volume of a section multiplied by the number of sections to be checked at most
