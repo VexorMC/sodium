@@ -31,7 +31,7 @@ public class SodiumExtraGameOptionPages {
         groups.add(OptionGroup.createBuilder()
                 .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
                         .setEnabled(() -> SodiumExtraClientMod.mixinConfig().getOptions().get("mixin.animation").isEnabled())
-                        .setName(new LiteralText("sodium-extra.option.item_animations"))
+                        .setName(new TranslatableText("sodium-extra.option.item_animations"))
                         .setTooltip(new TranslatableText("sodium-extra.option.item_animations.tooltip"))
                         .setControl(TickBoxControl::new)
                         .setBinding((opts, value) -> opts.animationSettings.itemAnimations = value, opts -> opts.animationSettings.itemAnimations)
