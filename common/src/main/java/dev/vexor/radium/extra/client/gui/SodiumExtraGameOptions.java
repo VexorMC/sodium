@@ -25,6 +25,7 @@ public class SodiumExtraGameOptions {
             .create();
     public final AnimationSettings animationSettings = new AnimationSettings();
     public final ParticleSettings particleSettings = new ParticleSettings();
+    //public final ParticleCullingSettings particleCullingSettings = new ParticleCullingSettings();
     public final DetailSettings detailSettings = new DetailSettings();
     public final RenderSettings renderSettings = new RenderSettings();
     public final ExtraSettings extraSettings = new ExtraSettings();
@@ -110,6 +111,7 @@ public class SodiumExtraGameOptions {
         public boolean lava;
         public boolean fire;
         public boolean portal;
+        public boolean itemAnimations;
         public boolean blockAnimations;
 
         public AnimationSettings() {
@@ -118,6 +120,7 @@ public class SodiumExtraGameOptions {
             this.lava = true;
             this.fire = true;
             this.portal = true;
+            this.itemAnimations = true;
             this.blockAnimations = true;
         }
     }
@@ -135,6 +138,14 @@ public class SodiumExtraGameOptions {
             this.blockBreaking = true;
         }
     }
+
+//    public static class ParticleCullingSettings {
+//        public boolean cullingEnabled = true;
+//        public boolean cullBehindBlocks = true;
+//        public boolean cullBehindGlass = false;
+//        public boolean cullInSpectator = false;
+//        public int blockBuffer = 1;
+//    }
 
     public static class DetailSettings {
         public boolean sky;
