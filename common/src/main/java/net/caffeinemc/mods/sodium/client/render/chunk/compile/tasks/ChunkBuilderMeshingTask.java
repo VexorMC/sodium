@@ -188,6 +188,8 @@ public class ChunkBuilderMeshingTask extends ChunkBuilderTask<ChunkBuildOutput> 
             reuseUploadedData = !this.forceSort && translucentData == oldData;
         }
 
+        profiler.swap("meshing");
+
         Map<TerrainRenderPass, BuiltSectionMeshParts> meshes = new Reference2ReferenceOpenHashMap<>();
         var visibleSlices = DefaultChunkRenderer.getVisibleFaces(
                 (int) this.absoluteCameraPos.x(), (int) this.absoluteCameraPos.y(), (int) this.absoluteCameraPos.z(),
