@@ -390,9 +390,6 @@ public final class LevelSlice implements BlockView {
     }
 
     public float getBrightness(Direction direction, boolean shaded) {
-        if (!shaded) {
-            return level.dimension.hasNoSkylight() ? 0.9f : 1.0f;
-        }
         // todo(investigate): the directions differ from vanilla
         return switch (direction) {
             case DOWN -> .5f;
