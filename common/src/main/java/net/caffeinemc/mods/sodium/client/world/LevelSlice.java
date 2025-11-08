@@ -390,17 +390,13 @@ public final class LevelSlice implements BlockView {
     }
 
     public float getBrightness(Direction direction, boolean shaded) {
-        boolean isDarkened = level.dimension.hasNoSkylight();
-        if (!shaded) {
-            return isDarkened ? 0.9F : 1.0F;
-        } else {
-            return switch (direction) {
-                case DOWN -> isDarkened ? 0.9F : 0.5F;
-                case UP -> isDarkened ? 0.9F : 1.0F;
-                case NORTH, SOUTH -> 0.8F;
-                case WEST, EAST -> 0.6F;
-            };
-        }
+        // todo(investigate): the directions differ from vanilla
+        return switch (direction) {
+            case DOWN -> .5f;
+            case UP -> 1f;
+            case NORTH, SOUTH -> .8f;
+            default -> .6f;
+        };
     }
 
     public int getColor(BiomeColorSource source, int blockX, int blockY, int blockZ) {
