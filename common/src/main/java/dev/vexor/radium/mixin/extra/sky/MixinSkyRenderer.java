@@ -71,6 +71,7 @@ public abstract class MixinSkyRenderer {
         }
         if (this.client.world.dimension.getType() == 1) {
             this.renderEndSky();
+            return;
         } else if (this.client.world.dimension.canPlayersSleep()) {
             GlStateManager.disableTexture();
             Vec3d vec3d = this.world.method_3631(this.client.getCameraEntity(), tickDelta);
@@ -129,14 +130,14 @@ public abstract class MixinSkyRenderer {
                 }
 
                 bufferBuilder.begin(6, VertexFormats.POSITION_COLOR);
-                bufferBuilder.vertex((double)0.0F, (double)100.0F, (double)0.0F).color(l, m, n, fs[3]).next();
+                bufferBuilder.vertex(0.0F, 100.0F, 0.0F).color(l, m, n, fs[3]).next();
                 int r = 16;
 
                 for(int s = 0; s <= 16; ++s) {
                     float q = (float)s * (float)Math.PI * 2.0F / 16.0F;
                     float t = MathHelper.sin(q);
                     float u = MathHelper.cos(q);
-                    bufferBuilder.vertex((double)(t * 120.0F), (double)(u * 120.0F), (double)(-u * 40.0F * fs[3])).color(fs[0], fs[1], fs[2], 0.0F).next();
+                    bufferBuilder.vertex(t * 120.0F, u * 120.0F, -u * 40.0F * fs[3]).color(fs[0], fs[1], fs[2], 0.0F).next();
                 }
 
                 tessellator.draw();
@@ -156,10 +157,10 @@ public abstract class MixinSkyRenderer {
             if (SodiumExtraClientMod.options().detailSettings.sun) {
                 this.textureManager.bindTexture(SUN);
                 bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE);
-                bufferBuilder.vertex((double)(-m), (double)100.0F, (double)(-m)).texture((double)0.0F, (double)0.0F).next();
-                bufferBuilder.vertex((double)m, (double)100.0F, (double)(-m)).texture((double)1.0F, (double)0.0F).next();
-                bufferBuilder.vertex((double)m, (double)100.0F, (double)m).texture((double)1.0F, (double)1.0F).next();
-                bufferBuilder.vertex((double)(-m), (double)100.0F, (double)m).texture((double)0.0F, (double)1.0F).next();
+                bufferBuilder.vertex(-m, 100.0F, -m).texture(0.0F, 0.0F).next();
+                bufferBuilder.vertex(m, 100.0F, -m).texture(1.0F, 0.0F).next();
+                bufferBuilder.vertex(m, 100.0F, m).texture(1.0F, 1.0F).next();
+                bufferBuilder.vertex(-m, 100.0F, m).texture(0.0F, 1.0F).next();
                 tessellator.draw();
             }
 
@@ -169,16 +170,16 @@ public abstract class MixinSkyRenderer {
             int v = this.world.getMoonPhase();
             int r = v % 4;
             int s = v / 4 % 2;
-            float q = (float)(r + 0) / 4.0F;
-            float t = (float)(s + 0) / 2.0F;
+            float q = (float)(r) / 4.0F;
+            float t = (float)(s) / 2.0F;
             float u = (float)(r + 1) / 4.0F;
             float w = (float)(s + 1) / 2.0F;
             if (SodiumExtraClientMod.options().detailSettings.moon) {
                 bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE);
-                bufferBuilder.vertex((double) (-m), (double) -100.0F, (double) m).texture((double) u, (double) w).next();
-                bufferBuilder.vertex((double) m, (double) -100.0F, (double) m).texture((double) q, (double) w).next();
-                bufferBuilder.vertex((double) m, (double) -100.0F, (double) (-m)).texture((double) q, (double) t).next();
-                bufferBuilder.vertex((double) (-m), (double) -100.0F, (double) (-m)).texture((double) u, (double) t).next();
+                bufferBuilder.vertex(-m, -100.0F, m).texture(u, w).next();
+                bufferBuilder.vertex(m, -100.0F, m).texture(q, w).next();
+                bufferBuilder.vertex(m, -100.0F, -m).texture(q, t).next();
+                bufferBuilder.vertex(-m, -100.0F, -m).texture(u, t).next();
                 tessellator.draw();
             }
             GlStateManager.disableTexture();

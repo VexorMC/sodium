@@ -6,8 +6,11 @@ import dev.vexor.radium.extra.client.gui.options.control.SliderControlExtended;
 import dev.vexor.radium.extra.client.gui.options.storage.SodiumExtraOptionsStorage;
 import dev.vexor.radium.extra.util.ControlValueFormatterExtended;
 import net.caffeinemc.mods.sodium.client.gui.options.*;
+import net.caffeinemc.mods.sodium.client.gui.options.control.ControlValueFormatter;
 import net.caffeinemc.mods.sodium.client.gui.options.control.CyclingControl;
+import net.caffeinemc.mods.sodium.client.gui.options.control.SliderControl;
 import net.caffeinemc.mods.sodium.client.gui.options.control.TickBoxControl;
+import net.caffeinemc.mods.sodium.client.gui.options.named.ParticleMode;
 import net.caffeinemc.mods.sodium.client.gui.options.storage.MinecraftOptionsStorage;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -28,11 +31,21 @@ public class SodiumExtraGameOptionPages {
         groups.add(OptionGroup.createBuilder()
                 .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
                         .setEnabled(() -> SodiumExtraClientMod.mixinConfig().getOptions().get("mixin.animation").isEnabled())
-                        .setName(new LiteralText("Animations"))
-                        .setTooltip(new TranslatableText("sodium-extra.option.animations_all.tooltip"))
+                        .setName(new TranslatableText("sodium-extra.option.item_animations"))
+                        .setTooltip(new TranslatableText("sodium-extra.option.item_animations.tooltip"))
                         .setControl(TickBoxControl::new)
-                        .setBinding((opts, value) -> opts.animationSettings.animation = value, opts -> opts.animationSettings.animation)
-                        .setFlags(OptionFlag.REQUIRES_ASSET_RELOAD)
+                        .setBinding((opts, value) -> opts.animationSettings.itemAnimations = value, opts -> opts.animationSettings.itemAnimations)
+                        .build()
+                )
+                .build());
+
+        groups.add(OptionGroup.createBuilder()
+                .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
+                        .setEnabled(() -> SodiumExtraClientMod.mixinConfig().getOptions().get("mixin.animation").isEnabled())
+                        .setName(new TranslatableText("sodium-extra.option.block_animations"))
+                        .setTooltip(new TranslatableText("sodium-extra.option.block_animations.tooltip"))
+                        .setControl(TickBoxControl::new)
+                        .setBinding((options, value) -> options.animationSettings.blockAnimations = value, options -> options.animationSettings.blockAnimations)
                         .build()
                 )
                 .build());
@@ -44,7 +57,6 @@ public class SodiumExtraGameOptionPages {
                         .setTooltip(new TranslatableText("sodium-extra.option.animate_water.tooltip"))
                         .setControl(TickBoxControl::new)
                         .setBinding((opts, value) -> opts.animationSettings.water = value, opts -> opts.animationSettings.water)
-                        .setFlags(OptionFlag.REQUIRES_ASSET_RELOAD)
                         .build()
                 )
                 .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
@@ -53,7 +65,6 @@ public class SodiumExtraGameOptionPages {
                         .setTooltip(new TranslatableText("sodium-extra.option.animate_lava.tooltip"))
                         .setControl(TickBoxControl::new)
                         .setBinding((opts, value) -> opts.animationSettings.lava = value, opts -> opts.animationSettings.lava)
-                        .setFlags(OptionFlag.REQUIRES_ASSET_RELOAD)
                         .build()
                 )
                 .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
@@ -62,7 +73,6 @@ public class SodiumExtraGameOptionPages {
                         .setTooltip(new TranslatableText("sodium-extra.option.animate_fire.tooltip"))
                         .setControl(TickBoxControl::new)
                         .setBinding((opts, value) -> opts.animationSettings.fire = value, opts -> opts.animationSettings.fire)
-                        .setFlags(OptionFlag.REQUIRES_ASSET_RELOAD)
                         .build()
                 )
                 .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
@@ -71,16 +81,6 @@ public class SodiumExtraGameOptionPages {
                         .setTooltip(new TranslatableText("sodium-extra.option.animate_portal.tooltip"))
                         .setControl(TickBoxControl::new)
                         .setBinding((opts, value) -> opts.animationSettings.portal = value, opts -> opts.animationSettings.portal)
-                        .setFlags(OptionFlag.REQUIRES_ASSET_RELOAD)
-                        .build()
-                )
-                .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
-                        .setEnabled(() -> SodiumExtraClientMod.mixinConfig().getOptions().get("mixin.animation").isEnabled())
-                        .setName(new TranslatableText("sodium-extra.option.block_animations"))
-                        .setTooltip(new TranslatableText("sodium-extra.option.block_animations.tooltip"))
-                        .setControl(TickBoxControl::new)
-                        .setBinding((options, value) -> options.animationSettings.blockAnimations = value, options -> options.animationSettings.blockAnimations)
-                        .setFlags(OptionFlag.REQUIRES_ASSET_RELOAD)
                         .build()
                 )
                 .build());
@@ -89,15 +89,21 @@ public class SodiumExtraGameOptionPages {
 
     public static OptionPage particle() {
         List<OptionGroup> groups = new ArrayList<>();
+
         groups.add(OptionGroup.createBuilder()
-                .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
-                        .setEnabled(() -> SodiumExtraClientMod.mixinConfig().getOptions().get("mixin.particle").isEnabled())
-                        .setName(new LiteralText("Particles"))
-                        .setTooltip(new TranslatableText("sodium-extra.option.particles_all.tooltip"))
-                        .setControl(TickBoxControl::new)
-                        .setBinding((opts, value) -> opts.particleSettings.particles = value, opts -> opts.particleSettings.particles)
-                        .build()
-                )
+                .add(OptionImpl.createBuilder(ParticleMode.class, vanillaOpts)
+                        .setName(new TranslatableText("options.particles"))
+                        .setTooltip(new TranslatableText("sodium.options.particle_quality.tooltip"))
+                        .setControl(opt -> new CyclingControl<>(opt, ParticleMode.class))
+                        .setBinding((opts, value) -> {
+                            boolean enabled = value != ParticleMode.NONE;
+                            sodiumExtraOpts.getData().particleSettings.particles = enabled;
+                            opts.particle = enabled ? value.ordinal() : 0;
+                        }, (opts) -> sodiumExtraOpts.getData().particleSettings.particles
+                                ? ParticleMode.fromOrdinal(opts.particle)
+                                : ParticleMode.NONE)
+                        .setImpact(OptionImpact.MEDIUM)
+                        .build())
                 .build());
 
         groups.add(OptionGroup.createBuilder()
@@ -126,6 +132,48 @@ public class SodiumExtraGameOptionPages {
                         .build()
                 )
                 .build());
+
+//        groups.add(OptionGroup.createBuilder()
+//                .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
+//                        .setName(new LiteralText("Particle Culling"))
+//                        .setTooltip(new LiteralText("Enable particle culling to improve performance by skipping rendering of particles that are not visible."))
+//                        .setControl(TickBoxControl::new)
+//                        .setImpact(OptionImpact.HIGH)
+//                        .setBinding((opts, value) -> opts.particleCullingSettings.cullingEnabled = value, opts -> opts.particleCullingSettings.cullingEnabled)
+//                        .build()
+//                )
+//                .build());
+//
+//        groups.add(OptionGroup.createBuilder()
+//                .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
+//                        .setName(new LiteralText("Cull Behind Blocks"))
+//                        .setTooltip(new LiteralText("Enable culling of particles that are behind blocks. This can improve performance in some situations."))
+//                        .setControl(TickBoxControl::new)
+//                        .setBinding((opts, value) -> opts.particleCullingSettings.cullBehindBlocks = value, opts -> opts.particleCullingSettings.cullBehindBlocks)
+//                        .setImpact(OptionImpact.MEDIUM)
+//                        .build())
+//                .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
+//                        .setName(new LiteralText("Cull Behind Glass"))
+//                        .setTooltip(new LiteralText("Enable culling of particles that are behind glass blocks. This can improve performance in some situations."))
+//                        .setControl(TickBoxControl::new)
+//                        .setBinding((opts, value) -> opts.particleCullingSettings.cullBehindGlass = value, opts -> opts.particleCullingSettings.cullBehindGlass)
+//                        .setImpact(OptionImpact.MEDIUM)
+//                        .build())
+//                .add(OptionImpl.createBuilder(boolean.class, sodiumExtraOpts)
+//                        .setName(new LiteralText("Cull In Spectator Mode"))
+//                        .setTooltip(new LiteralText("Enable culling of particles when in spectator mode. This can improve performance in spectator mode."))
+//                        .setControl(TickBoxControl::new)
+//                        .setBinding((opts, value) -> opts.particleCullingSettings.cullInSpectator = value, opts -> opts.particleCullingSettings.cullInSpectator)
+//                        .setImpact(OptionImpact.MEDIUM)
+//                        .build())
+//                .add(OptionImpl.createBuilder(int.class, sodiumExtraOpts)
+//                        .setName(new LiteralText("Block Buffer"))
+//                        .setTooltip(new LiteralText("The minimum amount of blocks around the player that will be checked for culling. A higher value may improve performance but can also increase the chance of culling particles that are actually visible."))
+//                        .setControl(option -> new SliderControl(option, 0, 50, 1, ControlValueFormatter.number()))
+//                        .setBinding((opts, value) -> opts.particleCullingSettings.blockBuffer = value, opts -> opts.particleCullingSettings.blockBuffer)
+//                        .setImpact(OptionImpact.MEDIUM)
+//                        .build())
+//                .build());
 
         return new OptionPage(new TranslatableText("options.particles"), ImmutableList.copyOf(groups));
     }

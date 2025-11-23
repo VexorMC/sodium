@@ -23,7 +23,7 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.util.Arrays;
 import java.util.List;
@@ -63,40 +63,38 @@ public class BlockRenderer {
         ColorProvider colorizer = this.colorProviderRegistry.getColorProvider(ctx.state().getBlock());
 
         LightPipeline lighter = this.lighters.getLighter(this.getLightingMode(ctx.state(), ctx.model()));
-        Vec3d renderOffset = new Vec3d(0, 0, 0);
+        Vector3f offset = new Vector3f();
 
         var offsetType = ctx.state().getBlock().getOffsetType();
 
         if (offsetType != Block.OffsetType.NONE) {
-            int x = (int) ctx.origin().x();
-            int z = (int) ctx.origin().z();
+            int x = ctx.pos().getX();
+            int z = ctx.pos().getZ();
+
             // Taken from MathHelper.hashCode()
             long i = (x * 3129871L) ^ z * 116129781L;
             i = i * i * 42317861L + i * 11L;
 
-            double fx = (((i >> 16 & 15L) / 15.0F) - 0.5f) * 0.5f;
-            double fz = (((i >> 24 & 15L) / 15.0F) - 0.5f) * 0.5f;
-            double fy = 0;
+            offset.x += (((i >> 16 & 15L) / 15.0F) - 0.5f) * 0.5f;
+            offset.z += (((i >> 24 & 15L) / 15.0F) - 0.5f) * 0.5f;
 
             if (offsetType == Block.OffsetType.XYZ) {
-                fy += (((i >> 20 & 15L) / 15.0F) - 1.0f) * 0.2f;
+                offset.y += (((i >> 20 & 15L) / 15.0F) - 1.0f) * 0.2f;
             }
-
-            renderOffset.add((float) fx, (float) fy, (float) fz);
         }
 
         for (Direction face : DirectionUtil.ALL_DIRECTIONS) {
             List<BakedQuad> quads = this.getGeometry(ctx, face);
 
             if (!quads.isEmpty() && this.isFaceVisible(ctx, face)) {
-                this.renderQuadList(ctx, material, lighter, colorizer, renderOffset, meshBuilder, quads, face);
+                this.renderQuadList(ctx, material, lighter, colorizer, offset, meshBuilder, quads, face);
             }
         }
 
         List<BakedQuad> all = this.getGeometry(ctx, null);
 
         if (!all.isEmpty()) {
-            this.renderQuadList(ctx, material, lighter, colorizer, renderOffset, meshBuilder, all, null);
+            this.renderQuadList(ctx, material, lighter, colorizer, offset, meshBuilder, all, null);
         }
     }
 
@@ -109,7 +107,7 @@ public class BlockRenderer {
         return this.occlusionCache.shouldDrawSide(ctx.slice(), ctx.pos(), face);
     }
 
-    private void renderQuadList(BlockRenderContext ctx, Material material, LightPipeline lighter, ColorProvider colorizer, Vec3d offset,
+    private void renderQuadList(BlockRenderContext ctx, Material material, LightPipeline lighter, ColorProvider colorizer, Vector3f offset,
                                 ChunkModelBuilder builder, List<BakedQuad> quads, Direction cullFace) {
 
         // This is a very hot allocation, iterate over it manually
@@ -151,7 +149,7 @@ public class BlockRenderer {
 
     private void writeGeometry(BlockRenderContext ctx,
                                ChunkModelBuilder builder,
-                               Vec3d offset,
+                               Vector3f offset,
                                Material material,
                                BakedQuadView quad,
                                int[] colors,
@@ -166,9 +164,10 @@ public class BlockRenderer {
             int srcIndex = orientation.getVertexIndex(dstIndex);
 
             var out = vertices[dstIndex];
-            out.x = ctx.origin().x() + quad.getX(srcIndex) + (float) offset.x;
-            out.y = ctx.origin().y() + quad.getY(srcIndex) + (float) offset.y;
-            out.z = ctx.origin().z() + quad.getZ(srcIndex) + (float) offset.z;
+
+            out.x = ctx.origin().x() + quad.getX(srcIndex) + offset.x;
+            out.y = ctx.origin().y() + quad.getY(srcIndex) + offset.y;
+            out.z = ctx.origin().z() + quad.getZ(srcIndex) + offset.z;
 
             out.color = ColorARGB.toABGR(colors[srcIndex]) | 0xFF000000;
             out.ao = light.br[srcIndex];

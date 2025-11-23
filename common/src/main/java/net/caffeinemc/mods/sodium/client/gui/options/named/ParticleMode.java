@@ -7,7 +7,8 @@ import net.minecraft.text.TranslatableText;
 public enum ParticleMode implements TextProvider {
     ALL("options.particles.all"),
     DECREASED("options.particles.decreased"),
-    MINIMAL("options.particles.minimal");
+    MINIMAL("options.particles.minimal"),
+    NONE("None");
 
     private static final ParticleMode[] VALUES = values();
 
