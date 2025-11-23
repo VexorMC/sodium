@@ -134,13 +134,14 @@ public class RenderRegionManager {
         }
 
         var resources = region.createResources(commandList);
+        var regionFillFractionInv = region.getFillFractionInv();
 
         profiler.push("upload_vertices");
 
         if (!uploads.isEmpty()) {
             var arena = resources.getGeometryArena();
             boolean bufferChanged = arena.upload(commandList, uploads.stream()
-                    .map(upload -> upload.vertexUpload));
+                    .map(upload -> upload.vertexUpload), regionFillFractionInv);
 
             // If any of the buffers changed, the tessellation will need to be updated
             // Once invalidated the tessellation will be re-created on the next attempted use
@@ -163,7 +164,7 @@ public class RenderRegionManager {
         if (!indexUploads.isEmpty()) {
             var arena = resources.getIndexArena();
             indexBufferChanged  = arena.upload(commandList, indexUploads.stream()
-                    .map(upload -> upload.indexBufferUpload));
+                    .map(upload -> upload.indexBufferUpload), regionFillFractionInv);
 
             for (PendingSectionIndexBufferUpload upload : indexUploads) {
                 var storage = region.createStorage(DefaultTerrainRenderPasses.TRANSLUCENT);
@@ -172,7 +173,7 @@ public class RenderRegionManager {
         }
 
         if (needsSharedIndexUpdate) {
-            indexBufferChanged |= translucentStorage.updateSharedIndexData(commandList, resources.getIndexArena());
+            indexBufferChanged |= translucentStorage.updateSharedIndexData(commandList, resources.getIndexArena(), regionFillFractionInv);
         }
 
         if (indexBufferChanged) {
