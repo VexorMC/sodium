@@ -79,6 +79,9 @@ public class SodiumGameOptions {
         public int biomeBlendRadius = 2;
 
         public boolean enableVignette = true;
+
+        public boolean brightenFireworks = true;
+        public boolean betterSkies = true;
     }
 
     public static class NotificationSettings {

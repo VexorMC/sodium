@@ -207,6 +207,25 @@ public class SodiumGameOptionPages {
                         .build())
                 .build());
 
+        groups.add(OptionGroup.createBuilder()
+                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
+                        .setName(new LiteralText("Brighten Fireworks"))
+                        .setTooltip(new LiteralText("Brightens the fireworks particles to make them more visible"))
+                        .setControl(TickBoxControl::new)
+                        .setBinding((opts, value) -> opts.quality.brightenFireworks = (value), opts -> opts.quality.brightenFireworks)
+                        .setImpact(OptionImpact.MEDIUM)
+                        .setFlags(OptionFlag.REQUIRES_ASSET_RELOAD)
+                        .build())
+                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
+                        .setName(new LiteralText("Better Skies"))
+                        .setTooltip(new LiteralText("Implements various sky rendering improvements from the MCPatcher mod"))
+                        .setControl(TickBoxControl::new)
+                        .setBinding((opts, value) -> opts.quality.betterSkies = (value), opts -> opts.quality.betterSkies)
+                        .setImpact(OptionImpact.MEDIUM)
+                        .setFlags(OptionFlag.REQUIRES_ASSET_RELOAD)
+                        .build())
+                .build());
+
 
         return new OptionPage(new TranslatableText("sodium.options.pages.quality"), ImmutableList.copyOf(groups));
     }

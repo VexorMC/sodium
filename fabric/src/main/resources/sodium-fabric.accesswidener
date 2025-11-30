@@ -18,3 +18,11 @@ accessible field net/minecraft/client/MinecraftClient running Z
 
 accessible field net/minecraft/client/render/block/BlockRenderManager fluidRenderer Lnet/minecraft/client/render/block/FluidRenderer;
 accessible field net/minecraft/client/render/model/TexturedBakedQuad sprite Lnet/minecraft/client/texture/Sprite;
+
+accessible field net/minecraft/resource/ReloadableResourceManagerImpl fallbackManagers Ljava/util/Map;
+accessible field net/minecraft/client/resource/FallbackResourceManager resourcePacks Ljava/util/List;
+accessible field net/minecraft/client/MinecraftClient defaultResourcePack Lnet/minecraft/resource/DefaultResourcePack;
+accessible field net/minecraft/client/texture/TextureManager textures Ljava/util/Map;
+accessible field net/minecraft/resource/ZipResourcePack file Ljava/util/zip/ZipFile;
+accessible field net/minecraft/resource/AbstractFileResourcePack base Ljava/io/File;
+accessible field net/minecraft/resource/DefaultResourcePack assetsIndex Ljava/util/Map;

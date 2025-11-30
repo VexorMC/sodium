@@ -51,3 +51,11 @@ The complete text for each software license can be found in the directory "third
     * https://github.com/FlashyReese/sodium-extra/tree/1.21/dev/common/src/main
   * Files:
     * https://github.com/VexorMC/sodium/blob/dev/common/src/main/java/dev/vexor/radium/extra
+
+* jss2a98aj's NotFine
+  * Copyright (C) 2025 jss2a98aj
+  * License: GNU Lesser General Public License v3.0 (SPDX: LGPL-3.0) (NotFine; changes by mist475 are licensed under LGPL-3.0) & MIT (Original Source of MCPatcher)
+  * Original Source:
+    * https://github.com/jss2a98aj/NotFine/blob/master/src/main/java/com/prupe/mcpatcher
+  * Files:
+    * https://github.com/VexorMC/sodium/blob/dev/common/src/main/java/com/prupe/mcpatcher
