@@ -124,8 +124,7 @@ public class ClonedChunkSection {
         return array;
     }
 
-    @Nullable
-    private static Int2ReferenceMap<BlockEntity> copyBlockEntities(Chunk chunk, SectionPos pos) {
+    private static @NotNull Int2ReferenceMap<BlockEntity> copyBlockEntities(Chunk chunk, SectionPos pos) {
         Int2ReferenceOpenHashMap<BlockEntity> blockEntities = new Int2ReferenceOpenHashMap<>();
 
         for (int y = pos.minBlockY(); y <= pos.maxBlockY(); y++) {
