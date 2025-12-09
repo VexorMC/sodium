@@ -46,9 +46,9 @@
     "Safixoo"
   ],
   "contact" : {
-    "homepage" : "https://github.com/CaffeineMC/sodium",
-    "sources" : "https://github.com/CaffeineMC/sodium",
-    "issues" : "https://github.com/CaffeineMC/sodium/issues"
+    "homepage" : "https://github.com/VexorMC/sodium",
+    "sources" : "https://github.com/VexorMC/sodium",
+    "issues" : "https://github.com/VexorMC/sodium/issues"
   },
   "license" : "Polyform-Shield-1.0.0",
   "icon" : "radium-icon.png",
@@ -65,10 +65,10 @@
     "modmenu" : {
       "links" : {
         "modmenu.donate" : "https://caffeinemc.net/donate",
-        "modmenu.discord" : "https://caffeinemc.net/discord",
-        "modmenu.github_releases" : "https://github.com/CaffeineMC/sodium/releases",
+        "modmenu.discord" : "https://discord.gg/xwYnQNTnpU",
+        "modmenu.github_releases" : "https://github.com/VexorMC/sodium/releases",
         "modmenu.kofi" : "https://caffeinemc.net/donate",
-        "modmenu.modrinth" : "https://modrinth.com/mod/sodium"
+        "modmenu.modrinth" : "https://modrinth.com/mod/radium-mod"
       }
     }
   },
