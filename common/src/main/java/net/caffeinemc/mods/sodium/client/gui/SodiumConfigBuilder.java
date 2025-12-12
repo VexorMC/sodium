@@ -101,7 +101,7 @@ public class SodiumConfigBuilder implements ConfigEntryPoint {
                                 .setStorageHandler(this.vanillaStorage)
                                 .setName(new TranslatableText("options.renderDistance"))
                                 .setTooltip(new TranslatableText("sodium.options.view_distance.tooltip"))
-                                .setValueFormatter(ControlValueFormatterImpls.translateVariable("options.chunks"))
+                                .setValueFormatter(ControlValueFormatterImpls.translateVariable("sodium.options.view_distance.value"))
                                 .setRange(2, 32, 1)
                                 .setDefaultValue(12)
                                 .setBinding((value) -> this.vanillaOpts.viewDistance = value, () -> this.vanillaOpts.viewDistance)
@@ -134,7 +134,7 @@ public class SodiumConfigBuilder implements ConfigEntryPoint {
 
                                     // Resizing our window
                                     if(MinecraftClient.getInstance().currentScreen instanceof VideoSettingsScreen) {
-                                        MinecraftClient.getInstance().setScreen(new VideoSettingsScreen(((VideoSettingsScreen) MinecraftClient.getInstance().currentScreen).prevScreen));
+                                        MinecraftClient.getInstance().setScreen(VideoSettingsScreen.createScreen(((VideoSettingsScreen) MinecraftClient.getInstance().currentScreen).prevScreen));
                                     }
                                 }, () -> this.vanillaOpts.guiScale)
                 )
@@ -378,6 +378,15 @@ public class SodiumConfigBuilder implements ConfigEntryPoint {
                                 .setFlags(OptionFlag.REQUIRES_RENDERER_UPDATE)
                 )
                 .addOption(
+                        builder.createBooleanOption(new Identifier("radium:performance.vbos"))
+                                .setStorageHandler(this.vanillaStorage)
+                                .setName(new TranslatableText("options.vbo"))
+                                .setTooltip(new TranslatableText("sodium.options.vbos.tooltip"))
+                                .setDefaultValue(false)
+                                .setBinding(value -> this.vanillaOpts.vbo = value, () -> this.vanillaOpts.vbo)
+                                .setImpact(OptionImpact.MEDIUM)
+                )
+                .addOption(
                         builder.createBooleanOption(new Identifier("radium:performance.use_entity_culling"))
                                 .setStorageHandler(this.sodiumStorage)
                                 .setName(new TranslatableText("sodium.options.use_entity_culling.name"))
@@ -386,6 +395,7 @@ public class SodiumConfigBuilder implements ConfigEntryPoint {
                                 .setBinding(value -> this.sodiumOpts.performance.useEntityCulling = value, () -> this.sodiumOpts.performance.useEntityCulling)
                                 .setImpact(OptionImpact.MEDIUM)
                 )
+
                 .addOption(
                         builder.createBooleanOption(new Identifier("radium:performance.smart_cull"))
                                 .setStorageHandler(this.sodiumStorage)

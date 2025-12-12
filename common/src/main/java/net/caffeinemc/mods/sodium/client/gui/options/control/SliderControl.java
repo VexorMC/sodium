@@ -176,9 +176,9 @@ public class SliderControl implements Control {
             if (this.option.isEnabled() && button == 0) {
                 if (this.sliderHeld) {
                     this.setValueFromMouse(mouseX);
-                }
 
-                return true;
+                    return true;
+                }
             }
 
             return false;

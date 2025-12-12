@@ -1,9 +1,9 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "dev.vexor.radium.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "client": [
+  "required" : true,
+  "minVersion" : "0.8",
+  "package" : "dev.vexor.radium.mixin",
+  "compatibilityLevel" : "JAVA_17",
+  "client" : [
     "core.MixinBaseFrustum",
     "core.MixinBufferBuilder",
     "core.MixinCullingCameraView",
@@ -17,6 +17,7 @@
     "sodium.core.MinecraftMixin",
     "sodium.core.access.ABlockRenderManager",
     "sodium.core.access.AFluidRenderer",
+    "sodium.core.access.AGameRenderer",
     "sodium.core.render.VertexFormatMixin",
     "sodium.core.render.world.LevelRendererMixin",
     "sodium.core.world.biome.ClientLevelMixin",
@@ -33,10 +34,10 @@
     "sodium.features.render.immediate.DirectionMixin",
     "sodium.features.textures.tracking.SpriteMixin"
   ],
-  "injectors": {
-    "defaultRequire": 1
+  "injectors" : {
+    "defaultRequire" : 1
   },
-  "mixins": [
+  "mixins" : [
     "core.MixinBiome"
   ]
 }

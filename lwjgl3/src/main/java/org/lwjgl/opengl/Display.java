@@ -89,17 +89,14 @@ public class Display {
      * @throws org.lwjgl.LWJGLException
      */
     public static void create(PixelFormat pixel_format, Drawable shared_drawable) {
-        System.out.println("TODO: Implement Display.create(PixelFormat, Drawable)"); // TODO
         create();
     }
 
     public static void create(PixelFormat pixel_format, ContextAttribs attribs) {
-        System.out.println("TODO: Implement Display.create(PixelFormat, ContextAttribs)"); // TODO
         create();
     }
 
     public static void create(PixelFormat pixel_format) {
-        System.out.println("TODO: Implement Display.create(PixelFormat)"); // TODO
         create();
     }
 

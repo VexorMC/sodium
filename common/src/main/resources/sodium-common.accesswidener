@@ -1,7 +1,7 @@
 accessWidener v1 named
 
-accessible field net/minecraft/client/render/GameRenderer lightmapTextureId Lnet/minecraft/util/Identifier;
 accessible method net/minecraft/block/AbstractFluidBlock getFluidVec (Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/math/Vec3d;
+accessible field net/minecraft/client/render/GameRenderer lightmapTextureId Lnet/minecraft/util/Identifier;
 accessible field net/minecraft/client/texture/SpriteAtlasTexture sprites Ljava/util/Map;
 accessible class com/mojang/blaze3d/platform/GlStateManager$FogState
 accessible field com/mojang/blaze3d/platform/GlStateManager FOG Lcom/mojang/blaze3d/platform/GlStateManager$FogState;
@@ -14,6 +14,8 @@ accessible field net/minecraft/client/color/world/FoliageColors colorMap [I
 accessible field net/minecraft/client/color/world/GrassColors colorMap [I
 accessible class net/minecraft/client/color/world/BiomeColors$ColorProvider
 accessible field net/minecraft/client/MinecraftClient running Z
+accessible field net/minecraft/client/render/block/BlockRenderManager fluidRenderer Lnet/minecraft/client/render/block/FluidRenderer;
+accessible field net/minecraft/client/render/model/TexturedBakedQuad sprite Lnet/minecraft/client/texture/Sprite;
 accessible field net/minecraft/resource/ReloadableResourceManagerImpl fallbackManagers Ljava/util/Map;
 accessible field net/minecraft/client/resource/FallbackResourceManager resourcePacks Ljava/util/List;
 accessible field net/minecraft/client/MinecraftClient defaultResourcePack Lnet/minecraft/resource/DefaultResourcePack;

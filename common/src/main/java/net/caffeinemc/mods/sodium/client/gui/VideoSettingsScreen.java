@@ -23,10 +23,7 @@ import net.minecraft.client.util.Window;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.io.IOException;
@@ -49,7 +46,7 @@ public class VideoSettingsScreen extends RenderableScreen {
 
     private final ScrollableTooltip tooltip = new ScrollableTooltip(this);
 
-    public VideoSettingsScreen(Screen prevScreen) {
+    private VideoSettingsScreen(Screen prevScreen) {
         this.prevScreen = prevScreen;
 
         this.checkPromptTimers();
@@ -99,6 +96,8 @@ public class VideoSettingsScreen extends RenderableScreen {
     private void openDonationPrompt(SodiumOptions options) {
         options.notifications.hasSeenDonationPrompt = true;
 
+        // TODO: add back the donation prompt screen
+
         try {
             SodiumOptions.writeToDisk(options);
         } catch (IOException e) {
@@ -144,7 +143,7 @@ public class VideoSettingsScreen extends RenderableScreen {
             reserveBottomSpace = true;
         }
 
-        this.closeButton = new FlatButtonWidget(new Dim2i(this.width - Layout.BUTTON_LONG - Layout.INNER_MARGIN, this.height - (Layout.INNER_MARGIN + Layout.BUTTON_SHORT), Layout.BUTTON_LONG, Layout.BUTTON_SHORT), new TranslatableText("gui.done"), this::removed, true, false);
+        this.closeButton = new FlatButtonWidget(new Dim2i(this.width - Layout.BUTTON_LONG - Layout.INNER_MARGIN, this.height - (Layout.INNER_MARGIN + Layout.BUTTON_SHORT), Layout.BUTTON_LONG, Layout.BUTTON_SHORT), new TranslatableText("gui.done"), () -> this.client.setScreen(this.prevScreen), true, false);
         this.addRenderableWidget(this.closeButton);
 
         if (stackVertically) {
@@ -286,11 +285,19 @@ public class VideoSettingsScreen extends RenderableScreen {
             }
         }
 
+        if (code == Keyboard.KEY_ESCAPE) {
+            this.client.setScreen(this.prevScreen);
+            if (this.client.currentScreen == null) {
+                this.client.closeScreen();
+            }
+        }
+
         super.keyPressed(id, code);
     }
 
     @Override
     public boolean mouseScrolled(double x, double y, double f, double amount) {
+        /*
         // change the gui scale with scrolling if the control key is held
         if (Screen.hasControlDown()) {
             var location = new Identifier("radium:general.gui_scale");
@@ -314,16 +321,17 @@ public class VideoSettingsScreen extends RenderableScreen {
                         if (range.isValueValid(newValue)) {
                             guiScaleOption.modifyValue(newValue);
                             ConfigManager.CONFIG.applyOption(location);
-                            return true;
+                            return false;
                         }
                     }
                 }
             }
-            return false;
+            return true;
         }
+         */
 
         if (this.tooltip.mouseScrolled(x, y, amount)) {
-            return true;
+            return false;
         }
 
         return super.mouseScrolled(x, y, f, amount);
@@ -346,6 +354,7 @@ public class VideoSettingsScreen extends RenderableScreen {
 
     @Override
     public void removed() {
+        super.removed();
     }
 
     public static void renderIcon(Identifier icon, int color, int x, int y, int size) {

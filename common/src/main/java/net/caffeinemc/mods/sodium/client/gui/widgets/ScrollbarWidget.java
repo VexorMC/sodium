@@ -156,7 +156,7 @@ public class ScrollbarWidget extends AbstractWidget {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button) {
         if (this.dragging) {
-            this.scroll((int) Math.round(this.horizontal ? Mouse.getDX() : Mouse.getDY() * ((double) this.total / this.visible)));
+            this.scroll(-(int) Math.round(this.horizontal ? Mouse.getDX() : Mouse.getDY() * ((double) this.total / this.visible)));
             return true;
         }
         return false;
