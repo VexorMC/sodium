@@ -13,10 +13,13 @@ import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen;
 import net.caffeinemc.mods.sodium.client.gui.options.control.AbstractScrollable;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.client.gui.GuiGraphics;
+import net.caffeinemc.mods.sodium.client.util.ScissorUtil;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.opengl.GL11;
 
 public class PageListWidget extends AbstractScrollable {
     private final VideoSettingsScreen parent;
@@ -87,13 +90,13 @@ public class PageListWidget extends AbstractScrollable {
     @Override
     public void render(int mouseX, int mouseY, float delta) {
         renderBackgroundGradient(this.getX(), this.getY(), this.getLimitX(), this.getLimitY());
-        graphics.enableScissor(this.getX(), this.getY(), this.getLimitX(), this.getLimitY());
-        super.render(mouseX, mouseY, delta);
-        graphics.disableScissor();
+        ScissorUtil.withScissor(this.getX(), this.getY(), this.getWidth(), this.getHeight(), () -> {
+            super.render(mouseX, mouseY, delta);
+        });
     }
 
-    public static void renderBackgroundGradient(int x1, int y1, int x2, int y2) {
-        graphics.fillGradient(x1, y1, x2, y2, Colors.BACKGROUND_LIGHT, Colors.BACKGROUND_DEFAULT);
+    public void renderBackgroundGradient(int x1, int y1, int x2, int y2) {
+        fillGradient(x1, y1, x2, y2, Colors.BACKGROUND_LIGHT, Colors.BACKGROUND_DEFAULT);
     }
 
     private void switchSelectedWidget(EntryWidget widget) {
@@ -145,10 +148,10 @@ public class PageListWidget extends AbstractScrollable {
     }
 
     private class HeaderEntryWidget extends EntryWidget {
-        private final ResourceLocation icon;
+        private final Identifier icon;
 
         HeaderEntryWidget(Dim2i dim, ModOptions modOptions, ColorTheme theme) {
-            super(dim, Text.literal(modOptions.name()), Text.literal(modOptions.version()), false, theme);
+            super(dim, new LiteralText(modOptions.name()), new LiteralText(modOptions.version()), false, theme);
             this.icon = modOptions.icon();
         }
 

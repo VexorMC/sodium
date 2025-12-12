@@ -17,7 +17,7 @@ import java.util.Properties;
 public class MixinConfig {
     protected static final Logger LOGGER = LogManager.getLogger("RadiumConfig");
 
-    protected static final String JSON_KEY_SODIUM_OPTIONS = "sodium:options";
+    protected static final String JSON_KEY_SODIUM_OPTIONS = "radium:options";
 
     private final Map<String, MixinOption> options = new HashMap<>();
 

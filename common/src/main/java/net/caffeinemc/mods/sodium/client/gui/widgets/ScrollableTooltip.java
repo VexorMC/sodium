@@ -1,28 +1,31 @@
 package net.caffeinemc.mods.sodium.client.gui.widgets;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.caffeinemc.mods.sodium.api.config.option.OptionImpact;
 import net.caffeinemc.mods.sodium.client.gui.Colors;
 import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen;
 import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.util.Formatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
+import net.caffeinemc.mods.sodium.client.util.ScissorUtil;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.FormattedCharSequence;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
 
 // TODO: is narration of the tooltip already handled by the screen or is there no narration at all?
 public class ScrollableTooltip {
-    private static final ResourceLocation ARROW_TEXTURE = ResourceLocation.fromNamespaceAndPath("sodium", "textures/gui/tooltip_arrows.png");
+    private static final Identifier ARROW_TEXTURE = new Identifier("radium", "textures/gui/tooltip_arrows.png");
     private static final int ARROW_WIDTH = 5;
     private static final int SPRITE_WIDTH = 10;
     private static final int ARROW_HEIGHT = 9;
@@ -35,13 +38,13 @@ public class ScrollableTooltip {
     private static final int OUTER_BOX_MARGIN = 3;
     private static final int UPPER_BOX_MARGIN = Layout.BUTTON_SHORT + OUTER_BOX_MARGIN;
 
-    private final Font font = Minecraft.getInstance().font;
+    private final TextRenderer font = MinecraftClient.getInstance().textRenderer;
     private ControlElement hoveredElement;
     private ScrollbarWidget scrollbar;
     private final Vector2i contentSize = new Vector2i();
     private Dim2i visibleDim;
     private boolean overlayMode;
-    private final List<FormattedCharSequence> content = new ArrayList<>();
+    private final List<Text> content = new ArrayList<>();
     private final VideoSettingsScreen parent;
     private final Vector2i reservedArea = new Vector2i(); // area reserved for action buttons
 
@@ -100,12 +103,12 @@ public class ScrollableTooltip {
         var option = this.hoveredElement.getOption();
 
         this.content.clear();
-        this.content.addAll(this.font.split(option.getTooltip(), textWidth));
+        this.content.addAll(this.font.wrapLines(option.getTooltip().asFormattedString(), textWidth).stream().map(LiteralText::new).toList());
 
         OptionImpact impact = option.getImpact();
         if (impact != null) {
             var impactText = new TranslatableText("sodium.options.performance_impact_string", impact.getName());
-            this.content.addAll(this.font.split(impactText.withStyle(Formatting.GRAY), textWidth));
+            this.content.addAll(this.font.wrapLines(impactText.setStyle(new Style().setFormatting(Formatting.GRAY)).asFormattedString(), textWidth).stream().map(LiteralText::new).toList());
         }
 
         return this.content.size() * this.getLineHeight() - Layout.TEXT_LINE_SPACING + TEXT_VERTICAL_PADDING * 2;
@@ -213,28 +216,30 @@ public class ScrollableTooltip {
             int arrowY = this.hoveredElement.getCenterY() - (ARROW_HEIGHT / 2);
 
             // parameters are: render type, sprite, x, y, u offset, v offset, render width, render height, u size, v size, color
-            graphics.blit(RenderPipelines.GUI_TEXTURED, ARROW_TEXTURE, arrowX, arrowY, ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT, SPRITE_WIDTH, ARROW_HEIGHT, Colors.BACKGROUND_LIGHT);
-            graphics.blit(RenderPipelines.GUI_TEXTURED, ARROW_TEXTURE, arrowX, arrowY, 0, 0, ARROW_WIDTH, ARROW_HEIGHT, SPRITE_WIDTH, ARROW_HEIGHT, Colors.BACKGROUND_DEFAULT);
+            MinecraftClient.getInstance().getTextureManager().bindTexture(ARROW_TEXTURE);
+            GlStateManager.color((Colors.BACKGROUND_LIGHT >> 16 & 0xFF) / 255f, (Colors.BACKGROUND_LIGHT >> 8 & 0xFF) / 255f, (Colors.BACKGROUND_LIGHT & 0xFF) / 255f, 1f);
+            DrawableHelper.drawTexture(arrowX, arrowY, ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT, SPRITE_WIDTH, ARROW_HEIGHT);
+            GlStateManager.color((Colors.BACKGROUND_DEFAULT >> 16 & 0xFF) / 255f, (Colors.BACKGROUND_DEFAULT >> 8 & 0xFF) / 255f, (Colors.BACKGROUND_DEFAULT & 0xFF) / 255f, 1f);
+            DrawableHelper.drawTexture(arrowX, arrowY, 0, 0, ARROW_WIDTH, ARROW_HEIGHT, SPRITE_WIDTH, ARROW_HEIGHT);
         }
 
-        int lineHeight = this.getLineHeight();
+        ScissorUtil.withScissor(this.visibleDim.x(), this.visibleDim.y(), this.visibleDim.width(), this.visibleDim.height(), () -> {
+            int lineHeight = this.getLineHeight();
 
-        int scrollAmount = 0;
-        if (this.scrollbar != null) {
-            scrollAmount = this.scrollbar.getScrollAmount();
-        }
+            int scrollAmount = 0;
+            if (this.scrollbar != null) {
+                scrollAmount = this.scrollbar.getScrollAmount();
+            }
 
-        var backgroundColor = this.overlayMode ? Colors.BACKGROUND_OVERLAY : Colors.BACKGROUND_LIGHT;
+            var backgroundColor = this.overlayMode ? Colors.BACKGROUND_OVERLAY : Colors.BACKGROUND_LIGHT;
 
-        graphics.enableScissor(this.visibleDim.x(), this.visibleDim.y(), this.visibleDim.getLimitX(), this.visibleDim.getLimitY());
-        graphics.fill(this.visibleDim.x(), this.visibleDim.y(), this.visibleDim.getLimitX(), this.visibleDim.getLimitY(), backgroundColor);
-        graphics.nextStratum();
-        for (int i = 0; i < this.content.size(); i++) {
-            this.font.draw(this.content.get(i),
-                    this.visibleDim.x() + TEXT_HORIZONTAL_PADDING, this.visibleDim.y() + TEXT_VERTICAL_PADDING + (i * lineHeight) - scrollAmount,
-                    Colors.FOREGROUND);
-        }
-        graphics.disableScissor();
+            DrawableHelper.fill(this.visibleDim.x(), this.visibleDim.y(), this.visibleDim.getLimitX(), this.visibleDim.getLimitY(), backgroundColor);
+            for (int i = 0; i < this.content.size(); i++) {
+                this.font.drawWithShadow(this.content.get(i).asFormattedString(),
+                        this.visibleDim.x() + TEXT_HORIZONTAL_PADDING, this.visibleDim.y() + TEXT_VERTICAL_PADDING + (i * lineHeight) - scrollAmount,
+                        Colors.FOREGROUND);
+            }
+        });
     }
 
     public boolean mouseScrolled(double d, double e, double amount) {

@@ -2,6 +2,7 @@ package dev.vexor.radium.mixin.core.mcpatcher.base;
 
 import com.prupe.mcpatcher.MCPatcherUtils;
 import com.prupe.mcpatcher.mal.resource.TexturePackChangeHandler;
+import net.caffeinemc.mods.sodium.client.config.ConfigManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.resource.ResourceManager;
@@ -31,6 +32,7 @@ public abstract class MixinMinecraftClient {
                     shift = At.Shift.AFTER))
     private void modifyStartGame2(CallbackInfo ci) {
         TexturePackChangeHandler.beforeChange1();
+        ConfigManager.registerConfigsLate();
     }
 
     @Inject(

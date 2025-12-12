@@ -2,13 +2,8 @@ package net.caffeinemc.mods.sodium.client.gui.widgets;
 
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.navigation.FocusNavigationEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.input.Mouse;
 
 import java.util.function.IntConsumer;
 
@@ -93,7 +88,7 @@ public class ScrollbarWidget extends AbstractWidget {
         long time = System.currentTimeMillis();
         long scrollTimeDiff = time - this.lastScrollTime;
         if (this.alwaysShow || isMouseOver || this.dragging || scrollTimeDiff < 1000) {
-            graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), COLOR);
+            fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), COLOR);
             int x1, y1, x2, y2;
             if (this.horizontal) {
                 x1 = this.getX() + this.getHighlightStart(this.getWidth());
@@ -106,7 +101,7 @@ public class ScrollbarWidget extends AbstractWidget {
                 x2 = x1 + this.getWidth();
                 y2 = y1 + this.getHighlightLength(this.getHeight());
             }
-            graphics.fill(x1, y1, x2, y2, HIGHLIGHT_COLOR);
+            fill(x1, y1, x2, y2, HIGHLIGHT_COLOR);
         }
     }
 
@@ -152,28 +147,18 @@ public class ScrollbarWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseReleased(MouseButtonEvent event) {
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
         this.dragging = false;
         this.lastScrollTime = Math.max(this.lastScrollTime, System.currentTimeMillis() - 500);
         return false;
     }
 
     @Override
-    public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
+    public boolean mouseDragged(double mouseX, double mouseY, int button) {
         if (this.dragging) {
-            this.scroll((int) Math.round(this.horizontal ? deltaX : deltaY * ((double) this.total / this.visible)));
+            this.scroll((int) Math.round(this.horizontal ? Mouse.getDX() : Mouse.getDY() * ((double) this.total / this.visible)));
             return true;
         }
         return false;
-    }
-
-    @Override
-    public void updateNarration(NarrationElementOutput builder) {
-        // no narration
-    }
-
-    @Override
-    public @Nullable ComponentPath nextFocusPath(FocusNavigationEvent event) {
-        return null;
     }
 }

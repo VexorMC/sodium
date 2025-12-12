@@ -6,14 +6,11 @@ import net.caffeinemc.mods.sodium.client.config.structure.Option;
 import net.caffeinemc.mods.sodium.client.gui.Colors;
 import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.text.Text;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class SearchWidget extends AbstractParentWidget {
@@ -24,14 +21,30 @@ public class SearchWidget extends AbstractParentWidget {
     private final SearchQuerySession searchQuerySession;
     private String query = "";
 
-    private EditBox searchBox;
+    private final AtomicReference<String> lastSearchRef;
+    private final AtomicReference<Integer> lastSearchIndexRef;
+
+    private SearchTextFieldWidget searchBox;
     private FlatButtonWidget clearButton;
     private int lastRebuildWidth = -1;
 
+    /**
+     * Simple constructor without external state references
+     */
     public SearchWidget(Consumer<List<Option.OptionNameSource>> onSearchResults, Dim2i dim) {
+        this(onSearchResults, dim, new AtomicReference<>(""), new AtomicReference<>(0));
+    }
+
+    /**
+     * Full constructor with external state references for persistence
+     */
+    public SearchWidget(Consumer<List<Option.OptionNameSource>> onSearchResults, Dim2i dim,
+                        AtomicReference<String> lastSearch, AtomicReference<Integer> lastSearchIndex) {
         super(dim);
         this.onSearchResults = onSearchResults;
         this.searchQuerySession = ConfigManager.CONFIG.startSearchQuery();
+        this.lastSearchRef = lastSearch;
+        this.lastSearchIndexRef = lastSearchIndex;
     }
 
     public void updateWidgetWidth(int width) {
@@ -48,34 +61,36 @@ public class SearchWidget extends AbstractParentWidget {
         int y = this.getY();
 
         int searchBoxWidth = width - Layout.BUTTON_SHORT;
+
         this.clearButton = new FlatButtonWidget(
                 new Dim2i(x + searchBoxWidth, y, Layout.BUTTON_SHORT, Layout.BUTTON_SHORT),
-                Text.literal("×"),
+                new LiteralText("×"),
                 this::clearSearch,
                 true,
                 false
         );
 
-        this.searchBox = new EditBox(
-                this.font,
-                x + Layout.INNER_MARGIN,
-                y + Layout.BUTTON_SHORT / 2 - this.font.fontHeight / 2,
-                searchBoxWidth - 20,
-                Layout.BUTTON_SHORT,
-                new TranslatableText("sodium.options.search")
+        // Create custom search text field with state references
+        int textFieldX = x + Layout.INNER_MARGIN;
+        int textFieldY = y + Layout.BUTTON_SHORT / 2 - this.font.fontHeight / 2;
+        int textFieldWidth = searchBoxWidth - 20;
+
+        this.searchBox = new SearchTextFieldWidget(
+                new Dim2i(textFieldX, textFieldY, textFieldWidth, Layout.BUTTON_SHORT),
+                this::triggerSearch,
+                new TranslatableText("sodium.options.search.hint"),
+                this.lastSearchRef,
+                this.lastSearchIndexRef
         );
 
         this.searchBox.setMaxLength(200);
-        this.searchBox.setBordered(false);
-        this.searchBox.setResponder(this::triggerSearch);
-        this.searchBox.setHint(new TranslatableText("sodium.options.search.hint"));
 
         this.addChild(this.searchBox);
         this.addChild(this.clearButton);
     }
 
     private void clearSearch() {
-        this.searchBox.setValue("");
+        this.searchBox.clear();
         this.query = "";
         this.search();
         this.setFocused(null);
@@ -150,8 +165,16 @@ public class SearchWidget extends AbstractParentWidget {
 
     @Override
     public void render(int mouseX, int mouseY, float delta) {
-        graphics.fill(this.getX(), this.getY(), this.getX() + this.lastRebuildWidth - Layout.BUTTON_SHORT, this.getLimitY(), Colors.BACKGROUND_DEFAULT);
+        // Draw background for search box area
+        drawRect(
+                this.getX(),
+                this.getY(),
+                this.getX() + this.lastRebuildWidth - Layout.BUTTON_SHORT,
+                this.getLimitY(),
+                Colors.BACKGROUND_DEFAULT
+        );
 
+        // Render search box and clear button
         this.searchBox.render(mouseX, mouseY, delta);
         this.clearButton.render(mouseX, mouseY, delta);
 
@@ -159,12 +182,83 @@ public class SearchWidget extends AbstractParentWidget {
     }
 
     @Override
-    public boolean charTyped(CharacterEvent event) {
-        return this.searchBox.charTyped(event);
+    public boolean keyPressed(int keyCode, char typedChar) {
+        if (this.searchBox.isFocused()) {
+            return this.searchBox.keyPressed(keyCode, typedChar);
+        }
+        return super.keyPressed(keyCode, typedChar);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // Let search box handle clicks first
+        if (this.searchBox.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     public boolean isSearching() {
         return this.searchBox.isFocused();
+    }
+
+    /**
+     * Gets the current search query
+     */
+    public String getQuery() {
+        return this.searchBox != null ? this.searchBox.getQuery() : "";
+    }
+
+    /**
+     * Gets the last completed search query
+     */
+    public String getLastQuery() {
+        return this.searchBox != null ? this.searchBox.getLastQuery() : "";
+    }
+
+    /**
+     * Gets the current search result index
+     */
+    public int getSearchResultIndex() {
+        return this.searchBox != null ? this.searchBox.getLastSearchIndex() : 0;
+    }
+
+    /**
+     * Sets the search result index
+     */
+    public void setSearchResultIndex(int index) {
+        if (this.searchBox != null) {
+            this.searchBox.setLastSearchIndex(index);
+        }
+    }
+
+    /**
+     * Checks if there is an active search query
+     */
+    public boolean hasQuery() {
+        return this.searchBox != null && this.searchBox.hasQuery();
+    }
+
+    /**
+     * Gets the search text field widget for direct access
+     */
+    public SearchTextFieldWidget getSearchBox() {
+        return this.searchBox;
+    }
+
+    /**
+     * Gets the last search AtomicReference for external state management
+     */
+    public AtomicReference<String> getLastSearchRef() {
+        return this.lastSearchRef;
+    }
+
+    /**
+     * Gets the last search index AtomicReference for external state management
+     */
+    public AtomicReference<Integer> getLastSearchIndexRef() {
+        return this.lastSearchIndexRef;
     }
 
     @Override

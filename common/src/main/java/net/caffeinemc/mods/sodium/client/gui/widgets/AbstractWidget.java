@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
 import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
 
-public abstract class AbstractWidget implements Renderable, GuiEventListener {
+public abstract class AbstractWidget extends DrawableHelper implements Renderable, GuiEventListener {
     protected final TextRenderer font = MinecraftClient.getInstance().textRenderer;
     private final Dim2i dim;
     protected boolean focused;

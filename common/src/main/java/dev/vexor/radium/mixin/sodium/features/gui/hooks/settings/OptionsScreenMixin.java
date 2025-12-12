@@ -1,6 +1,6 @@
 package dev.vexor.radium.mixin.sodium.features.gui.hooks.settings;
 
-import dev.vexor.radium.options.client.gui.ReeseSodiumVideoOptionsScreen;
+import net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.SettingsScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -14,7 +14,7 @@ public class OptionsScreenMixin extends Screen {
     @Inject(method = "buttonClicked", at = @At("HEAD"), cancellable = true)
     private void open(ButtonWidget button, CallbackInfo ci) {
         if(button.active && button.id == 101) {
-            this.client.setScreen(new ReeseSodiumVideoOptionsScreen(this));
+            this.client.setScreen(VideoSettingsScreen.createScreen(this));
 
             ci.cancel();
         }

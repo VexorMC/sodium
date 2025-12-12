@@ -22,7 +22,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ConfigManager {
-    public static final String CONFIG_ENTRY_POINT_KEY = "sodium:config_api_user";
+    public static final String CONFIG_ENTRY_POINT_KEY = "radium:config_api_user";
 
     private record ConfigUser(
             Supplier<ConfigEntryPoint> configEntrypoint,
@@ -102,7 +102,7 @@ public class ConfigManager {
 
                     namespaces.add(namespace);
 
-                    if (namespace.equals("sodium")) {
+                    if (namespace.equals("radium")) {
                         sodiumModOptions = modConfig;
                     } else {
                         modConfigs.add(modConfig);

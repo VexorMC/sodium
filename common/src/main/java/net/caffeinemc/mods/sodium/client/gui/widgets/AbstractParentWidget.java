@@ -48,6 +48,37 @@ public abstract class AbstractParentWidget extends AbstractWidget {
         }
     }
 
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for (GuiEventListener element : this.children) {
+            if (element.mouseClicked(mouseX, mouseY, button)) {
+                this.setFocused(element);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        for (GuiEventListener element : this.children) {
+            if (element.mouseReleased(mouseX, mouseY, button)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button) {
+        for (GuiEventListener element : this.children) {
+            if (element.mouseDragged(mouseX, mouseY, button)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void setFocused(@Nullable GuiEventListener guiEventListener) {
         if (this.focusedElement != null) {
             this.focusedElement.setFocused(false);

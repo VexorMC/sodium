@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.gui;
 
 import net.caffeinemc.mods.sodium.api.util.ColorARGB;
-import net.minecraft.util.Mth;
+import net.minecraft.util.math.MathHelper;
 
 import java.awt.*;
 
@@ -37,8 +37,8 @@ public class Colors {
 
     public static int adjust(int color, float factor) {
         float[] hsb = Color.RGBtoHSB(ColorARGB.unpackRed(color), ColorARGB.unpackGreen(color), ColorARGB.unpackBlue(color), null);
-        var s = Mth.clamp(hsb[1] * (1 - Math.abs(factor)), 0, 1);
-        var b = Mth.clamp(hsb[2] * (1 + factor), 0, 1);
+        var s = MathHelper.clamp(hsb[1] * (1 - Math.abs(factor)), 0, 1);
+        var b = MathHelper.clamp(hsb[2] * (1 + factor), 0, 1);
         return ColorARGB.withAlpha(Color.HSBtoRGB(hsb[0], s, b), ColorARGB.unpackAlpha(color));
     }
 }

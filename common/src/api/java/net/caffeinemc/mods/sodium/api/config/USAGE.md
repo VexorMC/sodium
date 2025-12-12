@@ -78,7 +78,7 @@ Entrypoint classes that Sodium calls to run your options registration code can b
 
 #### With a Metadata Entry
 
-Metadata-based entrypoints use the key `sodium:config_api_user` and the value is the full reference to a class that implements the `net.caffeinemc.mods.sodium.api.config.ConfigEntryPoint` interface.
+Metadata-based entrypoints use the key `radium:config_api_user` and the value is the full reference to a class that implements the `net.caffeinemc.mods.sodium.api.config.ConfigEntryPoint` interface.
 
 Fabric `fabric.mod.json`:
 
@@ -87,7 +87,7 @@ Fabric `fabric.mod.json`:
     "entrypoints": {
         // ... other entrypoints
         
-        "sodium:config_api_user": [
+        "radium:config_api_user": [
             "com.example.examplemod.ExampleModConfigBuilder"
         ]
     }
@@ -97,7 +97,7 @@ Fabric `fabric.mod.json`:
 NeoForge `neoforge.mods.toml`:
 ```toml
 [modproperties.examplemod]
-"sodium:config_api_user" = "com.example.examplemod.ExampleModConfigBuilder"
+"radium:config_api_user" = "com.example.examplemod.ExampleModConfigBuilder"
 ```
 
 The implementation of the entrypoint can look something like this:

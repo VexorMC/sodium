@@ -1,17 +1,11 @@
 package net.caffeinemc.mods.sodium.client.gui.widgets;
 
+import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
 import net.caffeinemc.mods.sodium.client.gui.ButtonTheme;
 import net.caffeinemc.mods.sodium.client.gui.Colors;
 import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.navigation.FocusNavigationEvent;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.Nullable;
 
 public class FlatButtonWidget extends AbstractWidget implements Renderable {
     public static final ButtonTheme DEFAULT_THEME = new ButtonTheme(
@@ -67,7 +61,7 @@ public class FlatButtonWidget extends AbstractWidget implements Renderable {
         }
 
         if (this.label != null) {
-            int strWidth = this.font.width(this.label);
+            int strWidth = this.font.getStringWidth(this.label.asFormattedString());
             this.drawString(this.label, this.leftAlign ? this.getX() + Layout.TEXT_LEFT_PADDING : (this.getCenterX() - (strWidth / 2)), this.getCenterY() - this.font.fontHeight / 2, textColor);
         }
 
@@ -103,19 +97,6 @@ public class FlatButtonWidget extends AbstractWidget implements Renderable {
         return false;
     }
 
-    @Override
-    public boolean keyPressed(KeyEvent event) {
-        if (!this.isFocused())
-            return false;
-
-        if (event.isSelection()) {
-            doAction();
-            return true;
-        }
-
-        return false;
-    }
-
     private void doAction() {
         this.action.run();
         this.playClickSound();
@@ -127,13 +108,6 @@ public class FlatButtonWidget extends AbstractWidget implements Renderable {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
-    }
-
-    @Override
-    public @Nullable ComponentPath nextFocusPath(FocusNavigationEvent event) {
-        if (!this.enabled || !this.visible)
-            return null;
-        return super.nextFocusPath(event);
     }
 
     public boolean isVisible() {

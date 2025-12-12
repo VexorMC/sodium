@@ -14,6 +14,7 @@ import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen;
 import net.caffeinemc.mods.sodium.client.gui.options.control.AbstractOptionList;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
+import net.caffeinemc.mods.sodium.client.util.ScissorUtil;
 import net.minecraft.util.Formatting;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.Identifier;
@@ -195,11 +196,11 @@ public class OptionListWidget extends AbstractOptionList {
 
     @Override
     public void render(int mouseX, int mouseY, float delta) {
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor(this.getX(), this.getY(), this.getLimitX(), this.getLimitY());
-        super.render(mouseX, mouseY, delta);
-        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+        ScissorUtil.withScissor(this.getX(), this.getY(), this.getWidth(), this.getHeight(), () -> {
+            super.render(mouseX, mouseY, delta);
+        });
     }
+
 
     private void updateSectionFocus(int scrollAmount) {
         if (this.ignoreNextScrollUpdate) {

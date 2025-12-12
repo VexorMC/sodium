@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gui;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
 import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
@@ -9,8 +10,6 @@ import net.caffeinemc.mods.sodium.client.config.structure.Option;
 import net.caffeinemc.mods.sodium.client.config.structure.OptionPage;
 import net.caffeinemc.mods.sodium.client.data.fingerprint.HashedFingerprint;
 import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
-import net.caffeinemc.mods.sodium.client.gui.prompt.ScreenPrompt;
-import net.caffeinemc.mods.sodium.client.gui.prompt.ScreenPromptable;
 import net.caffeinemc.mods.sodium.client.gui.screen.ConfigCorruptedScreen;
 import net.caffeinemc.mods.sodium.client.gui.screen.RenderableScreen;
 import net.caffeinemc.mods.sodium.client.gui.widgets.*;
@@ -20,6 +19,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.VideoOptionsScreen;
+import net.minecraft.client.util.Window;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -35,8 +35,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-public class VideoSettingsScreen extends RenderableScreen implements ScreenPromptable {
-    private final Screen prevScreen;
+public class VideoSettingsScreen extends RenderableScreen {
+    public final Screen prevScreen;
 
     private PageListWidget pageList;
     private SearchWidget searchWidget;
@@ -49,9 +49,7 @@ public class VideoSettingsScreen extends RenderableScreen implements ScreenPromp
 
     private final ScrollableTooltip tooltip = new ScrollableTooltip(this);
 
-    private @Nullable ScreenPrompt prompt;
-
-    private VideoSettingsScreen(Screen prevScreen) {
+    public VideoSettingsScreen(Screen prevScreen) {
         this.prevScreen = prevScreen;
 
         this.checkPromptTimers();
@@ -123,10 +121,6 @@ public class VideoSettingsScreen extends RenderableScreen implements ScreenPromp
 
         ConfigManager.CONFIG.invalidateGlobalRebuildDependents();
         this.rebuild();
-
-        if (this.prompt != null) {
-            this.prompt.init();
-        }
     }
 
     private void rebuild() {
@@ -166,12 +160,13 @@ public class VideoSettingsScreen extends RenderableScreen implements ScreenPromp
         this.donateButton = new DonationButtonWidget(this, this.width, this::openDonationPage, this::hideDonationButton);
         this.addRenderableWidget(this.searchWidget);
         this.updateSearchWidgetWidth();
+        Window window = new Window(client);
 
         var optionListDim = new Dim2i(
                 this.pageList.getLimitX(),
                 topBarHeight + Layout.INNER_MARGIN,
                 Layout.OPTION_WIDTH + Layout.OPTION_LIST_SCROLLBAR_OFFSET + Layout.SCROLLBAR_WIDTH,
-                this.height - topBarHeight - (reserveBottomSpace ? (Layout.INNER_MARGIN * 3 + Layout.BUTTON_SHORT) : (Layout.INNER_MARGIN * 2))
+                window.getHeight() - topBarHeight - (reserveBottomSpace ? (Layout.INNER_MARGIN * 3 + Layout.BUTTON_SHORT) : (Layout.INNER_MARGIN * 2))
         );
         this.optionList = new OptionListWidget(this, optionListDim, this::onSectionFocused);
         this.addRenderableWidget(this.optionList);
@@ -218,13 +213,9 @@ public class VideoSettingsScreen extends RenderableScreen implements ScreenPromp
     public void render(int mouseX, int mouseY, float delta) {
         this.updateControls(mouseX, mouseY);
 
-        super.render(this.prompt != null ? -1 : mouseX, this.prompt != null ? -1 : mouseY, delta);
+        super.render(mouseX, mouseY, delta);
 
         this.tooltip.render();
-
-        if (this.prompt != null) {
-            this.prompt.render(mouseX, mouseY, delta);
-        }
     }
 
     private void updateControls(int mouseX, int mouseY) {
@@ -302,7 +293,7 @@ public class VideoSettingsScreen extends RenderableScreen implements ScreenPromp
     public boolean mouseScrolled(double x, double y, double f, double amount) {
         // change the gui scale with scrolling if the control key is held
         if (Screen.hasControlDown()) {
-            var location = new Identifier("sodium:general.gui_scale");
+            var location = new Identifier("radium:general.gui_scale");
             var option = ConfigManager.CONFIG.getOption(location);
             if (option instanceof IntegerOption guiScaleOption) {
                 var intValue = guiScaleOption.getValidatedValue();
@@ -355,30 +346,17 @@ public class VideoSettingsScreen extends RenderableScreen implements ScreenPromp
 
     @Override
     public void removed() {
-        this.client.setScreen(this.prevScreen);
-    }
-
-    @Override
-    public void setPrompt(@Nullable ScreenPrompt prompt) {
-        this.prompt = prompt;
-    }
-
-    @Nullable
-    @Override
-    public ScreenPrompt getPrompt() {
-        return this.prompt;
-    }
-
-    @Override
-    public Dim2i getDimensions() {
-        return new Dim2i(0, 0, this.width, this.height);
     }
 
     public static void renderIcon(Identifier icon, int color, int x, int y, int size) {
         MinecraftClient.getInstance().getTextureManager().bindTexture(icon);
-        int w = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
-        int h = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
-        DrawableHelper.drawTexture(x, y, 0, 0, size, size, w, h, w, h);
+        GlStateManager.color(
+                ((color >> 16) & 0xFF) / 255f,
+                ((color >> 8) & 0xFF) / 255f,
+                (color & 0xFF) / 255f,
+                ((color >> 24) & 0xFF) / 255f
+        );
+        DrawableHelper.drawTexture(x, y, 0, 0, size, size, size, size);
     }
 
     public static int renderIconWithSpacing(Identifier icon, int color, int x, int y, int height, int margin) {
