@@ -303,15 +303,15 @@ public class Display {
     }
 
     public static boolean isActive() {
-        return displayFocused;
+        return org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(getWindow(), GLFW_FOCUSED) == GLFW_TRUE;
     }
 
     public static boolean isVisible() {
-        return displayVisible;
+        return org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(getWindow(), GLFW_VISIBLE) == GLFW_TRUE;
     }
 
     public static void setLocation(int new_x, int new_y) {
-        System.out.println("TODO: Implement Display.setLocation(int, int)");
+        org.lwjgl.glfw.GLFW.glfwSetWindowPos(getWindow(), new_x, new_y);
     }
 
     public static void setVSyncEnabled(boolean sync) {
