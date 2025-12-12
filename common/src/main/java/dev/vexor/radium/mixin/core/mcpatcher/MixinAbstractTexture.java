@@ -1,6 +1,6 @@
 package dev.vexor.radium.mixin.core.mcpatcher;
 
-import dev.vexor.radium.mcpatcher.ex.AbstractTextureExpansion;
+import com.prupe.mcpatcher.core.AbstractTextureExpansion;
 import net.minecraft.client.texture.AbstractTexture;
 import org.spongepowered.asm.mixin.Mixin;
 

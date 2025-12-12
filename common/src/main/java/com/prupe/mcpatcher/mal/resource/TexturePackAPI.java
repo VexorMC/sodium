@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
-import dev.vexor.radium.mcpatcher.ex.AbstractTextureExpansion;
+import com.prupe.mcpatcher.core.AbstractTextureExpansion;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.FallbackResourceManager;
 import net.minecraft.client.texture.*;
