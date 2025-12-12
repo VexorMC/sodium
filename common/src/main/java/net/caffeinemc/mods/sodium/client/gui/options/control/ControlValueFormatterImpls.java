@@ -69,4 +69,14 @@ public class ControlValueFormatterImpls {
     public static ControlValueFormatter number() {
         return (v) -> new LiteralText(String.valueOf(v));
     }
+
+    public static ControlValueFormatter chunkFade() {
+        return (v -> {
+            if (v == 0) {
+                return new TranslatableText("gui.none");
+            } else {
+                return new LiteralText((double) v / 1000.0 + " seconds");
+            }
+        });
+    }
 }

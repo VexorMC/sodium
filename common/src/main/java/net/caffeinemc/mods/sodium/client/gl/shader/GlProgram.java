@@ -10,11 +10,13 @@ import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
+import java.nio.IntBuffer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -132,6 +134,20 @@ public class GlProgram<T> extends GlObject implements ShaderBindingContext {
 
             if (!log.isEmpty()) {
                 LOGGER.warn("Program link log for " + this.name + ": " + log);
+            }
+
+            int uniformCount = GL20.glGetProgrami(program, GL20.GL_ACTIVE_UNIFORMS);
+            int maxLength = GL20.glGetProgrami(program, GL20.GL_ACTIVE_UNIFORM_MAX_LENGTH);
+
+            for (int i = 0; i < uniformCount; i++) {
+                IntBuffer sizeType = BufferUtils.createIntBuffer(2);
+
+                String name = GL20.glGetActiveUniform(program, i, maxLength, sizeType);
+
+                int size = sizeType.get(0);
+                int type = sizeType.get(1);
+
+                System.out.println("Uniform: " + name + " | size=" + size + " | type=" + type);
             }
 
             int result = GLX.gl20GetProgrami(this.program, GL20.GL_LINK_STATUS);

@@ -2,10 +2,10 @@ package net.caffeinemc.mods.sodium.client.render.chunk.shader;
 
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformFloat;
-import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformFloat3v;
-import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformInt;
-import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformMatrix4f;
+import net.caffeinemc.mods.sodium.client.SodiumClientMod;
+import net.caffeinemc.mods.sodium.client.gl.buffer.GlBuffer;
+import net.caffeinemc.mods.sodium.client.gl.shader.uniform.*;
+import net.caffeinemc.mods.sodium.client.gui.SodiumOptions;
 import net.minecraft.client.MinecraftClient;
 import org.joml.Matrix4fc;
 import org.lwjgl.Sys;
@@ -23,6 +23,10 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
     private final GlUniformMatrix4f uniformModelViewMatrix;
     private final GlUniformMatrix4f uniformProjectionMatrix;
     private final GlUniformFloat3v uniformRegionOffset;
+    private final GlUniformInt uniformCurrentTime;
+    private final GlUniformFloat uniformFadePeriod;
+
+    private final GlUniformBlock uniformChunkData;
 
     // The fog shader component used by this program in order to setup the appropriate GL state
     private final ChunkShaderFogComponent fogShader;
@@ -31,6 +35,11 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
         this.uniformModelViewMatrix = context.bindUniform("u_ModelViewMatrix", GlUniformMatrix4f::new);
         this.uniformProjectionMatrix = context.bindUniform("u_ProjectionMatrix", GlUniformMatrix4f::new);
         this.uniformRegionOffset = context.bindUniform("u_RegionOffset", GlUniformFloat3v::new);
+
+        this.uniformCurrentTime = context.bindUniform("u_CurrentTime", GlUniformInt::new);
+        this.uniformFadePeriod = context.bindUniform("u_FadePeriodInv", GlUniformFloat::new);
+
+        this.uniformChunkData = context.bindUniformBlock("ChunkData", 0);
 
         this.uniformTextures = new EnumMap<>(ChunkShaderTextureSlot.class);
         this.uniformTextures.put(ChunkShaderTextureSlot.BLOCK, context.bindUniform("u_BlockTex", GlUniformInt::new));
@@ -44,6 +53,8 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
         // 36064
         this.bindTexture(ChunkShaderTextureSlot.BLOCK, 0);
         this.bindTexture(ChunkShaderTextureSlot.LIGHT, 1);
+
+        uniformFadePeriod.setFloat((float) (1.0 / (SodiumClientMod.options().quality.chunkSectionFadeInTime * 1000.0))); // this is in seconds!
 
         this.fogShader.setup();
     }
@@ -59,6 +70,12 @@ public class DefaultShaderInterface implements ChunkShaderInterface {
 
         var uniform = this.uniformTextures.get(slot);
         uniform.setInt(textureId);
+    }
+
+    @Override
+    public void setChunkData(GlBuffer data, int time) {
+        uniformChunkData.bindBuffer(data);
+        uniformCurrentTime.set(time);
     }
 
     @Override

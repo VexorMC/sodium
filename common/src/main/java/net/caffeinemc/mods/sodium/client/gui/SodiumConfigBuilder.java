@@ -282,6 +282,16 @@ public class SodiumConfigBuilder implements ConfigEntryPoint {
                                 .setDefaultValue(DEFAULTS.quality.enableVignette)
                                 .setBinding(value -> this.sodiumOpts.quality.enableVignette = value, () -> this.sodiumOpts.quality.enableVignette)
                 )
+                .addOption(
+                        builder.createIntegerOption(new Identifier("radium:quality.fade_time"))
+                                .setStorageHandler(this.sodiumStorage)
+                                .setName(new TranslatableText("sodium.options.chunkFade.name"))
+                                .setTooltip(new TranslatableText("sodium.options.chunkFade.tooltip"))
+                                .setDefaultValue(750)
+                                .setValueFormatter(ControlValueFormatterImpls.chunkFade())
+                                .setRange(new Range(0, 2000, 50))
+                                .setBinding(fade -> this.sodiumOpts.quality.chunkSectionFadeInTime = ((double) fade / 1000.0), () -> (int) (this.sodiumOpts.quality.chunkSectionFadeInTime * 1000.0))
+                )
         );
 
         qualityPage.addOptionGroup(builder.createOptionGroup()

@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
+import net.caffeinemc.mods.sodium.client.gl.buffer.GlBuffer;
 import org.lwjgl.system.MemoryUtil;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
@@ -92,7 +93,7 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
                 tessellation = this.prepareTessellation(commandList, region);
             }
 
-            setModelMatrixUniforms(shader, region, camera);
+            setModelMatrixUniforms(shader, region, camera, region.getResources().prepareChunkData(commandList));
             executeDrawBatch(commandList, tessellation, batch);
         }
 
@@ -303,12 +304,13 @@ public class DefaultChunkRenderer extends ShaderChunkRenderer {
         return planes;
     }
 
-    private static void setModelMatrixUniforms(ChunkShaderInterface shader, RenderRegion region, CameraTransform camera) {
+    private static void setModelMatrixUniforms(ChunkShaderInterface shader, RenderRegion region, CameraTransform camera, GlBuffer chunKData) {
         float x = getCameraTranslation(region.getOriginX(), camera.intX, camera.fracX);
         float y = getCameraTranslation(region.getOriginY(), camera.intY, camera.fracY);
         float z = getCameraTranslation(region.getOriginZ(), camera.intZ, camera.fracZ);
 
         shader.setRegionOffset(x, y, z);
+        shader.setChunkData(chunKData, Math.toIntExact(System.currentTimeMillis() - region.getCreationTime()));
     }
 
     private static float getCameraTranslation(int chunkBlockPos, int cameraBlockPos, float cameraPos) {

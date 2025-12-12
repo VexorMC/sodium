@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
+import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.executor.ChunkJob;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
 import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.GraphDirection;
@@ -12,6 +13,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.estimation.MeshResultSize;
@@ -66,6 +68,7 @@ public class RenderSection {
 
     // Lifetime state
     private boolean disposed;
+    private int fadeTime;
 
     public RenderSection(RenderRegion region, int chunkX, int chunkY, int chunkZ) {
         this.chunkX = chunkX;
@@ -395,5 +398,16 @@ public class RenderSection {
 
     public void setLastSubmittedFrame(int lastSubmittedFrame) {
         this.lastSubmittedFrame = lastSubmittedFrame;
+    }
+
+    public float getCurrentVisibility() {
+        int currentTime = Math.toIntExact(System.currentTimeMillis() - region.getCreationTime());
+        int fadeTime = currentTime - this.fadeTime;
+        float elapsed = (float) fadeTime;
+        return MathHelper.clamp(elapsed / ((float) (SodiumClientMod.options().quality.chunkSectionFadeInTime * 1000)), 0.0f, 1.0f);
+    }
+
+    public void setFadeTime(int relativeBuiltTime) {
+        this.fadeTime = relativeBuiltTime;
     }
 }

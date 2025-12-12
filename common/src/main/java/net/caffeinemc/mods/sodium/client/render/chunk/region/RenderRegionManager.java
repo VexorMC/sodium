@@ -20,6 +20,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.SharedIndexSorter;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Camera;
 import net.minecraft.util.profiler.Profiler;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,8 +83,16 @@ public class RenderRegionManager {
 
                     BuiltSectionMeshParts mesh = chunkBuildOutput.getMesh(pass);
 
+                    // This is before new data is loaded. If this is the first build, isBuilt should be false.
+
+                    int meshTime = -1;
+
+                    if (!result.render.isBuilt()) {
+                        meshTime = Math.toIntExact(System.currentTimeMillis() - region.getCreationTime());
+                    }
+
                     if (mesh != null) {
-                        uploads.add(new PendingSectionMeshUpload(result.render, mesh, pass,
+                        uploads.add(new PendingSectionMeshUpload(result.render, meshTime, mesh, pass,
                                 new PendingUpload(mesh.getVertexData())));
                     }
                 }
@@ -133,6 +142,8 @@ public class RenderRegionManager {
             return;
         }
 
+        var cameraPosition = Camera.getPosition();
+
         var resources = region.createResources(commandList);
         var regionFillFractionInv = region.getFillFractionInv();
 
@@ -153,6 +164,16 @@ public class RenderRegionManager {
             // Collect the upload results
             for (PendingSectionMeshUpload upload : uploads) {
                 var storage = region.createStorage(upload.pass);
+                if (upload.relativeBuiltTime != -1) { // We don't want the animation to happen again on chunks changing!
+                    double dx = upload.section.getCenterX() - cameraPosition.x;
+                    double dy = upload.section.getCenterY() - cameraPosition.y;
+                    double dz = upload.section.getCenterZ() - cameraPosition.z;
+                    double distanceToPlayer = dx * dx + dy * dy + dz * dz;
+
+                    int relativeBuiltTime = distanceToPlayer < 768.0 ? -1 : upload.relativeBuiltTime;
+                    upload.section.setFadeTime(relativeBuiltTime);
+                    resources.writeMeshTimes(upload.section.getSectionIndex(), relativeBuiltTime);
+                }
                 storage.setVertexData(upload.section.getSectionIndex(),
                         upload.vertexUpload.getResult(), upload.meshData.getVertexSegments());
             }
@@ -230,7 +251,7 @@ public class RenderRegionManager {
         return instance;
     }
 
-    private record PendingSectionMeshUpload(RenderSection section, BuiltSectionMeshParts meshData, TerrainRenderPass pass, PendingUpload vertexUpload) {
+    private record PendingSectionMeshUpload(RenderSection section, int relativeBuiltTime, BuiltSectionMeshParts meshData, TerrainRenderPass pass, PendingUpload vertexUpload) {
     }
 
     private record PendingSectionIndexBufferUpload(RenderSection section, PendingUpload indexBufferUpload) {
