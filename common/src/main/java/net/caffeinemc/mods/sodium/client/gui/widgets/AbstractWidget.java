@@ -1,37 +1,35 @@
 package net.caffeinemc.mods.sodium.client.gui.widgets;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
-import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
-import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiParentEventListener;
+import net.caffeinemc.mods.sodium.client.util.Dim2i;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.lwjgl.opengl.GL11;
-
-import java.util.function.Consumer;
+import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
+import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
 
 public abstract class AbstractWidget implements Renderable, GuiEventListener {
-    protected final TextRenderer font;
+    protected final TextRenderer font = MinecraftClient.getInstance().textRenderer;
+    private final Dim2i dim;
     protected boolean focused;
     protected boolean hovered;
 
-    protected AbstractWidget() {
-        this.font = MinecraftClient.getInstance().textRenderer;
+    protected AbstractWidget(Dim2i dim) {
+        this.dim = dim;
     }
 
     protected void drawString(String text, int x, int y, int color) {
-        font.draw(text, x, y, color);
+        font.drawWithShadow(text, x, y, color);
     }
 
     protected void drawString(Text text, int x, int y, int color) {
-        font.draw(text.asFormattedString(), x, y, color);
+        font.drawWithShadow(text.asFormattedString(), x, y, color);
+    }
+
+    protected void drawCenteredString(Text text, int x, int y, int color) {
+        font.drawWithShadow(text.asFormattedString(), x - font.getStringWidth(text.asFormattedString()) / 2f, y, color);
     }
 
     public boolean isHovered() {
@@ -46,13 +44,50 @@ public abstract class AbstractWidget implements Renderable, GuiEventListener {
         MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(new Identifier("gui.button.press"), 1.0F));
     }
 
+    public int getX() {
+        return this.dim.x();
+    }
+
+    public int getY() {
+        return this.dim.y();
+    }
+
+    public int getWidth() {
+        return this.dim.width();
+    }
+
+    public int getHeight() {
+        return this.dim.height();
+    }
+
+    public final int getLimitX() {
+        return this.getX() + this.getWidth();
+    }
+
+    public final int getLimitY() {
+        return this.getY() + this.getHeight();
+    }
+
+    public final int getCenterX() {
+        return this.getX() + this.getWidth() / 2;
+    }
+
+    public final int getCenterY() {
+        return this.getY() + this.getHeight() / 2;
+    }
+
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        return mouseX >= this.getX() && mouseX < this.getLimitX() && mouseY >= this.getY() && mouseY < this.getLimitY();
+    }
+
     protected int getStringWidth(Text text) {
         return this.font.getStringWidth(text.asFormattedString());
     }
 
     @Override
     public boolean isFocused() {
-        return focused;
+        return this.focused;
     }
 
     @Override
@@ -60,41 +95,36 @@ public abstract class AbstractWidget implements Renderable, GuiEventListener {
         this.focused = focused;
     }
 
+    protected String truncateTextToFit(String name, int targetWidth) {
+        var suffix = "...";
+        var suffixWidth = this.font.getStringWidth(suffix);
+        var nameFontWidth = this.font.getStringWidth(name);
+        if (nameFontWidth > targetWidth) {
+            targetWidth -= suffixWidth;
+            int maxLabelChars = name.length() - 3;
+            int minLabelChars = 1;
+
+            // binary search on how many chars fit
+            while (maxLabelChars - minLabelChars > 1) {
+                var mid = (maxLabelChars + minLabelChars) / 2;
+                var midName = name.substring(0, mid);
+                var midWidth = this.font.getStringWidth(midName);
+                if (midWidth > targetWidth) {
+                    maxLabelChars = mid;
+                } else {
+                    minLabelChars = mid;
+                }
+            }
+
+            name = name.substring(0, minLabelChars).trim() + suffix;
+        }
+        return name;
+    }
+
     protected void drawBorder(int x1, int y1, int x2, int y2, int color) {
         DrawableHelper.fill(x1, y1, x2, y1 + 1, color);
         DrawableHelper.fill(x1, y2 - 1, x2, y2, color);
         DrawableHelper.fill(x1, y1, x1 + 1, y2, color);
         DrawableHelper.fill(x2 - 1, y1, x2, y2, color);
-    }
-
-    protected void drawQuads(Consumer<BufferBuilder> consumer) {
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture();
-        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.getBuffer();
-        bufferBuilder.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
-
-        consumer.accept(bufferBuilder);
-
-        tessellator.draw();
-
-        GlStateManager.enableTexture();
-        GlStateManager.disableBlend();
-    }
-
-    protected static void addQuad(BufferBuilder consumer, double x1, double y1, double x2, double y2, float a, float r, float g, float b) {
-        consumer.vertex(x2, y1, 0.0D).color(r, g, b, a).next();
-        consumer.vertex(x1, y1, 0.0D).color(r, g, b, a).next();
-        consumer.vertex(x1, y2, 0.0D).color(r, g, b, a).next();
-        consumer.vertex(x2, y2, 0.0D).color(r, g, b, a).next();
-    }
-
-    @Override
-    public abstract boolean isMouseOver(double x, double y);
-
-    protected int getTextWidth(Text text) {
-        return this.font.getStringWidth(text.asFormattedString());
     }
 }

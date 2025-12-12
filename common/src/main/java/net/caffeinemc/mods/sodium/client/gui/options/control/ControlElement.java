@@ -1,104 +1,76 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
-import dev.vexor.radium.options.client.gui.OptionExtended;
-import net.caffeinemc.mods.sodium.client.gui.options.Option;
+import net.caffeinemc.mods.sodium.client.config.structure.Option;
+import net.caffeinemc.mods.sodium.client.gui.ColorTheme;
+import net.caffeinemc.mods.sodium.client.gui.Colors;
+import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.gui.widgets.AbstractWidget;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
+import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
-public class ControlElement<T> extends AbstractWidget {
-    protected final Option<T> option;
+public abstract class ControlElement extends AbstractWidget {
+    protected final AbstractOptionList list;
+    protected final ColorTheme theme;
 
-    protected final Dim2i dim;
-
-    public ControlElement(Option<T> option, Dim2i dim) {
-        this.option = option;
-        this.dim = dim;
+    public ControlElement(AbstractOptionList list, Dim2i dim, ColorTheme theme) {
+        super(dim);
+        this.list = list;
+        this.theme = theme;
     }
 
+    public abstract Option getOption();
+
     public int getContentWidth() {
-        return this.option.getControl().getMaxWidth();
+        return this.getOption().getControl().getMaxWidth();
     }
 
     @Override
     public void render(int mouseX, int mouseY, float delta) {
-        String name = this.option.getName().asFormattedString();
+        String name = this.getOption().getName().asFormattedString();
 
         // add the star suffix before truncation to prevent it from overlapping with the label text
-        if (this.option.isAvailable() && this.option.hasChanged()) {
+        if (this.getOption().isEnabled() && this.getOption().hasChanged()) {
             name = name + " *";
         }
 
-        // on focus or hover truncate the label to never overlap with the control's content
-        if (this.hovered || this.isFocused()) {
-            name = truncateLabelToFit(name);
-        }
+        name = truncateLabelToFit(name);
 
-        String label = getLabel(name);
-
-        this.hovered = this.dim.containsCursor(mouseX, mouseY);
-
-        this.drawRect(this.dim.x(), this.dim.y(), this.dim.getLimitX(), this.dim.getLimitY(), this.hovered ? 0xE0000000 : 0x90000000);
-        this.drawString(label, this.dim.x() + 6, this.dim.getCenterY() - 4, 0xFFFFFFFF);
-
-        if (this.isFocused()) {
-            this.drawBorder(this.dim.x(), this.dim.y(), this.dim.getLimitX(), this.dim.getLimitY(), -1);
-        }
-    }
-
-    private @NotNull String getLabel(String name) {
         String label;
-        if (this.option.isAvailable()) {
-            if (option instanceof OptionExtended<?> optionExtended && optionExtended.isHighlight()) {
-                Formatting color = optionExtended.isSelected() ? Formatting.DARK_GREEN : Formatting.YELLOW;
-                label = color + name;
+        if (this.getOption().isEnabled()) {
+            if (this.getOption().hasChanged()) {
+                label = Formatting.ITALIC + name;
             } else {
                 label = Formatting.WHITE + name;
             }
         } else {
             label = String.valueOf(Formatting.GRAY) + Formatting.STRIKETHROUGH + name;
         }
-        return label;
-    }
 
-    private @NotNull String truncateLabelToFit(String name) {
-        var suffix = "...";
-        var suffixWidth = this.font.getStringWidth(suffix);
-        var nameFontWidth = this.font.getStringWidth(name);
-        var targetWidth = this.dim.width() - this.getContentWidth() - 20;
-        if (nameFontWidth > targetWidth) {
-            targetWidth -= suffixWidth;
-            int maxLabelChars = name.length() - 3;
-            int minLabelChars = 1;
+        this.hovered = this.isMouseOver(mouseX, mouseY);
 
-            // binary search on how many chars fit
-            while (maxLabelChars - minLabelChars > 1) {
-                var mid = (maxLabelChars + minLabelChars) / 2;
-                var midName = name.substring(0, mid);
-                var midWidth = this.font.getStringWidth(midName);
-                if (midWidth > targetWidth) {
-                    maxLabelChars = mid;
-                } else {
-                    minLabelChars = mid;
-                }
-            }
+        this.drawRect(this.getX(), this.getY(), this.getLimitX(), this.getLimitY(), this.hovered ? Colors.BACKGROUND_HOVER : Colors.BACKGROUND_LIGHT);
+        this.drawString(label, this.getX() + 6, this.getCenterY() + Layout.REGULAR_TEXT_BASELINE_OFFSET, Colors.FOREGROUND);
 
-            name = name.substring(0, minLabelChars).trim() + suffix;
+        if (this.isFocused()) {
+            this.drawBorder(this.getX(), this.getY(), this.getLimitX(), this.getLimitY(), -1);
         }
-        return name;
     }
 
-    public Option<T> getOption() {
-        return this.option;
+    protected Text formatDisabledControlValue(Text value) {
+        return value.copy().setStyle(new Style()
+                .setFormatting(Formatting.GRAY)
+                .setItalic(true));
     }
 
-    public Dim2i getDimensions() {
-        return this.dim;
+    private String truncateLabelToFit(String name) {
+        return truncateTextToFit(name, this.getWidth() - this.getContentWidth() - 20);
     }
 
     @Override
-    public boolean isMouseOver(double x, double y) {
-        return this.dim.containsCursor(x, y);
+    public int getY() {
+        return super.getY() - this.list.getScrollAmount();
     }
 }

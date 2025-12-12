@@ -40,7 +40,7 @@ public class StringUtils {
             for (Option<?> option : page.getOptions()) {
                 String sentence = (option.getName()/*  +
                         " " +
-                        option.getTooltip().getString()+
+                        option.getTooltip().asFormattedString()+
                         " " +
                         option.getImpact().toString()*/).asFormattedString().toLowerCase();
 

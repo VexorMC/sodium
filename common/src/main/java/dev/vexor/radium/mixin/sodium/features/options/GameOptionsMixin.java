@@ -1,7 +1,7 @@
 package dev.vexor.radium.mixin.sodium.features.options;
 
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
-import net.caffeinemc.mods.sodium.client.gui.SodiumGameOptions;
+import net.caffeinemc.mods.sodium.client.gui.SodiumOptions;
 import net.minecraft.client.option.GameOptions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -33,7 +33,7 @@ public class GameOptionsMixin {
      */
     @Overwrite
     public int getCloudMode() {
-        SodiumGameOptions options = SodiumClientMod.options();
+        SodiumOptions options = SodiumClientMod.options();
 
         if (this.viewDistance < 4 || !options.quality.enableClouds) {
             return 0;

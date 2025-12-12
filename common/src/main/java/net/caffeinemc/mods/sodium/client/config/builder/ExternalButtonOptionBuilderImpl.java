@@ -1,0 +1,65 @@
+package net.caffeinemc.mods.sodium.client.config.builder;
+
+import net.caffeinemc.mods.sodium.api.config.ConfigState;
+import net.caffeinemc.mods.sodium.api.config.structure.ExternalButtonOptionBuilder;
+import net.caffeinemc.mods.sodium.client.config.structure.ExternalButtonOption;
+import net.caffeinemc.mods.sodium.client.config.structure.Option;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import org.apache.commons.lang3.Validate;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+class ExternalButtonOptionBuilderImpl extends StaticOptionBuilderImpl implements ExternalButtonOptionBuilder {
+    private Consumer<Screen> currentScreenConsumer;
+
+    ExternalButtonOptionBuilderImpl(Identifier id) {
+        super(id);
+    }
+
+    @Override
+    void prepareBuild() {
+        super.prepareBuild();
+
+        Validate.notNull(this.currentScreenConsumer, "Screen provider must be set");
+    }
+
+    @Override
+    Option build() {
+        this.prepareBuild();
+
+        return new ExternalButtonOption(this.id, this.getDependencies(), this.name, this.enabled, this.tooltip, this.currentScreenConsumer);
+    }
+
+    @Override
+    public ExternalButtonOptionBuilder setScreenProvider(Consumer<Screen> currentScreenConsumer) {
+        this.currentScreenConsumer = currentScreenConsumer;
+        return this;
+    }
+
+    @Override
+    public ExternalButtonOptionBuilder setName(Text name) {
+        super.setName(name);
+        return this;
+    }
+
+    @Override
+    public ExternalButtonOptionBuilder setEnabled(boolean available) {
+        super.setEnabled(available);
+        return this;
+    }
+
+    @Override
+    public ExternalButtonOptionBuilder setEnabledProvider(Function<ConfigState, Boolean> provider, Identifier... dependencies) {
+        super.setEnabledProvider(provider, dependencies);
+        return this;
+    }
+
+    @Override
+    public ExternalButtonOptionBuilder setTooltip(Text tooltip) {
+        super.setTooltip(tooltip);
+        return this;
+    }
+}

@@ -1,7 +1,6 @@
 package com.prupe.mcpatcher.sky;
 
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
-import net.caffeinemc.mods.sodium.client.gui.SodiumGameOptions;
 import net.minecraft.client.particle.FireworksSparkParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.util.Identifier;

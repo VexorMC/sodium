@@ -20,7 +20,9 @@ public class RenderableScreen extends Screen {
         if (Mouse.hasWheel()) {
             int dWheel = Mouse.getDWheel();
 
-            getEventListeners().forEach(el -> el.mouseScrolled(mouseX, mouseY, dWheel, dWheel));
+            if (!this.mouseScrolled(mouseX, mouseY, dWheel, 1.0d)) {
+                getEventListeners().forEach(el -> el.mouseScrolled(mouseX, mouseY, dWheel, dWheel));
+            }
         }
 
         widgets.forEach(renderable -> renderable.render(mouseX, mouseY, tickDelta));
@@ -44,6 +46,10 @@ public class RenderableScreen extends Screen {
         getEventListeners().forEach(el -> el.mouseDragged(mouseX, mouseY, button));
     }
 
+    protected boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        return false;
+    }
+
     @Override
     protected void keyPressed(char id, int code) {
         super.keyPressed(id, code);
@@ -54,8 +60,13 @@ public class RenderableScreen extends Screen {
         this.widgets.clear();
     }
 
-    public void addRenderableWidget(Renderable renderable) {
+    public <T extends GuiEventListener & Renderable> T addRenderableWidget(T renderable) {
         this.widgets.add(renderable);
+        return renderable;
+    }
+
+    public void removeWidget(GuiEventListener renderable) {
+        this.widgets.remove(renderable);
     }
 
     protected List<GuiEventListener> getEventListeners() {

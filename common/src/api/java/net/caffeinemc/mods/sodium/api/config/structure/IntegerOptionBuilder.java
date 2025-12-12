@@ -1,0 +1,56 @@
+package net.caffeinemc.mods.sodium.api.config.structure;
+
+import net.caffeinemc.mods.sodium.api.config.*;
+import net.caffeinemc.mods.sodium.api.config.option.*;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+public interface IntegerOptionBuilder extends StatefulOptionBuilder<Integer> {
+    IntegerOptionBuilder setRange(int min, int max, int step);
+
+    IntegerOptionBuilder setRange(Range range);
+
+    IntegerOptionBuilder setRangeProvider(Function<ConfigState, Range> provider, Identifier... dependencies);
+
+    IntegerOptionBuilder setValueFormatter(ControlValueFormatter formatter);
+
+    @Override
+    IntegerOptionBuilder setName(Text name);
+
+    @Override
+    IntegerOptionBuilder setStorageHandler(StorageEventHandler storage);
+
+    @Override
+    IntegerOptionBuilder setTooltip(Text tooltip);
+
+    @Override
+    IntegerOptionBuilder setTooltip(Function<Integer, Text> tooltip);
+
+    @Override
+    IntegerOptionBuilder setImpact(OptionImpact impact);
+
+    @Override
+    IntegerOptionBuilder setFlags(OptionFlag... flags);
+
+    @Override
+    IntegerOptionBuilder setDefaultValue(Integer value);
+
+    @Override
+    IntegerOptionBuilder setDefaultProvider(Function<ConfigState, Integer> provider, Identifier... dependencies);
+
+    @Override
+    IntegerOptionBuilder setEnabled(boolean available);
+
+    @Override
+    IntegerOptionBuilder setEnabledProvider(Function<ConfigState, Boolean> provider, Identifier... dependencies);
+
+    @Override
+    IntegerOptionBuilder setBinding(Consumer<Integer> save, Supplier<Integer> load);
+
+    @Override
+    IntegerOptionBuilder setBinding(OptionBinding<Integer> binding);
+}
