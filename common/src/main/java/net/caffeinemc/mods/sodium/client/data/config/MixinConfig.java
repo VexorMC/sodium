@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.sodium.client.data.config;
 
 import net.caffeinemc.mods.sodium.client.services.PlatformMixinOverrides;
-import dev.vexor.radium.mixin.MixinOption;
+import gg.sona.radium.mixin.MixinOption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

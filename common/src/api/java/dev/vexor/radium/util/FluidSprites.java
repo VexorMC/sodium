@@ -1,7 +1,7 @@
 package dev.vexor.radium.util;
 
-import dev.vexor.radium.mixin.sodium.core.access.ABlockRenderManager;
-import dev.vexor.radium.mixin.sodium.core.access.AFluidRenderer;
+import gg.sona.radium.mixin.sodium.core.access.ABlockRenderManager;
+import gg.sona.radium.mixin.sodium.core.access.AFluidRenderer;
 import net.minecraft.block.AbstractFluidBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.MinecraftClient;

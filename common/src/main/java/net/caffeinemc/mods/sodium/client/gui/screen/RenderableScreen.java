@@ -2,7 +2,7 @@ package net.caffeinemc.mods.sodium.client.gui.screen;
 
 import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
 import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
-import dev.vexor.radium.mixin.sodium.core.access.AGameRenderer;
+import gg.sona.radium.mixin.sodium.core.access.AGameRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.Identifier;
 import org.lwjgl.input.Mouse;
