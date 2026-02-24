@@ -16,6 +16,7 @@
     "core.mcpatcher.sky.MixinWorldRenderer",
     "sodium.core.MinecraftMixin",
     "sodium.core.access.ABlockRenderManager",
+    "sodium.core.access.AChunk",
     "sodium.core.access.AFluidRenderer",
     "sodium.core.access.AGameRenderer",
     "sodium.core.render.VertexFormatMixin",

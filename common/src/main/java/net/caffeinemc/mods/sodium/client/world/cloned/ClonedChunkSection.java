@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.client.world.cloned;
 
 import dev.vexor.radium.compat.mojang.minecraft.ChunkNibbleArrayExt;
+import gg.sona.radium.mixin.sodium.core.access.AChunk;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
@@ -9,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -105,19 +107,21 @@ public class ClonedChunkSection {
     private static @NotNull Int2ReferenceMap<BlockEntity> copyBlockEntities(Chunk chunk, SectionPos pos) {
         Int2ReferenceOpenHashMap<BlockEntity> blockEntities = new Int2ReferenceOpenHashMap<>();
 
-        chunk.getBlockEntities().forEach((blockPos, blockEntity) -> {
-            var x = blockPos.getX();
-            var y = blockPos.getY();
-            var z = blockPos.getZ();
+        for (int y = pos.minBlockY(); y <= pos.maxBlockY(); y++) {
+            for (int z = pos.minBlockZ(); z <= pos.maxBlockZ(); z++) {
+                for (int x = pos.minBlockX(); x <= pos.maxBlockX(); x++) {
+                    Block block = ((AChunk) chunk).invokeGetBlock(x & 15, y, z & 15);
+                    if (!block.hasBlockEntity()) {
+                        continue;
+                    }
 
-            if (
-                x >= pos.minBlockX() && x <= pos.maxBlockX() &&
-                y >= pos.minBlockY() && y <= pos.maxBlockY() &&
-                z >= pos.minBlockZ() && x <= pos.maxBlockZ()
-            ) {
-                blockEntities.put(LevelSlice.getLocalBlockIndex(x & 15, y & 15, z & 15), blockEntity);
+                    BlockEntity blockEntity = chunk.getBlockEntity(new BlockPos(x, y, z), Chunk.Status.IMMEDIATE);
+                    if (blockEntity != null) {
+                        blockEntities.put(LevelSlice.getLocalBlockIndex(x & 15, y & 15, z & 15), blockEntity);
+                    }
+                }
             }
-        });
+        }
 
         return blockEntities;
     }
