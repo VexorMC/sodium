@@ -28,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -188,14 +187,13 @@ public final class LevelSlice implements BlockView {
     }
 
     private void unpackBlockData(BlockState[] blockArray, ChunkRenderContext context, ClonedChunkSection section) {
-        if (section.getBlockData() == null) {
+        var container = section.getBlockData();
+        if (container == null) {
             Arrays.fill(blockArray, EMPTY_BLOCK_STATE);
             return;
         }
 
-        BlockState[] container = section.getBlockData();
         SectionPos sectionPos = section.getPosition();
-
         if (sectionPos.equals(context.origin())) {
             System.arraycopy(container, 0, blockArray, 0, container.length);
         } else {
