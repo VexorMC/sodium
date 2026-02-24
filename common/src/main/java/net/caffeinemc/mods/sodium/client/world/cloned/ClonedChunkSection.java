@@ -26,37 +26,42 @@ public class ClonedChunkSection {
     private static final BlockState EMPTY_BLOCK_STATE = Blocks.AIR.getDefaultState();
 
     private final SectionPos pos;
-
     private final @Nullable Int2ReferenceMap<BlockEntity> blockEntityMap;
     private final @Nullable ChunkNibbleArray[] lightDataArrays;
-    private final @Nullable char[] blockData;
+    private final @Nullable BlockState[] blockData;
     private final @Nullable Biome[] biomeData;
-    private final ChunkSection section;
 
     private long lastUsedTimestamp = Long.MAX_VALUE;
 
     public ClonedChunkSection(World level, Chunk chunk, @Nullable ChunkSection section, SectionPos pos) {
         this.pos = pos;
 
-        char[] blockData = null;
         Biome[] biomeData = null;
-
+        BlockState[] blockData = null;
         Int2ReferenceMap<BlockEntity> blockEntityMap = null;
 
         if (section != null) {
             if (!section.isEmpty()) {
-                blockData = section.getBlockStates();
+                var blockStates = section.getBlockStates();
+                if (blockStates != null) {
+                    blockData = new BlockState[blockStates.length];
+
+                    for (int i = 0; i < blockStates.length; i++) {
+                        var state = Block.BLOCK_STATES.fromId(blockStates[i]);
+                        blockData[i] = state == null ? EMPTY_BLOCK_STATE : state;
+                    }
+                }
+
                 blockEntityMap = copyBlockEntities(chunk, pos);
             }
 
             biomeData = convertBiomeArray(chunk.getBiomeArray());
         }
 
-        this.blockData = blockData;
         this.biomeData = biomeData;
+        this.blockData = blockData;
         this.blockEntityMap = blockEntityMap;
         this.lightDataArrays = copyLightData(level, section);
-        this.section = section;
     }
 
     private static Biome[] convertBiomeArray(byte[] biomeIds) {
@@ -131,17 +136,7 @@ public class ClonedChunkSection {
     }
 
     public @Nullable BlockState[] getBlockData() {
-        if (this.section == null) return null;
-        if (this.blockData == null) return null;
-
-        BlockState[] blockData = new BlockState[this.blockData.length];
-
-        for (int i = 0; i < this.blockData.length; i++) {
-            var state = Block.BLOCK_STATES.fromId(this.blockData[i]);
-            blockData[i] = state == null ? EMPTY_BLOCK_STATE : state;
-        }
-
-        return blockData;
+        return this.blockData;
     }
 
     public @Nullable Biome[] getBiomeData() {
