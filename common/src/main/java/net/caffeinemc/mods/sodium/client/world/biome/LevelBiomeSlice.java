@@ -58,17 +58,16 @@ public class LevelBiomeSlice {
                     int cellY = (sectionY * 4) + relCellY;
                     int cellZ = (sectionZ * 4) + relCellZ;
 
-                    // Map the coordinates to valid biomeData indices (16x16 grid)
-                    int biomeX = cellX & 15;
-                    int biomeZ = cellZ & 15;
-                    int biomeIndex = (biomeZ << 4) | biomeX; // Flatten to 1D index
-
                     var idx = dataArrayIndex(cellX, cellY, cellZ);
 
                     if (biomeData == null) {
                         this.biomes[idx] = defaultBiome;
                     } else {
-                        this.biomes[idx] = biomeData[biomeIndex]; // Use the valid index
+                        int blockX = ((relCellX * 4) + 2) & 15;
+                        int blockZ = ((relCellZ * 4) + 2) & 15;
+
+                        int biomeIndex = (blockZ << 4) | blockX;
+                        this.biomes[idx] = biomeData[biomeIndex];
                     }
                 }
             }
