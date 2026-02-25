@@ -35,14 +35,7 @@ public class FlatLightPipeline implements LightPipeline {
         if (cullFace != null) {
             lightmap = getOffsetLightmap(pos, cullFace);
         } else {
-            int flags = quad.getFlags();
-            // If the face is aligned, use the light data above it
-            // To match vanilla behavior, also treat the face as aligned if it is parallel and the block state is a full cube
-            if ((flags & ModelQuadFlags.IS_ALIGNED) != 0 || ((flags & ModelQuadFlags.IS_PARALLEL) != 0 && unpackFC(this.lightCache.get(pos)))) {
-                lightmap = getOffsetLightmap(pos, lightFace);
-            } else {
-                lightmap = getEmissiveLightmap(this.lightCache.get(pos));
-            }
+            lightmap = getOffsetLightmap(pos, lightFace);
         }
 
         Arrays.fill(out.lm, lightmap);
@@ -64,8 +57,12 @@ public class FlatLightPipeline implements LightPipeline {
             return LightTexture.FULL_BRIGHT;
         }
 
-        // Use light values from the offset pos, but luminance from the origin pos
         int adjWord = this.lightCache.get(pos, face);
+        
+        if (unpackFO(adjWord)) {
+            return LightTexture.pack(Math.max(unpackBL(word), unpackLU(word)), unpackSL(word));
+        }
+
         return LightTexture.pack(Math.max(unpackBL(adjWord), unpackLU(word)), unpackSL(adjWord));
     }
 }
