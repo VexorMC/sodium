@@ -7,9 +7,9 @@ import java.awt.*;
 
 // colors in ARGB format
 public class Colors {
-    public static final int THEME = 0xFF94E4D3;
-    public static final int THEME_LIGHTER = 0xFFCCFDEE;
-    public static final int THEME_DARKER = 0xFF7A9E9E;
+    public static final int THEME = 0xFFE59595;
+    public static final int THEME_LIGHTER = 0xFFFFD2CE;
+    public static final int THEME_DARKER = 0xFFA57F7C;
     public static final int FOREGROUND = 0xFFFFFFFF;
     public static final int FOREGROUND_DISABLED = 0xFFAAAAAA;
     public static final int FOREGROUND_INVERTED = 0xFF000000;
@@ -22,7 +22,7 @@ public class Colors {
     public static final int BACKGROUND_DARKER = 0xB0000000;
     public static final int BACKGROUND_HIGHLIGHT = 0x08FFFFFF;
 
-    public static final int BUTTON_BORDER = 0x8000FFEE;
+    public static final int BUTTON_BORDER = 0xFFFFD2CE;
 
     private static final float LIGHTEN_FACTOR = 0.3f;
     private static final float DARKEN_FACTOR = -0.23f;
