@@ -6,7 +6,7 @@ plugins {
 group = "net.caffeinemc"
 version = BuildConfig.createVersionString(project)
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"

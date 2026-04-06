@@ -81,6 +81,9 @@
     "minecraft": ["1.8.9"],
     "fabricloader" : ">=0.16.0"
   },
+  "suggests": {
+    "legacy-fabric-api": "*"
+  },
   "breaks" : {},
   "provides" : []
 }

@@ -2,15 +2,20 @@ plugins {
     id("multiloader-base")
     id("java-library")
 
-    id("fabric-loom") version ("1.8.9")
+    id("net.fabricmc.fabric-loom-remap") version "1.15-SNAPSHOT"
+    id("ploceus") version "1.15-SNAPSHOT"
 }
 
 base {
-    archivesName = "sodium-common"
+    archivesName = "radium-common"
 }
 
 val configurationPreLaunch = configurations.create("preLaunchDeps") {
     isCanBeResolved = true
+}
+
+ploceus {
+    setIntermediaryGeneration(2)
 }
 
 sourceSets {
@@ -32,7 +37,7 @@ repositories {
 
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
-    mappings("net.legacyfabric:yarn:1.8.9+build.551:v2")
+    mappings("net.legacyfabric:yarn:1.8.9+build.604:v2")
 
     implementation("org.joml:joml:1.10.8")
     implementation("it.unimi.dsi:fastutil:8.5.15")
@@ -42,8 +47,6 @@ dependencies {
 
     compileOnly("net.fabricmc:sponge-mixin:0.13.2+mixin.0.8.5")
     compileOnly("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
-
-    modCompileOnly("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:1.9.4+1.8.9")
 
     implementation(project(":lwjgl3", configuration = "default"))
 
