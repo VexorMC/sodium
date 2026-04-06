@@ -85,5 +85,7 @@
     "legacy-fabric-api": "*"
   },
   "breaks" : {},
-  "provides" : []
+  "provides" : [
+    "legacy-lwjgl3"
+  ]
 }
