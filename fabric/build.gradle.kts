@@ -65,7 +65,7 @@ sourceSets.apply {
 
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
-    mappings("net.legacyfabric:yarn:1.8.9+build.604:v2")
+    mappings("net.legacyfabric:legacy-yarn:1.8.9+build.4:v2")
 
     implementation(project(":lwjgl3", configuration = "default"))
 
