@@ -39,14 +39,3 @@ jobs:
           name: sodium-artifacts-${{ steps.ref.outputs.branch }}
           path: build/mods/*.jar
 
-      - name: Publish to Modrinth
-        uses: cloudnode-pro/modrinth-publish@v2
-        with:
-          token: ${{ secrets.MODRINTH_TOKEN }}
-          project: URs5boj6
-          version: ${{ github.ref_name }}
-          loaders: |
-            - legacy-fabric
-            - ornithe
-          game-versions: 1.8.9
-          files: build/mods/*.jar
