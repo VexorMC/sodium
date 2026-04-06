@@ -79,12 +79,12 @@
   ],
   "depends" : {
     "minecraft": ["1.8.9"],
-    "fabricloader" : ">=0.16.0"
+    "fabricloader" : ">=0.16.0",
+    "osl": ">=0.17.0"
   },
-  "suggests": {
-    "legacy-fabric-api": "*"
+  "breaks" : {
+    "optifabric": "*"
   },
-  "breaks" : {},
   "provides" : [
     "legacy-lwjgl3"
   ]
