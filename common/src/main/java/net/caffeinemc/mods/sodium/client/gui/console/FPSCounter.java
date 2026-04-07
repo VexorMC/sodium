@@ -52,16 +52,10 @@ public class FPSCounter {
             avgFrameCounter = 0;
         }
 
-        double minFps = getMinFps();
-        double maxFps = getMaxFps();
-
         String finalStr = String.format(
-                "FPS: %.0f (avg %.0f | min %.0f / max %.0f) | %.1f ms (avg %.2f)",
+                "%.0f/%.0f fps (%.2f ms)",
                 currentFps,
                 avgFps,
-                minFps,
-                maxFps,
-                deltaTime / 1_000_000.0,
                 avgFrameTime / 1_000_000.0
         );
 
@@ -75,31 +69,5 @@ public class FPSCounter {
             total += frameTimings[i];
         }
         return (double) total / count;
-    }
-
-    private double getMinFps() {
-        long min = Long.MAX_VALUE;
-        int count = isFilled ? SAMPLE_SIZE : frameIndex;
-
-        for (int i = 0; i < count; i++) {
-            if (frameTimings[i] < min) {
-                min = frameTimings[i];
-            }
-        }
-
-        return 1_000_000_000.0 / min;
-    }
-
-    private double getMaxFps() {
-        long max = Long.MIN_VALUE;
-        int count = isFilled ? SAMPLE_SIZE : frameIndex;
-
-        for (int i = 0; i < count; i++) {
-            if (frameTimings[i] > max) {
-                max = frameTimings[i];
-            }
-        }
-
-        return 1_000_000_000.0 / max;
     }
 }
