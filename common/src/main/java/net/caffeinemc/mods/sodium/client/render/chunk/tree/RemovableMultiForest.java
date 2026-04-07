@@ -27,7 +27,9 @@ public class RemovableMultiForest implements RemovableForest {
     }
 
     public void ensureCapacity(float buildDistance) {
-        this.trees.ensureCapacity(getCapacity(buildDistance));
+        // Unavailable in fastutil 8.5.9, which appears to be forced;
+        // It should already be handled by put.
+        // this.trees.ensureCapacity(getCapacity(buildDistance));
     }
 
     @Override

@@ -40,7 +40,7 @@ dependencies {
     mappings("net.legacyfabric:legacy-yarn:1.8.9+build.4:v2")
 
     implementation("org.joml:joml:1.10.8")
-    implementation("it.unimi.dsi:fastutil:8.5.15")
+    implementation("it.unimi.dsi:fastutil:8.5.9")
 
     compileOnly("io.github.llamalad7:mixinextras-common:0.3.5")
     annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.5")
@@ -50,7 +50,7 @@ dependencies {
 
     implementation(project(":lwjgl3", configuration = "default"))
 
-    implementation(platform("org.lwjgl:lwjgl-bom:3.3.6"))
+    implementation(platform("org.lwjgl:lwjgl-bom:3.4.1"))
 
     compileOnly("org.lwjgl:lwjgl")
     compileOnly("org.lwjgl:lwjgl-glfw")

@@ -146,8 +146,6 @@ public class GlProgram<T> extends GlObject implements ShaderBindingContext {
 
                 int size = sizeType.get(0);
                 int type = sizeType.get(1);
-
-                System.out.println("Uniform: " + name + " | size=" + size + " | type=" + type);
             }
 
             int result = GLX.gl20GetProgrami(this.program, GL20.GL_LINK_STATUS);

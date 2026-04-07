@@ -21,7 +21,7 @@ tasks.withType<JavaCompile> {
 }
 
 dependencies {
-    implementation(platform("org.lwjgl:lwjgl-bom:3.3.6"))
+    implementation(platform("org.lwjgl:lwjgl-bom:3.4.1"))
     implementation("org.jetbrains:annotations:26.0.2")
 
     compileOnly("org.lwjgl:lwjgl")

@@ -33,10 +33,10 @@ dependencies {
     configurationCommonModResources(project(path = ":common", configuration = "commonMainResources"))
 
     shadow("org.joml:joml:1.10.8")
-    shadow("it.unimi.dsi:fastutil:8.5.15")
+    shadow("it.unimi.dsi:fastutil:8.5.9")
     shadow("org.jetbrains:annotations:26.0.2")
 
-    shadow(platform("org.lwjgl:lwjgl-bom:3.3.6"))
+    shadow(platform("org.lwjgl:lwjgl-bom:3.4.1"))
 
     shadow(project(":lwjgl3", configuration = "default"))
 
@@ -70,6 +70,7 @@ dependencies {
     implementation(project(":lwjgl3", configuration = "default"))
 
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
+    ploceus.dependOsl("0.17.1")
 }
 
 configurations.configureEach {
