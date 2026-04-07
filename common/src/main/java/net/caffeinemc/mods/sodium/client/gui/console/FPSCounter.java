@@ -65,7 +65,7 @@ public class FPSCounter {
                 avgFrameTime / 1_000_000.0
         );
 
-        minecraft.textRenderer.drawWithShadow(finalStr, 10, 10, 0xFFFFFF);
+        minecraft.textRenderer.drawWithShadow(finalStr, 2, 2, 0xFFFFFF);
     }
 
     private double getAvgFt() {
