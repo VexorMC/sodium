@@ -1,6 +1,5 @@
 package net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.fluid;
 
-
 import dev.vexor.radium.compat.mojang.math.Mth;
 import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.NormI8;
@@ -34,6 +33,19 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.Arrays;
 
+/**
+ * The default fluid renderer implementation generates fluid geometry for each fluid block based on its fluid state, the block state, and other blocks around it.
+ * <p>
+ * First, preliminary culling for the six fluid faces determines whether they are visible at all. Visibility refers to a whether a face is rendered. Faces are not rendered if the neighboring block is of the same fluid type or if the face is occluded by the block it's contained in, i.e. water logging, or the neighboring block. Self-visibility refers to whether the block the fluid is inside is preventing the fluid face from rendering.
+ * <p>
+ * If the fluid block is not a full fluid block, the corner fluid heights are calculated from the fluid heights of the surrounding blocks. Each corner is calculated separately and takes weighted samples, which are then averaged into the final height. The fluid block itself contributes a sample, alongside directly neighboring and diagonally neighboring blocks, depending on connectivity. A sample is also taken from the diagonally neighboring block.
+ * <p>
+ * Before visible fluid faces are rendered into quads, they must also be tested as exposed. Exposed means that there is an open path through this face of the fluid block. This is independent of whether there's another block of this type of fluid there. The exposed test is done against the neighboring block's occlusion shape.
+ * <p>
+ * Visible implies self-visible implies exposed but not the other way around.
+ * <p>
+ * The top fluid face is additionally culled if the flooded cave heuristic determines that the fluid is within a flooded cave. Within flooded caves the downward-facing top face isn't rendered for performance and because it would look ugly.
+ */
 public class DefaultFluidRenderer {
     // TODO: allow this to be changed by vertex format, WARNING: make sure TranslucentGeometryCollector knows about EPSILON
     // TODO: move fluid rendering to a separate render pass and control glPolygonOffset and glDepthFunc to fix this properly
