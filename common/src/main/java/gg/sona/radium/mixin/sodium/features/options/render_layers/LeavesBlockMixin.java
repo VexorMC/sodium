@@ -10,6 +10,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public class LeavesBlockMixin {
     @ModifyVariable(method = "setGraphics", at = @At("HEAD"), argsOnly = true, index = 1)
     private boolean getSodiumLeavesQuality(boolean fast) {
-        return !SodiumClientMod.options().quality.leavesQuality.isFancy(!fast);
+        return SodiumClientMod.options().quality.leavesQuality.isFancy(!fast);
     }
 }
