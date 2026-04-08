@@ -35,8 +35,14 @@ public class OcclusionCuller {
 
         this.init(visitor, queues.write(), viewport, searchDistance, useOcclusionCulling, frame);
 
+        SectionPos origin = viewport.getChunkCoord();
+        if (this.getRenderSection(origin.getX(), origin.getY(), origin.getZ()) == null) {
+            // origin outside of world
+            origin = null;
+        }
+
         while (queues.flip()) {
-            processQueue(visitor, viewport, searchDistance, useOcclusionCulling, frame, queues.read(), queues.write());
+            processQueue(visitor, viewport, origin, searchDistance, useOcclusionCulling, frame, queues.read(), queues.write());
         }
 
         this.addNearbySections(visitor, viewport, searchDistance, frame);
@@ -44,6 +50,7 @@ public class OcclusionCuller {
 
     private static void processQueue(RenderSectionVisitor visitor,
                                      Viewport viewport,
+                                     SectionPos inBoundsOrigin,
                                      float searchDistance,
                                      boolean useOcclusionCulling,
                                      int frame,
@@ -51,6 +58,7 @@ public class OcclusionCuller {
                                      WriteQueue<RenderSection> writeQueue)
     {
         RenderSection section;
+        SectionPos origin = viewport.getChunkCoord();
 
         while ((section = readQueue.dequeue()) != null) {
             if (!isSectionVisible(section, viewport, searchDistance)) {
@@ -80,10 +88,10 @@ public class OcclusionCuller {
 
                 // We can only traverse *outwards* from the center of the graph search, so mask off any invalid
                 // directions.
-                connections &= getOutwardDirections(viewport.getChunkCoord(), section);
+                connections &= getOutwardDirections(origin, section);
             }
 
-            visitNeighbors(writeQueue, section, connections, frame);
+            visitNeighbors(writeQueue, inBoundsOrigin, section, connections, frame);
         }
     }
 
@@ -115,7 +123,7 @@ public class OcclusionCuller {
         return isWithinRenderDistance(viewport.getTransform(), section, maxDistance) && isWithinFrustum(viewport, section);
     }
 
-    private static void visitNeighbors(final WriteQueue<RenderSection> queue, RenderSection section, int outgoing, int frame) {
+    private static void visitNeighbors(final WriteQueue<RenderSection> queue, SectionPos origin, RenderSection section, int outgoing, int frame) {
         // Only traverse into neighbors which are actually present.
         // This avoids a null-check on each invocation to enqueue, and since the compiler will see that a null
         // is never encountered (after profiling), it will optimize it away.
@@ -126,30 +134,56 @@ public class OcclusionCuller {
             return;
         }
 
-        // This helps the compiler move the checks for some invariants upwards.
-        queue.ensureCapacity(6);
+        if (origin == null) {
+            // the viewpoint is outside the world, so the angle computations relying on propagating angle information
+            // from the origin section to the others won't work.
+            if (GraphDirectionSet.contains(outgoing, GraphDirection.DOWN)) {
+                visitNode(queue, section.adjacentDown, GraphDirectionSet.of(GraphDirection.UP), frame);
+            }
 
-        if (GraphDirectionSet.contains(outgoing, GraphDirection.DOWN)) {
+            if (GraphDirectionSet.contains(outgoing, GraphDirection.UP)) {
+                visitNode(queue, section.adjacentUp, GraphDirectionSet.of(GraphDirection.DOWN), frame);
+            }
+
+            if (GraphDirectionSet.contains(outgoing, GraphDirection.NORTH)) {
+                visitNode(queue, section.adjacentNorth, GraphDirectionSet.of(GraphDirection.SOUTH), frame);
+            }
+
+            if (GraphDirectionSet.contains(outgoing, GraphDirection.SOUTH)) {
+                visitNode(queue, section.adjacentSouth, GraphDirectionSet.of(GraphDirection.NORTH), frame);
+            }
+
+            if (GraphDirectionSet.contains(outgoing, GraphDirection.WEST)) {
+                visitNode(queue, section.adjacentWest, GraphDirectionSet.of(GraphDirection.EAST), frame);
+            }
+
+            if (GraphDirectionSet.contains(outgoing, GraphDirection.EAST)) {
+                visitNode(queue, section.adjacentEast, GraphDirectionSet.of(GraphDirection.WEST), frame);
+            }
+            return;
+        }
+
+        if (GraphDirectionSet.contains(outgoing, GraphDirection.DOWN) && section.adjacentDown.intersectSlopes(origin, section, frame)) {
             visitNode(queue, section.adjacentDown, GraphDirectionSet.of(GraphDirection.UP), frame);
         }
 
-        if (GraphDirectionSet.contains(outgoing, GraphDirection.UP)) {
+        if (GraphDirectionSet.contains(outgoing, GraphDirection.UP) && section.adjacentUp.intersectSlopes(origin, section, frame)) {
             visitNode(queue, section.adjacentUp, GraphDirectionSet.of(GraphDirection.DOWN), frame);
         }
 
-        if (GraphDirectionSet.contains(outgoing, GraphDirection.NORTH)) {
+        if (GraphDirectionSet.contains(outgoing, GraphDirection.NORTH) && section.adjacentNorth.intersectSlopes(origin, section, frame)) {
             visitNode(queue, section.adjacentNorth, GraphDirectionSet.of(GraphDirection.SOUTH), frame);
         }
 
-        if (GraphDirectionSet.contains(outgoing, GraphDirection.SOUTH)) {
+        if (GraphDirectionSet.contains(outgoing, GraphDirection.SOUTH) && section.adjacentSouth.intersectSlopes(origin, section, frame)) {
             visitNode(queue, section.adjacentSouth, GraphDirectionSet.of(GraphDirection.NORTH), frame);
         }
 
-        if (GraphDirectionSet.contains(outgoing, GraphDirection.WEST)) {
+        if (GraphDirectionSet.contains(outgoing, GraphDirection.WEST) && section.adjacentWest.intersectSlopes(origin, section, frame)) {
             visitNode(queue, section.adjacentWest, GraphDirectionSet.of(GraphDirection.EAST), frame);
         }
 
-        if (GraphDirectionSet.contains(outgoing, GraphDirection.EAST)) {
+        if (GraphDirectionSet.contains(outgoing, GraphDirection.EAST) && section.adjacentEast.intersectSlopes(origin, section, frame)) {
             visitNode(queue, section.adjacentEast, GraphDirectionSet.of(GraphDirection.WEST), frame);
         }
     }
@@ -290,6 +324,7 @@ public class OcclusionCuller {
             return;
         }
 
+        section.setOriginAngles();
         section.setLastVisibleFrame(frame);
         section.setIncomingDirections(GraphDirectionSet.NONE);
 
@@ -306,7 +341,7 @@ public class OcclusionCuller {
             outgoing = GraphDirectionSet.ALL;
         }
 
-        visitNeighbors(queue, section, outgoing, frame);
+        visitNeighbors(queue, origin, section, outgoing, frame);
     }
 
     // Enqueues sections that are inside the viewport using diamond spiral iteration to avoid sorting and ensure a

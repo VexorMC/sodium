@@ -8,7 +8,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.GraphDirectionSe
 import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.VisibilityEncoding;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.TranslucentData;
-import net.caffeinemc.mods.sodium.client.util.task.CancellationToken;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
@@ -35,6 +34,7 @@ public class RenderSection {
 
     private int incomingDirections;
     private int lastVisibleFrame = -1;
+    private long allowedAngles; // 60-bit packed quantized min/max allowed angles, 0-9 minXY, 10-19 maxXY, etc.
 
     private int adjacentMask;
     public RenderSection
@@ -315,6 +315,169 @@ public class RenderSection {
 
     public void setIncomingDirections(int directions) {
         this.incomingDirections = directions;
+    }
+
+    private static final int ANGLE_BITS = 10;
+    private static final int ANGLE_MASK = (1 << ANGLE_BITS) - 1;
+    private static final long ANGLES_MIN_MASK =
+            (long)ANGLE_MASK * (1 | (1L << (ANGLE_BITS * 2)) | (1L << (ANGLE_BITS * 4)));
+    private static final long ANGLES_MAX_MASK =
+            (long)ANGLE_MASK * ((1L << ANGLE_BITS) | (1L << (ANGLE_BITS * 3)) | (1L << (ANGLE_BITS * 5)));
+    private static final int LUT_DIM = 32;
+    private static final int LUT_SHIFT = 5; // (1 << 5) = 32
+
+    /**
+     * Lookup table for 20-bit packed (maxAngle(10)<<10) | minAngle(10).
+     * Indexed by [rise + run * 32], where rise/run are integers in [0, 31].
+     */
+    private static final int[] ANGLE_LUT = new int[LUT_DIM * LUT_DIM];
+
+    static {
+        for (int run = 0; run < LUT_DIM; run++) {
+            for (int rise = 0; rise < LUT_DIM; rise++) {
+                ANGLE_LUT[rise + run * LUT_DIM] = generateAngles(rise, run);
+            }
+        }
+    }
+
+    private static int generateAngles(int rise, int run) {
+        double minAngle = Math.atan2(rise - 1, run + 1);
+        double maxAngle = Math.atan2(rise + 1, run - 1);
+
+        // Quantize angles to 10-bit range [0, 1023]
+        int minQuant = (int) (Math.max(0.0, minAngle) * (ANGLE_MASK / (Math.PI / 2.0)));
+        int maxQuant = (int) (Math.min(Math.PI / 2.0, maxAngle) * (ANGLE_MASK / (Math.PI / 2.0)));
+
+        return (minQuant & ANGLE_MASK) | ((maxQuant & ANGLE_MASK) << ANGLE_BITS);
+    }
+
+    public void setOriginAngles() {
+        this.allowedAngles = ANGLES_MAX_MASK;
+    }
+
+    /**
+     * Intersects the allowed angles from the 'other' section with the base angles
+     * subtended by this section.
+     *
+     * @param origin The origin of the visibility check.
+     * @param other  The parent/previous section from which visibility is being propagated.
+     * @param frame  The current frame number.
+     * @return false if this section is guaranteed not visible, true otherwise.
+     */
+    public boolean intersectSlopes(SectionPos origin, RenderSection other, int frame) {
+        if (origin.getY() > 256) return true; // values over 256 appear to break culling
+
+        var dx = Math.abs(origin.getX() - this.getChunkX());
+        var dy = Math.abs(origin.getY() - this.getChunkY());
+        var dz = Math.abs(origin.getZ() - this.getChunkZ());
+
+        // Shift each plane's pair independently to preserve ratios
+        long baseAngles = lookupLut(dx, dy)
+                | ((long) lookupLut(dz, dx) << (2 * ANGLE_BITS))
+                | ((long) lookupLut(dy, dz) << (4 * ANGLE_BITS));
+
+        long pathAngles = parallel_unsigned_max_min(other.allowedAngles, baseAngles);
+
+        // Check if max < min for any plane, which means the path is occluded.
+        long borrows = parallel_unsigned_lt_msbs((pathAngles & ANGLES_MAX_MASK) >> ANGLE_BITS, pathAngles & ANGLES_MIN_MASK);
+        if (borrows != 0) {
+            return false;
+        }
+
+        if (this.lastVisibleFrame == frame) {
+            // This section has been visited before *this frame*.
+            // Union the angles: [min(oldMin, newMin), max(oldMax, newMax)]
+            pathAngles = parallel_unsigned_min_max(pathAngles, this.allowedAngles);
+        }
+        this.allowedAngles = pathAngles;
+
+        return true;
+    }
+
+    private static int lookupLut(int rise, int run) {
+        // Scale this pair down together
+        int shift = 32 - Integer.numberOfLeadingZeros(Math.max(rise, run) | 1);
+        if (shift > LUT_SHIFT) {
+            int s = shift - LUT_SHIFT;
+            rise >>= s;
+            run >>= s;
+        }
+        // Clamp to LUT bounds just in case
+        rise = Math.min(rise, LUT_DIM - 1);
+        run  = Math.min(run,  LUT_DIM - 1);
+        return ANGLE_LUT[rise + run * LUT_DIM];
+    }
+
+    /**
+     * Performs a parallel unsigned less-than comparison (a < b) for 6 10-bit lanes.
+     *
+     * @param a 6 packed 10-bit values
+     * @param b 6 packed 10-bit values
+     * @return A long with the MSB of each lane (bit 9, 19, 29, ...) set if a_k < b_k.
+     * <p>
+     * Based on `vhaddu8(~a, b)` (LTU_VARIANT 0) from:
+     * <a href="https://stackoverflow.com/a/68717720/3694">Stackoverflow</a>
+     * Citing Peter L. Montgomery's observation
+     * <a href="https://groups.google.com/d/msg/comp.arch/gXFuGZtZKag/_5yrz2zDbe4J">comp.arch, 2000/02/11</a>:
+     * (A+B)/2 = (A AND B) + (A XOR B)/2.
+     * The MSB of (A+B)/2 is the same as the carry-out of (A+B),
+     * and `vhaddu(~a, b)` calculates `(~a+b)/2`, which sets the MSB if `b > a`.
+     */
+    private static long parallel_unsigned_lt_msbs(long a, long b) {
+        // MSB (sign bit) for each 10-bit lane
+        final long LANE_MSB = 1L << (ANGLE_BITS - 1);
+        final long LANE_MSB_MASK = (LANE_MSB << (ANGLE_BITS * 0)) |
+                (LANE_MSB << (ANGLE_BITS * 1)) |
+                (LANE_MSB << (ANGLE_BITS * 2)) |
+                (LANE_MSB << (ANGLE_BITS * 3)) |
+                (LANE_MSB << (ANGLE_BITS * 4)) |
+                (LANE_MSB << (ANGLE_BITS * 5));
+        // All bits *except* the MSB for each 10-bit lane
+        final long LANE_NON_MSB_MASK = ((1L << (ANGLE_BITS * 6)) - 1) ^ LANE_MSB_MASK;
+
+        long vhaddu_result = (~a & b) + (((~a ^ b) >>> 1) & LANE_NON_MSB_MASK);
+        // Return just the MSBs, which are set if a_k < b_k
+        return vhaddu_result & LANE_MSB_MASK;
+    }
+
+    /**
+     * Creates a 30-bit mask (0x3FF per field) where a field is all 1s
+     * if a_k < b_k, and 0 otherwise.
+     */
+    private static long parallel_unsigned_borrow_mask(long a, long b) {
+        // 'msbs' has bits 9, 19, 29, ... set if a_k < b_k
+        long msbs = parallel_unsigned_lt_msbs(a, b);
+
+        // Implements sign_to_mask for 10-bit lanes.
+        // (a + a - (a >> 9)) adapted from 8-bit (a + a - (a >> 7))
+        // This expands the MSB of each lane to fill the entire lane (0x200 -> 0x3FF)
+        return msbs + msbs - (msbs >>> 9);
+    }
+
+    /**
+     * Performs 6 parallel 10-bit *unsigned* min/max operations.
+     *
+     * @param a 6 packed 10-bit values
+     * @param b 6 packed 10-bit values
+     * @return 6 packed 10-bit values containing min(a_0, b_0), max(a_1, b_1), min(a_2, b_2) ..
+     */
+    private static long parallel_unsigned_min_max(long a, long b) {
+        long mask = parallel_unsigned_borrow_mask(a, b);  // all bits set where a < b
+        mask ^= ANGLES_MAX_MASK;  // flip masks for max angles to make it a min operation
+        return (a & mask) | (b & ~mask);  // select based on mask
+    }
+
+    /**
+     * Performs 6 parallel 10-bit *unsigned* min/max operations.
+     *
+     * @param a 6 packed 10-bit values
+     * @param b 6 packed 10-bit values
+     * @return 6 packed 10-bit values containing max(a_0, b_0), min(a_1, b_1), max(a_2, b_2) ..
+     */
+    private static long parallel_unsigned_max_min(long a, long b) {
+        long mask = parallel_unsigned_borrow_mask(a, b);  // all bits set where a < b
+        mask ^= ANGLES_MIN_MASK;  // flip masks for min angles to make it a max operation
+        return (a & mask) | (b & ~mask);  // select based on mask
     }
 
     /**
