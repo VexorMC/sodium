@@ -73,7 +73,7 @@ public class ResourceList {
             allResources.addAll(sublist.allResources);
         }
         logger.fine("new %s", this);
-        if (logger.isLoggable(Level.FINEST)) {
+        if (logger.isLoggable(null)) {
             for (IdentifierWithSource resource : allResources) {
                 logger.finest(
                     "%s -> %s",
