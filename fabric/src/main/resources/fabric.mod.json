@@ -46,9 +46,9 @@
     "Safixoo"
   ],
   "contact" : {
-    "homepage" : "https://github.com/VexorMC/sodium",
-    "sources" : "https://github.com/VexorMC/sodium",
-    "issues" : "https://github.com/VexorMC/sodium/issues"
+    "homepage" : "https://github.com/SonaGG/Radium",
+    "sources" : "https://github.com/SonaGG/Radium",
+    "issues" : "https://github.com/SonaGG/Radium/issues"
   },
   "license" : "Polyform-Shield-1.0.0",
   "icon" : "radium-icon.png",
@@ -66,7 +66,7 @@
       "links" : {
         "modmenu.donate" : "https://caffeinemc.net/donate",
         "modmenu.discord" : "https://discord.gg/xwYnQNTnpU",
-        "modmenu.github_releases" : "https://github.com/VexorMC/sodium/releases",
+        "modmenu.github_releases" : "https://github.com/SonaGG/Radium/releases",
         "modmenu.kofi" : "https://caffeinemc.net/donate",
         "modmenu.modrinth" : "https://modrinth.com/mod/radium-mod"
       }
@@ -79,15 +79,13 @@
   ],
   "depends" : {
     "minecraft": ["1.8.9"],
-    "fabricloader" : ">=0.16.0"
+    "fabricloader" : ">=0.16.0",
+    "legacy-lwjgl3": ">=1.2.11"
   },
   "suggests" : {
     "osl": ">=0.17.0"
   },
   "breaks" : {
     "optifabric": "*"
-  },
-  "provides" : [
-    "legacy-lwjgl3"
-  ]
+  }
 }

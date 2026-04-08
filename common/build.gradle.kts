@@ -1,9 +1,7 @@
 plugins {
     id("multiloader-base")
-    id("java-library")
-
-    id("net.fabricmc.fabric-loom-remap") version "1.15-SNAPSHOT"
-    id("ploceus") version "1.15-SNAPSHOT"
+    id("net.fabricmc.fabric-loom-remap")
+    id("ploceus")
 }
 
 base {
@@ -36,26 +34,17 @@ repositories {
 }
 
 dependencies {
-    minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
+    minecraft("com.mojang:minecraft:${BuildConfig.MINECRAFT_VERSION}")
     mappings("net.legacyfabric:legacy-yarn:1.8.9+build.4:v2")
+    modImplementation("io.github.moehreag:legacy-lwjgl3:1.2.11+${BuildConfig.MINECRAFT_VERSION}")
 
     implementation("org.joml:joml:1.10.8")
-    implementation("it.unimi.dsi:fastutil:8.5.9")
 
     compileOnly("io.github.llamalad7:mixinextras-common:0.3.5")
     annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.5")
 
     compileOnly("net.fabricmc:sponge-mixin:0.13.2+mixin.0.8.5")
     compileOnly("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
-
-    implementation(project(":lwjgl3", configuration = "default"))
-
-    implementation(platform("org.lwjgl:lwjgl-bom:3.4.1"))
-
-    compileOnly("org.lwjgl:lwjgl")
-    compileOnly("org.lwjgl:lwjgl-glfw")
-    compileOnly("org.lwjgl:lwjgl-openal")
-    compileOnly("org.lwjgl:lwjgl-opengl")
 
     // We need to be careful during pre-launch that we don't touch any Minecraft classes, since other mods
     // will not yet have an opportunity to apply transformations.
@@ -66,15 +55,13 @@ dependencies {
 }
 
 configurations.configureEach {
-    exclude(group = "org.lwjgl.lwjgl")
+    exclude(group = "org.lwjgl.lwjgl") // LWJGL is provided by legacy-lwjgl3
 }
 
 loom {
     accessWidenerPath = file("src/main/resources/sodium-common.accesswidener")
 
-    mixin {
-        useLegacyMixinAp = false
-    }
+    mixin.useLegacyMixinAp = false
 }
 
 fun exportSourceSetJava(name: String, sourceSet: SourceSet) {

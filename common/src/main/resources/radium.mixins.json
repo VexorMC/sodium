@@ -8,8 +8,6 @@
     "core.MixinBufferBuilder",
     "core.MixinCullingCameraView",
     "core.MixinFramebuffer",
-    "core.MixinMinecraftFixEarlyCrashNoReports",
-    "core.MixinScreenFixClipboard",
     "core.mcpatcher.MixinAbstractTexture",
     "core.mcpatcher.base.MixinMinecraftClient",
     "core.mcpatcher.base.MixinReloadableResourceManagerImpl",

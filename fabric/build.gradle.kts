@@ -1,8 +1,7 @@
 plugins {
     id("multiloader-platform")
-
-    id("net.fabricmc.fabric-loom-remap") version "1.15-SNAPSHOT"
-    id("ploceus") version "1.15-SNAPSHOT"
+    id("net.fabricmc.fabric-loom-remap")
+    id("ploceus")
 }
 
 base {
@@ -33,25 +32,7 @@ dependencies {
     configurationCommonModResources(project(path = ":common", configuration = "commonMainResources"))
 
     shadow("org.joml:joml:1.10.8")
-    shadow("it.unimi.dsi:fastutil:8.5.9")
     shadow("org.jetbrains:annotations:26.0.2")
-
-    shadow(platform("org.lwjgl:lwjgl-bom:3.4.1"))
-
-    shadow(project(":lwjgl3", configuration = "default"))
-
-    shadow("org.lwjgl:lwjgl")
-    shadow("org.lwjgl:lwjgl-glfw")
-    shadow("org.lwjgl:lwjgl-opengl")
-    shadow("org.lwjgl:lwjgl-openal")
-
-    arrayOf("linux", "windows", "macos", "windows-arm64", "macos-arm64").forEach { platform ->
-        shadow("org.lwjgl:lwjgl::natives-$platform")
-        shadow("org.lwjgl:lwjgl-glfw::natives-$platform")
-        shadow("org.lwjgl:lwjgl-openal::natives-$platform")
-        shadow("org.lwjgl:lwjgl-opengl::natives-$platform")
-    }
-
 }
 
 sourceSets.apply {
@@ -64,25 +45,21 @@ sourceSets.apply {
 }
 
 dependencies {
-    minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
+    minecraft("com.mojang:minecraft:${BuildConfig.MINECRAFT_VERSION}")
     mappings("net.legacyfabric:legacy-yarn:1.8.9+build.4:v2")
 
-    implementation(project(":lwjgl3", configuration = "default"))
-
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
-    ploceus.dependOsl("0.17.1")
+    modImplementation("io.github.moehreag:legacy-lwjgl3:1.2.11+${BuildConfig.MINECRAFT_VERSION}")
 }
 
 configurations.configureEach {
-    exclude(group = "org.lwjgl.lwjgl")
+    exclude(group = "org.lwjgl.lwjgl") // LWJGL is provided by legacy-lwjgl3
 }
 
 loom {
     accessWidenerPath.set(file("src/main/resources/sodium-fabric.accesswidener"))
 
-    mixin {
-        useLegacyMixinAp = false
-    }
+    mixin.useLegacyMixinAp = false
 
     runs {
         named("client") {

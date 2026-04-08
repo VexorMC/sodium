@@ -133,19 +133,7 @@ public class GlProgram<T> extends GlObject implements ShaderBindingContext {
             String log = GL20.glGetProgramInfoLog(this.program, 1000);
 
             if (!log.isEmpty()) {
-                LOGGER.warn("Program link log for " + this.name + ": " + log);
-            }
-
-            int uniformCount = GL20.glGetProgrami(program, GL20.GL_ACTIVE_UNIFORMS);
-            int maxLength = GL20.glGetProgrami(program, GL20.GL_ACTIVE_UNIFORM_MAX_LENGTH);
-
-            for (int i = 0; i < uniformCount; i++) {
-                IntBuffer sizeType = BufferUtils.createIntBuffer(2);
-
-                String name = GL20.glGetActiveUniform(program, i, maxLength, sizeType);
-
-                int size = sizeType.get(0);
-                int type = sizeType.get(1);
+                LOGGER.warn("Program link log for {}: {}", this.name, log);
             }
 
             int result = GLX.gl20GetProgrami(this.program, GL20.GL_LINK_STATUS);

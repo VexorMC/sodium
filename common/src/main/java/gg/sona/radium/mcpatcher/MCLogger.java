@@ -1,22 +1,19 @@
 package gg.sona.radium.mcpatcher;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Formatter;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 
 public class MCLogger {
 
     private static final Map<String, MCLogger> allLoggers = new HashMap<>();
 
-    public static final Level ERROR = new ErrorLevel();
-
     private static final long FLOOD_INTERVAL = 1000L;
     private static final long FLOOD_REPORT_INTERVAL = 5000L;
-    private static final int FLOOD_LEVEL = Level.INFO.intValue();
+    private static final int FLOOD_LEVEL = Level.INFO.intLevel();
 
     private final String logPrefix;
     private final Logger logger;
@@ -41,42 +38,7 @@ public class MCLogger {
 
     private MCLogger(Category category, String logPrefix) {
         this.logPrefix = logPrefix;
-        logger = Logger.getLogger(category.name);
-        logger.setLevel(Level.INFO);
-
-        logger.setUseParentHandlers(false);
-        logger.addHandler(new Handler() {
-
-            private final Formatter formatter = new Formatter() {
-
-                @Override
-                public String format(LogRecord record) {
-                    Level level = record.getLevel();
-                    if (level == Level.CONFIG) {
-                        return record.getMessage();
-                    } else {
-                        String message = record.getMessage();
-                        StringBuilder prefix = new StringBuilder();
-                        while (message.startsWith("\n")) {
-                            prefix.append("\n");
-                            message = message.substring(1);
-                        }
-                        return prefix + "[" + MCLogger.this.logPrefix + "] " + level.toString() + ": " + message;
-                    }
-                }
-            };
-
-            @Override
-            public void publish(LogRecord record) {
-                System.out.println(formatter.format(record));
-            }
-
-            @Override
-            public void flush() {}
-
-            @Override
-            public void close() throws SecurityException {}
-        });
+        logger = LogManager.getLogger(category.name);
     }
 
     private boolean checkFlood() {
@@ -105,7 +67,7 @@ public class MCLogger {
     private void reportFlooding(long now) {
         if (floodCount > 0) {
             logger.log(
-                Level.WARNING,
+                Level.WARN,
                 String
                     .format("%d flood messages dropped in the last %ds", floodCount, (now - lastFloodReport) / 1000L));
         }
@@ -114,12 +76,12 @@ public class MCLogger {
     }
 
     public boolean isLoggable(Level level) {
-        return logger.isLoggable(level);
+        return true /* TODO? */;
     }
 
     public void log(Level level, String format, Object... params) {
         if (isLoggable(level)) {
-            if (level.intValue() >= FLOOD_LEVEL && !checkFlood()) {
+            if (level.intLevel() >= FLOOD_LEVEL && !checkFlood()) {
                 return;
             }
             logger.log(level, String.format(format, params));
@@ -127,15 +89,15 @@ public class MCLogger {
     }
 
     public void severe(String format, Object... params) {
-        log(Level.SEVERE, format, params);
+        log(Level.FATAL, format, params);
     }
 
     public void error(String format, Object... params) {
-        log(ERROR, format, params);
+        log(Level.ERROR, format, params);
     }
 
     public void warning(String format, Object... params) {
-        log(Level.WARNING, format, params);
+        log(Level.WARN, format, params);
     }
 
     public void info(String format, Object... params) {
@@ -143,27 +105,21 @@ public class MCLogger {
     }
 
     public void config(String format, Object... params) {
-        log(Level.CONFIG, format, params);
+        log(Level.DEBUG, format, params);
     }
 
     public void fine(String format, Object... params) {
-        log(Level.FINE, format, params);
+        log(Level.TRACE, format, params);
     }
 
     public void finer(String format, Object... params) {
-        log(Level.FINER, format, params);
+        log(Level.TRACE, format, params);
     }
 
     public void finest(String format, Object... params) {
-        log(Level.FINEST, format, params);
+        log(Level.TRACE, format, params);
     }
 
-    private static class ErrorLevel extends Level {
-
-        protected ErrorLevel() {
-            super("ERROR", (Level.WARNING.intValue() + Level.SEVERE.intValue()) / 2);
-        }
-    }
 
     public enum Category {
 

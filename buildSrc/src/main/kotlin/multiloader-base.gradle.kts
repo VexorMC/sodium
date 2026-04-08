@@ -3,7 +3,7 @@ plugins {
     id("idea")
 }
 
-group = "net.caffeinemc"
+group = "gg.sona"
 version = BuildConfig.createVersionString(project)
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -19,6 +19,7 @@ tasks.withType<GenerateModuleMetadata>().configureEach {
 
 repositories {
     maven("https://maven.legacyfabric.net/")
+    maven("https://maven.axolotlclient.com/releases")
 
     exclusiveContent {
         forRepository {

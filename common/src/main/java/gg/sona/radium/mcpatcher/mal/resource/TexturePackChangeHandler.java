@@ -141,7 +141,7 @@ abstract public class TexturePackChangeHandler implements Comparable<TexturePack
         long timeDiff = System.currentTimeMillis() - startTime;
         Runtime runtime = Runtime.getRuntime();
         long memDiff = runtime.totalMemory() - runtime.freeMemory() - startMem;
-        logger.info("done (%.3fs elapsed, mem usage %+.1fMB)\n", timeDiff / 1000.0, memDiff / 1048576.0);
+        logger.info("Finished loading texture pack (%.3fs elapsed, mem usage %+.1fMB)\n", timeDiff / 1000.0, memDiff / 1048576.0);
         initialized = true;
         recurseDepth = 0;
     }

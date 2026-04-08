@@ -1,8 +1,8 @@
  import org.gradle.api.Project
 
 object BuildConfig {
-    val MINECRAFT_VERSION: String = "1.8.9"
-    val FABRIC_LOADER_VERSION: String = "0.16.9"
+    const val MINECRAFT_VERSION: String = "1.8.9"
+    const val FABRIC_LOADER_VERSION: String = "0.18.0"
 
     // https://semver.org/
     var MOD_VERSION: String = "0.8.11"
