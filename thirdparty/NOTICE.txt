@@ -27,19 +27,3 @@ The complete text for each software license can be found in the directory "third
     * https://github.com/IrisShaders/Iris/tree/41095ac23ea0add664afd1b85c414d1f1ed94066/src/main/java/net/coderbot/iris/mixin/bettermipmaps
   * Files:
     * common/src/main/java/net/caffeinemc/mods/sodium/mixin/features/textures/mipmaps
-
-* FlashyReese's reeses-sodium-options
-  * Copyright (C) 2025 FlashyReese
-  * License: MIT
-  * Original Source:
-    * https://github.com/FlashyReese/reeses-sodium-options/tree/1.16.x/dev/src/main
-  * Files:
-    * https://github.com/VexorMC/sodium/blob/dev/common/src/main/java/dev/vexor/radium/options
-
-* jss2a98aj's NotFine
-  * Copyright (C) 2025 jss2a98aj
-  * License: GNU Lesser General Public License v3.0 (SPDX: LGPL-3.0) (NotFine; changes by mist475 are licensed under LGPL-3.0) & MIT (Original Source of MCPatcher)
-  * Original Source:
-    * https://github.com/jss2a98aj/NotFine/blob/master/src/main/java/com/prupe/mcpatcher
-  * Files:
-    * https://github.com/VexorMC/sodium/blob/dev/common/src/main/java/gg/sona/radium/mcpatcher

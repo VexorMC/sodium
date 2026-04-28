@@ -329,29 +329,6 @@ public class SodiumConfigBuilder implements ConfigEntryPoint {
                 )
         );
 
-        qualityPage.addOptionGroup(builder.createOptionGroup()
-                .addOption(
-                        builder.createBooleanOption(new Identifier("radium:quality.brighten_fireworks"))
-                                .setStorageHandler(this.sodiumStorage)
-                                .setName(new LiteralText("Brighten Fireworks"))
-                                .setTooltip(new LiteralText("Brightens the fireworks particles to make them more visible"))
-                                .setDefaultValue(DEFAULTS.quality.brightenFireworks)
-                                .setBinding(value -> this.sodiumOpts.quality.brightenFireworks = value, () -> this.sodiumOpts.quality.brightenFireworks)
-                                .setImpact(OptionImpact.MEDIUM)
-                                .setFlags(OptionFlag.REQUIRES_ASSET_RELOAD)
-                )
-                .addOption(
-                        builder.createBooleanOption(new Identifier("radium:quality.better_skies"))
-                                .setStorageHandler(this.sodiumStorage)
-                                .setName(new LiteralText("Better Skies"))
-                                .setTooltip(new LiteralText("Implements various sky rendering improvements from the MCPatcher mod"))
-                                .setDefaultValue(DEFAULTS.quality.betterSkies)
-                                .setBinding(value -> this.sodiumOpts.quality.betterSkies = value, () -> this.sodiumOpts.quality.betterSkies)
-                                .setImpact(OptionImpact.MEDIUM)
-                                .setFlags(OptionFlag.REQUIRES_ASSET_RELOAD)
-                )
-        );
-
         return qualityPage;
     }
 
