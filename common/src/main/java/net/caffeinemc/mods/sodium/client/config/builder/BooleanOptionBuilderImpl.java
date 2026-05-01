@@ -1,19 +1,20 @@
 package net.caffeinemc.mods.sodium.client.config.builder;
 
-import net.caffeinemc.mods.sodium.api.config.*;
-import net.caffeinemc.mods.sodium.api.config.structure.BooleanOptionBuilder;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.caffeinemc.mods.sodium.api.config.ConfigState;
+import net.caffeinemc.mods.sodium.api.config.StorageEventHandler;
 import net.caffeinemc.mods.sodium.api.config.option.OptionBinding;
 import net.caffeinemc.mods.sodium.api.config.option.OptionFlag;
 import net.caffeinemc.mods.sodium.api.config.option.OptionImpact;
+import net.caffeinemc.mods.sodium.api.config.structure.BooleanOptionBuilder;
 import net.caffeinemc.mods.sodium.client.config.structure.BooleanOption;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-class BooleanOptionBuilderImpl extends StatefulOptionBuilderImpl<Boolean> implements BooleanOptionBuilder {
+class BooleanOptionBuilderImpl extends StatefulOptionBuilderImpl<BooleanOption, Boolean> implements BooleanOptionBuilder {
     BooleanOptionBuilderImpl(Identifier id) {
         super(id);
     }
@@ -21,7 +22,25 @@ class BooleanOptionBuilderImpl extends StatefulOptionBuilderImpl<Boolean> implem
     @Override
     BooleanOption build() {
         this.prepareBuild();
-        return new BooleanOption(this.id, this.getDependencies(), this.name, this.enabled, this.storage, this.tooltipProvider, this.impact, this.flags, this.defaultValue, this.binding);
+
+        return new BooleanOption(
+                this.id,
+                this.getDependencies(),
+                this.getName(),
+                this.getEnabled(),
+                this.getStorage(),
+                this.getTooltipProvider(),
+                this.getImpact(),
+                this.getFlags(),
+                this.getDefaultValue(),
+                this.getControlHiddenWhenDisabled(),
+                this.getBinding(),
+                this.getApplyHook());
+    }
+
+    @Override
+    Class<BooleanOption> getOptionClass() {
+        return BooleanOption.class;
     }
 
     @Override
@@ -61,6 +80,12 @@ class BooleanOptionBuilderImpl extends StatefulOptionBuilderImpl<Boolean> implem
     }
 
     @Override
+    public BooleanOptionBuilder setFlags(Identifier... flags) {
+        super.setFlags(flags);
+        return this;
+    }
+
+    @Override
     public BooleanOptionBuilder setDefaultValue(Boolean value) {
         super.setDefaultValue(value);
         return this;
@@ -85,6 +110,12 @@ class BooleanOptionBuilderImpl extends StatefulOptionBuilderImpl<Boolean> implem
     }
 
     @Override
+    public BooleanOptionBuilder setControlHiddenWhenDisabled(boolean hidden) {
+        super.setControlHiddenWhenDisabled(hidden);
+        return this;
+    }
+
+    @Override
     public BooleanOptionBuilder setBinding(Consumer<Boolean> save, Supplier<Boolean> load) {
         super.setBinding(save, load);
         return this;
@@ -93,6 +124,12 @@ class BooleanOptionBuilderImpl extends StatefulOptionBuilderImpl<Boolean> implem
     @Override
     public BooleanOptionBuilder setBinding(OptionBinding<Boolean> binding) {
         super.setBinding(binding);
+        return this;
+    }
+
+    @Override
+    public BooleanOptionBuilder setApplyHook(Consumer<ConfigState> hook) {
+        super.setApplyHook(hook);
         return this;
     }
 }

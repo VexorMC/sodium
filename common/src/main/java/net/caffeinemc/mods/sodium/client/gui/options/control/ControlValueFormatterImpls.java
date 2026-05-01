@@ -1,9 +1,9 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
-import net.caffeinemc.mods.sodium.api.config.option.ControlValueFormatter;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.caffeinemc.mods.sodium.api.config.option.ControlValueFormatter;
 
 import java.util.function.IntFunction;
 
@@ -15,20 +15,17 @@ public class ControlValueFormatterImpls {
         return (v) -> (v == 0) ? new TranslatableText("options.guiScale.auto") : new LiteralText(v + "x");
     }
 
-    public static ControlValueFormatter resolution() {
-        return (v) -> {
-            return new LiteralText("");
-        };
-    }
 
     public static ControlValueFormatter fpsLimit() {
-        return (v) -> (v == 260) ? new TranslatableText("options.framerateLimit.max") : new LiteralText(v + " FPS");
+        return (v) -> (v == 260) ? new TranslatableText("options.framerateLimit.max") : new TranslatableText("options.framerate", v);
     }
 
     public static ControlValueFormatter brightness() {
         return (v) -> {
             if (v == 0) {
                 return new TranslatableText("options.gamma.min");
+            } else if (v == 50) {
+                return new TranslatableText("options.gamma.default");
             } else if (v == 100) {
                 return new TranslatableText("options.gamma.max");
             } else {
@@ -70,12 +67,22 @@ public class ControlValueFormatterImpls {
         return (v) -> new LiteralText(String.valueOf(v));
     }
 
+    public static ControlValueFormatter anisotropyBit() {
+        return (v -> {
+            if (v == 0) {
+                return new TranslatableText("options.off");
+            } else {
+                return new LiteralText((1 << v) + "x");
+            }
+        });
+    }
+
     public static ControlValueFormatter chunkFade() {
         return (v -> {
             if (v == 0) {
                 return new TranslatableText("gui.none");
             } else {
-                return new LiteralText((double) v / 1000.0 + " seconds");
+                return new TranslatableText("sodium.options.chunk_fade_time.value", (double) v / 1000.0);
             }
         });
     }

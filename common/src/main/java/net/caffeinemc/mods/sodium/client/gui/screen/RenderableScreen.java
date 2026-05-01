@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 public class RenderableScreen extends Screen {
     private static final Identifier BLUR_SHADER_ID = new Identifier("shaders/post/menu_blur.json");
-
     protected final List<Renderable> widgets = new ArrayList<>();
 
     @Override

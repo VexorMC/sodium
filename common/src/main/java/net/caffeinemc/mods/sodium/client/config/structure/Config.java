@@ -1,38 +1,40 @@
 package net.caffeinemc.mods.sodium.client.config.structure;
 
-import com.google.common.collect.ImmutableList;
+import net.minecraft.client.MinecraftClient;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.caffeinemc.mods.sodium.api.config.ConfigState;
 import net.caffeinemc.mods.sodium.api.config.StorageEventHandler;
+import net.caffeinemc.mods.sodium.api.config.option.FlagHook;
 import net.caffeinemc.mods.sodium.api.config.option.OptionFlag;
 import net.caffeinemc.mods.sodium.client.config.search.BigramSearchIndex;
+import net.caffeinemc.mods.sodium.client.config.search.SearchIndex;
 import net.caffeinemc.mods.sodium.client.config.search.SearchQuerySession;
 import net.caffeinemc.mods.sodium.client.config.value.DynamicValue;
 import net.caffeinemc.mods.sodium.client.console.Console;
 import net.caffeinemc.mods.sodium.client.console.message.MessageLevel;
-import net.caffeinemc.mods.sodium.client.config.search.SearchIndex;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class Config implements ConfigState {
     private final Map<Identifier, Option> options = new Object2ReferenceLinkedOpenHashMap<>();
-    private final ObjectOpenHashSet<StorageEventHandler> pendingStorageHandlers = new ObjectOpenHashSet<>();
-    private final ImmutableList<ModOptions> modOptions;
+    private final Set<StorageEventHandler> pendingStorageHandlers = new ObjectOpenHashSet<>();
+    private final List<ModOptions> modOptions;
     private final SearchIndex searchIndex = new BigramSearchIndex(this::registerSearchIndex);
     private final Collection<DynamicValue<?>> globalRebuildDependents = new ObjectArrayList<>();
+    private final Map<Identifier, Collection<FlagHook>> flagHooks = new Object2ReferenceOpenHashMap<>();
+    private final Set<FlagHook> triggeredHooks = new ObjectOpenHashSet<>();
 
-    public Config(ImmutableList<ModOptions> modOptions) {
-        this.modOptions = modOptions;
+    public Config(List<ModOptions> modOptions) {
+        this.modOptions = Collections.unmodifiableList(modOptions);
 
         this.collectOptions();
-        this.applyOverrides();
+        this.applyOptionChanges();
+        this.collectApplyHooks();
         this.validateDependencies();
 
         // load options initially from their bindings
@@ -52,25 +54,57 @@ public class Config implements ConfigState {
         return this.searchIndex.startQuery();
     }
 
+    private void registerHook(FlagHook hook) {
+        for (var trigger : hook.getTriggers()) {
+            this.flagHooks.computeIfAbsent(trigger, k -> new ObjectArrayList<>()).add(hook);
+        }
+    }
+
     private void collectOptions() {
         for (var modConfig : this.modOptions) {
             for (var page : modConfig.pages()) {
                 for (var group : page.groups()) {
                     for (var option : group.options()) {
-                        if (!option.id.getNamespace().equals(modConfig.namespace())) {
-                            throw new IllegalArgumentException("Namespace of option id '" + option.id + "' does not match the namespace '" + modConfig.namespace() + "' of the enclosing mod config");
-                        }
-
                         this.options.put(option.id, option);
                         option.setParentConfig(this);
                     }
                 }
             }
+
+            if (modConfig.flagHooks() != null) {
+                for (var hook : modConfig.flagHooks()) {
+                    this.registerHook(hook);
+                }
+            }
         }
     }
 
-    private void applyOverrides() {
-        var overrides = getOverrides();
+    private void applyOptionChanges() {
+        var overrides = new Object2ReferenceOpenHashMap<Identifier, OptionOverride>();
+        var overlays = new Object2ReferenceOpenHashMap<Identifier, OptionOverlay>();
+
+        // collect overrides and overlays and validate them, also against each other
+        for (var modConfig : this.modOptions) {
+            for (var override : modConfig.overrides()) {
+                if (override.target().getNamespace().equals(modConfig.configId())) {
+                    throw new IllegalArgumentException("Override by mod '" + modConfig.configId() + "' targets its own option '" + override.target() + "'");
+                }
+
+                if (overrides.put(override.target(), override) != null) {
+                    throw new IllegalArgumentException("Multiple overrides for option '" + override.target() + "'");
+                }
+            }
+
+            for (var overlay : modConfig.overlays()) {
+                if (overlay.target().getNamespace().equals(modConfig.configId())) {
+                    throw new IllegalArgumentException("Overlay by mod '" + modConfig.configId() + "' targets its own option '" + overlay.target() + "'");
+                }
+
+                if (overlays.put(overlay.target(), overlay) != null) {
+                    throw new IllegalArgumentException("Multiple overlays for option '" + overlay.target() + "'");
+                }
+            }
+        }
 
         // apply overrides
         for (var modConfig : this.modOptions) {
@@ -80,13 +114,35 @@ public class Config implements ConfigState {
                     for (int i = 0; i < options.size(); i++) {
                         var option = options.get(i);
                         var override = overrides.get(option.id);
+
+                        // apply override to option if it exists
                         if (override != null) {
-                            var replacement = override.replacement();
-                            options.set(i, replacement);
-                            this.options.remove(option.id);
-                            this.options.put(replacement.id, replacement);
-                            replacement.setParentConfig(this);
-                            option.setParentConfig(null);
+                            var replacement = override.change();
+                            exchangeOption(options, i, replacement, option);
+                        }
+                    }
+                }
+            }
+        }
+
+        // apply overlays
+        for (var modConfig : this.modOptions) {
+            for (var page : modConfig.pages()) {
+                for (var group : page.groups()) {
+                    var options = group.options();
+                    for (int i = 0; i < options.size(); i++) {
+                        var option = options.get(i);
+                        var overlay = overlays.get(option.id);
+
+                        // apply overlay to option if it exists
+                        if (overlay != null) {
+                            var change = overlay.change();
+                            try {
+                                var overlaidOption = change.buildWithBaseOption(option);
+                                exchangeOption(options, i, overlaidOption, option);
+                            } catch (Exception e) {
+                                throw new IllegalArgumentException("Failed to apply overlay from '" + overlay.source() + "' to option '" + option.id + "'", e);
+                            }
                         }
                     }
                 }
@@ -94,27 +150,48 @@ public class Config implements ConfigState {
         }
     }
 
-    private Object2ReferenceOpenHashMap<Identifier, OptionOverride> getOverrides() {
-        // collect overrides and validate them
-        var overrides = new Object2ReferenceOpenHashMap<Identifier, OptionOverride>();
-        for (var modConfig : this.modOptions) {
-            for (var override : modConfig.overrides()) {
-                if (override.target().getNamespace().equals(modConfig.namespace())) {
-                    throw new IllegalArgumentException("Override by mod '" + modConfig.namespace() + "' targets its own option '" + override.target() + "'");
-                }
+    private void exchangeOption(List<Option> optionGroupList, int i, Option replacement, Option original) {
+        optionGroupList.set(i, replacement);
+        this.options.remove(original.id);
+        this.options.put(replacement.id, replacement);
+        replacement.setParentConfig(this);
+        original.setParentConfig(null);
+    }
 
-                if (overrides.put(override.target(), override) != null) {
-                    throw new IllegalArgumentException("Multiple overrides for option '" + override.target() + "'");
+    private static final Set<Identifier> SPECIAL_DEPENDENCIES = Set.of(
+            ConfigState.UPDATE_ON_REBUILD,
+            ConfigState.UPDATE_ON_APPLY
+    );
+
+    private record ApplyHookFlagHook(Identifier applyHookId, Consumer<ConfigState> applyHook) implements FlagHook {
+        @Override
+        public Collection<Identifier> getTriggers() {
+            return Set.of(this.applyHookId);
+        }
+
+        @Override
+        public void accept(Collection<Identifier> identifiers, ConfigState configState) {
+            this.applyHook.accept(configState);
+        }
+    }
+
+    private void collectApplyHooks() {
+        // collect all apply hooks and convert them into singleton flag hooks
+        for (var option : this.options.values()) {
+            if (option instanceof StatefulOption<?> statefulOption) {
+                var applyHook = statefulOption.getApplyHook();
+                if (applyHook == null) {
+                    continue;
                 }
+                this.registerHook(new ApplyHookFlagHook(statefulOption.getApplyHookId(), applyHook));
             }
         }
-        return overrides;
     }
 
     private void validateDependencies() {
         for (var option : this.options.values()) {
             for (var dependency : option.dependencies) {
-                if (!this.options.containsKey(dependency) && !dependency.equals(ConfigState.UPDATE_ON_REBUILD)) {
+                if (!this.options.containsKey(dependency) && !SPECIAL_DEPENDENCIES.contains(dependency)) {
                     throw new IllegalArgumentException("Option " + option.id + " depends on non-existent option " + dependency);
                 }
             }
@@ -127,7 +204,13 @@ public class Config implements ConfigState {
                             this.globalRebuildDependents.add(dynamicValue);
                             continue;
                         }
-                        
+
+                        if (dependency.equals(ConfigState.UPDATE_ON_APPLY) && option instanceof StatefulOption<?> statefulOption) {
+                            statefulOption.registerApplyDependent(dynamicValue);
+                            dynamicValue.allowReadingParentOption(option.id);
+                            continue;
+                        }
+
                         var dependencyOption = this.options.get(dependency);
                         if (dependencyOption instanceof StatefulOption<?> statefulOption) {
                             statefulOption.registerDependent(dynamicValue);
@@ -177,29 +260,51 @@ public class Config implements ConfigState {
     }
 
     public void applyAllOptions() {
-        var flags = EnumSet.noneOf(OptionFlag.class);
+        Set<Identifier> flags = null;
 
         for (var option : this.options.values()) {
             if (option.applyChanges()) {
-                flags.addAll(option.getFlags());
+                var optionFlags = option.getFlags();
+                if (optionFlags != null && !optionFlags.isEmpty()) {
+                    if (flags == null) {
+                        flags = new ObjectOpenHashSet<>();
+                    }
+                    flags.addAll(optionFlags);
+                }
+
+                if (option instanceof StatefulOption<?> statefulOption) {
+                    var applyHookId = statefulOption.getApplyHookId();
+                    if (applyHookId != null) {
+                        if (flags == null) {
+                            flags = new ObjectOpenHashSet<>();
+                        }
+                        flags.add(applyHookId);
+                    }
+                }
             }
         }
 
         this.flushStorageHandlers();
 
+        if (flags == null) {
+            return;
+        }
         processFlags(flags);
     }
 
     public void applyOption(Identifier id) {
-        var flags = EnumSet.noneOf(OptionFlag.class);
+        Set<Identifier> flags = null;
 
         var option = this.options.get(id);
         if (option != null && option.applyChanges()) {
-            flags.addAll(option.getFlags());
+            flags = option.getFlags();
         }
 
         this.flushStorageHandlers();
 
+        if (flags == null) {
+            return;
+        }
         processFlags(flags);
     }
 
@@ -212,7 +317,7 @@ public class Config implements ConfigState {
 
         return false;
     }
-    
+
     public void invalidateGlobalRebuildDependents() {
         this.invalidateDependents(this.globalRebuildDependents);
     }
@@ -232,65 +337,104 @@ public class Config implements ConfigState {
         return this.options.get(id);
     }
 
-    public ImmutableList<ModOptions> getModOptions() {
+    public List<ModOptions> getModOptions() {
         return this.modOptions;
     }
 
-    @Override
-    public boolean readBooleanOption(Identifier id) {
+    private void processFlags(Set<Identifier> flags) {
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        if (client.world != null) {
+            if (flags.contains(OptionFlag.REQUIRES_RENDERER_RELOAD.getId())) {
+                client.worldRenderer.reload();
+            } else if (flags.contains(OptionFlag.REQUIRES_RENDERER_UPDATE.getId())) {
+                client.worldRenderer.scheduleTerrainUpdate();
+            }
+        }
+
+        if (flags.contains(OptionFlag.REQUIRES_ASSET_RELOAD.getId())) {
+            client.reloadResources();
+        }
+
+        if (flags.contains(OptionFlag.REQUIRES_VIDEOMODE_RELOAD.getId())) {
+            // TODO
+        }
+
+        if (flags.contains(OptionFlag.REQUIRES_GAME_RESTART.getId())) {
+            Console.instance().logMessage(MessageLevel.WARN,
+                    "sodium.console.game_restart", true, 10.0);
+        }
+
+        // process the registered flag hooks
+        this.triggeredHooks.clear();
+        var immutableFlags = Collections.unmodifiableSet(flags);
+        for (var flag : flags) {
+            var hooks = this.flagHooks.get(flag);
+            if (hooks != null) {
+                for (var hook : hooks) {
+                    if (this.triggeredHooks.add(hook)) {
+                        hook.accept(immutableFlags, this);
+                    }
+                }
+            }
+        }
+    }
+
+    public boolean readBooleanOption(Identifier id, boolean appliedValue) {
         var option = this.options.get(id);
         if (option instanceof BooleanOption booleanOption) {
-            return booleanOption.getValidatedValue();
+            if (appliedValue) {
+                return booleanOption.getAppliedValue();
+            } else {
+                return booleanOption.getValidatedValue();
+            }
         }
 
         throw new IllegalArgumentException("Can't read boolean value from option with id " + id);
     }
 
-    @Override
-    public int readIntOption(Identifier id) {
+    public int readIntOption(Identifier id, boolean appliedValue) {
         var option = this.options.get(id);
         if (option instanceof IntegerOption intOption) {
-            return intOption.getValidatedValue();
+            if (appliedValue) {
+                return intOption.getAppliedValue();
+            } else {
+                return intOption.getValidatedValue();
+            }
         }
 
         throw new IllegalArgumentException("Can't read int value from option with id " + id);
     }
 
-    @Override
-    public <E extends Enum<E>> E readEnumOption(Identifier id, Class<E> enumClass) {
+    public <E extends Enum<E>> E readEnumOption(Identifier id, Class<E> enumClass, boolean appliedValue) {
         var option = this.options.get(id);
         if (option instanceof EnumOption<?> enumOption) {
             if (enumOption.enumClass != enumClass) {
                 throw new IllegalArgumentException("Enum class mismatch for option with id " + id + ": requested " + enumClass + ", option has " + enumOption.enumClass);
             }
 
-            return enumClass.cast(enumOption.getValidatedValue());
+            if (appliedValue) {
+                return enumClass.cast(enumOption.getAppliedValue());
+            } else {
+                return enumClass.cast(enumOption.getValidatedValue());
+            }
         }
 
         throw new IllegalArgumentException("Can't read enum value from option with id " + id);
     }
 
-    private static void processFlags(Collection<OptionFlag> flags) {
-        MinecraftClient client = MinecraftClient.getInstance();
+    @Override
+    public boolean readBooleanOption(Identifier id) {
+        return this.readBooleanOption(id, true);
+    }
 
-        if (client.world != null) {
-            if (flags.contains(OptionFlag.REQUIRES_RENDERER_RELOAD)) {
-                client.worldRenderer.reload();
-            } else if (flags.contains(OptionFlag.REQUIRES_RENDERER_UPDATE)) {
-                client.worldRenderer.scheduleTerrainUpdate();
-            }
-        }
+    @Override
+    public int readIntOption(Identifier id) {
+        return this.readIntOption(id, true);
+    }
 
-        if (flags.contains(OptionFlag.REQUIRES_ASSET_RELOAD)) {
-            client.reloadResources();
-        }
-
-        if (flags.contains(OptionFlag.REQUIRES_VIDEOMODE_RELOAD)) {
-        }
-
-        if (flags.contains(OptionFlag.REQUIRES_GAME_RESTART)) {
-            Console.instance().logMessage(MessageLevel.WARN,
-                    "sodium.console.game_restart", true, 10.0);
-        }
+    @Override
+    public <E extends Enum<E>> E readEnumOption(Identifier id, Class<E> enumClass) {
+        return this.readEnumOption(id, enumClass, true);
     }
 }

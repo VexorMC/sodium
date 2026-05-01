@@ -7,6 +7,7 @@ import net.caffeinemc.mods.sodium.api.config.option.OptionFlag;
 import net.caffeinemc.mods.sodium.api.config.option.OptionImpact;
 import net.caffeinemc.mods.sodium.api.config.structure.StatefulOptionBuilder;
 import net.caffeinemc.mods.sodium.client.config.AnonymousOptionBinding;
+import net.caffeinemc.mods.sodium.client.config.structure.StatefulOption;
 import net.caffeinemc.mods.sodium.client.config.value.ConstantValue;
 import net.caffeinemc.mods.sodium.client.config.value.DependentValue;
 import net.caffeinemc.mods.sodium.client.config.value.DynamicValue;
@@ -15,38 +16,72 @@ import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-abstract class StatefulOptionBuilderImpl<V> extends OptionBuilderImpl implements StatefulOptionBuilder<V> {
-    StorageEventHandler storage;
-    Function<V, Text> tooltipProvider;
-    OptionImpact impact;
-    EnumSet<OptionFlag> flags = EnumSet.noneOf(OptionFlag.class);
-    DependentValue<V> defaultValue;
-    OptionBinding<V> binding;
+abstract class StatefulOptionBuilderImpl<O extends StatefulOption<V>, V> extends OptionBuilderImpl<O> implements StatefulOptionBuilder<V> {
+    private StorageEventHandler storage;
+    private Function<V, Text> tooltipProvider;
+    private OptionImpact impact;
+    private Set<Identifier> flags;
+    private DependentValue<V> defaultValue;
+    private Boolean controlHiddenWhenDisabled;
+    private OptionBinding<V> binding;
+    private Consumer<ConfigState> applyHook;
 
     StatefulOptionBuilderImpl(Identifier id) {
         super(id);
     }
 
-    void prepareBuild() {
-        super.prepareBuild();
+    @Override
+    void validateData() {
+        super.validateData();
 
-        Validate.notNull(this.storage, "Storage handler must be set");
-        Validate.notNull(this.tooltipProvider, "Tooltip provider must be set");
-        Validate.notNull(this.defaultValue, "Default value must be set");
+        Validate.notNull(this.getStorage(), "Storage handler must be set");
+        Validate.notNull(this.getTooltipProvider(), "Tooltip provider must be set");
+        Validate.notNull(this.getDefaultValue(), "Default value must be set");
 
-        Validate.notNull(this.binding, "Binding must be set");
+        Validate.notNull(this.getBinding(), "Binding must be set");
     }
 
     Collection<Identifier> getDependencies() {
         var dependencies = super.getDependencies();
-        dependencies.addAll(this.defaultValue.getDependencies());
+        dependencies.addAll(this.getDefaultValue().getDependencies());
         return dependencies;
+    }
+
+    StorageEventHandler getStorage() {
+        return getFirstNotNull(this.storage, StatefulOption::getStorage);
+    }
+
+    Function<V, Text> getTooltipProvider() {
+        return getFirstNotNull(this.tooltipProvider, StatefulOption::getTooltipProvider);
+    }
+
+    OptionImpact getImpact() {
+        return getFirstNotNull(this.impact, StatefulOption::getImpact);
+    }
+
+    Set<Identifier> getFlags() {
+        return getFirstNotNull(this.flags, StatefulOption::getFlags);
+    }
+
+    DependentValue<V> getDefaultValue() {
+        return getFirstNotNull(this.defaultValue, StatefulOption::getDefaultValue);
+    }
+
+    Boolean getControlHiddenWhenDisabled() {
+        return getFirstNotNull(this.controlHiddenWhenDisabled, StatefulOption::getControlHiddenWhenDisabled);
+    }
+
+    OptionBinding<V> getBinding() {
+        return getFirstNotNull(this.binding, StatefulOption::getBinding);
+    }
+
+    Consumer<ConfigState> getApplyHook() {
+        return getFirstNotNull(this.applyHook, StatefulOption::getApplyHook);
     }
 
     @Override
@@ -60,8 +95,9 @@ abstract class StatefulOptionBuilderImpl<V> extends OptionBuilderImpl implements
     @Override
     public StatefulOptionBuilder<V> setTooltip(Text tooltip) {
         Validate.notNull(tooltip, "Argument must not be null");
+        Validate.notBlank(tooltip.asFormattedString(), "Tooltip must not be blank");
 
-        this.tooltipProvider = v -> tooltip;
+        this.tooltipProvider = ignored -> tooltip;
         return this;
     }
 
@@ -83,7 +119,16 @@ abstract class StatefulOptionBuilderImpl<V> extends OptionBuilderImpl implements
 
     @Override
     public StatefulOptionBuilder<V> setFlags(OptionFlag... flags) {
-        Collections.addAll(this.flags, flags);
+        var idFlags = new Identifier[flags.length];
+        for (int i = 0; i < flags.length; i++) {
+            idFlags[i] = flags[i].getId();
+        }
+        return this.setFlags(idFlags);
+    }
+
+    @Override
+    public StatefulOptionBuilder<V> setFlags(Identifier... flags) {
+        this.flags = Set.of(flags);
         return this;
     }
 
@@ -135,6 +180,18 @@ abstract class StatefulOptionBuilderImpl<V> extends OptionBuilderImpl implements
     @Override
     public StatefulOptionBuilder<V> setEnabledProvider(Function<ConfigState, Boolean> provider, Identifier... dependencies) {
         super.setEnabledProvider(provider, dependencies);
+        return this;
+    }
+
+    @Override
+    public StatefulOptionBuilder<V> setControlHiddenWhenDisabled(boolean hidden) {
+        this.controlHiddenWhenDisabled = hidden;
+        return this;
+    }
+
+    @Override
+    public StatefulOptionBuilder<V> setApplyHook(Consumer<ConfigState> hook) {
+        this.applyHook = hook;
         return this;
     }
 }

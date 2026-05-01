@@ -3,6 +3,7 @@ package gg.sona.radium.mixin.sodium.core;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
+import net.caffeinemc.mods.sodium.client.config.ConfigManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.profiler.Profiler;
 import org.lwjgl.opengl.GL32;
@@ -18,6 +19,11 @@ public class MinecraftMixin {
     public Profiler profiler;
     @Unique
     private final LongArrayFIFOQueue fences = new LongArrayFIFOQueue();
+
+    @Inject(method = "initializeGame", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;<init>(Lnet/minecraft/client/MinecraftClient;)V"))
+    void impl$initializeGame$post(CallbackInfo ci) {
+        ConfigManager.registerConfigsLate();
+    }
 
     /**
      * We run this at the beginning of the frame (except for the first frame) to give the previous frame plenty of time
@@ -69,11 +75,9 @@ public class MinecraftMixin {
     }
 
     /**
-     * @reason Eff GL Errors!
+     * @reason I despise OpenGL.
      * @author Lunasa
      */
     @Overwrite
-    private void setGlErrorMessage(String message) {
-        //System.out.println(message);
-    }
+    private void setGlErrorMessage(String message) {}
 }

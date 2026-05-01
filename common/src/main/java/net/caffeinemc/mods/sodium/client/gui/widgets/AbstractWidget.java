@@ -1,16 +1,17 @@
 package net.caffeinemc.mods.sodium.client.gui.widgets;
 
-import net.caffeinemc.mods.sodium.client.util.Dim2i;
+import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
+import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
-import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
+import net.caffeinemc.mods.sodium.client.gui.Dimensioned;
+import net.caffeinemc.mods.sodium.client.util.Dim2i;
 
-public abstract class AbstractWidget extends DrawableHelper implements Renderable, GuiEventListener {
+public abstract class AbstractWidget extends DrawableHelper implements Renderable, GuiEventListener, Dimensioned {
     protected final TextRenderer font = MinecraftClient.getInstance().textRenderer;
     private final Dim2i dim;
     protected boolean focused;
@@ -20,16 +21,21 @@ public abstract class AbstractWidget extends DrawableHelper implements Renderabl
         this.dim = dim;
     }
 
+    @Override
+    public Dim2i getDimensions() {
+        return this.dim;
+    }
+
     protected void drawString(String text, int x, int y, int color) {
-        font.drawWithShadow(text, x, y, color);
+        this.font.draw(text, x, y, color);
     }
 
     protected void drawString(Text text, int x, int y, int color) {
-        font.drawWithShadow(text.asFormattedString(), x, y, color);
+        this.font.draw(text.asFormattedString(), x, y, color);
     }
 
     protected void drawCenteredString(Text text, int x, int y, int color) {
-        font.drawWithShadow(text.asFormattedString(), x - font.getStringWidth(text.asFormattedString()) / 2f, y, color);
+//        graphics.drawCenteredString(this.font, text, x, y, color);
     }
 
     public boolean isHovered() {
@@ -44,38 +50,6 @@ public abstract class AbstractWidget extends DrawableHelper implements Renderabl
         MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(new Identifier("gui.button.press"), 1.0F));
     }
 
-    public int getX() {
-        return this.dim.x();
-    }
-
-    public int getY() {
-        return this.dim.y();
-    }
-
-    public int getWidth() {
-        return this.dim.width();
-    }
-
-    public int getHeight() {
-        return this.dim.height();
-    }
-
-    public final int getLimitX() {
-        return this.getX() + this.getWidth();
-    }
-
-    public final int getLimitY() {
-        return this.getY() + this.getHeight();
-    }
-
-    public final int getCenterX() {
-        return this.getX() + this.getWidth() / 2;
-    }
-
-    public final int getCenterY() {
-        return this.getY() + this.getHeight() / 2;
-    }
-
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
         return mouseX >= this.getX() && mouseX < this.getLimitX() && mouseY >= this.getY() && mouseY < this.getLimitY();
@@ -85,6 +59,7 @@ public abstract class AbstractWidget extends DrawableHelper implements Renderabl
         return this.font.getStringWidth(text.asFormattedString());
     }
 
+
     @Override
     public boolean isFocused() {
         return this.focused;
@@ -92,7 +67,9 @@ public abstract class AbstractWidget extends DrawableHelper implements Renderabl
 
     @Override
     public void setFocused(boolean focused) {
-        this.focused = focused;
+        if (!focused) {
+            this.focused = false;
+        }
     }
 
     protected String truncateTextToFit(String name, int targetWidth) {

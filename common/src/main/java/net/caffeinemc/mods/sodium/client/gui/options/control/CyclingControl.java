@@ -1,14 +1,18 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.Text;
 import net.caffeinemc.mods.sodium.client.config.structure.EnumOption;
 import net.caffeinemc.mods.sodium.client.config.structure.Option;
 import net.caffeinemc.mods.sodium.client.gui.ColorTheme;
 import net.caffeinemc.mods.sodium.client.gui.Colors;
 import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+
 import org.apache.commons.lang3.Validate;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
 
 public class CyclingControl<T extends Enum<T>> implements Control {
     private final EnumOption<T> option;
@@ -36,7 +40,7 @@ public class CyclingControl<T extends Enum<T>> implements Control {
         return 70;
     }
 
-    private static class CyclingControlElement<T extends Enum<T>> extends ControlElement {
+    private static class CyclingControlElement<T extends Enum<T>> extends StatefulControlElement {
         private final EnumOption<T> option;
         private final T[] baseValues;
 
@@ -48,13 +52,17 @@ public class CyclingControl<T extends Enum<T>> implements Control {
         }
 
         @Override
-        public Option getOption() {
+        public EnumOption<T> getOption() {
             return this.option;
         }
 
         @Override
         public void render(int mouseX, int mouseY, float delta) {
             super.render(mouseX, mouseY, delta);
+
+            if (!this.option.showControl() || this.isResetOverlayActive()) {
+                return;
+            }
 
             var value = this.option.getValidatedValue();
             Text name = this.option.getElementName(value);
@@ -65,6 +73,9 @@ public class CyclingControl<T extends Enum<T>> implements Control {
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (super.mouseClicked(mouseX, mouseY, button)) return true;
+            if (this.isResetOverlayActive()) return false;
+
             if (this.option.isEnabled() && button == 0 && this.isMouseOver(mouseX, mouseY)) {
                 cycleControl(Screen.hasShiftDown());
                 return true;
@@ -74,8 +85,6 @@ public class CyclingControl<T extends Enum<T>> implements Control {
         }
 
         private void cycleControl(boolean reverse) {
-            this.playClickSound();
-
             this.playClickSound();
 
             var currentValue = this.option.getValidatedValue();

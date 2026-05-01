@@ -2,8 +2,7 @@ package net.caffeinemc.mods.sodium.client.gui.widgets;
 
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.input.Mouse;
+import net.minecraft.client.gui.DrawableHelper;
 
 import java.util.function.IntConsumer;
 
@@ -21,6 +20,8 @@ public class ScrollbarWidget extends AbstractWidget {
     private long lastScrollTime;
     private boolean dragging;
     private final IntConsumer onScrollChange;
+    private double lastDragX;
+    private double lastDragY;
 
     public ScrollbarWidget(Dim2i dim2i, IntConsumer onScrollChange) {
         this(dim2i, false, false, onScrollChange);
@@ -88,7 +89,7 @@ public class ScrollbarWidget extends AbstractWidget {
         long time = System.currentTimeMillis();
         long scrollTimeDiff = time - this.lastScrollTime;
         if (this.alwaysShow || isMouseOver || this.dragging || scrollTimeDiff < 1000) {
-            fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), COLOR);
+            DrawableHelper.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), COLOR);
             int x1, y1, x2, y2;
             if (this.horizontal) {
                 x1 = this.getX() + this.getHighlightStart(this.getWidth());
@@ -101,7 +102,7 @@ public class ScrollbarWidget extends AbstractWidget {
                 x2 = x1 + this.getWidth();
                 y2 = y1 + this.getHighlightLength(this.getHeight());
             }
-            fill(x1, y1, x2, y2, HIGHLIGHT_COLOR);
+            DrawableHelper.fill(x1, y1, x2, y2, HIGHLIGHT_COLOR);
         }
     }
 
@@ -136,6 +137,8 @@ public class ScrollbarWidget extends AbstractWidget {
         }
         if (this.isMouseOverHighlight(mouseX, mouseY)) {
             this.dragging = true;
+            this.lastDragX = mouseX;
+            this.lastDragY = mouseY;
         } else {
             if (this.horizontal) {
                 this.scroll(mouseX > this.getHighlightStart(this.getWidth()) ? this.getWidth() : -this.getWidth());
@@ -156,7 +159,11 @@ public class ScrollbarWidget extends AbstractWidget {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button) {
         if (this.dragging) {
-            this.scroll(-(int) Math.round(this.horizontal ? Mouse.getDX() : Mouse.getDY() * ((double) this.total / this.visible)));
+            double dx = mouseX - this.lastDragX;
+            double dy = mouseY - this.lastDragY;
+            this.lastDragX = mouseX;
+            this.lastDragY = mouseY;
+            this.scroll((int) Math.round((this.horizontal ? dx : dy) * ((double) this.total / this.visible)));
             return true;
         }
         return false;

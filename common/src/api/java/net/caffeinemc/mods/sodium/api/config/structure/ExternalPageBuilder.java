@@ -5,8 +5,23 @@ import net.minecraft.text.Text;
 
 import java.util.function.Consumer;
 
+/**
+ * Builder interface for defining external configuration pages.
+ */
 public interface ExternalPageBuilder extends PageBuilder {
+    /**
+     * Sets the name of the external configuration page.
+     *
+     * @param name The name component.
+     * @return The current builder instance.
+     */
     ExternalPageBuilder setName(Text name);
 
-    ExternalPageBuilder setScreenProvider(Consumer<Screen> currentScreenConsumer);
+    /**
+     * Sets the screen provider for the external configuration page.
+     *
+     * @param currentScreenConsumer A consumer that accepts the current screen and opens the external configuration screen.
+     * @return The current builder instance.
+     */
+    ExternalPageBuilder setScreenConsumer(Consumer<Screen> currentScreenConsumer);
 }

@@ -3,13 +3,12 @@ package net.caffeinemc.mods.sodium.client.gui.widgets;
 import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
 import dev.vexor.radium.compat.mojang.minecraft.gui.event.GuiEventListener;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractParentWidget extends AbstractWidget {
+public abstract class AbstractParentWidget extends AbstractWidget implements GuiEventListener {
     private final List<GuiEventListener> children = new ArrayList<>();
     private final List<Renderable> renderableChildren = new ArrayList<>();
 
@@ -48,35 +47,9 @@ public abstract class AbstractParentWidget extends AbstractWidget {
         }
     }
 
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        for (GuiEventListener element : this.children) {
-            if (element.mouseClicked(mouseX, mouseY, button)) {
-                this.setFocused(element);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        for (GuiEventListener element : this.children) {
-            if (element.mouseReleased(mouseX, mouseY, button)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button) {
-        for (GuiEventListener element : this.children) {
-            if (element.mouseDragged(mouseX, mouseY, button)) {
-                return true;
-            }
-        }
-        return false;
+    @Nullable
+    public GuiEventListener getFocused() {
+        return this.focusedElement;
     }
 
     public void setFocused(@Nullable GuiEventListener guiEventListener) {
@@ -90,4 +63,101 @@ public abstract class AbstractParentWidget extends AbstractWidget {
 
         this.focusedElement = guiEventListener;
     }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for (int i = this.children.size() - 1; i >= 0; i--) {
+            GuiEventListener child = this.children.get(i);
+            if (child.mouseClicked(mouseX, mouseY, button)) {
+                this.setFocused(child);
+                if (button == 0) {
+                    this.dragging = true;
+                }
+                return true;
+            }
+        }
+
+        if (button == 0) {
+            this.setFocused((GuiEventListener) null);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0) {
+            this.dragging = false;
+        }
+
+        boolean handled = false;
+        if (this.focusedElement != null) {
+            handled = this.focusedElement.mouseReleased(mouseX, mouseY, button);
+        }
+
+        for (int i = this.children.size() - 1; i >= 0; i--) {
+            GuiEventListener child = this.children.get(i);
+            if (child == this.focusedElement) {
+                continue;
+            }
+            if (child.mouseReleased(mouseX, mouseY, button)) {
+                handled = true;
+                break;
+            }
+        }
+
+        return handled;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button) {
+        if (!this.dragging || button != 0) {
+            return false;
+        }
+
+        if (this.focusedElement != null && this.focusedElement.mouseDragged(mouseX, mouseY, button)) {
+            return true;
+        }
+
+        for (int i = this.children.size() - 1; i >= 0; i--) {
+            GuiEventListener child = this.children.get(i);
+            if (child.mouseDragged(mouseX, mouseY, button)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        for (int i = this.children.size() - 1; i >= 0; i--) {
+            GuiEventListener child = this.children.get(i);
+            if (child.isMouseOver(mouseX, mouseY) && child.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)) {
+                return true;
+            }
+        }
+
+        return this.focusedElement != null
+                && this.focusedElement.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
+    @Override
+    public boolean keyPressed(int code, char character) {
+        if (this.focusedElement != null && this.focusedElement.keyPressed(code, character)) {
+            return true;
+        }
+
+        for (int i = this.children.size() - 1; i >= 0; i--) {
+            GuiEventListener child = this.children.get(i);
+            if (child == this.focusedElement) {
+                continue;
+            }
+            if (child.keyPressed(code, character)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

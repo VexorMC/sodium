@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.sodium.fabric;
 
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
+import net.caffeinemc.mods.sodium.client.config.ConfigManager;
 import net.caffeinemc.mods.sodium.fabric.config.ConfigLoaderFabric;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -15,5 +16,6 @@ public class SodiumFabricMod implements ClientModInitializer {
 
         ConfigLoaderFabric.collectConfigEntryPoints();
         SodiumClientMod.onInitialization(mod.getMetadata().getVersion().getFriendlyString());
+        ConfigManager.registerConfigsEarly();
     }
 }

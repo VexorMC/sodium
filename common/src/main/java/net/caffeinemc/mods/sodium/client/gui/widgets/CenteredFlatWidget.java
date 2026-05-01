@@ -1,11 +1,13 @@
 package net.caffeinemc.mods.sodium.client.gui.widgets;
 
+import net.minecraft.text.Text;
 import net.caffeinemc.mods.sodium.client.gui.ButtonTheme;
 import net.caffeinemc.mods.sodium.client.gui.ColorTheme;
 import net.caffeinemc.mods.sodium.client.gui.Colors;
 import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.text.Text;
+
+import java.awt.event.KeyEvent;
 
 public abstract class CenteredFlatWidget extends AbstractWidget {
     private final boolean isSelectable;
@@ -39,7 +41,7 @@ public abstract class CenteredFlatWidget extends AbstractWidget {
         this.hovered = this.isMouseOver(mouseX, mouseY);
 
         int backgroundColor = this.hovered ? this.theme.bgHighlight : (this.selected ? this.theme.bgDefault : this.theme.bgInactive);
-        int textColor = this.selected || !this.isSelectable ? this.theme.themeLighter : this.theme.themeDarker;
+        int textColor = this.selected || !this.isSelectable ? this.theme.themeLighter : this.hovered ? this.theme.theme : theme.themeDarker;
 
         int x1 = this.getX();
         int y1 = this.getY();
@@ -101,7 +103,6 @@ public abstract class CenteredFlatWidget extends AbstractWidget {
         return false;
     }
 
-
     abstract void onAction();
 
     private void doAction() {
@@ -116,5 +117,4 @@ public abstract class CenteredFlatWidget extends AbstractWidget {
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
-
 }

@@ -1,15 +1,15 @@
 package net.caffeinemc.mods.sodium.client.config.structure;
 
-import net.caffeinemc.mods.sodium.api.config.option.OptionFlag;
 import net.caffeinemc.mods.sodium.api.config.option.OptionImpact;
-import net.caffeinemc.mods.sodium.client.config.search.*;
+import net.caffeinemc.mods.sodium.client.config.search.SearchIndex;
+import net.caffeinemc.mods.sodium.client.config.search.TextSource;
 import net.caffeinemc.mods.sodium.client.config.value.DependentValue;
 import net.caffeinemc.mods.sodium.client.gui.options.control.Control;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.Collection;
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public abstract class Option {
@@ -22,7 +22,11 @@ public abstract class Option {
     Config state;
     Control control;
 
-    Option(Identifier id, Collection<Identifier> dependencies, Text name, DependentValue<Boolean> enabled) {
+    Option(
+            Identifier id,
+            Collection<Identifier> dependencies,
+            Text name,
+            DependentValue<Boolean> enabled) {
         if (dependencies.contains(id)) {
             throw new IllegalArgumentException("Option cannot depend on itself");
         }
@@ -59,8 +63,16 @@ public abstract class Option {
         // no-op
     }
 
+    public void resetToDefault() {
+        // no-op for non-stateful options
+    }
+
     public boolean isEnabled() {
         return this.enabled.get(this.state);
+    }
+
+    public DependentValue<Boolean> getEnabled() {
+        return this.enabled;
     }
 
     public boolean hasChanged() {
@@ -81,8 +93,8 @@ public abstract class Option {
 
     public abstract Text getTooltip();
 
-    public Collection<OptionFlag> getFlags() {
-        return EnumSet.noneOf(OptionFlag.class);
+    public Set<Identifier> getFlags() {
+        return Set.of();
     }
 
     public void registerTextSources(SearchIndex index, ModOptions modOptions, OptionPage page, OptionGroup optionGroup) {
@@ -119,6 +131,11 @@ public abstract class Option {
         @Override
         protected String getTextFromSource() {
             return Option.this.getName().asFormattedString();
+        }
+
+        @Override
+        public String toString() {
+            return "OptionNameSource{option id=" + Option.this.id + "}";
         }
     }
 }

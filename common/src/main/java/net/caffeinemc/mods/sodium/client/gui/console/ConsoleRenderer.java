@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gui.console;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.caffeinemc.mods.sodium.client.console.Console;
 import net.caffeinemc.mods.sodium.client.console.message.Message;
 import net.caffeinemc.mods.sodium.client.console.message.MessageLevel;
@@ -13,7 +14,6 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.Sys;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -48,8 +48,8 @@ public class ConsoleRenderer {
 
         MinecraftClient minecraft = MinecraftClient.getInstance();
 
-        GL11.glPushMatrix();
-        GL11.glTranslatef(0.0f, 0.0f, 1000.0f);
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(0.0f, 0.0f, 1000.0f);
 
         var paddingWidth = 3;
         var paddingHeight = 1;
@@ -124,7 +124,7 @@ public class ConsoleRenderer {
             }
         }
 
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
     }
 
     private static double getMessageOpacity(ActiveMessage message, double time) {

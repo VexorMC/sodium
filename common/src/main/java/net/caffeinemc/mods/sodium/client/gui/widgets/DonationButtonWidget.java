@@ -1,12 +1,11 @@
 package net.caffeinemc.mods.sodium.client.gui.widgets;
 
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class DonationButtonWidget {
     private static final int DONATE_BUTTON_WIDTH = 100;
@@ -16,10 +15,9 @@ public class DonationButtonWidget {
     private final FlatButtonWidget donateButtonText;
     private boolean donateButtonEnabled;
     
-    public DonationButtonWidget(VideoSettingsScreen parent, int screenWidth, Runnable openDonationPage, Runnable hideDonationButton) {
-        int y = 0; // Layout.INNER_MARGIN;
-        this.hideDonateButton = new FlatButtonWidget(new Dim2i(screenWidth - Layout.BUTTON_SHORT - Layout.INNER_MARGIN, y, Layout.BUTTON_SHORT, Layout.BUTTON_SHORT), new LiteralText("x"), hideDonationButton, true, false);
-        this.donateButtonText = new FlatButtonWidget(new Dim2i(this.hideDonateButton.getX() - CLOSE_BUTTON_MARGIN - DONATE_BUTTON_WIDTH, y, DONATE_BUTTON_WIDTH, Layout.BUTTON_SHORT), new TranslatableText("sodium.options.buttons.donate"), openDonationPage, true, false);
+    public DonationButtonWidget(VideoSettingsScreen parent, Runnable openDonationPage, Runnable hideDonationButton) {
+        this.hideDonateButton = new FlatButtonWidget(new Dim2i(parent.getDimensions().x() - Layout.BUTTON_SHORT - Layout.INNER_MARGIN, parent.getDimensions().y(), Layout.BUTTON_SHORT, Layout.BUTTON_SHORT), new LiteralText("x"), hideDonationButton, true, false);
+        this.donateButtonText = new FlatButtonWidget(new Dim2i(this.hideDonateButton.getX() - CLOSE_BUTTON_MARGIN - DONATE_BUTTON_WIDTH, parent.getDimensions().y(), DONATE_BUTTON_WIDTH, Layout.BUTTON_SHORT), new TranslatableText("sodium.options.buttons.donate"), openDonationPage, true, false);
 
         this.updateDisplay(parent, !SodiumClientMod.options().notifications.hasClearedDonationButton);
     }

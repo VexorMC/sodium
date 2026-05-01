@@ -1,8 +1,8 @@
 package net.caffeinemc.mods.sodium.client.gui.options.named;
 
-import net.caffeinemc.mods.sodium.client.gui.options.TextProvider;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.caffeinemc.mods.sodium.client.gui.options.TextProvider;
 
 public enum GraphicsMode implements TextProvider {
     FANCY("options.graphics.fancy"),
@@ -14,6 +14,10 @@ public enum GraphicsMode implements TextProvider {
         this.name = name;
     }
 
+    public static GraphicsMode fromBoolean(boolean isFancy) {
+        return isFancy ? FANCY : FAST;
+    }
+
     @Override
     public Text getLocalizedName() {
         return new TranslatableText(name);
@@ -22,9 +26,4 @@ public enum GraphicsMode implements TextProvider {
     public boolean isFancy() {
         return this == FANCY;
     }
-
-    public static GraphicsMode fromBoolean(boolean isFancy) {
-        return isFancy ? FANCY : FAST;
-    }
-
 }

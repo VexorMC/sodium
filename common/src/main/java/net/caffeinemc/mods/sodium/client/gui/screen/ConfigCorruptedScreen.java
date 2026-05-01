@@ -1,13 +1,13 @@
 package net.caffeinemc.mods.sodium.client.gui.screen;
 
-import net.caffeinemc.mods.sodium.client.SodiumClientMod;
-import net.caffeinemc.mods.sodium.client.console.Console;
-import net.caffeinemc.mods.sodium.client.console.message.MessageLevel;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.caffeinemc.mods.sodium.client.SodiumClientMod;
+import net.caffeinemc.mods.sodium.client.console.Console;
+import net.caffeinemc.mods.sodium.client.console.message.MessageLevel;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -17,16 +17,16 @@ import java.util.stream.Collectors;
 
 public class ConfigCorruptedScreen extends Screen {
     private static final String TEXT_BODY_RAW = """
-        A problem occurred while trying to load the configuration file. This
-        can happen when the file has been corrupted on disk, or when trying
-        to manually edit the file by hand.
-        
-        If you continue, the configuration file will be reset back to known-good
-        defaults, and you will lose any changes that have since been made to your
-        Video Settings.
-        
-        More information about the error can be found in the log file.
-        """;
+            A problem occurred while trying to load the configuration file. This
+            can happen when the file has been corrupted on disk, or when trying
+            to manually edit the file by hand.
+            
+            If you continue, the configuration file will be reset back to known-good
+            defaults, and you will lose any changes that have since been made to your
+            Video Settings.
+            
+            More information about the error can be found in the log file.
+            """;
 
     private static final List<Text> TEXT_BODY = Arrays.stream(TEXT_BODY_RAW.split("\n"))
             .map(LiteralText::new)
@@ -68,7 +68,7 @@ public class ConfigCorruptedScreen extends Screen {
     public void render(int mouseX, int mouseY, float delta) {
         super.render(mouseX, mouseY, delta);
 
-        this.textRenderer.draw("Radium Renderer", 32, 32, 0xffffff);
+        this.textRenderer.draw("Graphite Renderer", 32, 32, 0xffffff);
         this.textRenderer.draw("Could not load the configuration file", 32, 48, 0xff0000);
 
         for (int i = 0; i < TEXT_BODY.size(); i++) {

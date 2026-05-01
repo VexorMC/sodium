@@ -95,7 +95,7 @@ public class ConfigManager {
                 builtConfigs = builder.build();
 
                 for (var modConfig : builtConfigs) {
-                    var namespace = modConfig.namespace();
+                    var namespace = modConfig.configId();
                     if (namespaces.contains(namespace)) {
                         throw new IllegalArgumentException("Mod '" + configUser.modId + "' provided a duplicate mod id: " + namespace);
                     }

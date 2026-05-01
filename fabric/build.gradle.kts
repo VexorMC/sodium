@@ -50,6 +50,8 @@ dependencies {
 
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
     modImplementation("io.github.moehreag:legacy-lwjgl3:1.2.11+${BuildConfig.MINECRAFT_VERSION}")
+
+    ploceus.dependOsl("0.17.1")
 }
 
 configurations.configureEach {

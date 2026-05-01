@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class BigramSearchIndex extends SourceStoringIndex {
@@ -33,6 +34,9 @@ public class BigramSearchIndex extends SourceStoringIndex {
             if (text == null) {
                 continue;
             }
+            if (text.isBlank()) {
+                throw new IllegalStateException("Text source " + source + " returned blank text");
+            }
 
             text = conditionText(text).trim();
 
@@ -54,7 +58,7 @@ public class BigramSearchIndex extends SourceStoringIndex {
     }
 
     private static String conditionText(String text) {
-        text = text.toLowerCase();
+        text = text.toLowerCase(Locale.ROOT);
         text = NON_WORD.matcher(text).replaceAll(" ");
         return text;
     }
@@ -134,9 +138,9 @@ public class BigramSearchIndex extends SourceStoringIndex {
                     var score = queryBigramDensity * ((float) Math.log(sourceCount) + 1) * prevalenceInv;
 
                     // if the query matches exactly the start or part of the source, it is probably significantly more important.
-                    if (source.getText().toLowerCase().startsWith(query.trim())) {
+                    if (source.getText().toLowerCase(Locale.ROOT).startsWith(query.trim())) {
                         score *= 3.0f;
-                    } else if (source.getText().toLowerCase().contains(query.trim())) {
+                    } else if (source.getText().toLowerCase(Locale.ROOT).contains(query.trim())) {
                         score *= 2.0f;
                     }
 

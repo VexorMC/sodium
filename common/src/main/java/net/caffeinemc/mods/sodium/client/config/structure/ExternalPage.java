@@ -1,8 +1,8 @@
 package net.caffeinemc.mods.sodium.client.config.structure;
 
 import com.google.common.collect.ImmutableList;
-import net.caffeinemc.mods.sodium.client.config.search.SearchIndex;
 import net.minecraft.client.gui.screen.Screen;
+import net.caffeinemc.mods.sodium.client.config.search.SearchIndex;
 import net.minecraft.text.Text;
 
 import java.util.function.Consumer;

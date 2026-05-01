@@ -21,6 +21,8 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLCapabilities;
 
 import java.io.IOException;
 
@@ -79,9 +81,21 @@ public class SodiumConfigBuilder implements ConfigEntryPoint {
         createModOptionsBuilder(builder).addPage(
                 builder.createOptionPage()
                         .setName(new TranslatableText("sodium.options.pages.performance"))
-        );
+                        .addOptionGroup(
+                                builder.createOptionGroup()
+                                        .addOption(this.buildNoErrorContextOption(builder))));
     }
-
+    private OptionBuilder buildNoErrorContextOption(ConfigBuilder builder) {
+        return builder.createBooleanOption(new Identifier("sodium:performance.use_no_error_context"))
+                .setStorageHandler(this.sodiumStorage)
+                .setName(new LiteralText("sodium.options.use_no_error_context.name"))
+                .setTooltip(new LiteralText("sodium.options.use_no_error_context.tooltip"))
+                .setDefaultValue(false)
+                .setBinding(value -> { throw new IllegalStateException(); }, () -> false)
+                .setEnabledProvider(state -> false)
+                .setImpact(OptionImpact.LOW)
+                .setFlags(OptionFlag.REQUIRES_GAME_RESTART);
+    }
     private void buildFullConfig(ConfigBuilder builder) {
         createModOptionsBuilder(builder)
                 .setColorTheme(builder.createColorTheme().setFullThemeRGB(

@@ -1,11 +1,12 @@
 package net.caffeinemc.mods.sodium.client.gui.widgets;
 
 import dev.vexor.radium.compat.mojang.minecraft.gui.Renderable;
+import net.minecraft.text.Text;
 import net.caffeinemc.mods.sodium.client.gui.ButtonTheme;
 import net.caffeinemc.mods.sodium.client.gui.Colors;
 import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.text.Text;
+import java.awt.event.KeyEvent;
 
 public class FlatButtonWidget extends AbstractWidget implements Renderable {
     public static final ButtonTheme DEFAULT_THEME = new ButtonTheme(

@@ -1,8 +1,8 @@
 package net.caffeinemc.mods.sodium.client.config.builder;
 
+import net.minecraft.client.gui.screen.Screen;
 import net.caffeinemc.mods.sodium.api.config.structure.ExternalPageBuilder;
 import net.caffeinemc.mods.sodium.client.config.structure.ExternalPage;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
 
@@ -25,7 +25,7 @@ public class ExternalPageBuilderImpl extends PageBuilderImpl implements External
     }
 
     @Override
-    public ExternalPageBuilder setScreenProvider(Consumer<Screen> currentScreenConsumer) {
+    public ExternalPageBuilder setScreenConsumer(Consumer<Screen> currentScreenConsumer) {
         this.currentScreenConsumer = currentScreenConsumer;
         return this;
     }

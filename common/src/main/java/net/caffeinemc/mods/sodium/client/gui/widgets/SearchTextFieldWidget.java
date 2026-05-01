@@ -1,5 +1,6 @@
 package net.caffeinemc.mods.sodium.client.gui.widgets;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -202,10 +203,10 @@ public class SearchTextFieldWidget extends AbstractWidget {
             x1 = this.dim.x() + this.dim.width();
         }
 
-        GL11.glEnable(GL11.GL_COLOR_LOGIC_OP);
-        GL11.glLogicOp(GL11.GL_OR_REVERSE);
+        GlStateManager.enableColorLogic();
+        GlStateManager.logicOp(GL11.GL_OR_REVERSE);
         drawRect(x1, y1, x2, y2, -0xFFFF01);
-        GL11.glDisable(GL11.GL_COLOR_LOGIC_OP);
+        GlStateManager.disableColorLogic();
     }
 
     private int getMaxLength() {

@@ -1,15 +1,17 @@
 package net.caffeinemc.mods.sodium.client.gui.options.control;
 
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.caffeinemc.mods.sodium.client.config.structure.Option;
 import net.caffeinemc.mods.sodium.client.gui.ColorTheme;
 import net.caffeinemc.mods.sodium.client.gui.Colors;
 import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.gui.widgets.AbstractWidget;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.text.Style;
-import net.minecraft.util.Formatting;
-import net.minecraft.text.Text;
-import org.jetbrains.annotations.Nullable;
+
+
+import java.awt.*;
 
 public abstract class ControlElement extends AbstractWidget {
     protected final AbstractOptionList list;
@@ -52,7 +54,7 @@ public abstract class ControlElement extends AbstractWidget {
         this.hovered = this.isMouseOver(mouseX, mouseY);
 
         this.drawRect(this.getX(), this.getY(), this.getLimitX(), this.getLimitY(), this.hovered ? Colors.BACKGROUND_HOVER : Colors.BACKGROUND_LIGHT);
-        this.drawString(label, this.getX() + 6, this.getCenterY() + Layout.REGULAR_TEXT_BASELINE_OFFSET, Colors.FOREGROUND);
+        this.drawString(label, this.getX() + Layout.OPTION_TEXT_SIDE_PADDING, this.getCenterY() + Layout.REGULAR_TEXT_BASELINE_OFFSET, Colors.FOREGROUND);
 
         if (this.isFocused()) {
             this.drawBorder(this.getX(), this.getY(), this.getLimitX(), this.getLimitY(), -1);
@@ -62,10 +64,11 @@ public abstract class ControlElement extends AbstractWidget {
     protected Text formatDisabledControlValue(Text value) {
         return value.copy().setStyle(new Style()
                 .setFormatting(Formatting.GRAY)
-                .setItalic(true));
+                .setItalic(true)
+        );
     }
 
-    private String truncateLabelToFit(String name) {
+    protected String truncateLabelToFit(String name) {
         return truncateTextToFit(name, this.getWidth() - this.getContentWidth() - 20);
     }
 
@@ -73,4 +76,5 @@ public abstract class ControlElement extends AbstractWidget {
     public int getY() {
         return super.getY() - this.list.getScrollAmount();
     }
+
 }

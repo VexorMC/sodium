@@ -1,13 +1,14 @@
 package net.caffeinemc.mods.sodium.client.gui.widgets;
 
+
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.caffeinemc.mods.sodium.client.config.ConfigManager;
 import net.caffeinemc.mods.sodium.client.config.search.SearchQuerySession;
 import net.caffeinemc.mods.sodium.client.config.structure.Option;
 import net.caffeinemc.mods.sodium.client.gui.Colors;
 import net.caffeinemc.mods.sodium.client.gui.Layout;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,11 +20,9 @@ public class SearchWidget extends AbstractParentWidget {
 
     private final Consumer<List<Option.OptionNameSource>> onSearchResults;
     private final SearchQuerySession searchQuerySession;
-    private String query = "";
-
     private final AtomicReference<String> lastSearchRef;
     private final AtomicReference<Integer> lastSearchIndexRef;
-
+    private String query = "";
     private SearchTextFieldWidget searchBox;
     private FlatButtonWidget clearButton;
     private int lastRebuildWidth = -1;
@@ -64,7 +63,7 @@ public class SearchWidget extends AbstractParentWidget {
 
         this.clearButton = new FlatButtonWidget(
                 new Dim2i(x + searchBoxWidth, y, Layout.BUTTON_SHORT, Layout.BUTTON_SHORT),
-                new LiteralText("×"),
+                new LiteralText("x"),
                 this::clearSearch,
                 true,
                 false
@@ -167,6 +166,7 @@ public class SearchWidget extends AbstractParentWidget {
     public void render(int mouseX, int mouseY, float delta) {
         // Draw background for search box area
         drawRect(
+
                 this.getX(),
                 this.getY(),
                 this.getX() + this.lastRebuildWidth - Layout.BUTTON_SHORT,
