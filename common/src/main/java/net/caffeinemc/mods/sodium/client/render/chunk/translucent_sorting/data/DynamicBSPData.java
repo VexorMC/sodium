@@ -39,7 +39,7 @@ public class DynamicBSPData extends DynamicData {
 
     private class DynamicBSPSorter extends DynamicSorter {
         private DynamicBSPSorter(int quadCount) {
-            super(quadCount);
+            super(quadCount, DynamicBSPData.this);
         }
 
         @Override

@@ -14,18 +14,9 @@ public class GraphDirection {
     public static final int COUNT   = 6;
 
     private static final Direction[] ENUMS;
-    private static final int[] OPPOSITE;
     private static final int[] X, Y, Z;
 
     static {
-        OPPOSITE = new int[COUNT];
-        OPPOSITE[DOWN] = UP;
-        OPPOSITE[UP] = DOWN;
-        OPPOSITE[NORTH] = SOUTH;
-        OPPOSITE[SOUTH] = NORTH;
-        OPPOSITE[WEST] = EAST;
-        OPPOSITE[EAST] = WEST;
-
         X = new int[COUNT];
         X[WEST] = -1;
         X[EAST] = 1;
@@ -48,7 +39,7 @@ public class GraphDirection {
     }
 
     public static int opposite(int direction) {
-        return OPPOSITE[direction];
+        return direction ^ 1;
     }
 
     public static int x(int direction) {

@@ -34,7 +34,7 @@ public class ChunkBuilderSortingTask extends ChunkBuilderTask<ChunkSortOutput> {
         this.sorter.writeIndexBuffer(this, false);
 
         profiler.pop();
-        return new ChunkSortOutput(this.render, this.submitTime, this.sorter);
+        return new ChunkSortOutput(this.section, this.submitTime, this.sorter);
     }
 
     public static ChunkBuilderSortingTask createTask(RenderSection render, int frame, Vector3dc absoluteCameraPos) {

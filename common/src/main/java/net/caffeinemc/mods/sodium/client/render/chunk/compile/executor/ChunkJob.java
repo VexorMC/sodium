@@ -8,11 +8,5 @@ public interface ChunkJob extends CancellationToken {
 
     boolean isStarted();
 
-    boolean isBlocking();
-
-    long getEstimatedSize();
-
     long getEstimatedDuration();
-
-    long getEstimatedUploadDuration();
 }

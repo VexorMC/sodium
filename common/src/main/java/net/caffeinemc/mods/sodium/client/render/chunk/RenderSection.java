@@ -1,5 +1,10 @@
 package net.caffeinemc.mods.sodium.client.render.chunk;
 
+import java.util.List;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.BuilderTaskOutput;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildOutput;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkSortOutput;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.executor.ChunkJob;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
@@ -30,10 +35,12 @@ public class RenderSection {
     private final int chunkX, chunkY, chunkZ;
 
     // Occlusion Culling State
-    private long visibilityData = VisibilityEncoding.NULL;
+    private long[] visibilityData = null;
 
-    private int incomingDirections;
-    private int lastVisibleFrame = -1;
+    private int incomingDirectionsWide;
+    private int incomingDirectionsRegular;
+    private int incomingDirectionsLocal;
+    private int searchToken = -1;
     private long allowedAngles; // 60-bit packed quantized min/max allowed angles, 0-9 minXY, 10-19 maxXY, etc.
 
     private int adjacentMask;
@@ -55,16 +62,18 @@ public class RenderSection {
     @Nullable
     private TranslucentData translucentData;
 
-    // Pending Update State
-    @Nullable
-    private ChunkJob runningJob = null;
+    // Update State
+    private final List<ChunkJob> runningJobs = new ReferenceArrayList<>(2);
     private long lastMeshResultSize = MeshResultSize.NO_DATA;
+    @Nullable
+    private ChunkBuildOutput pendingBuildOutput;
+    private int frameOfBuildSubmit;
+    @Nullable
+    private ChunkSortOutput pendingDynamicSortOutput;
+    private int frameOfSortSubmit;
 
     private int pendingUpdateType;
     private long pendingUpdateSince;
-
-    private int lastUploadFrame = -1;
-    private int lastSubmittedFrame = -1;
 
     // Lifetime state
     private boolean disposed;
@@ -136,16 +145,16 @@ public class RenderSection {
      * be used.
      */
     public void delete() {
-        if (this.runningJob != null) {
-            this.runningJob.setCancelled();
-            this.runningJob = null;
+        for (var job : this.runningJobs) {
+            job.setCancelled();
         }
+        this.runningJobs.clear();
 
         this.clearRenderState();
         this.disposed = true;
     }
 
-    public boolean setInfo(@Nullable BuiltSectionInfo info) {
+    public int setInfo(@Nullable BuiltSectionInfo info) {
         if (info != null) {
             return this.setRenderState(info);
         } else {
@@ -153,36 +162,36 @@ public class RenderSection {
         }
     }
 
-    private boolean setRenderState(@NotNull BuiltSectionInfo info) {
-        var prevBuilt = this.built;
-        var prevFlags = this.flags;
+    private int setRenderState(@NotNull BuiltSectionInfo info) {
+        var prevFlags = this.region.getSectionFlags(this.sectionIndex);
         var prevVisibilityData = this.visibilityData;
 
-        this.built = true;
-        this.flags = info.flags;
+        this.region.setSectionRenderState(this.sectionIndex, info);
         this.visibilityData = info.visibilityData;
 
-        this.globalBlockEntities = info.globalBlockEntities;
-        this.culledBlockEntities = info.culledBlockEntities;
-        this.animatedSprites = info.animatedSprites;
+        int changes = SectionInfoChange.NONE;
 
-        // the section is marked as having received graph-relevant changes if it's build state, flags, or connectedness has changed.
-        // the entities and sprites don't need to be checked since whether they exist is encoded in the flags.
-        return !prevBuilt || prevFlags != this.flags || prevVisibilityData != this.visibilityData;
+        // invalidate the graph if the connectivity of this section changes. Changes to the BE and sprite flags are indirectly detected by checking for changes to the data directly hereafter.
+        if (prevFlags != this.region.getSectionFlags(this.sectionIndex) || prevVisibilityData != this.visibilityData) {
+            changes |= SectionInfoChange.GRAPH;
+        }
+
+        // Render lists need to be invalidated when the lists of BEs or sprites change since they are baked into the render list itself, and thus simply re-rendering the same render list won't update the presentation as it works for the meshes.
+        if (info.culledBlockEntities != null || info.animatedSprites != null) {
+            changes |= SectionInfoChange.RENDER_LIST;
+        }
+
+        return changes;
     }
 
-    private boolean clearRenderState() {
-        var wasBuilt = this.built;
+    private int clearRenderState() {
+        var wasBuilt = this.isBuilt();
 
-        this.built = false;
-        this.flags = RenderSectionFlags.NONE;
-        this.visibilityData = VisibilityEncoding.NULL;
-        this.globalBlockEntities = null;
-        this.culledBlockEntities = null;
-        this.animatedSprites = null;
+        this.region.clearSectionRenderState(this.sectionIndex);
+        this.visibilityData = null;
 
-        // changes to data if it moves from built to not built don't matter, so only build state changes matter
-        return wasBuilt;
+        // Invalidate graph when a previously built section is removed. Invalidating render lists too here doesn't make any sense since the section would still be in the tree until the graph is re-traversed.
+        return wasBuilt ? SectionInfoChange.GRAPH : SectionInfoChange.NONE;
     }
 
     public void setLastMeshResultSize(long size) {
@@ -219,14 +228,6 @@ public class RenderSection {
      */
     public int getOriginZ() {
         return this.chunkZ << 4;
-    }
-
-    /**
-     * @return The squared distance from the center of this chunk in the level to the center of the block position
-     * given by {@param pos}
-     */
-    public float getSquaredDistance(BlockPos pos) {
-        return this.getSquaredDistance(pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f);
     }
 
     /**
@@ -286,7 +287,7 @@ public class RenderSection {
     }
 
     public boolean isBuilt() {
-        return this.built;
+        return (this.region.getSectionFlags(this.sectionIndex) & RenderSectionFlags.MASK_IS_BUILT) != 0;
     }
 
     public int getSectionIndex() {
@@ -297,32 +298,63 @@ public class RenderSection {
         return this.region;
     }
 
-    public void setLastVisibleFrame(int frame) {
-        this.lastVisibleFrame = frame;
+    public boolean needsRender() {
+        return this.region.sectionNeedsRender(this.sectionIndex);
     }
 
-    public int getLastVisibleFrame() {
-        return this.lastVisibleFrame;
+    public void resetOnFirstVisit(int token) {
+        this.searchToken = token;
+        this.incomingDirectionsWide = 0;
+        this.incomingDirectionsRegular = 0;
+        this.incomingDirectionsLocal = 0;
     }
 
-    public int getIncomingDirections() {
-        return this.incomingDirections;
+    public int getSearchToken() {
+        return this.searchToken;
     }
 
-    public void addIncomingDirections(int directions) {
-        this.incomingDirections |= directions;
+    public int getIncomingDirectionsWide() {
+        return this.incomingDirectionsWide;
     }
 
-    public void setIncomingDirections(int directions) {
-        this.incomingDirections = directions;
+    public int getIncomingDirectionsRegular() {
+        return this.incomingDirectionsRegular;
+    }
+
+    public int getIncomingDirectionsLocal() {
+        if (this.incomingDirectionsLocal == -1) {
+            return 0;
+        }
+
+        return this.incomingDirectionsLocal;
+    }
+
+    public void addIncomingDirectionsWide(int directions) {
+        this.incomingDirectionsWide |= directions;
+    }
+
+    public void addIncomingDirectionsRegular(int directions) {
+        this.incomingDirectionsRegular |= directions;
+    }
+
+    public void addIncomingDirectionsLocal(int directions) {
+        if (this.incomingDirectionsLocal == -1) {
+            return;
+        }
+
+        this.incomingDirectionsLocal |= directions;
+    }
+
+    public void blockLocalIncoming() {
+        this.incomingDirectionsLocal = -1;
     }
 
     private static final int ANGLE_BITS = 10;
     private static final int ANGLE_MASK = (1 << ANGLE_BITS) - 1;
     private static final long ANGLES_MIN_MASK =
-            (long)ANGLE_MASK * (1 | (1L << (ANGLE_BITS * 2)) | (1L << (ANGLE_BITS * 4)));
+            (long) ANGLE_MASK * (1 | (1L << (ANGLE_BITS * 2)) | (1L << (ANGLE_BITS * 4)));
     private static final long ANGLES_MAX_MASK =
-            (long)ANGLE_MASK * ((1L << ANGLE_BITS) | (1L << (ANGLE_BITS * 3)) | (1L << (ANGLE_BITS * 5)));
+            (long) ANGLE_MASK * ((1L << ANGLE_BITS) | (1L << (ANGLE_BITS * 3)) | (1L << (ANGLE_BITS * 5)));
     private static final int LUT_DIM = 32;
     private static final int LUT_SHIFT = 5; // (1 << 5) = 32
 
@@ -361,20 +393,27 @@ public class RenderSection {
      *
      * @param origin The origin of the visibility check.
      * @param other  The parent/previous section from which visibility is being propagated.
-     * @param frame  The current frame number.
+     * @param token  The current BFS token (similar to frame count).
      * @return false if this section is guaranteed not visible, true otherwise.
      */
-    public boolean intersectSlopes(SectionPos origin, RenderSection other, int frame) {
-        if (origin.getY() > 256) return true; // values over 256 appear to break culling
-
+    public boolean intersectSlopes(SectionPos origin, RenderSection other, int token) {
         var dx = Math.abs(origin.getX() - this.getChunkX());
         var dy = Math.abs(origin.getY() - this.getChunkY());
         var dz = Math.abs(origin.getZ() - this.getChunkZ());
 
-        // Shift each plane's pair independently to preserve ratios
-        long baseAngles = lookupLut(dx, dy)
-                | ((long) lookupLut(dz, dx) << (2 * ANGLE_BITS))
-                | ((long) lookupLut(dy, dz) << (4 * ANGLE_BITS));
+        // Shift to [0, 31] for LUT lookup
+        while ((dx | dy | dz) >= 32) {
+            // This is only true for the outermost rings of sections that have a distance
+            // of 32 when 32 chunks are visible, so we don't use more complex
+            // 32-Integer.numberOfLeadingZeros and per-plane shifting.
+            dx >>= 1;
+            dy >>= 1;
+            dz >>= 1;
+        }
+
+        long baseAngles = ANGLE_LUT[dx + (dy << LUT_SHIFT)] |
+                ((long) ANGLE_LUT[dz + (dx << LUT_SHIFT)] << (2 * ANGLE_BITS)) |
+                ((long) ANGLE_LUT[dy + (dz << LUT_SHIFT)] << (4 * ANGLE_BITS));
 
         long pathAngles = parallel_unsigned_max_min(other.allowedAngles, baseAngles);
 
@@ -384,8 +423,8 @@ public class RenderSection {
             return false;
         }
 
-        if (this.lastVisibleFrame == frame) {
-            // This section has been visited before *this frame*.
+        if (this.searchToken == token) {
+            // This section has been visited before in *this search*.
             // Union the angles: [min(oldMin, newMin), max(oldMax, newMax)]
             pathAngles = parallel_unsigned_min_max(pathAngles, this.allowedAngles);
         }
@@ -488,13 +527,6 @@ public class RenderSection {
     }
 
     /**
-     * Returns the occlusion culling data which determines this chunk's connectedness on the visibility graph.
-     */
-    public long getVisibilityData() {
-        return this.visibilityData;
-    }
-
-    /**
      * Returns the collection of animated sprites contained by this rendered chunk section.
      */
     public Sprite @Nullable[] getAnimatedSprites() {
@@ -516,12 +548,19 @@ public class RenderSection {
         return this.globalBlockEntities;
     }
 
-    public @Nullable ChunkJob getRunningJob() {
-        return this.runningJob;
+    /**
+     * Returns the occlusion culling data which determines this chunk's connectedness on the visibility graph.
+     */
+    public long[] getVisibilityData() {
+        return this.visibilityData;
     }
 
-    public void setRunningJob(@Nullable ChunkJob token) {
-        this.runningJob = token;
+    public void clearRunningJob(ChunkJob job) {
+        this.runningJobs.remove(job);
+    }
+
+    public void addRunningJob(ChunkJob job) {
+        this.runningJobs.add(job);
     }
 
     public int getPendingUpdate() {
@@ -547,27 +586,63 @@ public class RenderSection {
         }
     }
 
-    public int getLastUploadFrame() {
-        return this.lastUploadFrame;
+    public boolean addBuildOutput(BuilderTaskOutput output) {
+        var hasNoPendingOutputs = this.pendingBuildOutput == null && this.pendingDynamicSortOutput == null;
+
+        if (output instanceof ChunkBuildOutput buildOutput) {
+            this.addMeshBuildOutput(buildOutput);
+        } else if (output instanceof ChunkSortOutput sortOutput) {
+            this.addDynamicSortOutput(sortOutput);
+        } else {
+            throw new IllegalArgumentException("Unexpected output type: " + output.getClass());
+        }
+
+        // signal that this section needs build processing only once
+        return hasNoPendingOutputs && (this.pendingBuildOutput != null || this.pendingDynamicSortOutput != null);
     }
 
-    public void setLastUploadFrame(int lastSortFrame) {
-        this.lastUploadFrame = lastSortFrame;
+    private void addMeshBuildOutput(ChunkBuildOutput output) {
+        // TODO: check that the sorting output actually matches the translucent data that's on the render section?
+        // TODO: there's some sort of new flickering going on with sorting sometimes
+        // records build output if it's newer than what is uploaded, or newer than what is pending to be uploaded
+        if (this.pendingBuildOutput == null && output.submitTime > this.frameOfBuildSubmit ||
+                this.pendingBuildOutput != null && output.submitTime > this.pendingBuildOutput.submitTime) {
+            this.pendingBuildOutput = output;
+
+            // if there's a dynamic sort submitted before the rebuild but the rebuild reuses the index data, then we need to accept the sort. If the rebuild doesn't reuse uploaded index data, then the previously scheduled sort will be invalid.
+            if (output.containsNewIndexData()) {
+                this.pendingDynamicSortOutput = output;
+            }
+        }
     }
 
-    public int getLastSubmittedFrame() {
-        return this.lastSubmittedFrame;
+    private void addDynamicSortOutput(ChunkSortOutput output) {
+        if (this.pendingDynamicSortOutput == null && output.submitTime > this.frameOfSortSubmit ||
+                this.pendingDynamicSortOutput != null && output.submitTime > this.pendingDynamicSortOutput.submitTime) {
+            this.pendingDynamicSortOutput = output;
+        }
     }
 
-    public void setLastSubmittedFrame(int lastSubmittedFrame) {
-        this.lastSubmittedFrame = lastSubmittedFrame;
+    public @Nullable ChunkBuildOutput retrievePendingBuildOutput() {
+        ChunkBuildOutput output = null;
+        if (this.pendingBuildOutput != null) {
+            this.frameOfBuildSubmit = this.pendingBuildOutput.submitTime;
+            output = this.pendingBuildOutput;
+        }
+        this.pendingBuildOutput = null;
+        return output;
     }
 
-    public float getCurrentVisibility() {
-        int currentTime = Math.toIntExact(System.currentTimeMillis() - region.getCreationTime());
-        int fadeTime = currentTime - this.fadeTime;
-        float elapsed = (float) fadeTime;
-        return MathHelper.clamp(elapsed / ((float) (SodiumClientMod.options().quality.chunkSectionFadeInTime * 1000)), 0.0f, 1.0f);
+    public @Nullable ChunkSortOutput retrievePendingDynamicSortOutput(ChunkBuildOutput buildOutput) {
+        ChunkSortOutput output = null;
+        if (this.pendingDynamicSortOutput != null) {
+            this.frameOfSortSubmit = this.pendingDynamicSortOutput.submitTime;
+            if (this.pendingDynamicSortOutput != buildOutput) {
+                output = this.pendingDynamicSortOutput;
+            }
+        }
+        this.pendingDynamicSortOutput = null;
+        return output;
     }
 
     public void setFadeTime(int relativeBuiltTime) {

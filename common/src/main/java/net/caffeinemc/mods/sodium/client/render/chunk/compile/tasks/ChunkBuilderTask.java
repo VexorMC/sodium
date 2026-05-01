@@ -16,15 +16,15 @@ import net.caffeinemc.mods.sodium.client.util.task.CancellationToken;
 /**
  * Build tasks are immutable jobs (with optional prioritization) which contain all the necessary state to perform
  * chunk mesh updates or quad sorting off the main thread.
- *
+ * <p>
  * When a task is constructed on the main thread, it should copy all the state it requires in order to complete the task
  * without further synchronization. The task will then be scheduled for async execution on a thread pool.
- *
+ * <p>
  * After the task completes, it returns a "build result" which contains any computed data that needs to be handled
  * on the main thread.
  */
 public abstract class ChunkBuilderTask<OUTPUT extends BuilderTaskOutput> implements CombinedCameraPos {
-    protected final RenderSection render;
+    protected final RenderSection section;
     protected final int submitTime;
     protected final Vector3dc absoluteCameraPos;
     protected final Vector3fc cameraPos;
@@ -36,18 +36,18 @@ public abstract class ChunkBuilderTask<OUTPUT extends BuilderTaskOutput> impleme
     /**
      * Constructs a new build task for the given chunk and converts the absolute camera position to a relative position. While the absolute position is stored as a double vector, the relative position is stored as a float vector.
      * 
-     * @param render            The chunk to build
+     * @param section            The chunk to build
      * @param time              The frame in which this task was created
      * @param absoluteCameraPos The absolute position of the camera
      */
-    public ChunkBuilderTask(RenderSection render, int time, Vector3dc absoluteCameraPos) {
-        this.render = render;
+    public ChunkBuilderTask(RenderSection section, int time, Vector3dc absoluteCameraPos) {
+        this.section = section;
         this.submitTime = time;
         this.absoluteCameraPos = absoluteCameraPos;
         this.cameraPos = new Vector3f(
-                (float) (absoluteCameraPos.x() - (double) render.getOriginX()),
-                (float) (absoluteCameraPos.y() - (double) render.getOriginY()),
-                (float) (absoluteCameraPos.z() - (double) render.getOriginZ()));
+                (float) (absoluteCameraPos.x() - (double) section.getOriginX()),
+                (float) (absoluteCameraPos.y() - (double) section.getOriginY()),
+                (float) (absoluteCameraPos.z() - (double) section.getOriginZ()));
     }
 
     /**
@@ -89,5 +89,9 @@ public abstract class ChunkBuilderTask<OUTPUT extends BuilderTaskOutput> impleme
     @Override
     public Vector3dc getAbsoluteCameraPos() {
         return this.absoluteCameraPos;
+    }
+
+    public RenderSection getRenderSection() {
+        return this.section;
     }
 }

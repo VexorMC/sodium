@@ -55,5 +55,8 @@ public abstract class MixinBaseFrustum implements ExtendedFrustum {
 
         return intersects ? FrustumIntersection.INTERSECT : FrustumIntersection.INSIDE;
     }
-
+    @Override
+    public float[][] radium$getPlanes() {
+        return this.homogeneousCoordinates;
+    }
 }

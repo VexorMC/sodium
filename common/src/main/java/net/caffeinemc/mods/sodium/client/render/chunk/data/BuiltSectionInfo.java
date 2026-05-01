@@ -22,7 +22,7 @@ public class BuiltSectionInfo {
     public static final BuiltSectionInfo EMPTY = createEmptyData();
 
     public final int flags;
-    public final long visibilityData;
+    public final long[] visibilityData;
 
     public final BlockEntity @Nullable[] globalBlockEntities;
     public final BlockEntity @Nullable[] culledBlockEntities;
@@ -32,7 +32,7 @@ public class BuiltSectionInfo {
                              @NotNull Collection<BlockEntity> globalBlockEntities,
                              @NotNull Collection<BlockEntity> culledBlockEntities,
                              @NotNull Collection<Sprite> animatedSprites,
-                             @NotNull ChunkOcclusionData occlusionData) {
+                             @NotNull ChunkOcclusionData[] occlusionData) {
         this.globalBlockEntities = toArray(globalBlockEntities, BlockEntity[]::new);
         this.culledBlockEntities = toArray(culledBlockEntities, BlockEntity[]::new);
         this.animatedSprites = toArray(animatedSprites, Sprite[]::new);
@@ -40,20 +40,23 @@ public class BuiltSectionInfo {
         int flags = 0;
 
         if (!blockRenderPasses.isEmpty()) {
-            flags |= 1 << RenderSectionFlags.HAS_BLOCK_GEOMETRY;
+            flags |= RenderSectionFlags.MASK_HAS_BLOCK_GEOMETRY;
         }
 
         if (!culledBlockEntities.isEmpty()) {
-            flags |= 1 << RenderSectionFlags.HAS_BLOCK_ENTITIES;
+            flags |= RenderSectionFlags.MASK_HAS_BLOCK_ENTITIES;
         }
 
         if (!animatedSprites.isEmpty()) {
-            flags |= 1 << RenderSectionFlags.HAS_ANIMATED_SPRITES;
+            flags |= RenderSectionFlags.MASK_HAS_ANIMATED_SPRITES;
         }
 
         this.flags = flags;
 
-        this.visibilityData = VisibilityEncoding.encode(occlusionData);
+        this.visibilityData = new long[occlusionData.length];
+        for (int i = 0; i < occlusionData.length; i++) {
+            this.visibilityData[i] = VisibilityEncoding.encode(occlusionData[i]);
+        }
     }
 
     public static class Builder {
@@ -62,13 +65,13 @@ public class BuiltSectionInfo {
         private final List<BlockEntity> culledBlockEntities = new ArrayList<>();
         private final Set<Sprite> animatedSprites = new ObjectOpenHashSet<>();
 
-        private ChunkOcclusionData occlusionData;
+        private ChunkOcclusionData[] occlusionData;
 
         public void addRenderPass(TerrainRenderPass pass) {
             this.blockRenderPasses.add(pass);
         }
 
-        public void setOcclusionData(ChunkOcclusionData data) {
+        public void setOcclusionData(ChunkOcclusionData[] data) {
             this.occlusionData = data;
         }
 
@@ -102,7 +105,7 @@ public class BuiltSectionInfo {
         occlusionData.addOpenEdgeFaces(EnumSet.allOf(Direction.class));
 
         BuiltSectionInfo.Builder meshInfo = new BuiltSectionInfo.Builder();
-        meshInfo.setOcclusionData(occlusionData);
+        meshInfo.setOcclusionData(new ChunkOcclusionData[] { occlusionData });
 
         return meshInfo.build();
     }

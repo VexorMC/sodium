@@ -5,10 +5,12 @@ import dev.vexor.radium.compat.mojang.minecraft.render.FogHelper;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.*;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
+import net.caffeinemc.mods.sodium.client.render.chunk.async.CullTask;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.BuilderTaskOutput;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildOutput;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkSortOutput;
@@ -21,16 +23,13 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilder
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderTask;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionInfo;
 import net.caffeinemc.mods.sodium.client.render.chunk.lists.*;
-import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.GraphDirection;
-import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.OcclusionCuller;
+import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.*;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegionManager;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior.PriorityMode;
-import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.DynamicTopoData;
-import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.NoData;
-import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.TranslucentData;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.*;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.CameraMovement;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.SortTriggering;
 import net.caffeinemc.mods.sodium.client.render.chunk.tree.RemovableMultiForest;
@@ -57,6 +56,8 @@ import org.joml.Vector3dc;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RenderSectionManager {
     private static final float NEARBY_REBUILD_DISTANCE = Mth.square(16.0f);
@@ -97,11 +98,9 @@ public class RenderSectionManager {
 
     @NotNull
     private SortedRenderLists renderLists;
-    private SectionCollector sectionCollector;
-    private SectionCollector lastSectionCollector;
 
-    @NotNull
-    private Map<TaskQueueType, ArrayDeque<RenderSection>> taskLists;
+    private DeferredTaskList taskLists;
+    private final EnumMap<DeferMode, ReferenceLinkedOpenHashSet<RenderSection>> importantTasks;
 
     private int frame;
     private long lastFrameDuration = -1;
@@ -110,11 +109,19 @@ public class RenderSectionManager {
     private static final float FRAME_DURATION_UPDATE_RATIO = 0.05f;
 
     private boolean needsGraphUpdate = true;
-    private int lastUpdatedFrame;
+    private boolean needsRenderListUpdate = true;
+    private boolean cameraChanged = false;
 
     private @Nullable Vector3dc cameraPosition;
 
+    private final ExecutorService asyncCullExecutor = Executors.newSingleThreadExecutor(RenderSectionManager::makeAsyncCullThread);
+    private CullTask pendingTask = null;
+
+    private SectionTree renderTree = null;
+    private final Map<CullType, SectionTree> cullResults = new EnumMap<>(CullType.class);
     private final RemovableMultiForest renderableSectionTree;
+
+    private final AsyncCameraTimingControl cameraTimingControl = new AsyncCameraTimingControl();
 
     public RenderSectionManager(ClientWorld level, int renderDistance, SortBehavior sortBehavior, CommandList commandList) {
         this.meshTaskSizeEstimator = new MeshTaskSizeEstimator(level);
@@ -141,14 +148,15 @@ public class RenderSectionManager {
 
         this.renderableSectionTree = new RemovableMultiForest(renderDistance);
 
-        this.taskLists = new EnumMap<>(TaskQueueType.class);
-
-        for (var type : TaskQueueType.values()) {
-            this.taskLists.put(type, new ArrayDeque<>());
+        this.importantTasks = new EnumMap<>(DeferMode.class);
+        for (var deferMode : DeferMode.values()) {
+            this.importantTasks.put(deferMode, new ReferenceLinkedOpenHashSet<>());
         }
     }
 
     public void prepareFrame(Vector3dc cameraPosition) {
+        this.cameraPosition = cameraPosition;
+
         var now = System.nanoTime();
         this.lastFrameDuration = now - this.lastFrameAtTime;
         this.lastFrameAtTime = now;
@@ -158,52 +166,173 @@ public class RenderSectionManager {
             this.averageFrameDuration = MathUtil.exponentialMovingAverage(this.averageFrameDuration, this.lastFrameDuration, FRAME_DURATION_UPDATE_RATIO);
         }
         this.averageFrameDuration = Mth.clamp(this.averageFrameDuration, 1_000_100, 100_000_000);
+    }
 
+    public void prepareRender() {
         this.frame += 1;
-        this.cameraPosition = cameraPosition;
-    }
-
-    public void update(Viewport viewport, boolean spectator) {
-        this.lastUpdatedFrame += 1;
-
-        this.needsGraphUpdate = this.createTerrainRenderList(viewport, this.lastUpdatedFrame, spectator);
-    }
-
-    private boolean createTerrainRenderList(Viewport viewport, int frame, boolean spectator) {
-        this.resetRenderLists();
-
-        final var searchDistance = this.getSearchDistance();
-        final var useOcclusionCulling = this.shouldUseOcclusionCulling(spectator);
-
-        var importantRebuildQueueType = SodiumClientMod.options().performance.chunkBuildDeferMode.getImportantRebuildQueueType();
-        var importantSortQueueType = this.sortBehavior.getDeferMode().getImportantRebuildQueueType();
-        if (this.isOutOfGraph(viewport.getChunkCoord())) {
-            var visitor = new TreeSectionCollector(frame, importantRebuildQueueType, importantSortQueueType, this.sectionByPosition);
-            this.renderableSectionTree.prepareForTraversal();
-            this.renderableSectionTree.traverse(visitor, viewport, searchDistance);
-
-            this.sectionCollector = visitor;
-        } else {
-            var visitor = new OcclusionSectionCollector(frame, importantRebuildQueueType, importantSortQueueType);
-            this.occlusionCuller.findVisible(visitor, viewport, searchDistance, useOcclusionCulling, frame);
-
-            this.sectionCollector = visitor;
-        }
-        this.lastSectionCollector = null;
-
-        this.taskLists = this.sectionCollector.getTaskLists();
-
-        return this.sectionCollector.needsRevisitForPendingUpdates();
-    }
-
-    public void finalizeRenderLists(Viewport viewport) {
-        if (this.sectionCollector != null) {
-            this.renderLists = this.sectionCollector.createRenderLists(viewport);
-            this.lastSectionCollector = this.sectionCollector;
-            this.sectionCollector = null;
+        if (this.cameraChanged) {
+            this.invalidateRenderLists();
         }
     }
 
+    public void prepareRenderTrees(Viewport viewport, boolean spectator) {
+        // cancel task if not in progress
+        if (this.pendingTask != null && this.pendingTask.cancelIfNotStarted()) {
+            this.pendingTask = null;
+        }
+
+        // consume the results of completed tasks
+        this.consumeCullTaskResults(false);
+
+        // discard unusable present and pending frustum-tested trees
+        if (this.cameraChanged) {
+            this.cullResults.remove(CullType.LOCAL);
+        }
+
+        // if the origin exists in the graph, schedule new async culling task
+        if (!this.isOutOfGraph(viewport.getChunkCoord()) && (this.cameraChanged || this.needsGraphUpdate)) {
+            this.scheduleAsyncWork(viewport, spectator);
+        }
+    }
+
+    public void finalizeRenderLists(Viewport viewport, boolean updateChunksImmediately) {
+        var syncRender = this.cameraTimingControl.getShouldRenderSync();
+        if (updateChunksImmediately || syncRender && (this.needsGraphUpdate || this.needsRenderListUpdate)) {
+            this.renderOutOfGraph(viewport);
+        } else if (this.needsRenderListUpdate) {
+            this.readRenderListFromTree(viewport);
+        }
+
+        this.needsRenderListUpdate = false;
+        this.cameraChanged = false;
+    }
+
+    private void consumeCullTaskResults(boolean waitForCompletion) {
+        if (this.pendingTask == null) {
+            return;
+        }
+
+        // if there's a waiting viewport, don't skip unfinished task
+        if (!waitForCompletion && !this.pendingTask.isDone()) {
+            return;
+        }
+
+        var result = this.pendingTask.getResult();
+        var treeLocal = result.getCullTreeLocal();
+        var treeRegular = result.getCullTreeRegular();
+        var treeWide = result.getCullTreeWide();
+        this.cullResults.put(CullType.LOCAL, treeLocal);
+        this.cullResults.put(CullType.REGULAR, treeRegular);
+        this.cullResults.put(CullType.WIDE, treeWide);
+        this.taskLists = result.getPendingTaskLists();
+
+        this.invalidateRenderLists();
+        this.pendingTask = null;
+    }
+
+    private static Thread makeAsyncCullThread(Runnable runnable) {
+        Thread thread = new Thread(runnable);
+        thread.setName("Sodium Async Cull Thread");
+        return thread;
+    }
+    private void scheduleAsyncWork(Viewport viewport, boolean spectator) {
+        if (this.pendingTask != null) {
+            return;
+        }
+        // submit cull task if there's none running currently
+        var searchDistanceRegular = this.getSearchDistanceForCullType(CullType.REGULAR);
+        var searchDistanceLocal = this.getSearchDistanceForCullType(CullType.LOCAL);
+
+        var useOcclusionCulling = this.shouldUseOcclusionCulling(spectator);
+        this.pendingTask = new CullTask(viewport, searchDistanceRegular, searchDistanceLocal, this.frame, this.occlusionCuller, useOcclusionCulling, this.level);
+        this.pendingTask.submitTo(this.asyncCullExecutor);
+
+        // only clear the graph update if we actually scheduled a task. Otherwise, the currently running task might not pick up on the change and no additional task would have been scheduled.
+        this.needsGraphUpdate = false;
+    }
+
+    private static final LongArrayList timings = new LongArrayList();
+
+    private SectionTree findBestTree(Viewport viewport) {
+        for (var type : CullType.NARROW_TO_WIDE) {
+            var tree = this.cullResults.get(type);
+            if (tree == null) {
+                continue;
+            }
+
+            float searchDistance = this.getSearchDistanceForCullType(type);
+            if (tree.isValidFor(viewport, searchDistance)) {
+                return tree;
+            }
+        }
+
+        return null;
+    }
+
+    private void readRenderListFromTree(Viewport viewport) {
+        // pick the narrowest available tree
+        var bestTree = this.findBestTree(viewport);
+
+        // use out-of-graph fallback if the origin section is not loaded and there's no valid tree (missing origin section, empty world)
+        if (bestTree == null && this.isOutOfGraph(viewport.getChunkCoord())) {
+            this.renderOutOfGraph(viewport);
+            return;
+        }
+
+        // wait for pending tasks to maybe supply a valid tree if there's no current tree (first frames after initial load/reload)
+        if (bestTree == null) {
+            this.consumeCullTaskResults(true);
+            bestTree = this.findBestTree(viewport);
+        }
+
+        if (bestTree == null) {
+            this.renderOutOfGraph(viewport);
+            return;
+        }
+
+        var start = System.nanoTime();
+
+        var visibleCollector = new VisibleChunkCollector(this.regions, this.frame);
+        bestTree.traverse(visibleCollector, viewport, this.getSearchDistance());
+        this.renderLists = visibleCollector.createRenderLists(viewport);
+
+        var end = System.nanoTime();
+        var time = end - start;
+        timings.add(time);
+        if (timings.size() >= 1000) {
+            var totalAverage = (long) timings.longStream().average().orElse(0);
+            // average with removal of outliers
+            var sortedTimings = timings.longStream().sorted().toArray();
+            var trimCount = (int) (timings.size() * 0.1);
+            var sum = 0L;
+            for (int i = trimCount; i < sortedTimings.length - trimCount; i++) {
+                sum += sortedTimings[i];
+            }
+            var average = sum / (sortedTimings.length - trimCount * 2);
+            var sectionsWithGeometry = visibleCollector.getUnsortedRenderLists().stream().mapToInt(ChunkRenderList::getSectionsWithGeometryCount).sum();
+            if (sectionsWithGeometry == 0) {
+                sectionsWithGeometry = 1;
+            }
+            System.out.println("Render list culling generation took " + average / 1000 + "µs (" + totalAverage / 1000 + "µs raw, " + totalAverage / sectionsWithGeometry + "ns per section) over " + timings.size() + " samples");
+            timings.clear();
+        }
+
+        this.renderTree = bestTree;
+    }
+
+    private void renderOutOfGraph(Viewport viewport) {
+        var searchDistance = this.getSearchDistance();
+        var visitor = new FallbackVisibleChunkCollector(viewport, searchDistance, this.frame, this.sectionByPosition, this.regions, this.level);
+
+        this.renderableSectionTree.prepareForTraversal();
+        this.renderableSectionTree.traverse(visitor, viewport, searchDistance);
+
+        this.renderLists = visitor.createRenderLists(viewport);
+        this.taskLists = visitor.getPendingTaskLists();
+
+        visitor.prepareForTraversal();
+        this.renderTree = visitor;
+    }
     private boolean isOutOfGraph(SectionPos pos) {
         var sectionY = pos.getY();
         return 0 <= sectionY && sectionY <= 16 && !this.sectionByPosition.containsKey(pos.asLong());
@@ -237,14 +366,29 @@ public class RenderSectionManager {
         this.renderableSectionTree.ensureCapacity(this.getRenderDistance());
     }
 
-    private void resetRenderLists() {
-        this.renderLists = SortedRenderLists.empty();
-
-        for (var list : this.taskLists.values()) {
-            list.clear();
-        }
+    public void markGraphDirty() {
+        this.needsGraphUpdate = true;
     }
 
+    public void notifyChangedCamera() {
+        this.cameraChanged = true;
+    }
+
+    public boolean needsUpdate() {
+        return this.needsGraphUpdate;
+    }
+
+    private void invalidateRenderLists() {
+        this.needsRenderListUpdate = true;
+    }
+
+    private float getSearchDistanceForCullType(CullType cullType) {
+        if (cullType.isFogCulled) {
+            return this.getSearchDistance();
+        } else {
+            return this.getRenderDistance();
+        }
+    }
     public void onSectionAdded(int x, int y, int z) {
         long key = SectionPos.asLong(x, y, z);
 
@@ -327,13 +471,7 @@ public class RenderSectionManager {
             }
 
             while (iterator.hasNext()) {
-                var section = region.getSection(iterator.nextByteAsInt());
-
-                if (section == null) {
-                    continue;
-                }
-
-                var sprites = section.getAnimatedSprites();
+                var sprites = region.getAnimatedSprites(iterator.nextByteAsInt());
 
                 if (sprites == null) {
                     continue;
@@ -346,125 +484,205 @@ public class RenderSectionManager {
         }
     }
 
-    public boolean isSectionVisible(int x, int y, int z) {
-        RenderSection render = this.getRenderSection(x, y, z);
+    private boolean isSectionEmpty(int x, int y, int z) {
+        long key = SectionPos.asLong(x, y, z);
+        RenderSection section = this.sectionByPosition.get(key);
 
-        if (render == null) {
-            return false;
+        if (section == null) {
+            return true;
         }
 
-        return render.getLastVisibleFrame() == this.lastUpdatedFrame;
+        return !section.needsRender();
     }
 
-    public void uploadChunks() {
+    // renderTree is not necessarily frustum-filtered but that is ok since the caller makes sure to eventually also perform a frustum test on the box being tested (see EntityRendererMixin)
+    public boolean isBoxVisible(double x1, double y1, double z1, double x2, double y2, double z2) {
+        return this.renderTree == null || this.renderTree.isBoxVisible(x1, y1, z1, x2, y2, z2, this::isSectionEmpty);
+    }
+
+    public void processChunkBuilds(Viewport viewport) {
         var results = this.collectChunkBuildResults();
 
         if (results.isEmpty()) {
             return;
         }
 
-        // only mark as needing a graph update if the uploads could have changed the graph
-        // (sort results never change the graph)
-        // generally there's no sort results without a camera movement, which would also trigger
-        // a graph update, but it can sometimes happen because of async task execution
-        this.needsGraphUpdate |= this.processChunkBuildResults(results);
+        // processing build results can cause invalidation of the render lists or change the connectivity of the graph. They don't necessarily imply each other, so they're tracked separately.
+        int changes = this.processChunkBuildResults(results, viewport);
+        if ((changes & SectionInfoChange.GRAPH) != 0) {
+            this.markGraphDirty();
+        }
+        if ((changes & SectionInfoChange.RENDER_LIST) != 0) {
+            this.invalidateRenderLists();
+        }
 
         for (var result : results) {
             result.destroy();
         }
     }
+    private boolean isSectionFrustumVisible(Viewport viewport, RenderSection section) {
+        // unloaded sections are considered visible as to not be an impossible requirement for immediate presentation
+        return section == null || this.renderTree == null || this.renderTree.isSectionVisible(viewport, section);
+    }
+    private int processChunkBuildResults(ArrayList<BuilderTaskOutput> results, Viewport viewport) {
+        var sectionsWithOutputs = applyBuildOutputs(results);
+        var outputs = new ArrayList<BuilderTaskOutput>();
 
-    private boolean processChunkBuildResults(ArrayList<BuilderTaskOutput> results) {
-        var filtered = filterChunkBuildResults(results);
-
-        var start = System.nanoTime();
-        this.regions.uploadResults(RenderDevice.INSTANCE.createCommandList(), filtered);
-        var uploadDuration = System.nanoTime() - start;
-
-        boolean touchedSectionInfo = false;
-        long totalUploadSize = 0;
-        for (var result : filtered) {
-            var resultSize = result.getResultSize();
-
-            TranslucentData oldData = result.render.getTranslucentData();
-            if (result instanceof ChunkBuildOutput chunkBuildOutput) {
-                touchedSectionInfo |= this.updateSectionInfo(result.render, chunkBuildOutput.info);
-
-                result.render.setLastMeshResultSize(resultSize);
-                this.meshTaskSizeEstimator.addData(this.meshTaskSizeEstimator.resultForSection(result.render, resultSize));
-
-                if (chunkBuildOutput.translucentData != null) {
-                    this.sortTriggering.integrateTranslucentData(oldData, chunkBuildOutput.translucentData, this.cameraPosition, this::scheduleSort);
-
-                    // a rebuild always generates new translucent data which means applyTriggerChanges isn't necessary
-                    result.render.setTranslucentData(chunkBuildOutput.translucentData);
-                }
-            } else if (result instanceof ChunkSortOutput sortOutput
-                    && sortOutput.getDynamicSorter() != null
-                    && result.render.getTranslucentData() instanceof DynamicTopoData data) {
-                this.sortTriggering.applyTriggerChanges(data, sortOutput.getDynamicSorter(), result.render.getPosition(), this.cameraPosition);
-            }
-
-            var job = result.render.getRunningJob();
-
-            // clear the cancellation token (thereby marking the section as not having an
-            // active task) if this job is the most recent submitted job for this section
-            if (job != null && result.submitTime >= result.render.getLastSubmittedFrame()) {
-                result.render.setRunningJob(null);
-            }
-
-            result.render.setLastUploadFrame(result.submitTime);
-
-            totalUploadSize += resultSize;
+        // prepare list of pending present patches if there are pending tasks that will need patches
+        List<RenderSection> pendingPresentPatches = null;
+        if (this.pendingTask != null) {
+            pendingPresentPatches = new ReferenceArrayList<>();
         }
 
+        int changes = SectionInfoChange.NONE;
+        long totalUploadSize = 0;
+        for (var section : sectionsWithOutputs) {
+            var buildOutput = section.retrievePendingBuildOutput();
+            if (buildOutput != null) {
+                var resultSize = buildOutput.getResultSize();
+                TranslucentData oldData = section.getTranslucentData();
+                changes |= updateWithResult(viewport, section, buildOutput, pendingPresentPatches);
+                section.setLastMeshResultSize(resultSize);
+                this.meshTaskSizeEstimator.addData(this.meshTaskSizeEstimator.resultForSection(section, resultSize));
+
+                if (buildOutput.translucentData != null) {
+                    this.sortTriggering.integrateTranslucentData(oldData, buildOutput.translucentData, this.cameraPosition, this::scheduleSort);
+                    section.setTranslucentData(buildOutput.translucentData);
+                }
+                outputs.add(buildOutput);
+                totalUploadSize += resultSize;
+            }
+            var sortOutput = section.retrievePendingDynamicSortOutput(buildOutput);
+            if (sortOutput != null) {
+                var translucentData = section.getTranslucentData();
+                if (translucentData instanceof DynamicData dynamicData &&
+                        sortOutput.getSorter() instanceof DynamicSorter dynamicSorter &&
+                        dynamicData.isMatchingSorter(dynamicSorter)) {
+                    if (dynamicData instanceof DynamicTopoData data) {
+                        var sorter = sortOutput.getSorter();
+                        if (sorter instanceof DynamicTopoData.DynamicTopoSorter topoSorter) {
+                            this.sortTriggering.applyTopoSortingTriggerChanges(data, topoSorter, section.getPosition(), this.cameraPosition);
+                        }
+                    }
+                    outputs.add(sortOutput);
+                    totalUploadSize += sortOutput.getResultSize();
+                }
+            }
+        }
         this.meshTaskSizeEstimator.updateModels();
 
-        // insert and update the upload duration estimator with the total upload size,
-        // since we don't know which task took how long and the time it takes to upload is not independent between tasks
-        // we take the average size and duration
-        if (!filtered.isEmpty()) {
-            this.jobUploadDurationEstimator.addData(new UploadDuration(uploadDuration / filtered.size(), totalUploadSize / filtered.size()));
+        if (pendingPresentPatches != null && !pendingPresentPatches.isEmpty() &&
+                this.pendingTask != null) {
+            this.pendingTask.registerPresentPatches(pendingPresentPatches);
+        }
+
+        var uploadStart = System.nanoTime();
+        this.regions.uploadResults(RenderDevice.INSTANCE.createCommandList(), outputs);
+        var uploadDuration = System.nanoTime() - uploadStart;
+
+        if (!outputs.isEmpty()) {
+            var outputCount = outputs.size();
+            this.jobUploadDurationEstimator.addData(new UploadDuration(uploadDuration / outputCount, totalUploadSize / outputCount));
             this.jobUploadDurationEstimator.updateModels();
         }
 
-        return touchedSectionInfo;
+        return changes;
     }
 
-    private boolean updateSectionInfo(RenderSection render, BuiltSectionInfo info) {
+    private boolean isSectionImmediatePresentationCandidate(Viewport viewport, RenderSection section) {
+        if (this.cameraPosition == null) {
+            return false;
+        }
+        var distanceSquared = section.getSquaredDistance(
+                (float) this.cameraPosition.x(),
+                (float) this.cameraPosition.y(),
+                (float) this.cameraPosition.z()
+        );
+
+        if (distanceSquared < NEARBY_REBUILD_DISTANCE) {
+            return true;
+        }
+
+        return distanceSquared < IMMEDIATE_PRESENT_DISTANCE &&
+                // check that visible or adjacent to a visible section
+                (this.isSectionFrustumVisible(viewport, section)
+                        || this.isSectionFrustumVisible(viewport, section.adjacentDown)
+                        || this.isSectionFrustumVisible(viewport, section.adjacentUp)
+                        || this.isSectionFrustumVisible(viewport, section.adjacentNorth)
+                        || this.isSectionFrustumVisible(viewport, section.adjacentSouth)
+                        || this.isSectionFrustumVisible(viewport, section.adjacentWest)
+                        || this.isSectionFrustumVisible(viewport, section.adjacentEast));
+    }
+
+    private int updateWithResult(Viewport viewport, RenderSection section, ChunkBuildOutput chunkBuildOutput, List<RenderSection> pendingPresentPatches) {
+        var index = section.getSectionIndex();
+        var prevFlags = section.getRegion().getSectionFlags(index);
+
+        int changes = this.updateSectionInfo(section, chunkBuildOutput.info);
+
+        // if result was blocking (or is approximately visible) and section is now newly renderable, force render it since it's probably a newly uncovered chunk.
+        // This also fixes flickering issues with pistons moving blocks and switching between being a mesh and a BE.
+        if (this.renderTree != null &&
+                (chunkBuildOutput.blockingTask || this.isSectionImmediatePresentationCandidate(viewport, section)) &&
+                RenderSectionFlags.renderingMoreTypesNow(prevFlags, chunkBuildOutput.info.flags)) {
+            var chunkX = section.getChunkX();
+            var chunkY = section.getChunkY();
+            var chunkZ = section.getChunkZ();
+
+            for (var tree : this.cullResults.values()) {
+                if (tree.patchMarkPresent(chunkX, chunkY, chunkZ)) {
+                    changes |= SectionInfoChange.RENDER_LIST;
+                }
+            }
+
+            // collect present patches if we need to
+            if (pendingPresentPatches != null) {
+                pendingPresentPatches.add(section);
+            }
+        }
+
+        return changes;
+    }
+
+    private int updateSectionInfo(RenderSection render, BuiltSectionInfo info) {
         if (info == null || !RenderSectionFlags.needsRender(info.flags)) {
             this.renderableSectionTree.remove(render);
         } else {
             this.renderableSectionTree.add(render);
         }
 
-        var infoChanged = render.setInfo(info);
+        int changes = render.setInfo(info);
 
+        boolean globalSetChanged;
         if (info == null || ArrayUtils.isEmpty(info.globalBlockEntities)) {
-            return this.sectionsWithGlobalEntities.remove(render) || infoChanged;
+            globalSetChanged = this.sectionsWithGlobalEntities.remove(render);
         } else {
-            return this.sectionsWithGlobalEntities.add(render) || infoChanged;
+            globalSetChanged = this.sectionsWithGlobalEntities.add(render);
         }
+
+        // invalidate render list when membership of global block entity set changes
+        if (globalSetChanged) {
+            changes |= SectionInfoChange.RENDER_LIST;
+        }
+
+        return changes;
     }
 
-    private static List<BuilderTaskOutput> filterChunkBuildResults(ArrayList<BuilderTaskOutput> outputs) {
-        var map = new Reference2ReferenceLinkedOpenHashMap<RenderSection, BuilderTaskOutput>();
+    private List<RenderSection> applyBuildOutputs(ArrayList<BuilderTaskOutput> outputs) {
+        var sectionsWithPendingOutputs = new ReferenceArrayList<RenderSection>();
 
         for (var output : outputs) {
             // throw out outdated or duplicate outputs
-            if (output.render.isDisposed() || output.render.getLastUploadFrame() > output.submitTime) {
+            if (output.section.isDisposed()) {
                 continue;
             }
 
-            var render = output.render;
-            var previous = map.get(render);
-
-            if (previous == null || previous.submitTime < output.submitTime) {
-                map.put(render, output);
+            if (output.section.addBuildOutput(output)) {
+                sectionsWithPendingOutputs.add(output.section);
             }
         }
 
-        return new ArrayList<>(map.values());
+        return sectionsWithPendingOutputs;
     }
 
     private ArrayList<BuilderTaskOutput> collectChunkBuildResults() {
@@ -473,6 +691,8 @@ public class RenderSectionManager {
 
         while ((result = this.buildResults.poll()) != null) {
             results.add(result.unwrap());
+            result.clearJobFromSection();
+
             var jobEffort = result.getJobEffort();
             if (jobEffort != null) {
                 this.jobDurationEstimator.addData(jobEffort);
@@ -489,7 +709,7 @@ public class RenderSectionManager {
         this.regions.update();
     }
 
-    public void updateChunks(boolean updateImmediately) {
+    public void updateChunks(Viewport viewport, boolean updateImmediately) {
         this.thisFrameBlockingTasks = 0;
         this.nextFrameBlockingTasks = 0;
         this.deferredTasks = 0;
@@ -503,7 +723,7 @@ public class RenderSectionManager {
         if (updateImmediately) {
             // for a perfect frame where everything is finished use the last frame's blocking collector
             // and add all tasks to it so that they're waited on
-            this.submitSectionTasks(thisFrameBlockingCollector, thisFrameBlockingCollector, thisFrameBlockingCollector, UnlimitedResourceBudget.INSTANCE);
+            this.submitSectionTasks(thisFrameBlockingCollector, thisFrameBlockingCollector, thisFrameBlockingCollector, UnlimitedResourceBudget.INSTANCE, viewport);
 
             this.thisFrameBlockingTasks = thisFrameBlockingCollector.getSubmittedTaskCount();
             thisFrameBlockingCollector.awaitCompletion(this.builder);
@@ -522,9 +742,9 @@ public class RenderSectionManager {
             // if zero frame delay is allowed, submit important sorts with the current frame blocking collector.
             // otherwise submit with the collector that the next frame is blocking on.
             if (this.sortBehavior.getDeferMode() == DeferMode.ZERO_FRAMES) {
-                this.submitSectionTasks(thisFrameBlockingCollector, nextFrameBlockingCollector, deferredCollector, uploadBudget);
+                this.submitSectionTasks(thisFrameBlockingCollector, nextFrameBlockingCollector, deferredCollector, uploadBudget, viewport);
             } else {
-                this.submitSectionTasks(nextFrameBlockingCollector, nextFrameBlockingCollector, deferredCollector, uploadBudget);
+                this.submitSectionTasks(nextFrameBlockingCollector, nextFrameBlockingCollector, deferredCollector, uploadBudget, viewport);
             }
 
             this.thisFrameBlockingTasks = thisFrameBlockingCollector.getSubmittedTaskCount();
@@ -541,33 +761,63 @@ public class RenderSectionManager {
     }
 
     private void submitSectionTasks(
-            ChunkJobCollector importantCollector, ChunkJobCollector semiImportantCollector, ChunkJobCollector deferredCollector, UploadResourceBudget uploadBudget) {
-        submitSectionTasks(importantCollector, uploadBudget, TaskQueueType.ZERO_FRAME_DEFER);
-        submitSectionTasks(semiImportantCollector, uploadBudget, TaskQueueType.ONE_FRAME_DEFER);
-        submitSectionTasks(deferredCollector, uploadBudget, TaskQueueType.ALWAYS_DEFER);
-        submitSectionTasks(deferredCollector, uploadBudget, TaskQueueType.INITIAL_BUILD);
+            ChunkJobCollector importantCollector, ChunkJobCollector semiImportantCollector, ChunkJobCollector deferredCollector, UploadResourceBudget uploadBudget, Viewport viewport) {
+        submitImportantSectionTasks(importantCollector, uploadBudget, DeferMode.ZERO_FRAMES, viewport);
+        submitImportantSectionTasks(semiImportantCollector, uploadBudget, DeferMode.ONE_FRAME, viewport);
+        submitImportantSectionTasks(deferredCollector, uploadBudget, DeferMode.ALWAYS, viewport);
+        submitDeferredSectionTasks(deferredCollector, uploadBudget);
     }
 
-    private void submitSectionTasks(ChunkJobCollector collector, UploadResourceBudget uploadBudget, TaskQueueType queueType) {
-        var taskList = this.taskLists.get(queueType);
+    private void submitDeferredSectionTasks(ChunkJobCollector collector, UploadResourceBudget uploadBudget) {
+        if (this.taskLists == null) {
+            return;
+        }
 
-        // submit tasks as long as there's tasks available, the collector has worker thread budget, and there's enough upload budget left
-        while (!taskList.isEmpty() && collector.hasBudgetRemaining() && (uploadBudget.isAvailable() || queueType.allowsUnlimitedUploadDuration())) {
-            RenderSection section = taskList.poll();
-
-            if (section == null) {
-                break;
-            }
-
-            // don't schedule tasks for sections that don't need it anymore,
-            // since the pending update it cleared when a task is started, this includes
-            // sections for which there's a currently running task.
-            var pendingUpdate = section.getPendingUpdate();
-            if (pendingUpdate != 0) {
-                submitSectionTask(collector, section, pendingUpdate, uploadBudget, queueType == TaskQueueType.ZERO_FRAME_DEFER);
+        while (!this.taskLists.isEmpty() && collector.hasBudgetRemaining() && uploadBudget.isAvailable()) {
+            var section = this.sectionByPosition.get(this.taskLists.dequeueNextSectionPos());
+            if (section != null) {
+                submitSectionTask(collector, section, uploadBudget);
             }
         }
     }
+
+    private DeferMode getDeferModeForPendingUpdate(int type) {
+        return ChunkUpdateTypes.getDeferMode(type, SodiumClientMod.options().performance.chunkBuildDeferMode, this.sortBehavior.getDeferMode());
+
+    }
+
+    private void submitImportantSectionTasks(ChunkJobCollector collector, UploadResourceBudget uploadBudget, DeferMode deferMode, Viewport viewport) {
+        var it = this.importantTasks.get(deferMode).iterator();
+
+        while (it.hasNext() && collector.hasBudgetRemaining() && (deferMode.allowsUnlimitedUploadDuration() || uploadBudget.isAvailable())) {
+            var section = it.next();
+            var pendingUpdate = section.getPendingUpdate();
+
+            if (pendingUpdate != 0 && this.getDeferModeForPendingUpdate(pendingUpdate) == deferMode && this.shouldPrioritizeTask(section, NEARBY_SORT_DISTANCE)) {
+                // isSectionVisible includes a special case for not testing empty sections against the tree as they won't be in it
+                if (this.renderTree == null || this.renderTree.isSectionVisible(viewport, section)) {
+                    submitSectionTask(collector, section, pendingUpdate, uploadBudget, deferMode == DeferMode.ZERO_FRAMES);
+                } else {
+                    // don't remove if simply not visible currently but still relevant
+                    continue;
+                }
+            }
+            it.remove();
+        }
+    }
+
+    private void submitSectionTask(ChunkJobCollector collector, @NotNull RenderSection section, UploadResourceBudget uploadBudget) {
+        // don't schedule tasks for sections that don't need it anymore,
+        // since the pending update it cleared when a task is started, this includes
+        // sections for which there's a currently running task.
+        var type = section.getPendingUpdate();
+        if (type == 0) {
+            return;
+        }
+
+        submitSectionTask(collector, section, type, uploadBudget, false);
+    }
+
 
     private void submitSectionTask(ChunkJobCollector collector, @NotNull RenderSection section, int type, UploadResourceBudget uploadBudget, boolean blocking) {
         if (section.isDisposed()) {
@@ -576,8 +826,7 @@ public class RenderSectionManager {
 
         ChunkBuilderTask<? extends BuilderTaskOutput> task;
         if (ChunkUpdateTypes.isInitialBuild(type) || ChunkUpdateTypes.isRebuild(type)) {
-            task = this.createRebuildTask(section, this.frame);
-
+            task = this.createRebuildTask(section, this.frame, blocking);
             if (task == null) {
                 // if the section is empty or doesn't exist submit this null-task to set the
                 // built flag on the render section.
@@ -594,10 +843,8 @@ public class RenderSectionManager {
                 }
                 var result = ChunkJobResult.successfully(new ChunkBuildOutput(
                         section, this.frame, translucentData,
-                        BuiltSectionInfo.EMPTY, Collections.emptyMap()));
+                        BuiltSectionInfo.EMPTY, Collections.emptyMap(), false));
                 this.buildResults.add(result);
-
-                section.setRunningJob(null);
             }
         } else { // implies it's a type of sort task
             task = this.createSortTask(section, this.frame);
@@ -611,27 +858,26 @@ public class RenderSectionManager {
         }
 
         if (task != null) {
-            var job = this.builder.scheduleTask(task, ChunkUpdateTypes.isImportant(type), collector::onJobFinished, blocking);
+            var job = this.builder.scheduleTask(task, ChunkUpdateTypes.isImportant(type), collector::onJobFinished);
             collector.addSubmittedJob(job);
 
             // consume upload budget in size and duration using estimates
-            uploadBudget.consume(job.getEstimatedUploadDuration(), job.getEstimatedSize());
+            uploadBudget.consume(task.getEstimatedUploadDuration(), task.getEstimatedSize());
 
-            section.setRunningJob(job);
+            section.addRunningJob(job);
         }
 
-        section.setLastSubmittedFrame(this.frame);
         section.clearPendingUpdate();
     }
 
-    public @Nullable ChunkBuilderMeshingTask createRebuildTask(RenderSection render, int frame) {
+    public @Nullable ChunkBuilderMeshingTask createRebuildTask(RenderSection render, int frame, boolean blocking) {
         ChunkRenderContext context = LevelSlice.prepare(this.level, render.getPosition(), this.sectionCache);
 
         if (context == null) {
             return null;
         }
 
-        var task = new ChunkBuilderMeshingTask(render, frame, this.cameraPosition, context, this.sortBehavior, ChunkUpdateTypes.isRebuildWithSort(render.getPendingUpdate()));
+        var task = new ChunkBuilderMeshingTask(render, frame, this.cameraPosition, context, this.sortBehavior, ChunkUpdateTypes.isRebuildWithSort(render.getPendingUpdate()), blocking);
         task.calculateEstimations(this.jobDurationEstimator, this.meshTaskSizeEstimator, this.jobUploadDurationEstimator);
         return task;
     }
@@ -650,20 +896,14 @@ public class RenderSectionManager {
         }
     }
 
-    public void markGraphDirty() {
-        this.needsGraphUpdate = true;
-    }
-
-    public boolean needsUpdate() {
-        return this.needsGraphUpdate;
-    }
-
     public ChunkBuilder getBuilder() {
         return this.builder;
     }
 
     public void destroy() {
         this.builder.shutdown(); // stop all the workers, and cancel any tasks
+
+        this.asyncCullExecutor.shutdownNow();
 
         for (var result : this.collectChunkBuildResults()) {
             result.destroy(); // delete resources for any pending tasks (including those that were cancelled)
@@ -674,7 +914,7 @@ public class RenderSectionManager {
         }
 
         this.sectionsWithGlobalEntities.clear();
-        this.resetRenderLists();
+        this.renderLists = SortedRenderLists.empty();
 
         try (CommandList commandList = RenderDevice.INSTANCE.createCommandList()) {
             this.regions.delete(commandList);
@@ -711,6 +951,11 @@ public class RenderSectionManager {
         }
 
         section.setPendingUpdate(joined, this.lastFrameAtTime);
+
+        // when the pending task type changes, and it's important, add it to the list of important tasks
+        if (ChunkUpdateTypes.isImportant(joined)) {
+            this.importantTasks.get(this.getDeferModeForPendingUpdate(joined)).add(section);
+        }
 
         // mark graph as dirty so that it picks up the section's pending task
         this.markGraphDirty();
