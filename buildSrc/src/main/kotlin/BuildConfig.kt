@@ -5,7 +5,7 @@ object BuildConfig {
     const val FABRIC_LOADER_VERSION: String = "0.18.0"
 
     // https://semver.org/
-    var MOD_VERSION: String = "0.8.13"
+    var MOD_VERSION: String = "0.8.15"
 
     fun createVersionString(project: Project): String {
         val builder = StringBuilder()

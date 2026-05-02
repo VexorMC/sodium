@@ -45,6 +45,7 @@ public class SodiumOptions {
     public static class PerformanceSettings {
         public int chunkBuilderThreads = 0;
         public DeferMode chunkBuildDeferMode = DeferMode.ALWAYS;
+        public boolean useAsyncCulling = false;
 
         //public boolean animateOnlyVisibleTextures = true;
         public boolean useEntityCulling = true;

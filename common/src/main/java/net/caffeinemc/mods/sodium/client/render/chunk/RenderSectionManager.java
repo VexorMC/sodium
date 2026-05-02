@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.*;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
+import net.caffeinemc.mods.sodium.client.render.chunk.async.CullResult;
 import net.caffeinemc.mods.sodium.client.render.chunk.async.CullTask;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.BuilderTaskOutput;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildOutput;
@@ -42,6 +43,7 @@ import net.caffeinemc.mods.sodium.client.util.MathUtil;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.caffeinemc.mods.sodium.client.world.cloned.ClonedChunkSectionCache;
+import net.caffeinemc.mods.sodium.client.util.task.CancellationToken;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
@@ -175,6 +177,11 @@ public class RenderSectionManager {
     }
 
     public void prepareRenderTrees(Viewport viewport, boolean spectator) {
+        if (!this.useAsyncCulling()) {
+            this.prepareRenderTreesSync(viewport, spectator);
+            return;
+        }
+
         // cancel task if not in progress
         if (this.pendingTask != null && this.pendingTask.cancelIfNotStarted()) {
             this.pendingTask = null;
@@ -192,6 +199,24 @@ public class RenderSectionManager {
         if (!this.isOutOfGraph(viewport.getChunkCoord()) && (this.cameraChanged || this.needsGraphUpdate)) {
             this.scheduleAsyncWork(viewport, spectator);
         }
+    }
+
+    private void prepareRenderTreesSync(Viewport viewport, boolean spectator) {
+        if (this.pendingTask != null) {
+            this.pendingTask.setCancelled();
+            this.pendingTask = null;
+        }
+
+        if (this.cameraChanged) {
+            this.cullResults.remove(CullType.LOCAL);
+        }
+
+        if (this.isOutOfGraph(viewport.getChunkCoord()) || !(this.cameraChanged || this.needsGraphUpdate)) {
+            return;
+        }
+
+        this.acceptCullResult(this.createCullResult(viewport, spectator, CancellationToken.NEVER_CANCELLED));
+        this.needsGraphUpdate = false;
     }
 
     public void finalizeRenderLists(Viewport viewport, boolean updateChunksImmediately) {
@@ -216,16 +241,7 @@ public class RenderSectionManager {
             return;
         }
 
-        var result = this.pendingTask.getResult();
-        var treeLocal = result.getCullTreeLocal();
-        var treeRegular = result.getCullTreeRegular();
-        var treeWide = result.getCullTreeWide();
-        this.cullResults.put(CullType.LOCAL, treeLocal);
-        this.cullResults.put(CullType.REGULAR, treeRegular);
-        this.cullResults.put(CullType.WIDE, treeWide);
-        this.taskLists = result.getPendingTaskLists();
-
-        this.invalidateRenderLists();
+        this.acceptCullResult(this.pendingTask.getResult());
         this.pendingTask = null;
     }
 
@@ -248,6 +264,62 @@ public class RenderSectionManager {
 
         // only clear the graph update if we actually scheduled a task. Otherwise, the currently running task might not pick up on the change and no additional task would have been scheduled.
         this.needsGraphUpdate = false;
+    }
+
+    private CullResult createCullResult(Viewport viewport, boolean spectator, CancellationToken cancellationToken) {
+        var searchDistanceRegular = this.getSearchDistanceForCullType(CullType.REGULAR);
+        var searchDistanceLocal = this.getSearchDistanceForCullType(CullType.LOCAL);
+        var useOcclusionCulling = this.shouldUseOcclusionCulling(spectator);
+
+        var wideTree = new TaskCollectingTree(viewport, searchDistanceRegular, this.frame, CullType.WIDE, this.level);
+        var regularTree = new SectionTree(viewport, searchDistanceRegular, this.frame, CullType.REGULAR, this.level);
+        var localTree = new RayOcclusionSectionTree(viewport, searchDistanceLocal, this.frame, CullType.LOCAL, this.level);
+
+        this.occlusionCuller.findVisible(wideTree, regularTree, localTree, viewport, searchDistanceRegular, searchDistanceLocal, useOcclusionCulling, cancellationToken);
+
+        wideTree.prepareForTraversal();
+        regularTree.prepareForTraversal();
+        localTree.prepareForTraversal();
+
+        var taskLists = wideTree.getPendingTaskLists();
+
+        return new CullResult() {
+            @Override
+            public SectionTree getCullTreeWide() {
+                return wideTree;
+            }
+
+            @Override
+            public SectionTree getCullTreeRegular() {
+                return regularTree;
+            }
+
+            @Override
+            public SectionTree getCullTreeLocal() {
+                return localTree;
+            }
+
+            @Override
+            public DeferredTaskList getPendingTaskLists() {
+                return taskLists;
+            }
+        };
+    }
+
+    private void acceptCullResult(CullResult result) {
+        if (result == null) {
+            return;
+        }
+
+        this.cullResults.put(CullType.LOCAL, result.getCullTreeLocal());
+        this.cullResults.put(CullType.REGULAR, result.getCullTreeRegular());
+        this.cullResults.put(CullType.WIDE, result.getCullTreeWide());
+        this.taskLists = result.getPendingTaskLists();
+        this.invalidateRenderLists();
+    }
+
+    private boolean useAsyncCulling() {
+        return SodiumClientMod.options().performance.useAsyncCulling;
     }
 
     private SectionTree findBestTree(Viewport viewport) {

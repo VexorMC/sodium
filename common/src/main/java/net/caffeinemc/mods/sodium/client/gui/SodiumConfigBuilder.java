@@ -366,6 +366,16 @@ public class SodiumConfigBuilder implements ConfigEntryPoint {
                                 .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
                 )
                 .addOption(
+                        builder.createBooleanOption(new Identifier("radium:performance.use_async_culling"))
+                                .setStorageHandler(this.sodiumStorage)
+                                .setName(new TranslatableText("sodium.options.use_async_culling.name"))
+                                .setTooltip(new TranslatableText("sodium.options.use_async_culling.tooltip"))
+                                .setDefaultValue(DEFAULTS.performance.useAsyncCulling)
+                                .setBinding(value -> this.sodiumOpts.performance.useAsyncCulling = value, () -> this.sodiumOpts.performance.useAsyncCulling)
+                                .setImpact(OptionImpact.HIGH)
+                                .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
+                )
+                .addOption(
                         builder.createEnumOption(new Identifier("radium:performance.always_defer_chunk_updates"), DeferMode.class)
                                 .setStorageHandler(this.sodiumStorage)
                                 .setName(new TranslatableText("sodium.options.defer_chunk_updates.name"))
