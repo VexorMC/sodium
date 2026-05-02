@@ -76,6 +76,10 @@ public class ClonedChunkSectionCache {
         this.positionToEntry.remove(SectionPos.asLong(x, y, z));
     }
 
+    public void clear() {
+        this.positionToEntry.clear();
+    }
+
     private static long getMonotonicTimeSource() {
         // Should be monotonic in JDK 17 on sane platforms...
         return System.nanoTime();

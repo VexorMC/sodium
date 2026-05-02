@@ -5,7 +5,6 @@ import dev.vexor.radium.compat.mojang.minecraft.render.FogHelper;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.*;
 import net.caffeinemc.mods.sodium.client.SodiumClientMod;
 import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
@@ -251,8 +250,6 @@ public class RenderSectionManager {
         this.needsGraphUpdate = false;
     }
 
-    private static final LongArrayList timings = new LongArrayList();
-
     private SectionTree findBestTree(Viewport viewport) {
         for (var type : CullType.NARROW_TO_WIDE) {
             var tree = this.cullResults.get(type);
@@ -290,32 +287,9 @@ public class RenderSectionManager {
             return;
         }
 
-        var start = System.nanoTime();
-
         var visibleCollector = new VisibleChunkCollector(this.regions, this.frame);
         bestTree.traverse(visibleCollector, viewport, this.getSearchDistance());
         this.renderLists = visibleCollector.createRenderLists(viewport);
-
-        var end = System.nanoTime();
-        var time = end - start;
-        timings.add(time);
-        if (timings.size() >= 1000) {
-            var totalAverage = (long) timings.longStream().average().orElse(0);
-            // average with removal of outliers
-            var sortedTimings = timings.longStream().sorted().toArray();
-            var trimCount = (int) (timings.size() * 0.1);
-            var sum = 0L;
-            for (int i = trimCount; i < sortedTimings.length - trimCount; i++) {
-                sum += sortedTimings[i];
-            }
-            var average = sum / (sortedTimings.length - trimCount * 2);
-            var sectionsWithGeometry = visibleCollector.getUnsortedRenderLists().stream().mapToInt(ChunkRenderList::getSectionsWithGeometryCount).sum();
-            if (sectionsWithGeometry == 0) {
-                sectionsWithGeometry = 1;
-            }
-            System.out.println("Render list culling generation took " + average / 1000 + "µs (" + totalAverage / 1000 + "µs raw, " + totalAverage / sectionsWithGeometry + "ns per section) over " + timings.size() + " samples");
-            timings.clear();
-        }
 
         this.renderTree = bestTree;
     }
@@ -375,7 +349,7 @@ public class RenderSectionManager {
     }
 
     public boolean needsUpdate() {
-        return this.needsGraphUpdate;
+        return this.needsGraphUpdate && this.pendingTask == null;
     }
 
     private void invalidateRenderLists() {
@@ -913,8 +887,19 @@ public class RenderSectionManager {
             section.delete();
         }
 
+        this.buildResults.clear();
+        this.sectionByPosition.clear();
         this.sectionsWithGlobalEntities.clear();
+        this.cullResults.clear();
+        this.importantTasks.values().forEach(Collection::clear);
+        this.sectionCache.clear();
+        this.renderableSectionTree.clear();
         this.renderLists = SortedRenderLists.empty();
+        this.taskLists = null;
+        this.pendingTask = null;
+        this.renderTree = null;
+        this.cameraPosition = null;
+        this.lastBlockingCollector = null;
 
         try (CommandList commandList = RenderDevice.INSTANCE.createCommandList()) {
             this.regions.delete(commandList);

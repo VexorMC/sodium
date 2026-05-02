@@ -13,8 +13,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.GraphDirectionSe
 import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.VisibilityEncoding;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.TranslucentData;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.BlockPos;
 import dev.vexor.radium.compat.mojang.minecraft.math.SectionPos;
 import net.minecraft.util.math.MathHelper;
@@ -54,11 +52,6 @@ public class RenderSection {
 
 
     // Rendering State
-    private boolean built = false; // merge with the flags?
-    private int flags = RenderSectionFlags.NONE;
-    private BlockEntity @Nullable[] globalBlockEntities;
-    private BlockEntity @Nullable[] culledBlockEntities;
-    private Sprite @Nullable[] animatedSprites;
     @Nullable
     private TranslucentData translucentData;
 
@@ -149,6 +142,17 @@ public class RenderSection {
             job.setCancelled();
         }
         this.runningJobs.clear();
+
+        this.pendingBuildOutput = null;
+        this.pendingDynamicSortOutput = null;
+        this.translucentData = null;
+        this.adjacentDown = null;
+        this.adjacentUp = null;
+        this.adjacentNorth = null;
+        this.adjacentSouth = null;
+        this.adjacentWest = null;
+        this.adjacentEast = null;
+        this.adjacentMask = 0;
 
         this.clearRenderState();
         this.disposed = true;
@@ -401,19 +405,9 @@ public class RenderSection {
         var dy = Math.abs(origin.getY() - this.getChunkY());
         var dz = Math.abs(origin.getZ() - this.getChunkZ());
 
-        // Shift to [0, 31] for LUT lookup
-        while ((dx | dy | dz) >= 32) {
-            // This is only true for the outermost rings of sections that have a distance
-            // of 32 when 32 chunks are visible, so we don't use more complex
-            // 32-Integer.numberOfLeadingZeros and per-plane shifting.
-            dx >>= 1;
-            dy >>= 1;
-            dz >>= 1;
-        }
-
-        long baseAngles = ANGLE_LUT[dx + (dy << LUT_SHIFT)] |
-                ((long) ANGLE_LUT[dz + (dx << LUT_SHIFT)] << (2 * ANGLE_BITS)) |
-                ((long) ANGLE_LUT[dy + (dz << LUT_SHIFT)] << (4 * ANGLE_BITS));
+        long baseAngles = lookupLut(dy, dx) |
+                ((long) lookupLut(dz, dx) << (2 * ANGLE_BITS)) |
+                ((long) lookupLut(dy, dz) << (4 * ANGLE_BITS));
 
         long pathAngles = parallel_unsigned_max_min(other.allowedAngles, baseAngles);
 
@@ -517,35 +511,6 @@ public class RenderSection {
         long mask = parallel_unsigned_borrow_mask(a, b);  // all bits set where a < b
         mask ^= ANGLES_MIN_MASK;  // flip masks for min angles to make it a max operation
         return (a & mask) | (b & ~mask);  // select based on mask
-    }
-
-    /**
-     * Returns a bitfield containing the {@link RenderSectionFlags} for this built section.
-     */
-    public int getFlags() {
-        return this.flags;
-    }
-
-    /**
-     * Returns the collection of animated sprites contained by this rendered chunk section.
-     */
-    public Sprite @Nullable[] getAnimatedSprites() {
-        return this.animatedSprites;
-    }
-
-    /**
-     * Returns the collection of block entities contained by this rendered chunk.
-     */
-    public BlockEntity @Nullable[] getCulledBlockEntities() {
-        return this.culledBlockEntities;
-    }
-
-    /**
-     * Returns the collection of block entities contained by this rendered chunk, which are not part of its culling
-     * volume. These entities should always be rendered regardless of the render being visible in the frustum.
-     */
-    public BlockEntity @Nullable[] getGlobalBlockEntities() {
-        return this.globalBlockEntities;
     }
 
     /**

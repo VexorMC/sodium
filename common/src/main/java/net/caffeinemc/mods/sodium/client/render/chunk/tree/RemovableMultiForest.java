@@ -138,6 +138,13 @@ public class RemovableMultiForest implements RemovableForest<RemovableTree> {
         this.remove(section.getChunkX(), section.getChunkY(), section.getChunkZ());
     }
 
+    public void clear() {
+        this.trees.clear();
+        this.treeSortList.clear();
+        this.lastTree = null;
+        this.treesAreReady = true;
+    }
+
     @Override
     public int getPresence(int x, int y, int z) {
         // unused operation on removable trees

@@ -137,6 +137,11 @@ public class RenderRegion {
         }
 
         Arrays.fill(this.sections, null);
+        Arrays.fill(this.sectionFlags, (byte) 0);
+        Arrays.fill(this.globalBlockEntities, null);
+        Arrays.fill(this.culledBlockEntities, null);
+        Arrays.fill(this.animatedSprites, null);
+        this.sectionCount = 0;
 
         for (var batch : this.cachedBatches.values()) {
             batch.delete();

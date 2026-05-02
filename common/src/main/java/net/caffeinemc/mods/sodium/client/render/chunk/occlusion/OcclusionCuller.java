@@ -402,8 +402,6 @@ public class OcclusionCuller {
         var hasRegularPath = GraphDirectionSet.contains(outgoingRegular, outgoingDirection);
         var hasLocalPath = GraphDirectionSet.contains(outgoingLocal, outgoingDirection);
 
-        // perform angular occlusion culling if enabled in general and locally
-        // comment out to entirely disable angle-based occlusion culling, the other places are just supporting.
         if (originSection != null && hasRegularPath && !section.intersectSlopes(this.inBoundsOrigin, originSection, this.token)) {
             hasRegularPath = false;
             hasLocalPath = false;
