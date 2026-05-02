@@ -15,9 +15,4 @@ public class MixinCullingCameraView implements ExtendedFrustum {
     public int radium$intersect(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         return ((ExtendedFrustum)this.clipper).radium$intersect(minX, minY, minZ, maxX, maxY, maxZ);
     }
-
-    @Override
-    public float[][] radium$getPlanes() {
-        return ((ExtendedFrustum)this.clipper).radium$getPlanes();
-    }
 }
