@@ -405,9 +405,18 @@ public class RenderSection {
         var dy = Math.abs(origin.getY() - this.getChunkY());
         var dz = Math.abs(origin.getZ() - this.getChunkZ());
 
-        long baseAngles = lookupLut(dy, dx) |
-                ((long) lookupLut(dz, dx) << (2 * ANGLE_BITS)) |
-                ((long) lookupLut(dy, dz) << (4 * ANGLE_BITS));
+        // Scale all axes together so each plane uses the same conservative approximation.
+        // Independent per-plane scaling can tighten the envelope enough to incorrectly reject
+        // valid paths near the edge of the graph traversal.
+        while ((dx | dy | dz) >= LUT_DIM) {
+            dx >>= 1;
+            dy >>= 1;
+            dz >>= 1;
+        }
+
+        long baseAngles = ANGLE_LUT[dy + (dx << LUT_SHIFT)] |
+                ((long) ANGLE_LUT[dz + (dx << LUT_SHIFT)] << (2 * ANGLE_BITS)) |
+                ((long) ANGLE_LUT[dy + (dz << LUT_SHIFT)] << (4 * ANGLE_BITS));
 
         long pathAngles = parallel_unsigned_max_min(other.allowedAngles, baseAngles);
 
@@ -425,20 +434,6 @@ public class RenderSection {
         this.allowedAngles = pathAngles;
 
         return true;
-    }
-
-    private static int lookupLut(int rise, int run) {
-        // Scale this pair down together
-        int shift = 32 - Integer.numberOfLeadingZeros(Math.max(rise, run) | 1);
-        if (shift > LUT_SHIFT) {
-            int s = shift - LUT_SHIFT;
-            rise >>= s;
-            run >>= s;
-        }
-        // Clamp to LUT bounds just in case
-        rise = Math.min(rise, LUT_DIM - 1);
-        run  = Math.min(run,  LUT_DIM - 1);
-        return ANGLE_LUT[rise + run * LUT_DIM];
     }
 
     /**

@@ -266,7 +266,7 @@ public class TraversableTree extends Tree {
                 (x + 8) - transform.fracX,
                 (y + 8) - transform.fracY,
                 (z + 8) - transform.fracZ,
-                Viewport.CHUNK_SECTION_RADIUS)) {
+                Viewport.CHUNK_SECTION_PADDED_RADIUS)) {
             return false;
         }
 

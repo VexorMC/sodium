@@ -182,9 +182,14 @@ public class RenderSectionManager {
             return;
         }
 
-        // cancel task if not in progress
-        if (this.pendingTask != null && this.pendingTask.cancelIfNotStarted()) {
-            this.pendingTask = null;
+        if (this.pendingTask != null && (this.cameraChanged || this.needsGraphUpdate)) {
+            this.pendingTask.setCancelled();
+
+            // Drop tasks that never started immediately so the updated view can be submitted
+            // without waiting for an obsolete queued task to finish.
+            if (this.pendingTask.cancelIfNotStarted()) {
+                this.pendingTask = null;
+            }
         }
 
         // consume the results of completed tasks
@@ -215,15 +220,49 @@ public class RenderSectionManager {
             return;
         }
 
-        this.acceptCullResult(this.createCullResult(viewport, spectator, CancellationToken.NEVER_CANCELLED));
+        var searchDistanceRegular = this.getSearchDistanceForCullType(CullType.REGULAR);
+        var searchDistanceLocal = this.getSearchDistanceForCullType(CullType.LOCAL);
+        var useOcclusionCulling = this.shouldUseOcclusionCulling(spectator);
+
+        var wideTree = new TaskCollectingTree(viewport, searchDistanceRegular, this.frame, CullType.WIDE, this.level);
+        var regularTree = new SectionTree(viewport, searchDistanceRegular, this.frame, CullType.REGULAR, this.level);
+        var localTree = new RayOcclusionSectionTree(viewport, searchDistanceLocal, this.frame, CullType.LOCAL, this.level);
+        var visibleCollector = new SyncVisibleChunkCollector(this.frame);
+
+        this.occlusionCuller.findVisible(
+                wideTree,
+                regularTree,
+                new SyncLocalTreeCollector(localTree, visibleCollector),
+                viewport,
+                searchDistanceRegular,
+                searchDistanceLocal,
+                useOcclusionCulling,
+                CancellationToken.NEVER_CANCELLED
+        );
+
+        wideTree.prepareForTraversal();
+        regularTree.prepareForTraversal();
+        localTree.prepareForTraversal();
+
+        this.cullResults.put(CullType.LOCAL, localTree);
+        this.cullResults.put(CullType.REGULAR, regularTree);
+        this.cullResults.put(CullType.WIDE, wideTree);
+        this.taskLists = wideTree.getPendingTaskLists();
+        this.renderLists = visibleCollector.createRenderLists(viewport);
+        this.renderTree = localTree;
         this.needsGraphUpdate = false;
+        this.needsRenderListUpdate = false;
     }
 
     public void finalizeRenderLists(Viewport viewport, boolean updateChunksImmediately) {
         var syncRender = this.cameraTimingControl.getShouldRenderSync();
-        if (updateChunksImmediately || syncRender && (this.needsGraphUpdate || this.needsRenderListUpdate)) {
+        if (updateChunksImmediately) {
             this.renderOutOfGraph(viewport);
         } else if (this.needsRenderListUpdate) {
+            if (syncRender && this.pendingTask != null) {
+                this.consumeCullTaskResults(true);
+            }
+
             this.readRenderListFromTree(viewport);
         }
 
@@ -232,17 +271,24 @@ public class RenderSectionManager {
     }
 
     private void consumeCullTaskResults(boolean waitForCompletion) {
-        if (this.pendingTask == null) {
+        var task = this.pendingTask;
+        if (task == null) {
             return;
         }
 
         // if there's a waiting viewport, don't skip unfinished task
-        if (!waitForCompletion && !this.pendingTask.isDone()) {
+        if (!waitForCompletion && !task.isDone()) {
             return;
         }
 
-        this.acceptCullResult(this.pendingTask.getResult());
+        var result = task.getResult();
         this.pendingTask = null;
+
+        if (result == null || task.isCancelled()) {
+            return;
+        }
+
+        this.acceptCullResult(result);
     }
 
     private static Thread makeAsyncCullThread(Runnable runnable) {
@@ -944,6 +990,74 @@ public class RenderSectionManager {
 
     public ChunkBuilder getBuilder() {
         return this.builder;
+    }
+
+    private static final class SyncLocalTreeCollector implements OcclusionCuller.VisibilityTestingVisitor {
+        private final RayOcclusionSectionTree tree;
+        private final SyncVisibleChunkCollector collector;
+
+        private SyncLocalTreeCollector(RayOcclusionSectionTree tree, SyncVisibleChunkCollector collector) {
+            this.tree = tree;
+            this.collector = collector;
+        }
+
+        @Override
+        public boolean visitTestVisible(RenderSection section) {
+            if (!this.tree.visitTestVisible(section)) {
+                return false;
+            }
+
+            this.collector.visit(section);
+            return true;
+        }
+
+        @Override
+        public void visit(RenderSection section, boolean inFrustum) {
+            this.tree.visit(section, inFrustum);
+            this.collector.visit(section);
+        }
+    }
+
+    private static final class SyncVisibleChunkCollector implements RenderListProvider {
+        private static int[] sortItems = new int[RenderRegion.REGION_SIZE];
+
+        private final int frame;
+        private final ObjectArrayList<ChunkRenderList> renderLists = new ObjectArrayList<>();
+
+        private SyncVisibleChunkCollector(int frame) {
+            this.frame = frame;
+        }
+
+        public void visit(RenderSection section) {
+            if (!section.needsRender()) {
+                return;
+            }
+
+            var region = section.getRegion();
+            var renderList = region.getRenderList();
+
+            if (renderList.getLastVisibleFrame() != this.frame) {
+                renderList.reset(this.frame);
+                this.renderLists.add(renderList);
+            }
+
+            renderList.add(section.getSectionIndex());
+        }
+
+        @Override
+        public ObjectArrayList<ChunkRenderList> getUnsortedRenderLists() {
+            return this.renderLists;
+        }
+
+        @Override
+        public int[] getCachedSortItems() {
+            return sortItems;
+        }
+
+        @Override
+        public void setCachedSortItems(int[] sortItems) {
+            SyncVisibleChunkCollector.sortItems = sortItems;
+        }
     }
 
     public void destroy() {
