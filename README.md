@@ -12,6 +12,9 @@ then consider [donating to CaffeineMC](https://caffeinemc.net/donate).
 
 <a href="https://caffeinemc.net/donate"><img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" width="180"/></a>
 
+> [!WARNING]
+> **Distribution Restriction**: Anyone affiliated with InPvP LLC, a Delaware Limited Liability Company, Moonsworth LLC, a Delaware Limited Liability Company, may not distribute, sublicense, mirror, republish, bundle, or otherwise redistribute this Software in any form without the prior written permission of Sona Softworks, LLC.
+
 ---
 
 ### 📥 Downloads
